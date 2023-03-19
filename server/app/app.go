@@ -29,3 +29,13 @@ func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
 func (a *App) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
 	return nil, nil
 }
+
+// UpdateUser updates user
+func (a *App) UpdateUser(user *model.User) error {
+	return nil
+}
+
+// DeleteUser deletes user
+func (a *App) DeleteUser(userID string) error {
+	return nil
+}

@@ -26,7 +26,8 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/register", registerUser)
 
 	apiObj.Users.GET("/", apiObj.jwtMiddleware.MiddlewareFunc(), getUsers)
-
+	apiObj.Users.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateUser)
+	apiObj.Users.DELETE("/", apiObj.jwtMiddleware.MiddlewareFunc(), deleteUser)
 }
 
 func registerUser(c *gin.Context) {
@@ -76,6 +77,46 @@ func getUsers(c *gin.Context) {
 		return
 	}
 	responseFormat(c, http.StatusOK, "", users)
+}
+
+func updateUser(c *gin.Context) {
+	updatedUser := model.UserFromJSON(c.Request.Body)
+	if updatedUser == nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body", nil)
+		return
+	}
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	err = a.UpdateUser(updatedUser)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	responseFormat(c, http.StatusOK, "User updated", nil)
+}
+
+func deleteUser(c *gin.Context) {
+	userID := c.Query("userId")
+	if userID == "" {
+		responseFormat(c, http.StatusBadRequest, "missing userId", nil)
+		return
+	}
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	if err = a.DeleteUser(userID); err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	responseFormat(c, http.StatusOK, "User deleted", nil)
 }
 
 func getApp(c *gin.Context) (*app.App, error) {
