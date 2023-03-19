@@ -19,3 +19,13 @@ func NewApp(logger *log.Logger) (*App, error) {
 func (a *App) AuthenticateUser(username, password string) (*model.User, error) {
 	return &model.User{Email: "bla", ID: "bla"}, nil
 }
+
+// CreateUserFromSignUp creates user on sign up
+func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
+	return user, nil
+}
+
+// GetUsers gets users, filters usernames with 'term'
+func (a *App) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
+	return nil, nil
+}
