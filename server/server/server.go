@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/log"
 )
 
@@ -14,14 +14,14 @@ const listenerPort = ":9081"
 
 // Server type defines application global state
 type Server struct {
-	Router *mux.Router
+	Router *gin.Engine
 	Log    *log.Logger
 	srv    *http.Server
 }
 
 // NewServer creates new Server
 func NewServer(logger *log.Logger) (*Server, error) {
-	router := mux.NewRouter()
+	router := gin.Default()
 
 	a := &Server{
 		Router: router,
@@ -35,6 +35,9 @@ func NewServer(logger *log.Logger) (*Server, error) {
 
 // Start method starts an app
 func (a *Server) Start() error {
+	a.Router.Use(log.GinLogger(a.Log))
+	a.Router.Use(log.RecoveryWithLogger(a.Log))
+
 	a.Log.Info("Server is listening on", log.String("port", listenerPort))
 	a.srv = &http.Server{
 		Addr:    listenerPort,
