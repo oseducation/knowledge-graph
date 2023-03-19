@@ -7,7 +7,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/oseducation/knowledge-graph/api"
+	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/log"
+	"github.com/pkg/errors"
 )
 
 const listenerPort = ":9081"
@@ -37,6 +40,18 @@ func NewServer(logger *log.Logger) (*Server, error) {
 func (a *Server) Start() error {
 	a.Router.Use(log.GinLogger(a.Log))
 	a.Router.Use(log.RecoveryWithLogger(a.Log))
+
+	application, err := app.NewApp(a.Log)
+	if err != nil {
+		a.Log.Error("Can't create app", log.Err(err))
+		return errors.Wrap(err, "can't create new app")
+	}
+
+	err = api.Init(a.Router, application)
+	if err != nil {
+		a.Log.Error("Can't init api", log.Err(err))
+		return errors.Wrap(err, "can't init api")
+	}
 
 	a.Log.Info("Server is listening on", log.String("port", listenerPort))
 	a.srv = &http.Server{
