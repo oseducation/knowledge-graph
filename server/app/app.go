@@ -39,3 +39,8 @@ func (a *App) UpdateUser(user *model.User) error {
 func (a *App) DeleteUser(userID string) error {
 	return nil
 }
+
+// VerifyEmailFromToken verifies if token is correct one for email
+func (a *App) VerifyEmailFromToken(token string) error {
+	return nil
+}

@@ -24,6 +24,8 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/logout", apiObj.jwtMiddleware.LogoutHandler)
 
 	apiObj.Users.POST("/register", registerUser)
+	apiObj.Users.POST("/email/verify", verifyUserEmail)
+	apiObj.Users.POST("/email/verify/send", sendVerificationEmail)
 
 	apiObj.Users.GET("/", apiObj.jwtMiddleware.MiddlewareFunc(), getUsers)
 	apiObj.Users.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateUser)
@@ -117,6 +119,29 @@ func deleteUser(c *gin.Context) {
 	}
 
 	responseFormat(c, http.StatusOK, "User deleted", nil)
+}
+
+func verifyUserEmail(c *gin.Context) {
+	props := model.MapFromJSON(c.Request.Body)
+	token := props["token"]
+	if len(token) != model.TokenSize {
+		responseFormat(c, http.StatusBadRequest, "Invalid or token in the request body", nil)
+		return
+	}
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	if err := a.VerifyEmailFromToken(token); err != nil {
+		responseFormat(c, http.StatusBadRequest, err.Error(), nil)
+		return
+	}
+	responseFormat(c, http.StatusOK, "email verified", nil)
+}
+
+func sendVerificationEmail(c *gin.Context) {
+	c.JSON(http.StatusOK, "sendVerificationEmail")
 }
 
 func getApp(c *gin.Context) (*app.App, error) {
