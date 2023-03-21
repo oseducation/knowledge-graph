@@ -3,44 +3,22 @@ package app
 import (
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
+	"github.com/oseducation/knowledge-graph/store"
 )
 
 // App type defines application global state
 type App struct {
-	Log *log.Logger
+	Log    *log.Logger
+	Store  store.Store
+	Config *model.Config
 }
 
 // NewApp creates new App
-func NewApp(logger *log.Logger) (*App, error) {
-	return &App{logger}, nil
+func NewApp(logger *log.Logger, store store.Store, config *model.Config) (*App, error) {
+	return &App{logger, store, config}, nil
 }
 
-// AuthenticateUser authenticates user for login
-func (a *App) AuthenticateUser(username, password string) (*model.User, error) {
-	return &model.User{Email: "bla", ID: "bla"}, nil
-}
-
-// CreateUserFromSignUp creates user on sign up
-func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
-	return user, nil
-}
-
-// GetUsers gets users, filters usernames with 'term'
-func (a *App) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
-	return nil, nil
-}
-
-// UpdateUser updates user
-func (a *App) UpdateUser(user *model.User) error {
-	return nil
-}
-
-// DeleteUser deletes user
-func (a *App) DeleteUser(userID string) error {
-	return nil
-}
-
-// VerifyEmailFromToken verifies if token is correct one for email
-func (a *App) VerifyEmailFromToken(token string) error {
-	return nil
+// GetSiteURL returns site url from config
+func (a *App) GetSiteURL() string {
+	return "http://localhost:9081"
 }

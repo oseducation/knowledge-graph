@@ -3,7 +3,12 @@ package model
 import (
 	"encoding/json"
 	"io"
+	"strings"
 	"time"
+
+	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User type defines user
@@ -32,7 +37,68 @@ func UserFromJSON(data io.Reader) *User {
 	return user
 }
 
-// IsAdmin returns whether user is admin or not.
-func (u *User) IsAdmin() bool {
-	return true
+// BeforeSave is a hook of the gorm, used to mutate user object before saving
+func (u *User) BeforeSave(scope *gorm.Scope) error {
+	u.Email = normalizeEmail(u.Email)
+	if len(u.Password) > 0 {
+		u.Password = hashPassword(u.Password)
+	}
+	return nil
+}
+
+// BeforeCreate is a hook of the gorm, used to populate user's column with values
+func (u *User) BeforeCreate(scope *gorm.Scope) error {
+	scope.SetColumn("ID", NewID())
+	t := time.Now()
+	err := scope.SetColumn("CreatedAt", t)
+	if err != nil {
+		return errors.Wrap(err, "can't set column CreatedAt")
+	}
+	err = scope.SetColumn("UpdatedAt", t)
+	if err != nil {
+		return errors.Wrap(err, "can't set column UpdateAt")
+	}
+	err = scope.SetColumn("LastPasswordUpdate", t)
+	if err != nil {
+		return errors.Wrap(err, "can't set column LastPasswordUpdate")
+	}
+
+	return nil
+}
+
+func (u *User) BeforeUpdate(scope *gorm.Scope) error {
+	err := scope.SetColumn("UpdateAt", time.Now())
+	if err != nil {
+		return errors.Wrap(err, "can't set column UpdateAt")
+	}
+	return nil
+}
+
+func (u *User) Sanitize() {
+	u.Password = ""
+}
+
+// ComparePassword compares the hash
+func (u *User) ComparePassword(password string) bool {
+	if len(password) == 0 || len(u.Password) == 0 {
+		return false
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	return err == nil
+}
+
+// HashPassword generates a hash using the bcrypt.GenerateFromPassword
+func hashPassword(password string) string {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(hash)
+}
+
+// NormalizeEmail normalizes email
+func normalizeEmail(email string) string {
+	return strings.ToLower(email)
 }

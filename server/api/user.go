@@ -71,6 +71,12 @@ func getUsers(c *gin.Context) {
 		return
 	}
 
+	authorID := c.GetString(identityKey)
+	if !a.HasPermissionToManageUsers(authorID) {
+		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		return
+	}
+
 	options := &model.UserGetOptions{}
 	model.ComposeOptions(model.Term(term), model.Page(page), model.PerPage(perPage))(options)
 	users, err := a.GetUsers(options)
@@ -90,6 +96,23 @@ func updateUser(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	authorID := c.GetString(identityKey)
+	if !a.HasPermissionToManageUsers(authorID) {
+		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		return
+	}
+
+	oldUser, err := a.Store.User().Get(updatedUser.ID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	if oldUser.Email != updatedUser.Email ||
+		oldUser.EmailVerified != updatedUser.EmailVerified {
+		responseFormat(c, http.StatusForbidden, "user mismatch", nil)
 		return
 	}
 
@@ -113,7 +136,19 @@ func deleteUser(c *gin.Context) {
 		return
 	}
 
-	if err = a.DeleteUser(userID); err != nil {
+	authorID := c.GetString(identityKey)
+	if !a.HasPermissionToManageUsers(authorID) {
+		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		return
+	}
+
+	user, err := a.Store.User().Get(userID)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "unknown user", nil)
+		return
+	}
+
+	if err = a.DeleteUser(user); err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}

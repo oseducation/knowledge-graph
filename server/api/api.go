@@ -15,9 +15,9 @@ const APIURLSuffix = "/api/v1"
 type API struct {
 	Logger        *log.Logger
 	Root          *gin.Engine
-	APIRoot       *gin.RouterGroup
-	Users         *gin.RouterGroup
-	User          *gin.RouterGroup
+	APIRoot       *gin.RouterGroup // 'api/v1'
+	Users         *gin.RouterGroup // 'api/v1/users'
+	User          *gin.RouterGroup // 'api/v4/users/{user_id:[A-Za-z0-9]+}'
 	jwtMiddleware *jwt.GinJWTMiddleware
 }
 
