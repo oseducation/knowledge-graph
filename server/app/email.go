@@ -18,7 +18,7 @@ func (a *App) sendWelcomeEmail(userID string, email string, verified bool, siteU
 	subject := "Welcome to Knowledge Graph"
 	body := "You've joined Knowledge Graph\n"
 
-	if !verified && a.Config.RequireEmailVerification {
+	if !verified && a.Config.EmailSettings.RequireEmailVerification {
 		body += "Please verify your email address by clicking below.\n"
 		token, err := a.createVerifyEmailToken(userID, email)
 		if err != nil {
@@ -35,8 +35,8 @@ func (a *App) sendWelcomeEmail(userID string, email string, verified bool, siteU
 }
 
 func (a *App) sendMail(email, subject, body string) error {
-	fromMail := mail.Address{Name: a.Config.FeedbackName, Address: a.Config.FeedbackEmail}
-	replyTo := mail.Address{Name: a.Config.FeedbackName, Address: a.Config.ReplyToAddress}
+	fromMail := mail.Address{Name: a.Config.EmailSettings.FeedbackName, Address: a.Config.EmailSettings.FeedbackEmail}
+	replyTo := mail.Address{Name: a.Config.EmailSettings.FeedbackName, Address: a.Config.EmailSettings.ReplyToAddress}
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", fromMail.String())
@@ -45,7 +45,7 @@ func (a *App) sendMail(email, subject, body string) error {
 	m.SetHeader("Reply-To", replyTo.String())
 	m.SetBody("text/html", body)
 
-	d := gomail.NewDialer(a.Config.SMTPHost, a.Config.SMTPPort, a.Config.SMTPUser, a.Config.SMTPPassword)
+	d := gomail.NewDialer(a.Config.EmailSettings.SMTPHost, a.Config.EmailSettings.SMTPPort, a.Config.EmailSettings.SMTPUser, a.Config.EmailSettings.SMTPPassword)
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	if err := d.DialAndSend(m); err != nil {
 		return errors.Wrapf(err, "can't send email to", email)

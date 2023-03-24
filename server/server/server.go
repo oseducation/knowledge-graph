@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -44,7 +46,11 @@ func (a *Server) Start() error {
 	a.Router.Use(log.RecoveryWithLogger(a.Log))
 
 	store := store.CreateStore()
-	config := &model.Config{} // TODO read from file
+	config, err := readConfig()
+	if err != nil {
+		a.Log.Error("can't read config", log.Err(err))
+		return errors.Wrap(err, "can't read config")
+	}
 	application, err := app.NewApp(a.Log, store, config)
 	if err != nil {
 		a.Log.Error("Can't create app", log.Err(err))
@@ -85,4 +91,22 @@ func (a *Server) Shutdown() {
 		a.Log.Error("Server forced to shutdown", log.Err(err))
 	}
 	a.Log.Info("Server stopped")
+}
+
+func readConfig() (*model.Config, error) {
+	configFile, err := os.Open("config/config.json")
+	if err != nil {
+		return nil, errors.Wrap(err, "can't open config.json")
+	}
+	defer configFile.Close()
+	byteValue, err := ioutil.ReadAll(configFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't read config.json")
+	}
+	var config model.Config
+	if err := json.Unmarshal(byteValue, &config); err != nil {
+		return nil, errors.Wrap(err, "can't unmarshal config.json")
+	}
+
+	return &config, nil
 }

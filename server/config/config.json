@@ -1,0 +1,32 @@
+{
+    "ServerSettings": {
+        "SiteURL": "http://localhost:8065",
+        "ListenAddress": ":8065"
+    },
+    "DBSettings": {
+        "DriverName": "postgres",
+        "DataSource": "postgres://kguser:kgtest@localhost/knowledge_graph_test?sslmode=disable\u0026connect_timeout=10\u0026binary_parameters=yes",
+        "MaxIdleConns": 20,
+        "ConnMaxLifetimeMilliseconds": 3600000,
+        "ConnMaxIdleTimeMilliseconds": 300000,
+        "MaxOpenConns": 300,
+        "QueryTimeout": 30
+    },
+    "EmailSettings": {
+        "RequireEmailVerification": false,
+        "FeedbackName": "",
+        "FeedbackEmail": "test@example.com",
+        "ReplyToAddress": "test@example.com",
+        "SMTPUser": "",
+        "SMTPPassword": "",
+        "SMTPHost": "localhost",
+        "SMTPPort": 10025
+    },
+    "PasswordSettings": {
+        "MinimumLength": 5,
+        "Lowercase": false,
+        "Number": false,
+        "Uppercase": false,
+        "Symbol": false
+    }
+}
