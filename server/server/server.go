@@ -2,8 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -11,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/api"
 	"github.com/oseducation/knowledge-graph/app"
+	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
-	"github.com/oseducation/knowledge-graph/model"
 	"github.com/oseducation/knowledge-graph/store"
 	"github.com/pkg/errors"
 )
@@ -23,16 +21,19 @@ const listenerPort = ":9081"
 type Server struct {
 	Router *gin.Engine
 	Log    *log.Logger
-	srv    *http.Server
+	Config *config.Config
+
+	srv *http.Server
 }
 
 // NewServer creates new Server
-func NewServer(logger *log.Logger) (*Server, error) {
+func NewServer(logger *log.Logger, config *config.Config) (*Server, error) {
 	router := gin.Default()
 
 	a := &Server{
 		Router: router,
 		Log:    logger,
+		Config: config,
 	}
 
 	pwd, _ := os.Getwd()
@@ -45,13 +46,9 @@ func (a *Server) Start() error {
 	a.Router.Use(log.GinLogger(a.Log))
 	a.Router.Use(log.RecoveryWithLogger(a.Log))
 
-	store := store.CreateStore()
-	config, err := readConfig()
-	if err != nil {
-		a.Log.Error("can't read config", log.Err(err))
-		return errors.Wrap(err, "can't read config")
-	}
-	application, err := app.NewApp(a.Log, store, config)
+	store := store.CreateStore(&a.Config.DBSettings)
+
+	application, err := app.NewApp(a.Log, store, a.Config)
 	if err != nil {
 		a.Log.Error("Can't create app", log.Err(err))
 		return errors.Wrap(err, "can't create new app")
@@ -91,22 +88,4 @@ func (a *Server) Shutdown() {
 		a.Log.Error("Server forced to shutdown", log.Err(err))
 	}
 	a.Log.Info("Server stopped")
-}
-
-func readConfig() (*model.Config, error) {
-	configFile, err := os.Open("config/config.json")
-	if err != nil {
-		return nil, errors.Wrap(err, "can't open config.json")
-	}
-	defer configFile.Close()
-	byteValue, err := ioutil.ReadAll(configFile)
-	if err != nil {
-		return nil, errors.Wrap(err, "can't read config.json")
-	}
-	var config model.Config
-	if err := json.Unmarshal(byteValue, &config); err != nil {
-		return nil, errors.Wrap(err, "can't unmarshal config.json")
-	}
-
-	return &config, nil
 }
