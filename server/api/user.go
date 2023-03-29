@@ -28,13 +28,14 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/email/verify/send", sendVerificationEmail)
 
 	apiObj.Users.GET("/", apiObj.jwtMiddleware.MiddlewareFunc(), getUsers)
+	apiObj.Users.POST("/", apiObj.jwtMiddleware.MiddlewareFunc(), createUser)
 	apiObj.Users.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateUser)
 	apiObj.Users.DELETE("/", apiObj.jwtMiddleware.MiddlewareFunc(), deleteUser)
 }
 
 func registerUser(c *gin.Context) {
-	user := model.UserFromJSON(c.Request.Body)
-	if user == nil {
+	user, err := model.UserFromJSON(c.Request.Body)
+	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body", nil)
 		return
 	}
@@ -87,9 +88,35 @@ func getUsers(c *gin.Context) {
 	responseFormat(c, http.StatusOK, "", users)
 }
 
+func createUser(c *gin.Context) {
+	user, err := model.UserFromJSON(c.Request.Body)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body", nil)
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	authorID := c.GetString(identityKey)
+	if !a.HasPermissionToManageUsers(authorID) {
+		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		return
+	}
+
+	ruser, err := a.CreateUser(user)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, "Error while creating user", nil)
+		return
+	}
+	responseFormat(c, http.StatusCreated, "User created", ruser)
+}
+
 func updateUser(c *gin.Context) {
-	updatedUser := model.UserFromJSON(c.Request.Body)
-	if updatedUser == nil {
+	updatedUser, err := model.UserFromJSON(c.Request.Body)
+	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body", nil)
 		return
 	}

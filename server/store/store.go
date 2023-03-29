@@ -2,6 +2,7 @@ package store
 
 import (
 	"github.com/jinzhu/gorm"
+	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/model"
 
 	// An import of sqlite for gorm
@@ -22,8 +23,8 @@ type SQLStore struct {
 }
 
 // CreateStore creates an sqlite DB
-func CreateStore() Store {
-	db, err := gorm.Open("sqlite3", "sqlite.db")
+func CreateStore(config *config.DBSettings) Store {
+	db, err := gorm.Open(config.DriverName, config.DataSource)
 
 	if err != nil {
 		panic("Failed to connect to database!")
