@@ -31,10 +31,12 @@ type UserLogin struct {
 }
 
 // UserFromJSON will decode the input and return a User
-func UserFromJSON(data io.Reader) *User {
+func UserFromJSON(data io.Reader) (*User, error) {
 	var user *User
-	json.NewDecoder(data).Decode(&user)
-	return user
+	if err := json.NewDecoder(data).Decode(&user); err != nil {
+		return nil, errors.Wrap(err, "can't decode user")
+	}
+	return user, nil
 }
 
 // BeforeSave is a hook of the gorm, used to mutate user object before saving

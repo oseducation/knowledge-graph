@@ -34,6 +34,7 @@ type Logger struct {
 	zap          *zap.Logger
 	consoleLevel zap.AtomicLevel
 	fileLevel    zap.AtomicLevel
+	isNonLogger  bool
 }
 
 // LoggerConfiguration represents configuration of the logger
@@ -45,10 +46,14 @@ type LoggerConfiguration struct {
 	FileJSON      bool
 	FileLevel     string
 	FileLocation  string
+	NonLogger     bool
 }
 
 // NewLogger creates new logger
 func NewLogger(config *LoggerConfiguration) *Logger {
+	if config.NonLogger {
+		return &Logger{isNonLogger: true}
+	}
 	cores := []zapcore.Core{}
 	logger := &Logger{
 		consoleLevel: zap.NewAtomicLevelAt(getZapLevel(config.ConsoleLevel)),
@@ -81,18 +86,30 @@ func NewLogger(config *LoggerConfiguration) *Logger {
 }
 
 func (l *Logger) Debug(message string, fields ...Field) {
+	if l.isNonLogger {
+		return
+	}
 	l.zap.Debug(message, fields...)
 }
 
 func (l *Logger) Info(message string, fields ...Field) {
+	if l.isNonLogger {
+		return
+	}
 	l.zap.Info(message, fields...)
 }
 
 func (l *Logger) Warn(message string, fields ...Field) {
+	if l.isNonLogger {
+		return
+	}
 	l.zap.Warn(message, fields...)
 }
 
 func (l *Logger) Error(message string, fields ...Field) {
+	if l.isNonLogger {
+		return
+	}
 	l.zap.Error(message, fields...)
 }
 

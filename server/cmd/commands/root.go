@@ -5,8 +5,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/server"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +30,7 @@ var rootCmd = &cobra.Command{
 }
 
 func serverCmdF(command *cobra.Command, args []string) error {
-	config := &log.LoggerConfiguration{
+	logConfig := &log.LoggerConfiguration{
 		EnableConsole: true,
 		ConsoleJSON:   true,
 		ConsoleLevel:  "debug",
@@ -37,8 +39,12 @@ func serverCmdF(command *cobra.Command, args []string) error {
 		FileLevel:     "debug",
 		FileLocation:  "server.log",
 	}
-	logger := log.NewLogger(config)
-	srv, err := server.NewServer(logger)
+	logger := log.NewLogger(logConfig)
+	conf, err := config.ReadConfig()
+	if err != nil {
+		return errors.Wrap(err, "can't read config")
+	}
+	srv, err := server.NewServer(logger, conf)
 	if err != nil {
 		logger.Error(err.Error())
 		return err

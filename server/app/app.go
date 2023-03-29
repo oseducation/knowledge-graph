@@ -1,8 +1,8 @@
 package app
 
 import (
+	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
-	"github.com/oseducation/knowledge-graph/model"
 	"github.com/oseducation/knowledge-graph/store"
 )
 
@@ -10,11 +10,11 @@ import (
 type App struct {
 	Log    *log.Logger
 	Store  store.Store
-	Config *model.Config
+	Config *config.Config
 }
 
 // NewApp creates new App
-func NewApp(logger *log.Logger, store store.Store, config *model.Config) (*App, error) {
+func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App, error) {
 	return &App{logger, store, config}, nil
 }
 

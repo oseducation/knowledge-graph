@@ -4,8 +4,8 @@
         "ListenAddress": ":8065"
     },
     "DBSettings": {
-        "DriverName": "postgres",
-        "DataSource": "postgres://kguser:kgtest@localhost/knowledge_graph_test?sslmode=disable\u0026connect_timeout=10\u0026binary_parameters=yes",
+        "DriverName": "sqlite3",
+        "DataSource": "sqlite.db",
         "MaxIdleConns": 20,
         "ConnMaxLifetimeMilliseconds": 3600000,
         "ConnMaxIdleTimeMilliseconds": 300000,

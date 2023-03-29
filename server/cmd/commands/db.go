@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/oseducation/knowledge-graph/store"
 	"github.com/pkg/errors"
@@ -37,7 +38,11 @@ func createAdminCmdF(command *cobra.Command, args []string) error {
 		return errors.New("password is required")
 	}
 
-	db := store.CreateStore()
+	conf, err := config.ReadConfig()
+	if err != nil {
+		return errors.Wrap(err, "can't read config")
+	}
+	db := store.CreateStore(&conf.DBSettings)
 
 	user := &model.User{
 		Email:         email,
