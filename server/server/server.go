@@ -19,6 +19,7 @@ const listenerPort = ":9081"
 
 // Server type defines application global state
 type Server struct {
+	App    *app.App
 	Router *gin.Engine
 	Log    *log.Logger
 	Config *config.Config
@@ -53,6 +54,7 @@ func (a *Server) Start() error {
 		a.Log.Error("Can't create app", log.Err(err))
 		return errors.Wrap(err, "can't create new app")
 	}
+	a.App = application
 
 	err = api.Init(a.Router, application)
 	if err != nil {

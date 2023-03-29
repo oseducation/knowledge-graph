@@ -20,7 +20,7 @@ type TestHelper struct {
 func getTestConfig() *config.Config {
 	config := &config.Config{}
 	config.DBSettings.DriverName = "sqlite3"
-	config.DBSettings.DataSource = "sqlite-test.db"
+	config.DBSettings.DataSource = "../sqlite-test.db"
 	return config
 }
 
@@ -40,6 +40,7 @@ func Setup(tb testing.TB) *TestHelper {
 	if err != nil {
 		panic(err)
 	}
+	server.App.Store.EmptyAllTables()
 
 	th := &TestHelper{
 		Server: server,
@@ -61,6 +62,11 @@ func CheckCreatedStatus(tb testing.TB, resp *Response) {
 func CheckUnauthorizedStatus(tb testing.TB, resp *Response) {
 	tb.Helper()
 	checkHTTPStatus(tb, resp, http.StatusUnauthorized)
+}
+
+func CheckOKStatus(tb testing.TB, resp *Response) {
+	tb.Helper()
+	checkHTTPStatus(tb, resp, http.StatusOK)
 }
 
 func checkHTTPStatus(tb testing.TB, resp *Response, expectedStatus int) {

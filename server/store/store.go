@@ -11,6 +11,7 @@ import (
 
 // Store is an interface to communicate with the DB
 type Store interface {
+	EmptyAllTables()
 	User() UserStore
 	Token() TokenStore
 }
@@ -20,6 +21,7 @@ type SQLStore struct {
 	db         *gorm.DB
 	userStore  *SQLUserStore
 	tokenStore *SQLTokenStore
+	config     *config.DBSettings
 }
 
 // CreateStore creates an sqlite DB
@@ -31,12 +33,33 @@ func CreateStore(config *config.DBSettings) Store {
 	}
 
 	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Token{})
 	sqlStore := &SQLStore{
 		db:         db,
 		userStore:  &SQLUserStore{db},
 		tokenStore: &SQLTokenStore{db},
+		config:     config,
 	}
 	return sqlStore
+}
+
+func (sql *SQLStore) EmptyAllTables() {
+	if sql.config.DriverName == "postgres" {
+		sql.db.Exec(`DO
+			$func$
+			BEGIN
+			   EXECUTE
+			   (SELECT 'TRUNCATE TABLE ' || string_agg(oid::regclass::text, ', ') || ' CASCADE'
+			    FROM   pg_class
+			    WHERE  relkind = 'r'  -- only tables
+			    AND    relnamespace = 'public'::regnamespace
+			   );
+			END
+			$func$;`)
+	} else {
+		sql.db.Exec("DELETE FROM users")
+		sql.db.Exec("DELETE FROM tokens")
+	}
 }
 
 // User returns an interface to manage users in the DB

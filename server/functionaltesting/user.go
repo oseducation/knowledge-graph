@@ -11,6 +11,23 @@ func (c *Client) usersRoute() string {
 	return "/users"
 }
 
+func (c *Client) RegisterUser(user *model.User) (*model.User, *Response, error) {
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "can't marshal user")
+	}
+
+	r, err := c.DoAPIPost(c.usersRoute()+"/register", string(userJSON))
+	if err != nil {
+		return nil, BuildResponse(r), err
+	}
+	var u model.User
+	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+		return nil, nil, errors.Wrap(err, "can't decode user")
+	}
+	return &u, BuildResponse(r), nil
+}
+
 // CreateUser creates a user in the system based on the provided user struct.
 func (c *Client) CreateUser(user *model.User) (*model.User, *Response, error) {
 	userJSON, err := json.Marshal(user)
@@ -44,7 +61,7 @@ func (c *Client) login(m map[string]string) (*model.User, *Response, error) {
 		return nil, nil, errors.Wrap(err, "can't marshal map")
 	}
 
-	r, err := c.DoAPIPost("/users/login", string(b))
+	r, err := c.DoAPIPost(c.usersRoute()+"/login", string(b))
 	if err != nil {
 		return nil, BuildResponse(r), err
 	}
