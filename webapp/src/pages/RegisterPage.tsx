@@ -1,8 +1,9 @@
 import React from 'react';
 import {useFormik} from 'formik';
 import {Button, Stack, TextField} from '@mui/material';
-import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import {User} from '../types/users';
+import {Client} from '../client/client';
 
 const RegisterPage = () => {
 
@@ -14,10 +15,11 @@ const RegisterPage = () => {
             password: ''
         },
         onSubmit: () => {
-            axios.post('/api/v1/users/register', {
+            const user = {
                 email: formik.values.email,
                 password: formik.values.password
-            }).then(r => navigate('/login'))
+            } as User
+            Client.User().register(user).then(r => navigate('/login'))
         }
     });
 

@@ -9,7 +9,13 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
-    port: 9091
+    port: 9091,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9081',
+        xfwd: true,
+      },
+    }
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
