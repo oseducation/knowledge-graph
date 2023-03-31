@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "module": "es2020",
+        "target": "esnext",
+        "jsx": "react",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "strict": true,
+        "allowSyntheticDefaultImports": true,
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+    },
+    "include": [
+        "./**/*"
+    ],
+    "exclude": [
+        "dist",
+        "!node_modules/@types"
+      ],
+}
