@@ -1,7 +1,8 @@
-import {useFormik} from "formik";
-import {Button, Stack, TextField} from "@mui/material";
-import {useNavigate} from "react-location";
-import axios from "axios";
+import React from 'react';
+import {useFormik} from 'formik';
+import {Button, Stack, TextField} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import axios from 'axios';
 
 const LoginPage = () => {
 
@@ -14,15 +15,15 @@ const LoginPage = () => {
             password: ''
         },
         onSubmit: () => {
-            axios.post("/api/v1/users/login", {
+            axios.post('/api/v1/users/login', {
                 email: formik.values.email,
                 password: formik.values.password
-            }).then(r => navigate({to: "/welcome"}))
+            }).then(r => navigate('/welcome'))
         }
     });
 
     const handleRegisterClick = () => {
-        navigate({to: '/register'})
+        navigate('/register')
     }
 
     return (
