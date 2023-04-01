@@ -1,0 +1,28 @@
+run:
+  timeout: 5m
+
+linters-settings:
+  gofmt:
+    simplify: true
+  govet:
+    check-shadowing: true
+    enable-all: true
+    disable:
+      - fieldalignment
+
+linters:
+  disable-all: true
+  enable:
+    - gofmt
+    - revive
+    - gosimple
+    - govet
+    - ineffassign
+    - exportloopref
+    - staticcheck
+    - unconvert
+    - unused
+    - misspell
+    - goimports
+    - errcheck
+

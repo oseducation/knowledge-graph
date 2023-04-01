@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 	RunE:  serverCmdF,
 }
 
-func serverCmdF(command *cobra.Command, args []string) error {
+func serverCmdF(_ *cobra.Command, _ []string) error {
 	logConfig := &log.LoggerConfiguration{
 		EnableConsole: true,
 		ConsoleJSON:   true,
@@ -53,7 +53,7 @@ func serverCmdF(command *cobra.Command, args []string) error {
 
 	serverErr := srv.Start()
 	if serverErr != nil {
-		logger.Error(err.Error())
+		logger.Error(serverErr.Error())
 		return serverErr
 	}
 

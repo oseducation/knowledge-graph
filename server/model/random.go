@@ -20,6 +20,8 @@ func NewID() string {
 // The resulting entropy will be (5 * length) bits.
 func NewRandomString(length int) string {
 	data := make([]byte, 1+(length*5/8))
-	rand.Read(data)
+	if _, err := rand.Read(data); err != nil {
+		return ""
+	}
 	return encoding.EncodeToString(data)[:length]
 }

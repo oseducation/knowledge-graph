@@ -70,7 +70,12 @@ func RecoveryWithLogger(logger *Logger) gin.HandlerFunc {
 						String("request", string(httpRequest)),
 					)
 					// If the connection is dead, we can't write a status to it.
-					c.Error(err.(error))
+					if err2 := c.Error(err.(error)); err2 != nil {
+						logger.Error(c.Request.URL.Path,
+							Any("error", err2),
+							String("request", string(httpRequest)),
+						)
+					}
 					c.Abort()
 					return
 				}

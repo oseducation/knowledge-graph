@@ -40,7 +40,7 @@ func UserFromJSON(data io.Reader) (*User, error) {
 }
 
 // BeforeSave is a hook of the gorm, used to mutate user object before saving
-func (u *User) BeforeSave(scope *gorm.Scope) error {
+func (u *User) BeforeSave(_ *gorm.Scope) error {
 	u.Email = normalizeEmail(u.Email)
 	if len(u.Password) > 0 {
 		u.Password = hashPassword(u.Password)
@@ -50,9 +50,12 @@ func (u *User) BeforeSave(scope *gorm.Scope) error {
 
 // BeforeCreate is a hook of the gorm, used to populate user's column with values
 func (u *User) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("ID", NewID())
+	err := scope.SetColumn("ID", NewID())
+	if err != nil {
+		return errors.Wrap(err, "can't set column ID")
+	}
 	t := time.Now()
-	err := scope.SetColumn("CreatedAt", t)
+	err = scope.SetColumn("CreatedAt", t)
 	if err != nil {
 		return errors.Wrap(err, "can't set column CreatedAt")
 	}

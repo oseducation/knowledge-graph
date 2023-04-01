@@ -48,7 +48,7 @@ func (a *App) sendMail(email, subject, body string) error {
 	d := gomail.NewDialer(a.Config.EmailSettings.SMTPHost, a.Config.EmailSettings.SMTPPort, a.Config.EmailSettings.SMTPUser, a.Config.EmailSettings.SMTPPassword)
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	if err := d.DialAndSend(m); err != nil {
-		return errors.Wrapf(err, "can't send email to", email)
+		return errors.Wrapf(err, "can't send email to - %s", email)
 	}
 	return nil
 }

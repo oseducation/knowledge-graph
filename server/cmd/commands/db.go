@@ -28,7 +28,7 @@ func init() {
 	rootCmd.AddCommand(dbCmd)
 }
 
-func createAdminCmdF(command *cobra.Command, args []string) error {
+func createAdminCmdF(command *cobra.Command, _ []string) error {
 	email, err := command.Flags().GetString("email")
 	if err != nil || email == "" {
 		return errors.New("email is required")
