@@ -4,6 +4,7 @@ import {Button, Stack, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {User} from '../types/users';
 import {Client} from '../client/client';
+import styled from 'styled-components';
 
 const RegisterPage = () => {
 
@@ -24,7 +25,7 @@ const RegisterPage = () => {
     });
 
     return (
-        <div style={{justifyContent: 'center', display: 'flex', marginTop: '4vh'}}>
+        <Register>
             <form onSubmit={formik.handleSubmit}>
                 <Stack direction={'column'} spacing={1}>
                     <TextField
@@ -50,8 +51,14 @@ const RegisterPage = () => {
                     </Stack>
                 </Stack>
             </form>
-        </div>
+        </Register>
     )
 }
+
+const Register = styled.div`
+    justify-content: center;
+    display: flex; 
+    margin-top: 4vh;
+`
 
 export default RegisterPage;
