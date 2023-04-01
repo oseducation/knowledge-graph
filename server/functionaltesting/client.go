@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	HeaderRequestId   = "X-Request-ID"
-	HeaderVersionId   = "X-Version-ID"
+	HeaderRequestID   = "X-Request-ID"
+	HeaderVersionID   = "X-Version-ID"
 	HeaderEtagServer  = "ETag"
 	HeaderEtagClient  = "If-None-Match"
 	HeaderAuth        = "Authorization"
@@ -32,7 +32,7 @@ type Client struct {
 
 type Response struct {
 	StatusCode    int
-	RequestId     string
+	RequestID     string
 	Etag          string
 	ServerVersion string
 	Header        http.Header
@@ -95,9 +95,9 @@ func BuildResponse(r *http.Response) *Response {
 
 	return &Response{
 		StatusCode:    r.StatusCode,
-		RequestId:     r.Header.Get(HeaderRequestId),
+		RequestID:     r.Header.Get(HeaderRequestID),
 		Etag:          r.Header.Get(HeaderEtagServer),
-		ServerVersion: r.Header.Get(HeaderVersionId),
+		ServerVersion: r.Header.Get(HeaderVersionID),
 		Header:        r.Header,
 	}
 }
