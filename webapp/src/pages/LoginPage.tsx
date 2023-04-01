@@ -3,6 +3,7 @@ import {useFormik} from 'formik';
 import {Button, Stack, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {Client} from '../client/client';
+import styled from 'styled-components';
 
 const LoginPage = () => {
 
@@ -25,7 +26,7 @@ const LoginPage = () => {
     }
 
     return (
-        <div style={{justifyContent: 'center', display: 'flex', marginTop: '4vh'}}>
+        <Login>
             <form onSubmit={formik.handleSubmit}>
                 <Stack direction={'column'} spacing={1}>
                     <TextField
@@ -51,8 +52,14 @@ const LoginPage = () => {
                     </Stack>
                 </Stack>
             </form>
-        </div>
+        </Login>
     )
 }
+
+const Login = styled.div`
+    justify-content: center;
+    display: flex; 
+    margin-top: 4vh;
+`
 
 export default LoginPage;
