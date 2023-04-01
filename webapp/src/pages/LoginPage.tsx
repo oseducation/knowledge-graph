@@ -2,8 +2,9 @@ import React from 'react';
 import {useFormik} from 'formik';
 import {Button, Stack, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
-import {Client} from '../client/client';
 import styled from 'styled-components';
+
+import {Client} from '../client/client';
 
 const LoginPage = () => {
 
@@ -17,7 +18,7 @@ const LoginPage = () => {
         },
         onSubmit: () => {
             Client.User().login(formik.values.email, formik.values.password)
-                .then(r => navigate('/welcome'))
+                .then(() => navigate('/welcome'))
         }
     });
 
@@ -58,7 +59,7 @@ const LoginPage = () => {
 
 const Login = styled.div`
     justify-content: center;
-    display: flex; 
+    display: flex;
     margin-top: 4vh;
 `
 

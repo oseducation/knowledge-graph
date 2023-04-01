@@ -1,4 +1,5 @@
 import {User} from "../types/users";
+
 import {Rest} from "./rest";
 
 export class UserClient{

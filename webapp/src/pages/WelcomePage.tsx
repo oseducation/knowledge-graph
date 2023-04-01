@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, Stack} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
+
 import {Client} from '../client/client';
 
 const WelcomePage = () => {
@@ -8,7 +9,7 @@ const WelcomePage = () => {
     const navigate = useNavigate();
 
     const logOutHandler = () => {
-        Client.User().logout().then(r => {
+        Client.User().logout().then(() => {
             navigate('/login')
         });
     }
