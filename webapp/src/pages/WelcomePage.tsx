@@ -1,16 +1,16 @@
 import React from 'react';
 import {Button, Stack} from '@mui/material';
-import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import {Client} from '../client/client';
 
 const WelcomePage = () => {
 
     const navigate = useNavigate();
 
     const logOutHandler = () => {
-        axios.post('/api/v1/users/logout').then(r => {
+        Client.User().logout().then(r => {
             navigate('/login')
-        })
+        });
     }
 
     return (

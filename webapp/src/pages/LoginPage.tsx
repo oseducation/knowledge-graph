@@ -2,7 +2,7 @@ import React from 'react';
 import {useFormik} from 'formik';
 import {Button, Stack, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
-import axios from 'axios';
+import {Client} from '../client/client';
 
 const LoginPage = () => {
 
@@ -15,10 +15,8 @@ const LoginPage = () => {
             password: ''
         },
         onSubmit: () => {
-            axios.post('/api/v1/users/login', {
-                email: formik.values.email,
-                password: formik.values.password
-            }).then(r => navigate('/welcome'))
+            Client.User().login(formik.values.email, formik.values.password)
+                .then(r => navigate('/welcome'))
         }
     });
 
