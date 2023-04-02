@@ -2,9 +2,10 @@ import React from 'react';
 import {useFormik} from 'formik';
 import {Button, Stack, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
+import styled from 'styled-components';
+
 import {User} from '../types/users';
 import {Client} from '../client/client';
-import styled from 'styled-components';
 
 const RegisterPage = () => {
 
@@ -20,7 +21,7 @@ const RegisterPage = () => {
                 email: formik.values.email,
                 password: formik.values.password
             } as User
-            Client.User().register(user).then(r => navigate('/login'))
+            Client.User().register(user).then(() => navigate('/login'))
         }
     });
 
@@ -57,7 +58,7 @@ const RegisterPage = () => {
 
 const Register = styled.div`
     justify-content: center;
-    display: flex; 
+    display: flex;
     margin-top: 4vh;
 `
 
