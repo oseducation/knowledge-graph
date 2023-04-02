@@ -16,4 +16,4 @@ jobs:
       run: npm i
     - name: Run ESLint
       working-directory: ./webapp
-      run: eslint --ext .js,.jsx,.tsx,.ts . --quiet --cache
+      run: npx eslint --ext .js,.jsx,.tsx,.ts . --quiet --cache
