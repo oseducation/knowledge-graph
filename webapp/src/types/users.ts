@@ -1,14 +1,14 @@
 export type User = {
     id: string;
-    create_at: number;
-    update_at: number;
-    delete_at: number;
+    createAt: number;
+    updateAt: number;
+    deleteAt: number;
     username: string;
     password: string;
     email: string;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     roles: string;
-    last_password_update: number;
+    lastPasswordUpdate: number;
     props: Record<string, string>;
 };

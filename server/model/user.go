@@ -17,6 +17,9 @@ type User struct {
 	CreatedAt          time.Time  `json:"create_at,omitempty"`
 	UpdatedAt          time.Time  `json:"update_at,omitempty"`
 	DeletedAt          *time.Time `json:"delete_at" sql:"index"`
+	Username           string     `json:"username" gorm:"unique;not null"`
+	FirstName          string     `json:"first_name"`
+	LastName           string     `json:"last_name"`
 	Email              string     `json:"email" gorm:"unique;not null"`
 	EmailVerified      bool       `json:"email_verified,omitempty"`
 	Password           string     `json:"password,omitempty"`

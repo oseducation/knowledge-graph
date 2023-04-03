@@ -1,5 +1,5 @@
 import {ClientResponse, Options} from "../types/client";
-import { ServerError } from "../types/errors";
+import {ServerError} from "../types/errors";
 
 
 const HEADER_AUTH = 'Authorization';
@@ -51,12 +51,12 @@ export class Rest {
             };
         }
 
-        const msg = data.message || '';
+        const msg = data.msg || '';
 
         throw new ClientError({
             message: msg,
-            server_error_id: data.id,
-            status_code: data.status_code,
+            serverErrorID: data.id,
+            statusCode: data.status_code,
             url,
         });
     };
@@ -94,7 +94,7 @@ export class Rest {
             ...newOptions,
             headers,
         };
-    } 
+    }
 }
 
 function getCSRFFromCookie() {
@@ -131,16 +131,16 @@ function parseAndMergeNestedHeaders(originalHeaders: any) {
 
 export class ClientError extends Error implements ServerError {
     url?: string;
-    server_error_id?: string;
-    status_code?: number;
+    serverErrorID?: string;
+    statusCode?: number;
 
     constructor(data: ServerError) {
         super(data.message + ': ' + data.url || '');
 
         this.message = data.message;
         this.url = data.url;
-        this.server_error_id = data.server_error_id;
-        this.status_code = data.status_code;
+        this.serverErrorID = data.serverErrorID;
+        this.statusCode = data.statusCode;
 
         // Ensure message is treated as a property of this class when object spreading. Without this,
         // copying the object by using `{...error}` would not include the message.
