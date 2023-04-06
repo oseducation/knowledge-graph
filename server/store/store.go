@@ -110,6 +110,8 @@ func (sqlDB *SQLStore) getBuilder(q sqlx.Queryer, dest interface{}, b builder) e
 //
 // Use this to simplify querying for multiple rows (and possibly columns). Dest may be a slice of
 // a simple, or a slice of a struct with fields to be populated from the returned columns.
+//
+//nolint:unused
 func (sqlDB *SQLStore) selectBuilder(q sqlx.Queryer, dest interface{}, b builder) error {
 	sqlString, args, err := b.ToSql()
 	if err != nil {
