@@ -40,7 +40,7 @@ func (sqlDB *SQLStore) runMigrations(originalSchemaVersion semver.Version) error
 }
 
 func (sqlDB *SQLStore) migrate(migration Migration) (err error) {
-	tx, err := sqlDB.dbWrapper.Beginx()
+	tx, err := sqlDB.db.Beginx()
 	if err != nil {
 		return errors.Wrap(err, "could not begin transaction")
 	}

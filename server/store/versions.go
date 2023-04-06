@@ -12,14 +12,14 @@ func LatestVersion() semver.Version {
 }
 
 func (sqlDB *SQLStore) GetCurrentVersion() (semver.Version, error) {
-	currentVersionStr, err := sqlDB.getSystemValue(sqlDB.dbWrapper, systemDatabaseVersionKey)
+	currentVersionStr, err := sqlDB.getSystemValue(sqlDB.db, systemDatabaseVersionKey)
 
 	if currentVersionStr == "" {
 		return semver.Version{}, nil
 	}
 
 	if err != nil {
-		return semver.Version{}, errors.Wrapf(err, "failed retrieving the DatabaseVersion key from the IR_System table")
+		return semver.Version{}, errors.Wrapf(err, "failed retrieving the DatabaseVersion key from the System table")
 	}
 
 	currentSchemaVersion, err := semver.Parse(currentVersionStr)

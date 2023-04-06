@@ -10,6 +10,8 @@ type UserGetOptions struct {
 	PerPage int
 	// Role
 	Role RoleType
+	// Include deleted
+	IncludeDeleted bool
 }
 
 type UserGetOption func(*UserGetOptions)
@@ -37,5 +39,11 @@ func Page(page int) UserGetOption {
 func PerPage(perPage int) UserGetOption {
 	return func(args *UserGetOptions) {
 		args.PerPage = perPage
+	}
+}
+
+func Deleted(deleted bool) UserGetOption {
+	return func(args *UserGetOptions) {
+		args.IncludeDeleted = deleted
 	}
 }

@@ -1,8 +1,8 @@
 export type ServerError = {
     type?: string;
-    serverErrorID?: string;
+    server_error_id?: string;
     stack?: string;
     message: string;
-    statusCode?: number;
+    status_code?: number;
     url?: string;
 };

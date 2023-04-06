@@ -1,7 +1,10 @@
 package store
 
 import (
-	"github.com/jinzhu/gorm"
+	"fmt"
+
+	sq "github.com/Masterminds/squirrel"
+
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
@@ -19,39 +22,112 @@ type UserStore interface {
 
 // SQLUserStore is a struct to store users
 type SQLUserStore struct {
-	db *gorm.DB
+	sqlStore   *SQLStore
+	userSelect sq.SelectBuilder
+}
+
+// NewTokenStore creates a new store for tokens.
+func NewUserStore(db *SQLStore) UserStore {
+	userSelect := db.builder.
+		Select(
+			"u.id",
+			"u.created_at",
+			"u.updated_at",
+			"u.deleted_at",
+			"u.username",
+			"u.password",
+			"u.first_name",
+			"u.last_name",
+			"u.email",
+			"u.email_verified",
+			"u.last_password_update",
+			"u.role",
+		).
+		From("users u")
+
+	return &SQLUserStore{
+		sqlStore:   db,
+		userSelect: userSelect,
+	}
 }
 
 // Save saves user in the DB
 func (us *SQLUserStore) Save(user *model.User) (*model.User, error) {
-	if err := us.db.Create(user).Error; err != nil {
-		return nil, errors.Wrap(err, "can't save user")
+	if user.ID != "" {
+		return nil, errors.New("invalid input")
+	}
+	user.BeforeSave()
+	if err := user.IsValid(); err != nil {
+		return nil, err
+	}
+
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, sq.
+		Insert("users").
+		SetMap(map[string]interface{}{
+			"id":                   user.ID,
+			"created_at":           user.CreatedAt,
+			"updated_at":           user.UpdatedAt,
+			"deleted_at":           user.DeletedAt,
+			"username":             user.Username,
+			"password":             user.Password,
+			"first_name":           user.FirstName,
+			"last_name":            user.LastName,
+			"email":                user.Email,
+			"email_verified":       user.EmailVerified,
+			"last_password_update": user.LastPasswordUpdate,
+			"role":                 user.Role,
+		}))
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't save user with username:%s and email:%s", user.Username, user.Email)
 	}
 	return user, nil
 }
 
 // Update will update user
 func (us *SQLUserStore) Update(new *model.User) error {
-	if err := us.db.Save(new).Error; err != nil {
-		return errors.Wrap(err, "can't update user")
+	new.BeforeUpdate()
+
+	if err := new.IsValid(); err != nil {
+		return err
 	}
+
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, sq.
+		Update("users").
+		SetMap(map[string]interface{}{
+			"created_at":           new.CreatedAt,
+			"updated_at":           new.UpdatedAt,
+			"deleted_at":           new.DeletedAt,
+			"username":             new.Username,
+			"password":             new.Password,
+			"first_name":           new.FirstName,
+			"last_name":            new.LastName,
+			"email":                new.Email,
+			"email_verified":       new.EmailVerified,
+			"last_password_update": new.LastPasswordUpdate,
+			"role":                 new.Role,
+		}).
+		Where(sq.Eq{"ID": new.ID}))
+	if err != nil {
+		return errors.Wrapf(err, "failed to update user with id '%s'", new.ID)
+	}
+
 	return nil
 }
 
 // Get returns user by id
 func (us *SQLUserStore) Get(id string) (*model.User, error) {
 	var user model.User
-	if err := us.db.First(&user, "ID = ?", id).Error; err != nil {
+	if err := us.sqlStore.getBuilder(us.sqlStore.db, &user, us.userSelect.Where(sq.Eq{"u.id": id})); err != nil {
 		return nil, errors.Wrapf(err, "can't get user by id: %s", id)
 	}
 	return &user, nil
 }
 
-// GetAll returns all users from database
+// GetAll returns all users from database including deleted users
 func (us *SQLUserStore) GetAll() ([]*model.User, error) {
 	var users []*model.User
-	if err := us.db.Find(&users).Error; err != nil {
-		return nil, errors.Wrap(err, "can't get all the users")
+	if err := us.sqlStore.selectBuilder(us.sqlStore.db, &users, us.userSelect); err != nil {
+		return nil, errors.Wrapf(err, "can't get all the users")
 	}
 	return users, nil
 }
@@ -59,11 +135,21 @@ func (us *SQLUserStore) GetAll() ([]*model.User, error) {
 // GetUsers returns all users from database with provided options
 func (us *SQLUserStore) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
 	var users []*model.User
-	if err := us.db.Where("Email LIKE ?", "%"+options.Term+"%").
-		Limit(options.PerPage).
-		Offset(options.Page).
-		Find(&users).
-		Error; err != nil {
+	query := us.userSelect
+	if options.Term != "" {
+		query = query.Where(sq.Like{"u.username": fmt.Sprintf("%%\"%s\"%%", options.Term)})
+	}
+	if !options.IncludeDeleted {
+		query = query.Where("u.deleted_at = 0")
+	}
+	if options.PerPage > 0 {
+		query = query.Limit(uint64(options.PerPage))
+	}
+	if options.Page > 0 {
+		query = query.Offset(uint64(options.Page))
+	}
+
+	if err := us.sqlStore.selectBuilder(us.sqlStore.db, &users, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get users with term %s, page %d, perPage %d", options.Term, options.PerPage, options.PerPage)
 	}
 	return users, nil
@@ -72,16 +158,25 @@ func (us *SQLUserStore) GetUsers(options *model.UserGetOptions) ([]*model.User, 
 // GetByEmail gets user by email
 func (us *SQLUserStore) GetByEmail(email string) (*model.User, error) {
 	var user model.User
-	if err := us.db.Where("Email = ?", email).First(&user).Error; err != nil {
-		return nil, errors.Wrap(err, "can't get user by email")
+	if err := us.sqlStore.getBuilder(us.sqlStore.db, &user, us.userSelect.Where(sq.Eq{"u.email": email})); err != nil {
+		return nil, errors.Wrapf(err, "can't get user by email %s", email)
 	}
 	return &user, nil
 }
 
 // Delete removes user
 func (us *SQLUserStore) Delete(user *model.User) error {
-	if err := us.db.Delete(user).Error; err != nil {
-		return errors.Wrap(err, "can't delete user")
+	curTime := model.GetMillis()
+
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, sq.
+		Update("users").
+		SetMap(map[string]interface{}{
+			"deleted_at": curTime,
+		}).
+		Where(sq.Eq{"id": user.ID}))
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete user with id '%s'", user.ID)
 	}
+
 	return nil
 }

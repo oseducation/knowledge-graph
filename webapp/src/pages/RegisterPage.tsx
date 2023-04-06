@@ -12,8 +12,8 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     type FormData = {
-        firstName: string;
-        lastName: string;
+        first_name: string;
+        last_name: string;
         username: string;
         email: string;
         password: string;
@@ -42,12 +42,12 @@ const RegisterPage = () => {
                     <TextField
                         label="First Name"
                         variant="outlined"
-                        {...register("firstName")}
+                        {...register("first_name")}
                     />
                     <TextField
                         label="Last Name"
                         variant="outlined"
-                        {...register('lastName')}
+                        {...register('last_name')}
                     />
                     <TextField
                         required

@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/pkg/errors"
 )
 
@@ -15,10 +13,10 @@ const (
 
 // Token describes secrets given to users
 type Token struct {
-	Token    string
-	CreateAt time.Time
-	Type     string
-	Extra    string
+	Token     string `json:"token" db:"token"`
+	CreatedAt int64  `json:"created_at" db:"created_at"`
+	Type      string `json:"type" db:"type"`
+	Extra     string `json:"extra" db:"extra"`
 }
 
 // NewToken creates new token

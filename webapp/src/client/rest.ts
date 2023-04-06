@@ -55,8 +55,8 @@ export class Rest {
 
         throw new ClientError({
             message: msg,
-            serverErrorID: data.id,
-            statusCode: data.status_code,
+            server_error_id: data.id,
+            status_code: data.status_code,
             url,
         });
     };
@@ -139,8 +139,8 @@ export class ClientError extends Error implements ServerError {
 
         this.message = data.message;
         this.url = data.url;
-        this.serverErrorID = data.serverErrorID;
-        this.statusCode = data.statusCode;
+        this.serverErrorID = data.server_error_id;
+        this.statusCode = data.status_code;
 
         // Ensure message is treated as a property of this class when object spreading. Without this,
         // copying the object by using `{...error}` would not include the message.
