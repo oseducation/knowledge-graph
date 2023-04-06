@@ -47,7 +47,7 @@ func (a *Server) Start() error {
 	a.Router.Use(log.GinLogger(a.Log))
 	a.Router.Use(log.RecoveryWithLogger(a.Log))
 
-	store := store.CreateStore(&a.Config.DBSettings)
+	store := store.CreateStore(&a.Config.DBSettings, a.Log)
 
 	application, err := app.NewApp(a.Log, store, a.Config)
 	if err != nil {
