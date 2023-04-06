@@ -7,11 +7,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// getSystemValue queries the IR_System table for the given key
-func (sqlStore *SQLStore) getSystemValue(q queryer, key string) (string, error) {
+// getSystemValue queries the System table for the given key
+func (sqlDB *SQLStore) getSystemValue(q queryer, key string) (string, error) {
 	var value string
 
-	err := sqlStore.getBuilder(q, &value,
+	err := sqlDB.getBuilder(q, &value,
 		sq.Select("SValue").
 			From("System").
 			Where(sq.Eq{"SKey": key}),
@@ -25,9 +25,9 @@ func (sqlStore *SQLStore) getSystemValue(q queryer, key string) (string, error) 
 	return value, nil
 }
 
-// setSystemValue updates the IR_System table for the given key.
-func (sqlStore *SQLStore) setSystemValue(e queryExecer, key, value string) error {
-	result, err := sqlStore.execBuilder(e,
+// setSystemValue updates the System table for the given key.
+func (sqlDB *SQLStore) setSystemValue(e queryExecer, key, value string) error {
+	result, err := sqlDB.execBuilder(e,
 		sq.Update("System").
 			Set("SValue", value).
 			Where(sq.Eq{"SKey": key}),
@@ -41,7 +41,7 @@ func (sqlStore *SQLStore) setSystemValue(e queryExecer, key, value string) error
 		return nil
 	}
 
-	_, err = sqlStore.execBuilder(e,
+	_, err = sqlDB.execBuilder(e,
 		sq.Insert("System").
 			Columns("SKey", "SValue").
 			Values(key, value),
