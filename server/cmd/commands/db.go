@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/oseducation/knowledge-graph/config"
+	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/oseducation/knowledge-graph/store"
 	"github.com/pkg/errors"
@@ -42,7 +43,7 @@ func createAdminCmdF(command *cobra.Command, _ []string) error {
 	if err != nil {
 		return errors.Wrap(err, "can't read config")
 	}
-	db := store.CreateStore(&conf.DBSettings)
+	db := store.CreateStore(&conf.DBSettings, log.NewLogger(&log.LoggerConfiguration{NonLogger: true}))
 
 	user := &model.User{
 		Email:         email,
