@@ -1,18 +1,22 @@
 package store
 
 import (
+	"context"
 	"database/sql"
+	"time"
 
-	"github.com/jinzhu/gorm"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+
+	//nolint: blank-imports
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
-	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
-
-	// An import of sqlite for gorm
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
+
+const DBPingAttempts = 10
+const DBPingTimeoutSecs = 10
 
 // Store is an interface to communicate with the DB
 type Store interface {
@@ -23,10 +27,11 @@ type Store interface {
 
 // SQLStore struct represents a DB
 type SQLStore struct {
-	db         *gorm.DB
-	dbWrapper  *sqlx.DB
-	userStore  *SQLUserStore
-	tokenStore *SQLTokenStore
+	db      *sqlx.DB
+	builder sq.StatementBuilderType
+
+	userStore  UserStore
+	tokenStore TokenStore
 	config     *config.DBSettings
 	logger     *log.Logger
 }
@@ -47,34 +52,48 @@ type builder interface {
 
 // CreateStore creates an sqlite DB
 func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
-	db, err := gorm.Open(config.DriverName, config.DataSource)
-	if err != nil {
-		panic("Failed to connect to database!")
-	}
-
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Token{})
-
 	dbSQL, err := sql.Open(config.DriverName, config.DataSource)
 	if err != nil {
 		panic("Failed to connect to database!")
 	}
+
+	for i := 0; i < DBPingAttempts; i++ {
+		logger.Info("Pinging SQL", log.String("database", config.DataSource))
+		ctx, cancel := context.WithTimeout(context.Background(), DBPingTimeoutSecs*time.Second)
+		defer cancel()
+		err = dbSQL.PingContext(ctx)
+		if err == nil {
+			break
+		}
+		if i == DBPingAttempts-1 {
+			logger.Fatal("Failed to ping DB, server will exit.", log.Err(err))
+		} else {
+			logger.Error("Failed to ping DB", log.Err(err), log.Int("retrying in seconds", DBPingTimeoutSecs))
+			time.Sleep(DBPingTimeoutSecs * time.Second)
+		}
+	}
+
 	dbWrapper := sqlx.NewDb(dbSQL, config.DriverName)
+	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 	sqlStore := &SQLStore{
-		db:         db,
-		dbWrapper:  dbWrapper,
-		userStore:  &SQLUserStore{db},
-		tokenStore: &SQLTokenStore{db},
-		config:     config,
-		logger:     logger,
+		db:      dbWrapper,
+		builder: builder,
+		config:  config,
+		logger:  logger,
+	}
+
+	sqlStore.userStore = NewUserStore(sqlStore)
+	sqlStore.tokenStore = NewTokenStore(sqlStore)
+	if err := sqlStore.RunMigrations(); err != nil {
+		logger.Fatal("can't run migrations", log.Err(err))
 	}
 	return sqlStore
 }
 
 func (sqlDB *SQLStore) EmptyAllTables() {
 	if sqlDB.config.DriverName == "postgres" {
-		sqlDB.db.Exec(`DO
+		if _, err := sqlDB.db.Exec(`DO
 			$func$
 			BEGIN
 			   EXECUTE
@@ -84,10 +103,16 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 			    AND    relnamespace = 'public'::regnamespace
 			   );
 			END
-			$func$;`)
+			$func$;`); err != nil {
+			sqlDB.logger.Fatal("can't TRUNCATE TABLE for postgres", log.Err(err))
+		}
 	} else {
-		sqlDB.db.Exec("DELETE FROM users")
-		sqlDB.db.Exec("DELETE FROM tokens")
+		if _, err := sqlDB.db.Exec("DELETE FROM users"); err != nil {
+			sqlDB.logger.Fatal("can't delete from users", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM tokens"); err != nil {
+			sqlDB.logger.Fatal("can't delete from tokens", log.Err(err))
+		}
 	}
 }
 
@@ -101,7 +126,7 @@ func (sqlDB *SQLStore) getBuilder(q sqlx.Queryer, dest interface{}, b builder) e
 		return errors.Wrap(err, "failed to build sql")
 	}
 
-	sqlString = sqlDB.dbWrapper.Rebind(sqlString)
+	sqlString = sqlDB.db.Rebind(sqlString)
 
 	return sqlx.Get(q, dest, sqlString, args...)
 }
@@ -110,15 +135,13 @@ func (sqlDB *SQLStore) getBuilder(q sqlx.Queryer, dest interface{}, b builder) e
 //
 // Use this to simplify querying for multiple rows (and possibly columns). Dest may be a slice of
 // a simple, or a slice of a struct with fields to be populated from the returned columns.
-//
-//nolint:unused
 func (sqlDB *SQLStore) selectBuilder(q sqlx.Queryer, dest interface{}, b builder) error {
 	sqlString, args, err := b.ToSql()
 	if err != nil {
 		return errors.Wrap(err, "failed to build sql")
 	}
 
-	sqlString = sqlDB.dbWrapper.Rebind(sqlString)
+	sqlString = sqlDB.db.Rebind(sqlString)
 
 	return sqlx.Select(q, dest, sqlString, args...)
 }
@@ -138,7 +161,7 @@ type queryExecer interface {
 
 // exec executes the given query using positional arguments, automatically rebinding for the db.
 func (sqlDB *SQLStore) exec(e execer, sqlString string, args ...interface{}) (sql.Result, error) {
-	sqlString = sqlDB.dbWrapper.Rebind(sqlString)
+	sqlString = sqlDB.db.Rebind(sqlString)
 	return e.Exec(sqlString, args...)
 }
 

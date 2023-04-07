@@ -3,28 +3,40 @@ package model
 import (
 	"encoding/json"
 	"io"
+	"net/mail"
+	"regexp"
 	"strings"
-	"time"
+	"unicode/utf8"
 
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	UserEmailMaxLength    = 128
+	UserNameMaxLength     = 64
+	UserNameMinLength     = 1
+	UserPasswordMaxLength = 72
+	UserFirstNameMaxRunes = 64
+	UserLastNameMaxRunes  = 64
+)
+
+var validUsernameChars = regexp.MustCompile(`^[a-z0-9\.\-_]+$`)
+
 // User type defines user
 type User struct {
-	ID                 string     `json:"id" gorm:"primary_key"`
-	CreatedAt          time.Time  `json:"create_at,omitempty"`
-	UpdatedAt          time.Time  `json:"update_at,omitempty"`
-	DeletedAt          *time.Time `json:"delete_at" sql:"index"`
-	Username           string     `json:"username" gorm:"unique;not null"`
-	FirstName          string     `json:"first_name"`
-	LastName           string     `json:"last_name"`
-	Email              string     `json:"email" gorm:"unique;not null"`
-	EmailVerified      bool       `json:"email_verified,omitempty"`
-	Password           string     `json:"password,omitempty"`
-	LastPasswordUpdate time.Time  `json:"last_password_update,omitempty"`
-	Role               RoleType   `json:"role"`
+	ID                 string   `json:"id" db:"id"`
+	CreatedAt          int64    `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt          int64    `json:"updated_at,omitempty" db:"updated_at"`
+	DeletedAt          int64    `json:"deleted_at" db:"deleted_at"`
+	Username           string   `json:"username" db:"username"`
+	FirstName          string   `json:"first_name,omitempty" db:"first_name"`
+	LastName           string   `json:"last_name,omitempty" db:"last_name"`
+	Email              string   `json:"email" db:"email"`
+	EmailVerified      bool     `json:"email_verified,omitempty" db:"email_verified"`
+	Password           string   `json:"password,omitempty" db:"password"`
+	LastPasswordUpdate int64    `json:"last_password_update,omitempty" db:"last_password_update"`
+	Role               RoleType `json:"role" db:"role"`
 }
 
 // UserLogin type defines login info of the user.
@@ -42,43 +54,72 @@ func UserFromJSON(data io.Reader) (*User, error) {
 	return user, nil
 }
 
-// BeforeSave is a hook of the gorm, used to mutate user object before saving
-func (u *User) BeforeSave(_ *gorm.Scope) error {
+// BeforeSave should be called before storing the user
+func (u *User) BeforeSave() {
+	u.ID = NewID()
+	if u.CreatedAt == 0 {
+		u.CreatedAt = GetMillis()
+	}
+	u.UpdatedAt = u.CreatedAt
+	u.LastPasswordUpdate = u.CreatedAt
+
+	u.Username = SanitizeUnicode(u.Username)
+	u.FirstName = SanitizeUnicode(u.FirstName)
+	u.LastName = SanitizeUnicode(u.LastName)
+
+	u.Username = normalizeUsername(u.Username)
 	u.Email = normalizeEmail(u.Email)
+
 	if len(u.Password) > 0 {
 		u.Password = hashPassword(u.Password)
 	}
-	return nil
 }
 
-// BeforeCreate is a hook of the gorm, used to populate user's column with values
-func (u *User) BeforeCreate(scope *gorm.Scope) error {
-	err := scope.SetColumn("ID", NewID())
-	if err != nil {
-		return errors.Wrap(err, "can't set column ID")
-	}
-	t := time.Now()
-	err = scope.SetColumn("CreatedAt", t)
-	if err != nil {
-		return errors.Wrap(err, "can't set column CreatedAt")
-	}
-	err = scope.SetColumn("UpdatedAt", t)
-	if err != nil {
-		return errors.Wrap(err, "can't set column UpdateAt")
-	}
-	err = scope.SetColumn("LastPasswordUpdate", t)
-	if err != nil {
-		return errors.Wrap(err, "can't set column LastPasswordUpdate")
-	}
+// BeforeUpdate should be run before updating the user in the db.
+func (u *User) BeforeUpdate() {
+	u.Username = SanitizeUnicode(u.Username)
+	u.FirstName = SanitizeUnicode(u.FirstName)
+	u.LastName = SanitizeUnicode(u.LastName)
 
-	return nil
+	u.Username = normalizeUsername(u.Username)
+	u.Email = normalizeEmail(u.Email)
+	u.UpdatedAt = GetMillis()
 }
 
-func (u *User) BeforeUpdate(scope *gorm.Scope) error {
-	err := scope.SetColumn("UpdateAt", time.Now())
-	if err != nil {
-		return errors.Wrap(err, "can't set column UpdateAt")
+// IsValid validates the user and returns an error if it isn't configured correctly.
+func (u *User) IsValid() error {
+	if !IsValidID(u.ID) {
+		return invalidUserError("", "id", u.ID)
 	}
+
+	if u.CreatedAt == 0 {
+		return invalidUserError(u.ID, "create_at", u.CreatedAt)
+	}
+
+	if u.UpdatedAt == 0 {
+		return invalidUserError(u.ID, "updated_at", u.UpdatedAt)
+	}
+
+	if !IsValidUsername(u.Username) {
+		return invalidUserError(u.ID, "username", u.Username)
+	}
+
+	if len(u.Email) > UserEmailMaxLength || u.Email == "" || !IsValidEmail(u.Email) {
+		return invalidUserError(u.ID, "email", u.Email)
+	}
+
+	if utf8.RuneCountInString(u.FirstName) > UserFirstNameMaxRunes {
+		return invalidUserError(u.ID, "first_name", u.FirstName)
+	}
+
+	if utf8.RuneCountInString(u.LastName) > UserLastNameMaxRunes {
+		return invalidUserError(u.ID, "last_name", u.LastName)
+	}
+
+	if len(u.Password) > UserPasswordMaxLength {
+		return invalidUserError(u.ID, "password_limit", "")
+	}
+
 	return nil
 }
 
@@ -109,4 +150,39 @@ func hashPassword(password string) string {
 // NormalizeEmail normalizes email
 func normalizeEmail(email string) string {
 	return strings.ToLower(email)
+}
+
+func normalizeUsername(username string) string {
+	return strings.ToLower(username)
+}
+
+func IsValidUsername(s string) bool {
+	if len(s) < UserNameMinLength || len(s) > UserNameMaxLength {
+		return false
+	}
+
+	if !validUsernameChars.MatchString(s) {
+		return false
+	}
+
+	return true
+}
+
+func IsValidEmail(email string) bool {
+	if strings.ToLower(email) != email {
+		return false
+	}
+
+	if addr, err := mail.ParseAddress(email); err != nil {
+		return false
+	} else if addr.Name != "" {
+		// mail.ParseAddress accepts input of the form "Billy Bob <billy@example.com>" which we don't allow
+		return false
+	}
+
+	return true
+}
+
+func invalidUserError(userID, fieldName string, fieldValue any) error {
+	return errors.Errorf("invalid user error. userID=%s %s=%v", userID, fieldName, fieldValue)
 }

@@ -113,6 +113,13 @@ func (l *Logger) Error(message string, fields ...Field) {
 	l.zap.Error(message, fields...)
 }
 
+func (l *Logger) Fatal(message string, fields ...Field) {
+	if l.isNonLogger {
+		return
+	}
+	l.zap.Fatal(message, fields...)
+}
+
 func getZapLevel(level string) zapcore.Level {
 	switch level {
 	case LevelInfo:

@@ -21,6 +21,10 @@ func TestCreateUser(t *testing.T) {
 		Password:      "hello1",
 		EmailVerified: true,
 	}
+	_, _, err = th.Client.RegisterUser(&user)
+	require.NotNil(t, err)
+
+	user.Username = "user"
 	registeredUser, resp, err := th.Client.RegisterUser(&user)
 	require.NoError(t, err)
 	functionaltesting.CheckCreatedStatus(t, resp)

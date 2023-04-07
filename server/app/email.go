@@ -7,7 +7,6 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
@@ -85,7 +84,7 @@ func (a *App) VerifyEmailFromToken(token string) error {
 	if tok.Type != model.TokenTypeVerifyEmail {
 		return errors.New("wrong token type")
 	}
-	if time.Since(tok.CreateAt).Milliseconds() > model.MaxTokenExpireTime {
+	if model.GetMillis()-tok.CreatedAt > model.MaxTokenExpireTime {
 		return errors.New("link is expired")
 	}
 
