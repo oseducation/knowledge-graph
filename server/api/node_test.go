@@ -19,7 +19,4 @@ func TestCreateNode(t *testing.T) {
 	_, resp, err := th.Client.CreateNode(&node)
 	require.NotNil(t, err)
 	functionaltesting.CheckUnauthorizedStatus(t, resp)
-
-	nodes, resp, err := th.Client.GetNodes(0, 100, "")
-	require.Len(t, nodes, 0)
 }

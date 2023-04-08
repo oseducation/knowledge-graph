@@ -51,11 +51,11 @@ func createNode(c *gin.Context) {
 func getNodes(c *gin.Context) {
 	termInName := c.DefaultQuery("term_in_name", "")
 	termInDescription := c.DefaultQuery("term_in_description", "")
-	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultUserPage)))
+	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultNodePage)))
 	if err != nil {
 		page = defaultUserPage
 	}
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(defaultUserPerPage)))
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(defaultNodePerPage)))
 	if err != nil {
 		perPage = defaultUserPerPage
 	}
