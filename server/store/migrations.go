@@ -53,7 +53,20 @@ var migrations = []Migration{
 					extra VARCHAR(2048)
 				);
 			`); err != nil {
-				return errors.Wrapf(err, "failed creating table IR_Incident")
+				return errors.Wrapf(err, "failed creating table tokens")
+			}
+
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS nodes (
+					id VARCHAR(26) PRIMARY KEY,
+					created_at bigint,
+					updated_at bigint,
+					deleted_at bigint,
+					name VARCHAR(128) UNIQUE,
+					description VARCHAR(2048)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table nodes")
 			}
 			return nil
 		},

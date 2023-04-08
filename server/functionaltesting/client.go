@@ -43,6 +43,10 @@ func NewClient(url string) *Client {
 	return &Client{url, url + APIURLSuffix, &http.Client{}, "", "", map[string]string{}}
 }
 
+func (c *Client) DoAPIGet(url string, etag string) (*http.Response, error) {
+	return c.DoAPIRequest(http.MethodGet, c.APIURL+url, "", etag)
+}
+
 func (c *Client) DoAPIPost(url string, data string) (*http.Response, error) {
 	return c.DoAPIRequest(http.MethodPost, c.APIURL+url, data, "")
 }
