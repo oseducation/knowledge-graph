@@ -23,6 +23,7 @@ type Store interface {
 	EmptyAllTables()
 	User() UserStore
 	Token() TokenStore
+	Node() NodeStore
 }
 
 // SQLStore struct represents a DB
@@ -32,6 +33,7 @@ type SQLStore struct {
 
 	userStore  UserStore
 	tokenStore TokenStore
+	nodeStore  NodeStore
 	config     *config.DBSettings
 	logger     *log.Logger
 }
@@ -85,6 +87,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 
 	sqlStore.userStore = NewUserStore(sqlStore)
 	sqlStore.tokenStore = NewTokenStore(sqlStore)
+	sqlStore.nodeStore = NewNodeStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -191,4 +194,9 @@ func (sqlDB *SQLStore) User() UserStore {
 // Token returns an interface to manage tokens in the DB
 func (sqlDB *SQLStore) Token() TokenStore {
 	return sqlDB.tokenStore
+}
+
+// Node returns an interface to manage nodes in the DB
+func (sqlDB *SQLStore) Node() NodeStore {
+	return sqlDB.nodeStore
 }

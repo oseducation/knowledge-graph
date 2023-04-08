@@ -15,6 +15,7 @@ func (a *App) AuthenticateUser(email, password string) (*model.User, error) {
 	if !user.ComparePassword(password) {
 		return nil, errors.New("Wrong Password")
 	}
+	user.Sanitize()
 	return user, nil
 }
 
@@ -46,7 +47,7 @@ func (a *App) CreateUser(user *model.User) (*model.User, error) {
 	user.EmailVerified = false
 	ruser, err := a.Store.User().Save(user)
 	if err != nil {
-		return nil, errors.Wrapf(err, "userId = %s", user.ID)
+		return nil, errors.Wrapf(err, "userID = %s", user.ID)
 	}
 	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified, a.GetSiteURL()); err != nil {
 		a.Log.Error("Failed to send welcome email on create user", log.Err(err))
