@@ -2,9 +2,9 @@ import React from 'react';
 import {Alert, Button, Stack, TextField, Typography} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
+import {useForm} from "react-hook-form";
 
 import {Client} from '../client/client';
-import {useForm} from "react-hook-form";
 import {ClientError} from "../client/rest";
 
 const LoginPage = () => {
@@ -22,8 +22,8 @@ const LoginPage = () => {
     const onSubmit = (data: FormData) => {
         Client.User().login(data.email, data.password)
             .then(() => navigate('/welcome')).catch((err: ClientError) => {
-            setError('root', {type: 'server', message: err.message});
-        })
+                setError('root', {type: 'server', message: err.message});
+            })
     }
 
     const handleRegisterClick = () => {
