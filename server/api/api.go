@@ -17,7 +17,8 @@ type API struct {
 	Root          *gin.Engine
 	APIRoot       *gin.RouterGroup // 'api/v1'
 	Users         *gin.RouterGroup // 'api/v1/users'
-	User          *gin.RouterGroup // 'api/v4/users/{user_id:[A-Za-z0-9]+}'
+	User          *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
+	Nodes         *gin.RouterGroup // 'api/v1/nodes'
 	jwtMiddleware *jwt.GinJWTMiddleware
 }
 
@@ -39,6 +40,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.jwtMiddleware = mw
 
 	apiObj.initUser()
+	apiObj.initNode()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")
@@ -52,4 +54,16 @@ func responseFormat(c *gin.Context, respStatus int, respMessage string, data int
 		"msg":  respMessage,
 		"data": data,
 	})
+}
+
+func getApp(c *gin.Context) (*app.App, error) {
+	appInt, ok := c.Get("app")
+	if !ok {
+		return nil, errors.New("Missing application in the context")
+	}
+	a, ok := appInt.(*app.App)
+	if !ok {
+		return nil, errors.New("Wrong data type of the application in the context")
+	}
+	return a, nil
 }

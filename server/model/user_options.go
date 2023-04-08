@@ -16,7 +16,7 @@ type UserGetOptions struct {
 
 type UserGetOption func(*UserGetOptions)
 
-func ComposeOptions(opts ...UserGetOption) UserGetOption {
+func ComposeUserOptions(opts ...UserGetOption) UserGetOption {
 	return func(options *UserGetOptions) {
 		for _, f := range opts {
 			f(options)
@@ -30,19 +30,19 @@ func Term(term string) UserGetOption {
 	}
 }
 
-func Page(page int) UserGetOption {
+func UserPage(page int) UserGetOption {
 	return func(args *UserGetOptions) {
 		args.Page = page
 	}
 }
 
-func PerPage(perPage int) UserGetOption {
+func UserPerPage(perPage int) UserGetOption {
 	return func(args *UserGetOptions) {
 		args.PerPage = perPage
 	}
 }
 
-func Deleted(deleted bool) UserGetOption {
+func UserDeleted(deleted bool) UserGetOption {
 	return func(args *UserGetOptions) {
 		args.IncludeDeleted = deleted
 	}

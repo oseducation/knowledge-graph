@@ -5,16 +5,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
-	"github.com/pkg/errors"
 )
 
 const (
-	defaultUserSearchTerm = ""
-	defaultUserPage       = -1
-	defaultUserPerPage    = -1
+	defaultUserPage    = -1
+	defaultUserPerPage = -1
 )
 
 func (apiObj *API) initUser() {
@@ -56,12 +53,12 @@ func registerUser(c *gin.Context) {
 }
 
 func getUsers(c *gin.Context) {
-	term := c.DefaultQuery("term", defaultUserSearchTerm)
+	term := c.DefaultQuery("term", "")
 	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultUserPage)))
 	if err != nil {
 		page = defaultUserPage
 	}
-	perPage, err := strconv.Atoi(c.DefaultQuery("perPage", strconv.Itoa(defaultUserPerPage)))
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(defaultUserPerPage)))
 	if err != nil {
 		perPage = defaultUserPerPage
 	}
@@ -79,7 +76,7 @@ func getUsers(c *gin.Context) {
 	}
 
 	options := &model.UserGetOptions{}
-	model.ComposeOptions(model.Term(term), model.Page(page), model.PerPage(perPage))(options)
+	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage))(options)
 	users, err := a.GetUsers(options)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
@@ -152,9 +149,9 @@ func updateUser(c *gin.Context) {
 }
 
 func deleteUser(c *gin.Context) {
-	userID := c.Query("userId")
+	userID := c.Query("user_id")
 	if userID == "" {
-		responseFormat(c, http.StatusBadRequest, "missing userId", nil)
+		responseFormat(c, http.StatusBadRequest, "missing user_id", nil)
 		return
 	}
 	a, err := getApp(c)
@@ -204,16 +201,4 @@ func verifyUserEmail(c *gin.Context) {
 
 func sendVerificationEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, "sendVerificationEmail")
-}
-
-func getApp(c *gin.Context) (*app.App, error) {
-	appInt, ok := c.Get("app")
-	if !ok {
-		return nil, errors.New("Missing application in the context")
-	}
-	a, ok := appInt.(*app.App)
-	if !ok {
-		return nil, errors.New("Wrong data type of the application in the context")
-	}
-	return a, nil
 }
