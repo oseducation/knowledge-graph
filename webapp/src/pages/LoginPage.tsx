@@ -1,26 +1,30 @@
 import React from 'react';
-import {useFormik} from 'formik';
-import {Button, Stack, TextField} from '@mui/material';
+import {Alert, Button, Stack, TextField, Typography} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
+import {useForm} from "react-hook-form";
 
 import {Client} from '../client/client';
+import {ClientError} from "../client/rest";
 
 const LoginPage = () => {
 
     const navigate = useNavigate();
 
+    type FormData = {
+        email: string,
+        password: string
+    }
 
-    const formik = useFormik({
-        initialValues: {
-            email: '',
-            password: ''
-        },
-        onSubmit: () => {
-            Client.User().login(formik.values.email, formik.values.password)
-                .then(() => navigate('/welcome'))
-        }
-    });
+    const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
+
+
+    const onSubmit = (data: FormData) => {
+        Client.User().login(data.email, data.password)
+            .then(() => navigate('/welcome')).catch((err: ClientError) => {
+                setError('root', {type: 'server', message: err.message});
+            })
+    }
 
     const handleRegisterClick = () => {
         navigate('/register')
@@ -28,24 +32,27 @@ const LoginPage = () => {
 
     return (
         <Login>
-            <form onSubmit={formik.handleSubmit}>
-                <Stack direction={'column'} spacing={1}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Stack direction={'column'} spacing={1} alignItems={'center'}>
+                    <Typography paragraph={true} fontSize={26} fontWeight={'bold'}>
+                        Login
+                    </Typography>
+                    {errors.root &&
+                        <Alert severity="error" onClose={() => {clearErrors()}} >
+                            {errors.root.message}
+                        </Alert>
+                    }
                     <TextField
                         fullWidth
-                        id={'email'}
-                        name={'email'}
                         label={'Email'}
-                        value={formik.values.email}
-                        onChange={formik.handleChange}
+                        type={'email'}
+                        {...register("email", {required: true})}
                     />
                     <TextField
                         fullWidth
-                        id={'password'}
-                        name={'password'}
                         label={'Password'}
                         type={'password'}
-                        value={formik.values.password}
-                        onChange={formik.handleChange}
+                        {...register("password", {required: true})}
                     />
                     <Stack direction={'row'} justifyContent={'center'}>
                         <Button type={'submit'}>Log in</Button>
