@@ -49,6 +49,6 @@ func TestCreateUser(t *testing.T) {
 	err = th.Server.App.UpdateUser(registeredUser)
 	require.Nil(t, err)
 
-	_, resp, err = th.Client.CreateUser(&newUser)
+	_, _, err = th.Client.CreateUser(&newUser)
 	require.Nil(t, err)
 }
