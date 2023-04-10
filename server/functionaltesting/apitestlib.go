@@ -75,8 +75,8 @@ func (th *TestHelper) Init() {
 	}
 
 	admin.Role = model.AdminRole
-	if err := th.Server.App.UpdateUser(admin); err != nil {
-		panic(err)
+	if err2 := th.Server.App.UpdateUser(admin); err2 != nil {
+		panic(err2)
 	}
 	admin.Password = "Pa$$word11"
 	th.AdminUser = admin
