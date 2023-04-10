@@ -15,6 +15,7 @@ const (
 	jwtSecret       = "some secret"
 	identityKey     = "id"
 	loggedInUserKey = "loginUser"
+	HeaderToken     = "token"
 )
 
 func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
@@ -35,9 +36,7 @@ func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return &model.User{
-				ID: claims[identityKey].(string),
-			}
+			return claims[identityKey].(string)
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginValues model.UserLogin
@@ -55,16 +54,14 @@ func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
 			return user, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if _, ok := data.(*model.User); ok {
-				return true
-			}
-
-			return false
+			claims := jwt.ExtractClaims(c)
+			return data.(string) == claims[identityKey].(string)
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			responseFormat(c, code, message, nil)
 		},
 		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
+			c.Header(HeaderToken, token)
 			user, err := getLoggedUser(c)
 			if err != nil {
 				responseFormat(c, http.StatusInternalServerError, err.Error(), user)
@@ -82,7 +79,7 @@ func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
 		// - "query:<name>"
 		// - "cookie:<name>"
 		// - "param:<name>"
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		TokenLookup: "header: Authorization",
 		// TokenLookup: "query:token",
 		// TokenLookup: "cookie:token",
 

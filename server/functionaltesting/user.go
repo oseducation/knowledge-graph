@@ -2,6 +2,7 @@ package functionaltesting
 
 import (
 	"encoding/json"
+	"io"
 
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
@@ -21,11 +22,12 @@ func (c *Client) RegisterUser(user *model.User) (*model.User, *Response, error) 
 	if err != nil {
 		return nil, BuildResponse(r), err
 	}
-	var u model.User
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-		return nil, nil, errors.Wrap(err, "can't decode user")
+
+	u, err := decodeUser(r.Body)
+	if err != nil {
+		return nil, BuildResponse(r), err
 	}
-	return &u, BuildResponse(r), nil
+	return u, BuildResponse(r), nil
 }
 
 // CreateUser creates a user in the system based on the provided user struct.
@@ -40,11 +42,11 @@ func (c *Client) CreateUser(user *model.User) (*model.User, *Response, error) {
 		return nil, BuildResponse(r), err
 	}
 	defer closeBody(r)
-	var u model.User
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-		return nil, nil, errors.Wrap(err, "can't decode user")
+	u, err := decodeUser(r.Body)
+	if err != nil {
+		return nil, BuildResponse(r), err
 	}
-	return &u, BuildResponse(r), nil
+	return u, BuildResponse(r), nil
 }
 
 // LoginByEmail authenticates a user by user email and password.
@@ -69,9 +71,20 @@ func (c *Client) login(m map[string]string) (*model.User, *Response, error) {
 	c.AuthToken = r.Header.Get(HeaderToken)
 	c.AuthType = HeaderBearer
 
-	var user model.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		return nil, nil, errors.Wrap(err, "can't decode user")
+	u, err := decodeUser(r.Body)
+	if err != nil {
+		return nil, BuildResponse(r), err
 	}
-	return &user, BuildResponse(r), nil
+	return u, BuildResponse(r), nil
+}
+
+func decodeUser(reader io.ReadCloser) (*model.User, error) {
+	var um struct {
+		Msg  string
+		Data model.User
+	}
+	if err := json.NewDecoder(reader).Decode(&um); err != nil {
+		return nil, errors.Wrap(err, "can't decode user")
+	}
+	return &um.Data, nil
 }

@@ -35,4 +35,20 @@ func TestCreateUser(t *testing.T) {
 	require.NoError(t, err)
 	functionaltesting.CheckOKStatus(t, resp)
 	require.Equal(t, loggedInUser.ID, registeredUser.ID)
+
+	newUser := model.User{
+		Email:    "bla2@gmail.com",
+		Password: "hello1",
+		Username: "bla2",
+	}
+	_, resp, err = th.Client.CreateUser(&newUser)
+	require.NotNil(t, err)
+	functionaltesting.CheckForbiddenStatus(t, resp)
+
+	registeredUser.Role = model.AdminRole
+	err = th.Server.App.UpdateUser(registeredUser)
+	require.Nil(t, err)
+
+	_, _, err = th.Client.CreateUser(&newUser)
+	require.Nil(t, err)
 }

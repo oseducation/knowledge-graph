@@ -64,6 +64,11 @@ func CheckUnauthorizedStatus(tb testing.TB, resp *Response) {
 	checkHTTPStatus(tb, resp, http.StatusUnauthorized)
 }
 
+func CheckForbiddenStatus(tb testing.TB, resp *Response) {
+	tb.Helper()
+	checkHTTPStatus(tb, resp, http.StatusForbidden)
+}
+
 func CheckOKStatus(tb testing.TB, resp *Response) {
 	tb.Helper()
 	checkHTTPStatus(tb, resp, http.StatusOK)

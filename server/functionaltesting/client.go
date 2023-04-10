@@ -14,7 +14,7 @@ const (
 	HeaderEtagClient  = "If-None-Match"
 	HeaderAuth        = "Authorization"
 	HeaderToken       = "token"
-	HeaderBearer      = "BEARER"
+	HeaderBearer      = "Bearer"
 	HeaderContentType = "Content-Type"
 	JSONContentType   = "application/json"
 
