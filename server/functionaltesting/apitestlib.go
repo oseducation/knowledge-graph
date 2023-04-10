@@ -6,6 +6,7 @@ import (
 
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
+	"github.com/oseducation/knowledge-graph/model"
 	"github.com/oseducation/knowledge-graph/server"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +15,12 @@ type TestHelper struct {
 	Server *server.Server
 	config *config.Config
 
-	Client *Client
+	Client      *Client // client with no user logged in
+	AdminClient *Client // client with admin logged in
+	UserClient  *Client // client with basic user logged in
+
+	AdminUser *model.User
+	BasicUser *model.User
 }
 
 func getTestConfig() *config.Config {
@@ -43,11 +49,63 @@ func Setup(tb testing.TB) *TestHelper {
 	server.App.Store.EmptyAllTables()
 
 	th := &TestHelper{
-		Server: server,
-		config: config,
-		Client: NewClient("http://localhost:9081/"),
+		Server:      server,
+		config:      config,
+		Client:      NewClient("http://localhost:9081/"),
+		UserClient:  NewClient("http://localhost:9081/"),
+		AdminClient: NewClient("http://localhost:9081/"),
 	}
+	th.Init()
 	return th
+}
+
+func (th *TestHelper) Init() {
+	id := model.NewID()
+	admin := &model.User{
+		Email:     "admin@someRandomEmail.com",
+		Username:  "CoolAdmin",
+		FirstName: "f_" + id,
+		LastName:  "l_" + id,
+		Password:  "Pa$$word11",
+	}
+
+	admin, _, err := th.Client.RegisterUser(admin)
+	if err != nil {
+		panic(err)
+	}
+
+	admin.Role = model.AdminRole
+	if err := th.Server.App.UpdateUser(admin); err != nil {
+		panic(err)
+	}
+	admin.Password = "Pa$$word11"
+	th.AdminUser = admin
+
+	_, _, err = th.AdminClient.LoginByEmail(th.AdminUser.Email, th.AdminUser.Password)
+	if err != nil {
+		panic(err)
+	}
+
+	id = model.NewID()
+	user := &model.User{
+		Email:     "basic_user@someRandomEmail.com",
+		Username:  "BasicUser",
+		FirstName: "f_" + id,
+		LastName:  "l_" + id,
+		Password:  "Pa$$word11",
+	}
+	user, _, err = th.Client.RegisterUser(user)
+	if err != nil {
+		panic(err)
+	}
+
+	user.Password = "Pa$$word11"
+	th.BasicUser = user
+
+	_, _, err = th.UserClient.LoginByEmail(th.BasicUser.Email, th.BasicUser.Password)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (th *TestHelper) TearDown() {
@@ -67,6 +125,11 @@ func CheckUnauthorizedStatus(tb testing.TB, resp *Response) {
 func CheckForbiddenStatus(tb testing.TB, resp *Response) {
 	tb.Helper()
 	checkHTTPStatus(tb, resp, http.StatusForbidden)
+}
+
+func CheckConflictStatus(tb testing.TB, resp *Response) {
+	tb.Helper()
+	checkHTTPStatus(tb, resp, http.StatusConflict)
 }
 
 func CheckOKStatus(tb testing.TB, resp *Response) {
