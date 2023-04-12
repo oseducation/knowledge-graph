@@ -41,6 +41,7 @@ func Init(router *gin.Engine, application *app.App) error {
 
 	apiObj.initUser()
 	apiObj.initNode()
+	apiObj.initGraph()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")

@@ -68,6 +68,23 @@ var migrations = []Migration{
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table nodes")
 			}
+
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS edges (
+					from_node_id VARCHAR(26),
+					to_node_id VARCHAR(26)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table edges")
+			}
+
+			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS from_node_id_index ON edges (from_node_id);
+				CREATE INDEX IF NOT EXISTS to_node_id_index ON edges (to_node_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating indexes on edges table")
+			}
+
 			return nil
 		},
 	},
