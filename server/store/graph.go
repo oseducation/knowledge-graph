@@ -11,6 +11,7 @@ type GraphStore interface {
 	Save(edge *model.Edge) error
 	GetEdges(options *model.EdgeGetOptions) ([]*model.Edge, error)
 	Delete(node *model.Edge) error
+	ConstructGraphFromDB() (*model.Graph, error)
 }
 
 // SQLGraphStore is a struct to store graph
@@ -82,4 +83,47 @@ func (gs *SQLGraphStore) Delete(edge *model.Edge) error {
 	}
 
 	return nil
+}
+
+func (gs *SQLGraphStore) ConstructGraphFromDB() (*model.Graph, error) {
+	page := 0
+	perPage := 10000
+	graph := &model.Graph{
+		Nodes:         map[string]model.Node{},
+		Prerequisites: map[string][]string{},
+	}
+
+	for {
+		options := &model.EdgeGetOptions{}
+		model.ComposeEdgeOptions(model.EdgePage(page), model.EdgePerPage(perPage))(options)
+		edges, err := gs.GetEdges(options)
+		if err != nil {
+			return nil, errors.Wrapf(err, "can't get edges for options - %v", options)
+		}
+		if len(edges) == 0 {
+			break
+		}
+		for _, edge := range edges {
+			graph.Prerequisites[edge.ToNodeID] = append(graph.Prerequisites[edge.ToNodeID], edge.FromNodeID)
+		}
+		page++
+	}
+	page = 0
+	for {
+		options := &model.NodeGetOptions{}
+		model.ComposeNodeOptions(model.NodePage(page), model.NodePerPage(perPage), model.NodeDeleted(false))(options)
+		nodes, err := gs.sqlStore.nodeStore.GetNodes(options)
+		if err != nil {
+			return nil, errors.Wrapf(err, "can't get nodes for options - %v", options)
+		}
+		if len(nodes) == 0 {
+			return graph, nil
+		}
+		for _, node := range nodes {
+			if _, ok := graph.Nodes[node.ID]; !ok {
+				graph.Nodes[node.ID] = *node
+			}
+		}
+		page++
+	}
 }

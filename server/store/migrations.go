@@ -72,7 +72,8 @@ var migrations = []Migration{
 			if _, err := e.Exec(`
 				CREATE TABLE IF NOT EXISTS edges (
 					from_node_id VARCHAR(26),
-					to_node_id VARCHAR(26)
+					to_node_id VARCHAR(26),
+					UNIQUE (from_node_id, to_node_id)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table edges")

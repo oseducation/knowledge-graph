@@ -18,11 +18,11 @@ type App struct {
 
 // NewApp creates new App
 func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App, error) {
-	a := &App{logger, store, config, &model.Graph{}}
-	if err := a.ConstructGraph(); err != nil {
-		return nil, errors.Wrap(err, "can't construct graph from memory")
+	graph, err := store.Graph().ConstructGraphFromDB()
+	if err != nil {
+		return nil, errors.Wrap(err, "can't construct graph from DB")
 	}
-	return a, nil
+	return &App{logger, store, config, graph}, nil
 }
 
 // GetSiteURL returns site url from config
