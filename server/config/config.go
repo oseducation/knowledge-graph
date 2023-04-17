@@ -9,8 +9,9 @@ import (
 )
 
 type ServerSettings struct {
-	SiteURL       string
-	ListenAddress string
+	SiteURL                 string
+	ListenAddress           string
+	KnowledgeGraphImportURL string
 }
 
 type DBSettings struct {
