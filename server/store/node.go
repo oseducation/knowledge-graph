@@ -118,8 +118,8 @@ func (ns *SQLNodeStore) GetNodes(options *model.NodeGetOptions) ([]*model.Node, 
 	if options.PerPage > 0 {
 		query = query.Limit(uint64(options.PerPage))
 	}
-	if options.Page > 0 {
-		query = query.Offset(uint64(options.Page))
+	if options.Page >= 0 {
+		query = query.Offset(uint64(options.Page * options.PerPage))
 	}
 
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &nodes, query); err != nil {

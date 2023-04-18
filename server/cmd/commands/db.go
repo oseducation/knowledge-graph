@@ -22,10 +22,22 @@ var dbCreateAdmin = &cobra.Command{
 	RunE:    createAdminCmdF,
 }
 
+var dbImportGraph = &cobra.Command{
+	Use:     "import",
+	Short:   "Import graph",
+	Long:    `Import Knowledge Graph from files: graph.json, nodes.json, texts.md.`,
+	Example: `  db import --url URL-to-folder`,
+	RunE:    importGraphCmdF,
+}
+
 func init() {
 	dbCreateAdmin.Flags().String("email", "", "Admin email")
 	dbCreateAdmin.Flags().String("password", "", "Admin password")
 	dbCmd.AddCommand(dbCreateAdmin)
+
+	dbImportGraph.Flags().String("url", "", "URL to folder with graph.json file")
+	dbCmd.AddCommand(dbImportGraph)
+
 	rootCmd.AddCommand(dbCmd)
 }
 
@@ -54,6 +66,22 @@ func createAdminCmdF(command *cobra.Command, _ []string) error {
 	_, err = db.User().Save(user)
 	if err != nil {
 		return errors.Wrap(err, "can't save admin in DB")
+	}
+	return nil
+}
+
+func importGraphCmdF(command *cobra.Command, _ []string) error {
+	url, err := command.Flags().GetString("url")
+	if err != nil || url == "" {
+		return errors.New("url is required")
+	}
+	srv, err := runServer()
+	if err != nil {
+		return errors.New("can't run server")
+	}
+	defer srv.Shutdown()
+	if err := srv.App.ImportGraph(url); err != nil {
+		return errors.Wrap(err, "can't import graph")
 	}
 	return nil
 }

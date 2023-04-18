@@ -1,8 +1,7 @@
 {
     "ServerSettings": {
         "SiteURL": "http://localhost:8065",
-        "ListenAddress": ":8065",
-        "KnowledgeGraphImportURL": "https://raw.githubusercontent.com/oseducation/content-ge/main/content.md"
+        "ListenAddress": ":8065"
     },
     "DBSettings": {
         "DriverName": "sqlite3",

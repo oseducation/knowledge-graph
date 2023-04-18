@@ -1,6 +1,8 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -38,6 +40,48 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 // GetSiteURL returns site url from config
 func (a *App) GetSiteURL() string {
 	return "http://localhost:9081"
+}
+
+// ImportGraph reads graph.json, nodes.json and texts.md files, parses them and imports in the db
+func (a *App) ImportGraph(url string) error {
+	graphContent, err := getFileContent(fmt.Sprintf("%s/graph.json", url))
+	if err != nil {
+		return errors.Wrap(err, "can't get graph.json file")
+	}
+	var graph map[string][]string
+	if err := json.Unmarshal([]byte(graphContent), &graph); err != nil {
+		return errors.Wrap(err, "can't unmarshal graph.json file")
+	}
+
+	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
+	if err != nil {
+		return errors.Wrap(err, "can't get nodes.json file")
+	}
+	var nodes map[string]model.Node
+	if err := json.Unmarshal([]byte(nodesContent), &nodes); err != nil {
+		return errors.Wrap(err, "can't unmarshal nodes.json file")
+	}
+
+	for id, node := range nodes {
+		updatedNode, err := a.Store.Node().Save(&node)
+		if err != nil {
+			return errors.Wrap(err, "can't save node")
+		}
+		nodes[id] = *updatedNode
+	}
+
+	for node, prereqs := range graph {
+		for _, prereq := range prereqs {
+			edge := model.Edge{
+				FromNodeID: nodes[prereq].ID,
+				ToNodeID:   nodes[node].ID,
+			}
+			if err := a.Store.Graph().Save(&edge); err != nil {
+				return errors.Wrap(err, "can't save edge")
+			}
+		}
+	}
+	return nil
 }
 
 func importKnowledgeGraphToDB(url string, db store.Store, logger *log.Logger) error {
