@@ -145,8 +145,8 @@ func (us *SQLUserStore) GetUsers(options *model.UserGetOptions) ([]*model.User, 
 	if options.PerPage > 0 {
 		query = query.Limit(uint64(options.PerPage))
 	}
-	if options.Page > 0 {
-		query = query.Offset(uint64(options.Page))
+	if options.Page >= 0 {
+		query = query.Offset(uint64(options.Page * options.PerPage))
 	}
 
 	if err := us.sqlStore.selectBuilder(us.sqlStore.db, &users, query); err != nil {

@@ -61,8 +61,8 @@ func (gs *SQLGraphStore) GetEdges(options *model.EdgeGetOptions) ([]*model.Edge,
 	if options.PerPage > 0 {
 		query = query.Limit(uint64(options.PerPage))
 	}
-	if options.Page > 0 {
-		query = query.Offset(uint64(options.Page))
+	if options.Page >= 0 {
+		query = query.Offset(uint64(options.Page * options.PerPage))
 	}
 
 	if err := gs.sqlStore.selectBuilder(gs.sqlStore.db, &edges, query); err != nil {

@@ -23,6 +23,9 @@ In the Knowledge Graph each Node consists of name, description, resources(such a
 There is a short video mode of learning similar to youtube shorts, facebook reels or ticktock, where students discover different fields they might be interested in, by watching the videos(honoring the prerequisite graph).
 
 
+## Run Knowledge Graph
+Follow the commands [here](/server/README.md)
+
 ## Interested in contributing?
 Please see [CONTRIBUTING.md](/CONTRIBUTING.md). Also join the [Contributors server](https://knowledge.cloud.mattermost.com) to join discussions about contributions, development, and more.
 

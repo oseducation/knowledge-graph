@@ -30,6 +30,21 @@ var rootCmd = &cobra.Command{
 }
 
 func serverCmdF(_ *cobra.Command, _ []string) error {
+	srv, err := runServer()
+	if err != nil {
+		return err
+	}
+	defer srv.Shutdown()
+
+	// wait for kill signal before attempting to gracefully shutdown
+	// the running service
+	interruptChan := make(chan os.Signal, 1)
+	signal.Notify(interruptChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	<-interruptChan
+	return nil
+}
+
+func runServer() (*server.Server, error) {
 	logConfig := &log.LoggerConfiguration{
 		EnableConsole: true,
 		ConsoleJSON:   true,
@@ -42,25 +57,18 @@ func serverCmdF(_ *cobra.Command, _ []string) error {
 	logger := log.NewLogger(logConfig)
 	conf, err := config.ReadConfig()
 	if err != nil {
-		return errors.Wrap(err, "can't read config")
+		return nil, errors.Wrap(err, "can't read config")
 	}
 	srv, err := server.NewServer(logger, conf)
 	if err != nil {
 		logger.Error(err.Error())
-		return err
+		return nil, err
 	}
-	defer srv.Shutdown()
 
 	serverErr := srv.Start()
 	if serverErr != nil {
 		logger.Error(serverErr.Error())
-		return serverErr
+		return nil, serverErr
 	}
-
-	// wait for kill signal before attempting to gracefully shutdown
-	// the running service
-	interruptChan := make(chan os.Signal, 1)
-	signal.Notify(interruptChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	<-interruptChan
-	return nil
+	return srv, nil
 }
