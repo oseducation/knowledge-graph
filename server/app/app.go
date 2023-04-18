@@ -49,8 +49,8 @@ func (a *App) ImportGraph(url string) error {
 		return errors.Wrap(err, "can't get graph.json file")
 	}
 	var graph map[string][]string
-	if err := json.Unmarshal([]byte(graphContent), &graph); err != nil {
-		return errors.Wrap(err, "can't unmarshal graph.json file")
+	if err2 := json.Unmarshal([]byte(graphContent), &graph); err2 != nil {
+		return errors.Wrap(err2, "can't unmarshal graph.json file")
 	}
 
 	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
