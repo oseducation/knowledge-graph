@@ -31,7 +31,7 @@ const Content = () => {
                             fontWeight={'bold'}
                             color={'white'}
                         >
-                            Explore the world's knowledge, curated just for you
+                            Explore the world&apos;s knowledge, curated just for you
                         </Typography>
                     </Stack>
                     <Box display={'flex'} alignItems={'center'}>
