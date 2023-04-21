@@ -12,7 +12,7 @@ const GraphComponent = () => {
 
     useEffect(() => {
         Client.Graph().get().then((data) => {
-            setGraph(data.data);
+            setGraph(data);
         });
     },[]);
 

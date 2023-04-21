@@ -50,11 +50,8 @@ func Init(router *gin.Engine, application *app.App) error {
 	return nil
 }
 
-func responseFormat(c *gin.Context, respStatus int, respMessage string, data interface{}) {
-	c.JSON(respStatus, gin.H{
-		"msg":  respMessage,
-		"data": data,
-	})
+func responseFormat(c *gin.Context, respStatus int, data interface{}) {
+	c.JSON(respStatus, data)
 }
 
 func getApp(c *gin.Context) (*app.App, error) {

@@ -58,18 +58,18 @@ func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
 			return data.(string) == claims[identityKey].(string)
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			responseFormat(c, code, message, nil)
+			responseFormat(c, code, message)
 		},
 		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
 			c.Header(HeaderToken, token)
 			user, err := getLoggedUser(c)
 			if err != nil {
-				responseFormat(c, http.StatusInternalServerError, err.Error(), user)
+				responseFormat(c, http.StatusInternalServerError, err.Error())
 			}
-			responseFormat(c, http.StatusOK, "", user)
+			responseFormat(c, http.StatusOK, user)
 		},
 		LogoutResponse: func(c *gin.Context, code int) {
-			responseFormat(c, http.StatusOK, "user logged out", nil)
+			responseFormat(c, http.StatusOK, "user logged out")
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.

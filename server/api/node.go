@@ -25,27 +25,27 @@ func (apiObj *API) initNode() {
 func createNode(c *gin.Context) {
 	node, err := model.NodeFromJSON(c.Request.Body)
 	if err != nil {
-		responseFormat(c, http.StatusBadRequest, "Invalid or missing `node` in the request body", nil)
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `node` in the request body")
 		return
 	}
 
 	a, err := getApp(c)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	authorID := c.GetString(identityKey)
 	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
 	rnode, err := a.CreateNode(node)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, "Error while creating node", nil)
+		responseFormat(c, http.StatusInternalServerError, "Error while creating node")
 		return
 	}
-	responseFormat(c, http.StatusCreated, "Node created", rnode)
+	responseFormat(c, http.StatusCreated, rnode)
 }
 
 func getNodes(c *gin.Context) {
@@ -62,13 +62,13 @@ func getNodes(c *gin.Context) {
 
 	a, err := getApp(c)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	authorID := c.GetString(identityKey)
 	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
@@ -80,65 +80,65 @@ func getNodes(c *gin.Context) {
 		model.NodePerPage(perPage))(options)
 	nodes, err := a.GetNodes(options)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	responseFormat(c, http.StatusOK, "", nodes)
+	responseFormat(c, http.StatusOK, nodes)
 }
 
 func updateNode(c *gin.Context) {
 	updatedNode, err := model.NodeFromJSON(c.Request.Body)
 	if err != nil {
-		responseFormat(c, http.StatusBadRequest, "Invalid or missing `node` in the request body", nil)
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `node` in the request body")
 		return
 	}
 	a, err := getApp(c)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	authorID := c.GetString(identityKey)
 	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
 	err = a.UpdateNode(updatedNode)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	responseFormat(c, http.StatusOK, "Node updated", nil)
+	responseFormat(c, http.StatusOK, "Node updated")
 }
 
 func deleteNode(c *gin.Context) {
 	nodeID := c.Query("node_id")
 	if nodeID == "" {
-		responseFormat(c, http.StatusBadRequest, "missing node_id", nil)
+		responseFormat(c, http.StatusBadRequest, "missing node_id")
 		return
 	}
 	a, err := getApp(c)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	authorID := c.GetString(identityKey)
 	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action", nil)
+		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
 	node, err := a.Store.Node().Get(nodeID)
 	if err != nil {
-		responseFormat(c, http.StatusBadRequest, "unknown node", nil)
+		responseFormat(c, http.StatusBadRequest, "unknown node")
 		return
 	}
 
 	if err = a.DeleteNode(node); err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	responseFormat(c, http.StatusOK, "Node deleted", nil)
+	responseFormat(c, http.StatusOK, "Node deleted")
 }

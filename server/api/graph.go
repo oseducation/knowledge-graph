@@ -16,7 +16,7 @@ func (apiObj *API) initGraph() {
 func getGraph(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error(), nil)
+		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -39,5 +39,5 @@ func getGraph(c *gin.Context) {
 		}
 	}
 
-	responseFormat(c, http.StatusOK, "", gr)
+	responseFormat(c, http.StatusOK, gr)
 }
