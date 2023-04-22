@@ -51,12 +51,9 @@ export class Rest {
             };
         }
 
-        const msg = data.msg || '';
-
         throw new ClientError({
-            message: msg,
-            server_error_id: data.id,
-            status_code: data.status_code,
+            message: data,
+            status_code: response.status,
             url,
         });
     };

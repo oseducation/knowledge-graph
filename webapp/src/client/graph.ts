@@ -14,11 +14,7 @@ export class GraphClient{
     }
 
     get = async () => {
-        type GraphRes = {
-            data: Graph;
-            msg: string;
-        }
-        const data = this.rest.doFetch<GraphRes>(`${this.getGraphRoute()}`, {method: 'get'});
+        const data = this.rest.doFetch<Graph>(`${this.getGraphRoute()}`, {method: 'get'});
         return data;
     };
 }

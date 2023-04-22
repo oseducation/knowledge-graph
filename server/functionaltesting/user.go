@@ -79,12 +79,9 @@ func (c *Client) login(m map[string]string) (*model.User, *Response, error) {
 }
 
 func decodeUser(reader io.ReadCloser) (*model.User, error) {
-	var um struct {
-		Msg  string
-		Data model.User
-	}
-	if err := json.NewDecoder(reader).Decode(&um); err != nil {
+	var user model.User
+	if err := json.NewDecoder(reader).Decode(&user); err != nil {
 		return nil, errors.Wrap(err, "can't decode user")
 	}
-	return &um.Data, nil
+	return &user, nil
 }
