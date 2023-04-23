@@ -8,7 +8,12 @@ export type User = {
     email: string;
     first_name: string;
     last_name: string;
-    roles: string;
+    role: string;
     last_password_update: number;
     props: Record<string, string>;
+};
+
+export const ROLES = {
+    'Admin': 'admin',
+    'User': 'user'
 };
