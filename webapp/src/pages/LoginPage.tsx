@@ -56,7 +56,7 @@ const LoginPage = () => {
                     />
                     <Stack direction={'row'} justifyContent={'center'}>
                         <Button type={'submit'}>Log in</Button>
-                        <Button onClick={handleRegisterClick}>Register</Button>
+                        <Button id="register" onClick={handleRegisterClick}>Register</Button>
                     </Stack>
                 </Stack>
             </form>
