@@ -16,11 +16,11 @@ Knowledge Graph is an educational startup that is built on the concept of repres
 ## Solution we propose
 The knowledge in and of itself is a direct acyclic Graph. The nodes of the graph are tiny bits of knowledge that is easy to understand and learn and edges are the prerequisites of this knowledge. So basically if you know all the previous(prerequisite) nodes you can learn the new one. And all the knowledge of the humankind can be presented like this.
 
-With the knowledge graph like this built, we can clearly see everything there is that could be learned. We can see what we already know and if we want to learn something what's the shortest path we might want to take to get there.
+With the knowledge graph like this built, we can clearly see everything there is that could be learned. We can see what we already know and if we want to learn something what's the shortest path we might want to take to get there. Knowledge graph does not offer courses in a specific field that you need to complete, but the experience is based on the concept of lifelong learning, where small “knowledges” acquired on the regular basis lead you to mastering in a comprehensive and extensive manner.
 
 In the Knowledge Graph each Node consists of name, description, resources(such as videos and texts) and tests. If student passes the tests they "know" the node and can learn nodes leading from there. Users can upload their own content for each node to help each other.
 
-There is a short video mode of learning similar to youtube shorts, facebook reels or ticktock, where students discover different fields they might be interested in, by watching the videos(honoring the prerequisite graph).
+There is a short video mode of learning similar to youtube shorts, facebook reels or tiktok, where students discover different fields they might be interested in, by watching the videos(honoring the prerequisite graph).
 
 
 ## Run Knowledge Graph
