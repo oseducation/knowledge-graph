@@ -1,15 +1,19 @@
 import React from 'react';
 import {Alert, Button, Stack, TextField, Typography} from '@mui/material';
-import {useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
 import {useForm} from "react-hook-form";
 
 import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
+import useAuth from '../hooks/useAuth';
 
 const LoginPage = () => {
-
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/welcome";
+    const {setUser} = useAuth();
+
 
     type FormData = {
         email: string,
@@ -21,7 +25,10 @@ const LoginPage = () => {
 
     const onSubmit = (data: FormData) => {
         Client.User().login(data.email, data.password)
-            .then(() => navigate('/welcome')).catch((err: ClientError) => {
+            .then((user) => {
+                setUser?.(user);
+                return navigate(from, {replace: true});
+            }).catch((err: ClientError) => {
                 setError('root', {type: 'server', message: err.message});
             })
     }
