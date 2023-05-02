@@ -23,4 +23,10 @@ style: golangci-lint vet eslint ## Runs style/lint checks
 test:
 	cd server && go test ./...
 
+docker-start:
+	docker-compose up -d
+
+docker-stop:
+	docker-compose down
+
 
