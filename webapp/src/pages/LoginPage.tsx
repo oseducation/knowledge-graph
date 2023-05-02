@@ -53,17 +53,19 @@ const LoginPage = () => {
                         fullWidth
                         label={'Email'}
                         type={'email'}
+                        name={'email'}
                         {...register("email", {required: true})}
                     />
                     <TextField
                         fullWidth
                         label={'Password'}
                         type={'password'}
+                        name={'password'}
                         {...register("password", {required: true})}
                     />
                     <Stack direction={'row'} justifyContent={'center'}>
                         <Button type={'submit'}>Log in</Button>
-                        <Button onClick={handleRegisterClick}>Register</Button>
+                        <Button id="register" onClick={handleRegisterClick}>Register</Button>
                     </Stack>
                 </Stack>
             </form>
