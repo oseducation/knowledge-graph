@@ -53,12 +53,14 @@ const LoginPage = () => {
                         fullWidth
                         label={'Email'}
                         type={'email'}
+                        name={'email'}
                         {...register("email", {required: true})}
                     />
                     <TextField
                         fullWidth
                         label={'Password'}
                         type={'password'}
+                        name={'password'}
                         {...register("password", {required: true})}
                     />
                     <Stack direction={'row'} justifyContent={'center'}>

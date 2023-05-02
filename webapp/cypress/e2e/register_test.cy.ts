@@ -1,6 +1,6 @@
 describe('RegisterPage', () => {
     beforeEach(() => {
-        cy.visit('localhost:9091/register');
+        cy.visit('/register');
     });
 
     it('successfully registers a new user', () => {
@@ -21,6 +21,6 @@ describe('RegisterPage', () => {
 
         cy.contains('Login').should('be.visible');
 
-        cy.url().should('eq', 'http://localhost:9091/login');
+        cy.url().should('contain', '/login');
     });
 });
