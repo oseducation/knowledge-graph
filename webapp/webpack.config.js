@@ -14,7 +14,7 @@ module.exports = {
     port: 9091,
     proxy: {
       '/api': {
-        target: 'http://localhost:9081',
+        target: process.env.KG_SERVER_URL_DOCKER ?? 'http://localhost:9081',
         xfwd: true,
       },
     }

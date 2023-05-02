@@ -10,9 +10,14 @@ go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation
 go run cmd/main.go db create --email bla@gmail.com --password 12345678
 ```
 
-## Run server using
+## Run server and webapp using
 ```console
-go run cmd/main.go
+make run
 ```
 Killing the process will stop the server and all the processes on the server.
+
+## Docker
+* ```make docker-start``` runs server and webapp containers
+* ```make docker-stop``` stops server and webapp
+
 

@@ -1,0 +1,20 @@
+# Use an official Node runtime as a parent image
+FROM node:lts
+
+# Set the working directory
+WORKDIR /webapp
+
+# Copy package.json and package-lock.json
+COPY ./webapp/package*.json ./
+
+# Install any needed packages
+RUN npm install
+
+# Copy the rest of the React application code
+COPY ./webapp .
+
+# Make port 9091 available to the world outside this container
+EXPOSE 9091
+
+# Run the app when the container launches
+CMD ["make", "run-client"]

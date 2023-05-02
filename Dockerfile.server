@@ -1,0 +1,17 @@
+# Use an official Golang runtime as a parent image
+FROM golang:latest
+
+# Set the working directory
+WORKDIR /knowledge-graph-server
+
+# Copy the Golang server's source code into the container
+COPY ./server .
+
+# Install any needed packages specified in go.mod and go.sum
+RUN go mod download
+
+# Make port 9081 available to the world outside this container
+EXPOSE 9081
+
+# Run the server when the container launches
+CMD ["make", "run-server"]

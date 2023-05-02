@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  kg-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - '9081:9081'
+    networks:
+      - kg-network
+
+  kg-webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+    ports:
+      - '9091:9091'
+    environment:
+      - KG_SERVER_URL_DOCKER=http://kg-server:9081
+    stdin_open: true
+    tty: true
+    networks:
+      - kg-network
+
+networks:
+  kg-network:
+    driver: bridge
