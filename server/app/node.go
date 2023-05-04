@@ -5,6 +5,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const defaultVideoPerPage = 20
+
 // CreateNode creates new node
 func (a *App) CreateNode(node *model.Node) (*model.Node, error) {
 	rnode, err := a.Store.Node().Save(node)
@@ -37,4 +39,31 @@ func (a *App) DeleteNode(node *model.Node) error {
 		return errors.Wrapf(err, "node = %s", node.ID)
 	}
 	return nil
+}
+
+// GetNode gets node
+func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
+	node, err := a.Store.Node().Get(nodeID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "nodeID = %v", nodeID)
+	}
+	options := &model.VideoGetOptions{}
+	model.ComposeVideoOptions(
+		model.NodeID(nodeID),
+		model.VideoPage(0),
+		model.VideoPerPage(defaultVideoPerPage))(options)
+	videos, err := a.Store.Video().GetVideos(options)
+	if err != nil {
+		return nil, errors.Wrapf(err, "options = %v", options)
+	}
+	return &model.NodeWithResources{Node: *node, Videos: videos}, nil
+}
+
+// GetVideos gets filtered videos
+func (a *App) GetVideos(options *model.VideoGetOptions) ([]*model.Video, error) {
+	videos, err := a.Store.Video().GetVideos(options)
+	if err != nil {
+		return nil, errors.Wrapf(err, "options = %v", options)
+	}
+	return videos, nil
 }

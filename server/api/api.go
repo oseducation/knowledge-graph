@@ -19,6 +19,7 @@ type API struct {
 	Users         *gin.RouterGroup // 'api/v1/users'
 	User          *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
 	Nodes         *gin.RouterGroup // 'api/v1/nodes'
+	Node          *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
 	jwtMiddleware *jwt.GinJWTMiddleware
 }
 

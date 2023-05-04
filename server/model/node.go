@@ -24,6 +24,11 @@ type Node struct {
 	Description string `json:"description,omitempty" db:"description"`
 }
 
+type NodeWithResources struct {
+	Node
+	Videos []*Video `json:"videos" db:"_"`
+}
+
 // IsValid validates the node and returns an error if it isn't configured correctly.
 func (n *Node) IsValid() error {
 	if !IsValidID(n.ID) {
