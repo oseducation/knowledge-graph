@@ -6,7 +6,6 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import WelcomePage from './pages/WelcomePage';
 import HomePage from './pages/HomePage';
-import NodePage from './pages/NodePage';
 import RequireAuth from './components/require_auth';
 import {ROLES} from './types/users';
 
@@ -17,7 +16,6 @@ function App() {
             <Route path="/" element={<HomePage/>}/>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
-            <Route path="/node/:nodeID" element={<NodePage/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
                 <Route path="/welcome" element={<WelcomePage/>}/>
             </Route>
