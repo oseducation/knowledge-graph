@@ -86,6 +86,20 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating indexes on edges table")
 			}
 
+			if _, err := e.Exec(`
+			CREATE TABLE IF NOT EXISTS videos (
+				id VARCHAR(26) PRIMARY KEY,
+				created_at bigint,
+				deleted_at bigint,
+				video_type VARCHAR(32),
+				url VARCHAR(128),
+				length bigint,
+				node_id VARCHAR(26)
+			);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table videos")
+			}
+
 			return nil
 		},
 	},
