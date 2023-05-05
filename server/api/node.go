@@ -21,7 +21,7 @@ func (apiObj *API) initNode() {
 	apiObj.Nodes.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateNode)
 	apiObj.Nodes.DELETE("/", apiObj.jwtMiddleware.MiddlewareFunc(), deleteNode)
 
-	apiObj.Nodes.GET("/:nodeID", apiObj.jwtMiddleware.MiddlewareFunc(), getNode)
+	apiObj.Nodes.GET("/:nodeID", getNode)
 }
 
 func createNode(c *gin.Context) {

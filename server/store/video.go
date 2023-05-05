@@ -80,7 +80,7 @@ func (vs *SQLVideoStore) GetVideos(options *model.VideoGetOptions) ([]*model.Vid
 	var videos []*model.Video
 	query := vs.videoSelect
 	if options.NodeID != "" {
-		query = query.Where(sq.Eq{"v.NodeID": options.NodeID})
+		query = query.Where(sq.Eq{"v.node_id": options.NodeID})
 	}
 	if options.PerPage > 0 {
 		query = query.Limit(uint64(options.PerPage))
