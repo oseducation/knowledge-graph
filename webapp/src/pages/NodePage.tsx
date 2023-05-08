@@ -4,9 +4,8 @@ import {Stack} from '@mui/material';
 
 import Header from '../components/header';
 import Content from '../components/content';
-import Graph from '../components/graph';
 import Footer from '../components/footer';
-
+import Node from '../components/node';
 
 const HomePage = () => {
     const {nodeID} = useParams<{nodeID: string}>();
@@ -17,8 +16,7 @@ const HomePage = () => {
     return (
         <Stack>
             <Header/>
-            <Content/>
-            <Graph/>
+            <Node nodeID={nodeID}/>
             <Footer/>
         </Stack>
     )
