@@ -24,6 +24,7 @@ type Store interface {
 	User() UserStore
 	Token() TokenStore
 	Node() NodeStore
+	Video() VideoStore
 	Graph() GraphStore
 }
 
@@ -35,6 +36,7 @@ type SQLStore struct {
 	userStore  UserStore
 	tokenStore TokenStore
 	nodeStore  NodeStore
+	videoStore VideoStore
 	graphStore GraphStore
 	config     *config.DBSettings
 	logger     *log.Logger
@@ -90,6 +92,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.userStore = NewUserStore(sqlStore)
 	sqlStore.tokenStore = NewTokenStore(sqlStore)
 	sqlStore.nodeStore = NewNodeStore(sqlStore)
+	sqlStore.videoStore = NewVideoStore(sqlStore)
 	sqlStore.graphStore = NewGraphStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
@@ -202,6 +205,11 @@ func (sqlDB *SQLStore) Token() TokenStore {
 // Node returns an interface to manage nodes in the DB
 func (sqlDB *SQLStore) Node() NodeStore {
 	return sqlDB.nodeStore
+}
+
+// Video returns an interface to manage video in the DB
+func (sqlDB *SQLStore) Video() VideoStore {
+	return sqlDB.videoStore
 }
 
 // Graph returns an interface to manage graph edges in the DB

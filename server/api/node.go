@@ -20,6 +20,8 @@ func (apiObj *API) initNode() {
 	apiObj.Nodes.POST("/", apiObj.jwtMiddleware.MiddlewareFunc(), createNode)
 	apiObj.Nodes.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateNode)
 	apiObj.Nodes.DELETE("/", apiObj.jwtMiddleware.MiddlewareFunc(), deleteNode)
+
+	apiObj.Nodes.GET("/:nodeID", getNode)
 }
 
 func createNode(c *gin.Context) {
@@ -141,4 +143,25 @@ func deleteNode(c *gin.Context) {
 	}
 
 	responseFormat(c, http.StatusOK, "Node deleted")
+}
+
+func getNode(c *gin.Context) {
+	nodeID := c.Param("nodeID")
+	if nodeID == "" {
+		responseFormat(c, http.StatusBadRequest, "missing node_id")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	nodes, err := a.GetNode(nodeID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	responseFormat(c, http.StatusOK, nodes)
 }
