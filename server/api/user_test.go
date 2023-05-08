@@ -60,6 +60,21 @@ func TestUserLogin(t *testing.T) {
 	})
 }
 
+func TestUserLogout(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+
+	t.Run("should logout user", func(t *testing.T) {
+		resp, err := th.AdminClient.Logout()
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, resp)
+		_, resp, err = th.AdminClient.GetUsers()
+		require.Error(t, err)
+		functionaltesting.CheckUnauthorizedStatus(t, resp)
+
+	})
+}
+
 func TestCreateUser(t *testing.T) {
 	th := functionaltesting.Setup(t)
 	defer th.TearDown()
@@ -220,5 +235,41 @@ func TestDeleteUser(t *testing.T) {
 		resp, err := th.AdminClient.DeleteUser(createdUser.ID)
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, resp)
+	})
+}
+
+func TestVerifyUserEmail(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+
+	t.Run("email can be verified", func(t *testing.T) {
+		user := model.User{
+			Email:         "bla3@gmail.com",
+			Password:      "hello1",
+			EmailVerified: true,
+			Username:      "user3",
+		}
+		_, _, err := th.UserClient.RegisterUser(&user)
+		token, err := th.GetLastToken()
+		resp, err := th.Client.VerifyUserEmail(token.Token)
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, resp)
+	})
+	t.Run("email can,t be verified with wrong token", func(t *testing.T) {
+		token, err := th.GetLastToken()
+		resp, err := th.Client.VerifyUserEmail(token.Token + "random")
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+}
+
+func TestSendVerificationEmail(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+	// For now, we don't send email. So we just check that the request is OK
+	t.Run("verification email request should return OK", func(t *testing.T) {
+		response, err := th.Client.SendVerificationEmail()
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, response)
 	})
 }

@@ -27,6 +27,7 @@ func getTestConfig() *config.Config {
 	config := &config.Config{}
 	config.DBSettings.DriverName = "sqlite3"
 	config.DBSettings.DataSource = "../sqlite-test.db"
+	config.EmailSettings.RequireEmailVerification = true
 	return config
 }
 
@@ -112,6 +113,10 @@ func (th *TestHelper) TearDown() {
 	th.Server.Shutdown()
 }
 
+func (th *TestHelper) GetLastToken() (*model.Token, error) {
+	return th.Server.App.Store.Token().GetLastToken()
+}
+
 func CheckCreatedStatus(tb testing.TB, resp *Response) {
 	tb.Helper()
 	checkHTTPStatus(tb, resp, http.StatusCreated)
@@ -125,6 +130,11 @@ func CheckUnauthorizedStatus(tb testing.TB, resp *Response) {
 func CheckForbiddenStatus(tb testing.TB, resp *Response) {
 	tb.Helper()
 	checkHTTPStatus(tb, resp, http.StatusForbidden)
+}
+
+func CheckBadRequestStatus(tb testing.TB, resp *Response) {
+	tb.Helper()
+	checkHTTPStatus(tb, resp, http.StatusBadRequest)
 }
 
 func CheckConflictStatus(tb testing.TB, resp *Response) {

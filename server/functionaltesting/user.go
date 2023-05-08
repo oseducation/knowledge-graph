@@ -102,6 +102,19 @@ func (c *Client) LoginByEmail(email string, password string) (*model.User, *Resp
 	return c.login(m)
 }
 
+// Logout logs out a user.
+func (c *Client) Logout() (*Response, error) {
+	r, err := c.DoAPIPost(c.usersRoute()+"/logout", "")
+	if err != nil {
+		return BuildResponse(r), err
+	}
+	defer closeBody(r)
+	c.AuthToken = r.Header.Get(HeaderToken)
+	c.AuthType = HeaderBearer
+
+	return BuildResponse(r), nil
+}
+
 func (c *Client) login(m map[string]string) (*model.User, *Response, error) {
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -121,6 +134,35 @@ func (c *Client) login(m map[string]string) (*model.User, *Response, error) {
 		return nil, BuildResponse(r), err
 	}
 	return u, BuildResponse(r), nil
+}
+
+func (c *Client) VerifyUserEmail(token string) (*Response, error) {
+	m := make(map[string]string)
+	m["token"] = token
+	b, err := json.Marshal(m)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't marshal map")
+	}
+
+	r, err := c.DoAPIPost(c.usersRoute()+"/email/verify", string(b))
+	if err != nil {
+		return BuildResponse(r), err
+	}
+	defer closeBody(r)
+	c.AuthToken = r.Header.Get(HeaderToken)
+	c.AuthType = HeaderBearer
+	return BuildResponse(r), nil
+}
+
+func (c *Client) SendVerificationEmail() (*Response, error) {
+	r, err := c.DoAPIPost(c.usersRoute()+"/email/verify/send", "")
+	if err != nil {
+		return BuildResponse(r), err
+	}
+	defer closeBody(r)
+	c.AuthToken = r.Header.Get(HeaderToken)
+	c.AuthType = HeaderBearer
+	return BuildResponse(r), nil
 }
 
 func decodeUser(reader io.ReadCloser) (*model.User, error) {
