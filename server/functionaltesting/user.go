@@ -62,9 +62,6 @@ func (c *Client) UpdateUser(user *model.User) (*Response, error) {
 		return BuildResponse(r), err
 	}
 	defer closeBody(r)
-	if err != nil {
-		return BuildResponse(r), err
-	}
 	return BuildResponse(r), nil
 }
 
@@ -84,9 +81,9 @@ func (c *Client) GetUsers() (*[]model.User, *Response, error) {
 }
 
 // DeleteUser deletes given user.
-func (c *Client) DeleteUser(userId string) (*Response, error) {
-	query := fmt.Sprintf("?user_id=%v&userId", userId)
-	r, err := c.DoAPiDelete(c.usersRoute()+query, "")
+func (c *Client) DeleteUser(userID string) (*Response, error) {
+	query := fmt.Sprintf("?user_id=%v", userID)
+	r, err := c.DoAPIDelete(c.usersRoute()+query, "")
 	if err != nil {
 		return BuildResponse(r), err
 	}

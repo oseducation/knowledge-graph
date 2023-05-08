@@ -210,15 +210,15 @@ func TestDeleteUser(t *testing.T) {
 	defer th.TearDown()
 
 	t.Run("user can't be deleted without authentication", func(t *testing.T) {
-		userId := "123"
-		resp, err := th.Client.DeleteUser(userId)
+		userID := "123"
+		resp, err := th.Client.DeleteUser(userID)
 		require.Error(t, err)
 		functionaltesting.CheckUnauthorizedStatus(t, resp)
 	})
 
 	t.Run("user can't be updated by the basic user", func(t *testing.T) {
-		userId := "123"
-		resp, err := th.UserClient.DeleteUser(userId)
+		userID := "123"
+		resp, err := th.UserClient.DeleteUser(userID)
 		require.Error(t, err)
 		functionaltesting.CheckForbiddenStatus(t, resp)
 	})
@@ -250,13 +250,16 @@ func TestVerifyUserEmail(t *testing.T) {
 			Username:      "user3",
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
+		require.NoError(t, err)
 		token, err := th.GetLastToken()
+		require.NoError(t, err)
 		resp, err := th.Client.VerifyUserEmail(token.Token)
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, resp)
 	})
 	t.Run("email can,t be verified with wrong token", func(t *testing.T) {
 		token, err := th.GetLastToken()
+		require.NoError(t, err)
 		resp, err := th.Client.VerifyUserEmail(token.Token + "random")
 		require.Error(t, err)
 		functionaltesting.CheckBadRequestStatus(t, resp)

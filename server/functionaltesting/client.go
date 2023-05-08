@@ -54,7 +54,7 @@ func (c *Client) DoAPIPut(url string, data string) (*http.Response, error) {
 	return c.DoAPIRequest(http.MethodPut, c.APIURL+url, data, "")
 }
 
-func (c *Client) DoAPiDelete(url string, data string) (*http.Response, error) {
+func (c *Client) DoAPIDelete(url string, data string) (*http.Response, error) {
 	return c.DoAPIRequest(http.MethodDelete, c.APIURL+url, data, "")
 }
 
