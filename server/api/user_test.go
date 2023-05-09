@@ -251,16 +251,23 @@ func TestVerifyUserEmail(t *testing.T) {
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
 		require.NoError(t, err)
-		token, err := th.GetLastToken()
+		tokens, err := th.GetTokensByEmail(user.Email)
 		require.NoError(t, err)
-		resp, err := th.Client.VerifyUserEmail(token.Token)
+		resp, err := th.Client.VerifyUserEmail(tokens[0].Token)
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, resp)
 	})
 	t.Run("email can,t be verified with wrong token", func(t *testing.T) {
-		token, err := th.GetLastToken()
+		user := model.User{
+			Email:         "bla4@gmail.com",
+			Password:      "hello1",
+			EmailVerified: true,
+			Username:      "user4",
+		}
+		_, _, err := th.UserClient.RegisterUser(&user)
+		tokens, err := th.GetTokensByEmail(user.Email)
 		require.NoError(t, err)
-		resp, err := th.Client.VerifyUserEmail(token.Token + "random")
+		resp, err := th.Client.VerifyUserEmail(tokens[0].Token + "random")
 		require.Error(t, err)
 		functionaltesting.CheckBadRequestStatus(t, resp)
 	})

@@ -113,8 +113,8 @@ func (th *TestHelper) TearDown() {
 	th.Server.Shutdown()
 }
 
-func (th *TestHelper) GetLastToken() (*model.Token, error) {
-	return th.Server.App.Store.Token().GetLastToken()
+func (th *TestHelper) GetTokensByEmail(email string) ([]*model.Token, error) {
+	return th.Server.App.Store.Token().GetTokenByEmail(email)
 }
 
 func CheckCreatedStatus(tb testing.TB, resp *Response) {
