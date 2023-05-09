@@ -11,6 +11,7 @@ import (
 )
 
 const APIURLSuffix = "/api/v1"
+const refreshTokenPath = "/refresh-token"
 
 type API struct {
 	Logger        *log.Logger
@@ -39,6 +40,7 @@ func Init(router *gin.Engine, application *app.App) error {
 		return errors.Wrap(err, "can't create jwt middleware")
 	}
 	apiObj.jwtMiddleware = mw
+	apiObj.initRefreshToken(mw)
 
 	apiObj.initUser()
 	apiObj.initNode()
@@ -49,6 +51,10 @@ func Init(router *gin.Engine, application *app.App) error {
 	})
 
 	return nil
+}
+
+func (apiObj *API) initRefreshToken(mw *jwt.GinJWTMiddleware) {
+	apiObj.APIRoot.GET(refreshTokenPath, mw.RefreshHandler)
 }
 
 func responseFormat(c *gin.Context, respStatus int, data interface{}) {
