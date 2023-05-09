@@ -27,9 +27,10 @@ func NewVideoStore(db *SQLStore) VideoStore {
 			"v.created_at",
 			"v.deleted_at",
 			"v.video_type",
-			"v.url",
+			"v.key",
 			"v.length",
 			"v.node_id",
+			"v.author_id",
 		).
 		From("videos v")
 
@@ -56,12 +57,13 @@ func (vs *SQLVideoStore) Save(video *model.Video) (*model.Video, error) {
 			"created_at": video.CreatedAt,
 			"deleted_at": video.DeletedAt,
 			"video_type": video.VideoType,
-			"url":        video.URL,
+			"key":        video.Key,
 			"length":     video.Length,
 			"node_id":    video.NodeID,
+			"author_id":  video.AuthorID,
 		}))
 	if err != nil {
-		return nil, errors.Wrapf(err, "can't save video with url:%s", video.URL)
+		return nil, errors.Wrapf(err, "can't save video with key:%s", video.Key)
 	}
 	return video, nil
 }

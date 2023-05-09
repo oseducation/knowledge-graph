@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"io"
-	"net/url"
 	"unicode/utf8"
 
 	"github.com/pkg/errors"
@@ -18,9 +17,10 @@ type Video struct {
 	CreatedAt int64  `json:"created_at,omitempty" db:"created_at"`
 	DeletedAt int64  `json:"deleted_at" db:"deleted_at"`
 	VideoType string `json:"video_type" db:"video_type"` // youtube or from our object storage, currently only supports youtube
-	URL       string `json:"url" db:"url"`               // youtube url
+	Key       string `json:"key" db:"key"`               // for youtube - video ID
 	Length    int64  `json:"length" db:"length"`         // in seconds
 	NodeID    string `json:"node_id" db:"node_id"`
+	AuthorID  string `json:"author_id" db:"author_id"`
 }
 
 // IsValid validates the video and returns an error if it isn't configured correctly.
@@ -33,6 +33,10 @@ func (v *Video) IsValid() error {
 		return invalidVideoError(v.ID, "node_id", v.NodeID)
 	}
 
+	if !IsValidID(v.AuthorID) {
+		return invalidVideoError(v.ID, "author_id", v.AuthorID)
+	}
+
 	if v.CreatedAt == 0 {
 		return invalidVideoError(v.ID, "create_at", v.CreatedAt)
 	}
@@ -41,12 +45,8 @@ func (v *Video) IsValid() error {
 		return invalidVideoError(v.ID, "video_type", v.VideoType)
 	}
 
-	if _, err := url.ParseRequestURI(v.URL); err != nil {
-		return invalidVideoError(v.ID, "url", v.URL)
-	}
-
-	if utf8.RuneCountInString(v.URL) > VideoURLMaxRunes {
-		return invalidVideoError(v.ID, "url", v.URL)
+	if utf8.RuneCountInString(v.Key) > VideoURLMaxRunes {
+		return invalidVideoError(v.ID, "key", v.Key)
 	}
 
 	return nil

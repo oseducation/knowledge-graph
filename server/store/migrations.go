@@ -92,9 +92,10 @@ var migrations = []Migration{
 				created_at bigint,
 				deleted_at bigint,
 				video_type VARCHAR(32),
-				url VARCHAR(128),
+				key VARCHAR(128),
 				length bigint,
-				node_id VARCHAR(26)
+				node_id VARCHAR(26),
+				author_id VARCHAR(26)
 			);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table videos")
