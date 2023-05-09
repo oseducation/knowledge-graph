@@ -265,6 +265,7 @@ func TestVerifyUserEmail(t *testing.T) {
 			Username:      "user4",
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
+		require.NoError(t, err)
 		tokens, err := th.GetTokensByEmail(user.Email)
 		require.NoError(t, err)
 		resp, err := th.Client.VerifyUserEmail(tokens[0].Token + "random")

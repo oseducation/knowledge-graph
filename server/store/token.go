@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
