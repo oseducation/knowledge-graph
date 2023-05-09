@@ -50,6 +50,13 @@ func (c *Client) DoAPIGet(url string, etag string) (*http.Response, error) {
 func (c *Client) DoAPIPost(url string, data string) (*http.Response, error) {
 	return c.DoAPIRequest(http.MethodPost, c.APIURL+url, data, "")
 }
+func (c *Client) DoAPIPut(url string, data string) (*http.Response, error) {
+	return c.DoAPIRequest(http.MethodPut, c.APIURL+url, data, "")
+}
+
+func (c *Client) DoAPIDelete(url string, data string) (*http.Response, error) {
+	return c.DoAPIRequest(http.MethodDelete, c.APIURL+url, data, "")
+}
 
 func (c *Client) DoAPIRequest(method, url, data, etag string) (*http.Response, error) {
 	return c.DoAPIRequestReader(method, url, strings.NewReader(data), map[string]string{HeaderEtagClient: etag, HeaderContentType: JSONContentType})
