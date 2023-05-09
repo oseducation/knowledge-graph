@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
-
-import {Graph, Node} from '../types/graph';
+import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import {Graph as ReactD3GraphComponent} from "react-d3-graph";
 
+import {Graph, Node} from '../types/graph';
 
 interface Props {
     graph: Graph;
