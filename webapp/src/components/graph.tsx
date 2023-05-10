@@ -4,7 +4,7 @@ import {Container, Stack} from '@mui/material';
 import {Client} from '../client/client';
 import {Graph} from '../types/graph';
 
-import DAG from './force_graph';
+import ReactD3Graph from './react_d3_graph';
 
 
 const GraphComponent = () => {
@@ -28,7 +28,11 @@ const GraphComponent = () => {
     return (
         <Container>
             <Stack width={1000} height={600}  display={'flex'} alignItems={'center'}>
-                <DAG graph={graph}/>
+                <ReactD3Graph
+                    graph={graph}
+                    width={1000}
+                    height={600}
+                />
             </Stack>
         </Container>
     );
