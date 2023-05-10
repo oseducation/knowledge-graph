@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	jwtSecret       = "some secret"
-	identityKey     = "id"
-	loggedInUserKey = "loginUser"
-	HeaderToken     = "token"
+	jwtSecret          = "some secret"
+	identityKey        = "id"
+	loggedInUserKey    = "loginUser"
+	HeaderToken        = "Token"
+	maxRefreshDuration = time.Hour * 24 * 7 * 12
 )
 
 func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
@@ -24,7 +25,7 @@ func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
 		Realm:       "test zone",
 		Key:         []byte(jwtSecret),
 		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		MaxRefresh:  maxRefreshDuration,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*model.User); ok {
@@ -85,6 +86,11 @@ func getJWTMiddleware(a *app.App) (*jwt.GinJWTMiddleware, error) {
 
 		// TokenHeadName is a string in the header. Default value is "Bearer"
 		TokenHeadName: "Bearer",
+
+		RefreshResponse: func(c *gin.Context, code int, token string, time time.Time) {
+			c.Header(HeaderToken, token)
+			responseFormat(c, http.StatusOK, "token refreshed")
+		},
 
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
