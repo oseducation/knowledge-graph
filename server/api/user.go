@@ -18,7 +18,7 @@ func (apiObj *API) initUser() {
 	apiObj.Users = apiObj.APIRoot.Group("/users")
 
 	apiObj.Users.POST("/login", apiObj.jwtMiddleware.LoginHandler)
-	apiObj.Users.POST("/logout", apiObj.jwtMiddleware.LogoutHandler)
+	apiObj.Users.POST("/logout", apiObj.jwtMiddleware.MiddlewareFunc(), apiObj.jwtMiddleware.LogoutHandler)
 
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
