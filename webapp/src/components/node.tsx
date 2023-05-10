@@ -21,16 +21,12 @@ const Node = (props: Props) => {
         });
     },[]);
 
-    if (!node.videos) {
-        return null;
-    }
-
     return (
         <Stack>
             <h2>{node.name}</h2>
             <p>{node.description}</p>
             <div>
-                {node.videos.map((video) => (
+                {node.videos && node.videos.map((video) => (
                     <div key={video.key}>
                         <iframe
                             width='560'

@@ -1,6 +1,8 @@
 package store
 
 import (
+	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
@@ -16,6 +18,7 @@ type SQLTokenStore struct {
 type TokenStore interface {
 	Save(token *model.Token) error
 	Get(token string) (*model.Token, error)
+	GetTokenByEmail(email string) ([]*model.Token, error)
 	Delete(token string) error
 }
 
@@ -58,6 +61,18 @@ func (ts *SQLTokenStore) Get(token string) (*model.Token, error) {
 		return nil, errors.Wrapf(err, "can't get token: %s", token)
 	}
 	return &tok, nil
+}
+
+// GetTokenByEmail returns tokens by email
+func (ts *SQLTokenStore) GetTokenByEmail(email string) ([]*model.Token, error) {
+	var tokens []*model.Token
+	query := ts.tokenSelect.Where(sq.Like{"t.extra": fmt.Sprintf("%%\"%s\"%%", email)}).OrderBy("t.created_at desc")
+	if err := ts.sqlStore.selectBuilder(
+		ts.sqlStore.db, &tokens, query,
+	); err != nil {
+		return nil, errors.Wrapf(err, "can't get the last token")
+	}
+	return tokens, nil
 }
 
 // Delete removes token
