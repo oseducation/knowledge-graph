@@ -15,7 +15,7 @@ interface Props {
 const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
 
-    const onClickNode = ({id} : Node) => {
+    const onNodeClick = ({id} : Node) => {
         navigate(`/nodes/${id}`)
     };
 
@@ -31,7 +31,7 @@ const D3ForceGraph = (props: Props) => {
                 linkDirectionalParticles={2}
                 linkDirectionalParticleWidth={2}
                 linkWidth={2}
-                onNodeClick={onClickNode}
+                onNodeClick={onNodeClick}
             />
         );
     }
@@ -44,7 +44,7 @@ const D3ForceGraph = (props: Props) => {
             linkDirectionalParticles={2}
             linkDirectionalParticleWidth={2}
             linkWidth={2}
-            onNodeClick={onClickNode}
+            onNodeClick={onNodeClick}
             dagMode='lr'
             nodeVal={20}
             nodeCanvasObject={(node, ctx, globalScale) => {
