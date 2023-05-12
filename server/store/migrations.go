@@ -87,18 +87,32 @@ var migrations = []Migration{
 			}
 
 			if _, err := e.Exec(`
-			CREATE TABLE IF NOT EXISTS videos (
-				id VARCHAR(26) PRIMARY KEY,
-				created_at bigint,
-				deleted_at bigint,
-				video_type VARCHAR(32),
-				key VARCHAR(128),
-				length bigint,
-				node_id VARCHAR(26),
-				author_id VARCHAR(26)
-			);
+				CREATE TABLE IF NOT EXISTS videos (
+					id VARCHAR(26) PRIMARY KEY,
+					created_at bigint,
+					deleted_at bigint,
+					video_type VARCHAR(32),
+					key VARCHAR(128),
+					length bigint,
+					node_id VARCHAR(26),
+					author_id VARCHAR(26)
+				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table videos")
+			}
+
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS sessions (
+					id VARCHAR(26) PRIMARY KEY,
+					token VARCHAR(26),
+					create_at bigint,
+					expires_at bigint,
+					last_activity_at bigint,
+					user_id VARCHAR(26),
+					role VARCHAR(32)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table sessions")
 			}
 
 			return nil

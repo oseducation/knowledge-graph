@@ -54,6 +54,15 @@ func UserFromJSON(data io.Reader) (*User, error) {
 	return user, nil
 }
 
+// UserLoginFromJSON will decode the input and return a User
+func UserLoginFromJSON(data io.Reader) (*UserLogin, error) {
+	var userLogin *UserLogin
+	if err := json.NewDecoder(data).Decode(&userLogin); err != nil {
+		return nil, errors.Wrap(err, "can't decode user")
+	}
+	return userLogin, nil
+}
+
 // BeforeSave should be called before storing the user
 func (u *User) BeforeSave() {
 	u.ID = NewID()

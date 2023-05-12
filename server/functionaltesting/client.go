@@ -13,7 +13,7 @@ const (
 	HeaderEtagServer  = "ETag"
 	HeaderEtagClient  = "If-None-Match"
 	HeaderAuth        = "Authorization"
-	HeaderToken       = "token"
+	HeaderToken       = "Token"
 	HeaderBearer      = "Bearer"
 	HeaderContentType = "Content-Type"
 	JSONContentType   = "application/json"
