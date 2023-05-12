@@ -16,10 +16,10 @@ const (
 func (apiObj *API) initNode() {
 	apiObj.Nodes = apiObj.APIRoot.Group("/nodes")
 
-	apiObj.Nodes.GET("/", authMiddleware(), getNodes)
-	apiObj.Nodes.POST("/", authMiddleware(), createNode)
-	apiObj.Nodes.PUT("/", authMiddleware(), updateNode)
-	apiObj.Nodes.DELETE("/", authMiddleware(), deleteNode)
+	apiObj.Nodes.GET("/", authMiddleware(), requireNodePermissions(), getNodes)
+	apiObj.Nodes.POST("/", authMiddleware(), requireNodePermissions(), createNode)
+	apiObj.Nodes.PUT("/", authMiddleware(), requireNodePermissions(), updateNode)
+	apiObj.Nodes.DELETE("/", authMiddleware(), requireNodePermissions(), deleteNode)
 
 	apiObj.Nodes.GET("/:nodeID", getNode)
 }
@@ -34,17 +34,6 @@ func createNode(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-
-	if !session.CanManageNodes() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
@@ -74,17 +63,6 @@ func getNodes(c *gin.Context) {
 		return
 	}
 
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-
-	if !session.CanManageNodes() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
-
 	options := &model.NodeGetOptions{}
 	model.ComposeNodeOptions(
 		model.TermInName(termInName),
@@ -110,15 +88,6 @@ func updateNode(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	if !session.CanManageNodes() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
 
 	err = a.UpdateNode(updatedNode)
 	if err != nil {
@@ -137,16 +106,6 @@ func deleteNode(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	if !session.CanManageNodes() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 

@@ -29,10 +29,10 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
 	apiObj.Users.POST("/email/verify/send", sendVerificationEmail)
 
-	apiObj.Users.GET("/", authMiddleware(), getUsers)
-	apiObj.Users.POST("/", authMiddleware(), createUser)
-	apiObj.Users.PUT("/", authMiddleware(), updateUser)
-	apiObj.Users.DELETE("/", authMiddleware(), deleteUser)
+	apiObj.Users.GET("/", authMiddleware(), requireUserPermissions(), getUsers)
+	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
+	apiObj.Users.PUT("/", authMiddleware(), requireUserPermissions(), updateUser)
+	apiObj.Users.DELETE("/", authMiddleware(), requireUserPermissions(), deleteUser)
 }
 
 func login(c *gin.Context) {
@@ -130,16 +130,6 @@ func getUsers(c *gin.Context) {
 		return
 	}
 
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	if !session.CanManageUsers() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
-
 	options := &model.UserGetOptions{}
 	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage))(options)
 	users, err := a.GetUsers(options)
@@ -162,15 +152,6 @@ func createUser(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	if !session.CanManageUsers() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
 
 	ruser, err := a.CreateUser(user)
 	if err != nil {
@@ -189,15 +170,6 @@ func updateUser(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	if !session.CanManageUsers() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
@@ -230,16 +202,6 @@ func deleteUser(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	session, err := getSession(c)
-	if err != nil {
-		responseFormat(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	if !session.CanManageUsers() {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
