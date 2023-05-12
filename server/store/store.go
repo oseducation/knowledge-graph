@@ -26,6 +26,7 @@ type Store interface {
 	Node() NodeStore
 	Video() VideoStore
 	Graph() GraphStore
+	Session() SessionStore
 }
 
 // SQLStore struct represents a DB
@@ -33,13 +34,14 @@ type SQLStore struct {
 	db      *sqlx.DB
 	builder sq.StatementBuilderType
 
-	userStore  UserStore
-	tokenStore TokenStore
-	nodeStore  NodeStore
-	videoStore VideoStore
-	graphStore GraphStore
-	config     *config.DBSettings
-	logger     *log.Logger
+	userStore    UserStore
+	tokenStore   TokenStore
+	nodeStore    NodeStore
+	videoStore   VideoStore
+	graphStore   GraphStore
+	sessionStore SessionStore
+	config       *config.DBSettings
+	logger       *log.Logger
 }
 
 // queryer is an interface describing a resource that can query.
@@ -94,6 +96,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.nodeStore = NewNodeStore(sqlStore)
 	sqlStore.videoStore = NewVideoStore(sqlStore)
 	sqlStore.graphStore = NewGraphStore(sqlStore)
+	sqlStore.sessionStore = NewSessionStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -121,6 +124,9 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM tokens"); err != nil {
 			sqlDB.logger.Fatal("can't delete from tokens", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM sessions"); err != nil {
+			sqlDB.logger.Fatal("can't delete from sessions", log.Err(err))
 		}
 	}
 }
@@ -215,4 +221,9 @@ func (sqlDB *SQLStore) Video() VideoStore {
 // Graph returns an interface to manage graph edges in the DB
 func (sqlDB *SQLStore) Graph() GraphStore {
 	return sqlDB.graphStore
+}
+
+// Session returns an interface to manage sessions in the DB
+func (sqlDB *SQLStore) Session() SessionStore {
+	return sqlDB.sessionStore
 }

@@ -16,10 +16,10 @@ const (
 func (apiObj *API) initNode() {
 	apiObj.Nodes = apiObj.APIRoot.Group("/nodes")
 
-	apiObj.Nodes.GET("/", apiObj.jwtMiddleware.MiddlewareFunc(), getNodes)
-	apiObj.Nodes.POST("/", apiObj.jwtMiddleware.MiddlewareFunc(), createNode)
-	apiObj.Nodes.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateNode)
-	apiObj.Nodes.DELETE("/", apiObj.jwtMiddleware.MiddlewareFunc(), deleteNode)
+	apiObj.Nodes.GET("/", authMiddleware(), requireNodePermissions(), getNodes)
+	apiObj.Nodes.POST("/", authMiddleware(), requireNodePermissions(), createNode)
+	apiObj.Nodes.PUT("/", authMiddleware(), requireNodePermissions(), updateNode)
+	apiObj.Nodes.DELETE("/", authMiddleware(), requireNodePermissions(), deleteNode)
 
 	apiObj.Nodes.GET("/:nodeID", getNode)
 }
@@ -34,11 +34,6 @@ func createNode(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
@@ -68,12 +63,6 @@ func getNodes(c *gin.Context) {
 		return
 	}
 
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
-
 	options := &model.NodeGetOptions{}
 	model.ComposeNodeOptions(
 		model.TermInName(termInName),
@@ -99,11 +88,6 @@ func updateNode(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
 
 	err = a.UpdateNode(updatedNode)
 	if err != nil {
@@ -122,12 +106,6 @@ func deleteNode(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageNodes(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 

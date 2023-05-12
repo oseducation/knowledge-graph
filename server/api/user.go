@@ -14,20 +14,81 @@ const (
 	defaultUserPerPage = -1
 )
 
+const (
+	sessionKey  = "session"
+	headerToken = "Token"
+)
+
 func (apiObj *API) initUser() {
 	apiObj.Users = apiObj.APIRoot.Group("/users")
 
-	apiObj.Users.POST("/login", apiObj.jwtMiddleware.LoginHandler)
-	apiObj.Users.POST("/logout", apiObj.jwtMiddleware.MiddlewareFunc(), apiObj.jwtMiddleware.LogoutHandler)
+	apiObj.Users.POST("/login", login)
+	apiObj.Users.POST("/logout", authMiddleware(), logout)
 
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
 	apiObj.Users.POST("/email/verify/send", sendVerificationEmail)
 
-	apiObj.Users.GET("/", apiObj.jwtMiddleware.MiddlewareFunc(), getUsers)
-	apiObj.Users.POST("/", apiObj.jwtMiddleware.MiddlewareFunc(), createUser)
-	apiObj.Users.PUT("/", apiObj.jwtMiddleware.MiddlewareFunc(), updateUser)
-	apiObj.Users.DELETE("/", apiObj.jwtMiddleware.MiddlewareFunc(), deleteUser)
+	apiObj.Users.GET("/", authMiddleware(), requireUserPermissions(), getUsers)
+	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
+	apiObj.Users.PUT("/", authMiddleware(), requireUserPermissions(), updateUser)
+	apiObj.Users.DELETE("/", authMiddleware(), requireUserPermissions(), deleteUser)
+}
+
+func login(c *gin.Context) {
+	userLogin, err := model.UserLoginFromJSON(c.Request.Body)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `userLogin` in the request body")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	user, err := a.AuthenticateUser(userLogin.Email, userLogin.Password)
+	if err != nil {
+		responseFormat(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	session := &model.Session{
+		UserID: user.ID,
+		Role:   user.Role,
+	}
+	session, err = a.CreateSession(session)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Set(sessionKey, session)
+	c.Header(headerToken, session.Token)
+	responseFormat(c, http.StatusOK, user)
+}
+
+func logout(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	if err := a.RevokeSession(session); err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Writer.Header().Del(headerToken)
+	responseFormat(c, http.StatusOK, "")
 }
 
 func registerUser(c *gin.Context) {
@@ -69,12 +130,6 @@ func getUsers(c *gin.Context) {
 		return
 	}
 
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageUsers(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
-
 	options := &model.UserGetOptions{}
 	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage))(options)
 	users, err := a.GetUsers(options)
@@ -97,11 +152,6 @@ func createUser(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageUsers(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
-		return
-	}
 
 	ruser, err := a.CreateUser(user)
 	if err != nil {
@@ -120,11 +170,6 @@ func updateUser(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageUsers(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
@@ -157,12 +202,6 @@ func deleteUser(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	authorID := c.GetString(identityKey)
-	if !a.HasPermissionToManageUsers(authorID) {
-		responseFormat(c, http.StatusForbidden, "No permission for this action")
 		return
 	}
 
