@@ -5,7 +5,7 @@ import {Client} from '../client/client';
 import {Graph} from '../types/graph';
 
 import ReactD3Graph from './react_d3_graph';
-
+import ForceGraph from './3d_force_graph';
 
 const GraphComponent = () => {
     const [graph, setGraph] = useState<Graph>({} as Graph);
@@ -27,7 +27,19 @@ const GraphComponent = () => {
 
     return (
         <Container>
-            <Stack width={1000} height={600}  display={'flex'} alignItems={'center'}>
+            <Stack width={1000} height={1800}  display={'flex'} alignItems={'center'}>
+                <ForceGraph
+                    graph={graph}
+                    width={1000}
+                    height={600}
+                    d3={false}
+                />
+                <ForceGraph
+                    graph={graph}
+                    width={1000}
+                    height={600}
+                    d3={true}
+                />
                 <ReactD3Graph
                     graph={graph}
                     width={1000}
