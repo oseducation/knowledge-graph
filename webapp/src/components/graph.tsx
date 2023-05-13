@@ -29,19 +29,19 @@ const GraphComponent = () => {
         <Container>
             <Stack width={1000} height={1800}  display={'flex'} alignItems={'center'}>
                 <ForceGraph
-                    graph={graph}
+                    graph={{...graph}}
                     width={1000}
                     height={600}
                     d3={false}
                 />
                 <ForceGraph
-                    graph={graph}
+                    graph={{...graph}}
                     width={1000}
                     height={600}
                     d3={true}
                 />
                 <ReactD3Graph
-                    graph={graph}
+                    graph={{...graph}}
                     width={1000}
                     height={600}
                 />

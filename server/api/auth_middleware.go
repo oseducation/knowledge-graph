@@ -79,7 +79,7 @@ func parseAuthTokenFromRequest(r *http.Request) string {
 	// Parse the token from the header
 	if len(authHeader) > len(HeaderBearer) && strings.EqualFold(authHeader[0:len(HeaderBearer)], HeaderBearer) {
 		// Default session token
-		return authHeader[7:]
+		return authHeader[len(HeaderBearer)+1:]
 	}
 	return ""
 }

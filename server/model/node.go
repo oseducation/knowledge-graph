@@ -12,6 +12,8 @@ const (
 	NodeNameMaxRunes        = 128
 	NodeNameMinRunes        = 3
 	NodeDescriptionMaxRunes = 2048
+	NodeTypeLecture         = "lecture"
+	NodeTypeExample         = "example"
 )
 
 // Node type defines Knowledge Graph node
@@ -22,6 +24,7 @@ type Node struct {
 	DeletedAt   int64  `json:"deleted_at" db:"deleted_at"`
 	Name        string `json:"name" db:"name"`
 	Description string `json:"description,omitempty" db:"description"`
+	NodeType    string `json:"node_type" db:"node_type"`
 }
 
 type NodeWithResources struct {
@@ -49,6 +52,10 @@ func (n *Node) IsValid() error {
 
 	if utf8.RuneCountInString(n.Description) > NodeDescriptionMaxRunes {
 		return invalidNodeError(n.ID, "description", n.Description)
+	}
+
+	if n.NodeType != NodeTypeExample && n.NodeType != NodeTypeLecture {
+		return invalidNodeError(n.ID, "node_type", n.NodeType)
 	}
 
 	return nil

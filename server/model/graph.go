@@ -19,6 +19,7 @@ type FrontendNodes struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	NodeType    string `json:"node_type"`
 }
 
 type FrontendLinks struct {

@@ -39,6 +39,11 @@ const ReactD3Graph = (props: Props) => {
         height: props.height,
     };
 
+    const newNodes = props.graph.nodes.map(node => {
+        return {...node, symbolType: node.node_type === 'lecture' ? 'circle' : 'square', color: node.node_type === 'lecture' ? 'green' : 'blue'}
+    });
+    props.graph.nodes = newNodes;
+
     return (
         <ReactD3GraphComponent
             id="graph-id"

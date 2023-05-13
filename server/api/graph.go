@@ -27,6 +27,7 @@ func getGraph(c *gin.Context) {
 			ID:          node.ID,
 			Name:        node.Name,
 			Description: node.Description,
+			NodeType:    node.NodeType,
 		})
 	}
 	gr.Links = []model.FrontendLinks{}
