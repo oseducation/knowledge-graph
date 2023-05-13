@@ -29,4 +29,10 @@ docker-start:
 docker-stop:
 	docker-compose down
 
+import:
+	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
 
+nuke:
+	cd server && go run cmd/main.go db nuke
+
+n-run: nuke import run
