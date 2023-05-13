@@ -80,7 +80,7 @@ func createAdminCmdF(command *cobra.Command, _ []string) error {
 	return nil
 }
 
-func nukeDB(command *cobra.Command, _ []string) error {
+func nukeDB(_ *cobra.Command, _ []string) error {
 	conf, err := config.ReadConfig()
 	if err != nil {
 		return errors.Wrap(err, "can't read config")
