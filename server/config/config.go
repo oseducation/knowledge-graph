@@ -9,9 +9,12 @@ import (
 )
 
 type ServerSettings struct {
-	SiteURL                 string
-	ListenAddress           string
-	KnowledgeGraphImportURL string
+	SiteURL                         string
+	ListenAddress                   string
+	KnowledgeGraphImportURL         string
+	SessionIdleTimeoutInMinutes     int
+	ExtendSessionLengthWithActivity bool
+	SessionLengthInMinutes          int
 }
 
 type DBSettings struct {
