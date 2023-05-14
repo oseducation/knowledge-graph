@@ -20,6 +20,7 @@ const DBPingTimeoutSecs = 10
 
 // Store is an interface to communicate with the DB
 type Store interface {
+	Nuke() error
 	EmptyAllTables()
 	User() UserStore
 	Token() TokenStore
@@ -101,6 +102,49 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
 	return sqlStore
+}
+
+// NukeDB removes all data.
+func (sqlDB *SQLStore) Nuke() error {
+	tx, err := sqlDB.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "could not begin transaction")
+	}
+	defer sqlDB.finalizeTransaction(tx)
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS system"); err != nil {
+		return errors.Wrap(err, "could not delete system")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS users"); err != nil {
+		return errors.Wrap(err, "could not users")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS tokens"); err != nil {
+		return errors.Wrap(err, "could not tokens")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS nodes"); err != nil {
+		return errors.Wrap(err, "could not nodes")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS edges"); err != nil {
+		return errors.Wrap(err, "could not edges")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS videos"); err != nil {
+		return errors.Wrap(err, "could not videos")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS sessions"); err != nil {
+		return errors.Wrap(err, "could not sessions")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return errors.Wrap(err, "could not commit")
+	}
+
+	return sqlDB.RunMigrations()
 }
 
 func (sqlDB *SQLStore) EmptyAllTables() {
