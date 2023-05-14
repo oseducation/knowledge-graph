@@ -63,7 +63,8 @@ var migrations = []Migration{
 					updated_at bigint,
 					deleted_at bigint,
 					name VARCHAR(128) UNIQUE,
-					description VARCHAR(2048)
+					description VARCHAR(2048),
+					node_type VARCHAR(32)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table nodes")

@@ -32,6 +32,7 @@ const D3ForceGraph = (props: Props) => {
                 linkDirectionalParticleWidth={2}
                 linkWidth={2}
                 onNodeClick={onNodeClick}
+                nodeAutoColorBy={"node_type"}
             />
         );
     }
@@ -71,6 +72,7 @@ const D3ForceGraph = (props: Props) => {
                     ctx.fillRect(node.x||0 - bckgDimensions[0] / 2, node.y||0 - bckgDimensions[1] / 2, bckgDimensions[0], bckgDimensions[1]);
                 }
             }}
+            nodeAutoColorBy={"node_type"}
         />
     )
 

@@ -58,11 +58,30 @@ func (a *App) ImportGraph(url string) error {
 		return errors.Wrap(err, "can't get nodes.json file")
 	}
 	var nodes map[string]model.Node
-	if err := json.Unmarshal([]byte(nodesContent), &nodes); err != nil {
+	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
 		return errors.Wrap(err, "can't unmarshal nodes.json file")
 	}
 
+	examplesContent, err := getFileContent(fmt.Sprintf("%s/examples.json", url))
+	if err != nil {
+		return errors.Wrap(err, "can't get examples.json file")
+	}
+	var exampleNodes map[string]model.Node
+	if err := json.Unmarshal([]byte(examplesContent), &exampleNodes); err != nil {
+		return errors.Wrap(err, "can't unmarshal examples.json file")
+	}
+
 	for id, node := range nodes {
+		node.NodeType = model.NodeTypeLecture
+		updatedNode, err := a.Store.Node().Save(&node)
+		if err != nil {
+			return errors.Wrap(err, "can't save node")
+		}
+		nodes[id] = *updatedNode
+	}
+
+	for id, node := range exampleNodes {
+		node.NodeType = model.NodeTypeExample
 		updatedNode, err := a.Store.Node().Save(&node)
 		if err != nil {
 			return errors.Wrap(err, "can't save node")
