@@ -30,6 +30,14 @@ var dbImportGraph = &cobra.Command{
 	RunE:    importGraphCmdF,
 }
 
+var dbNuke = &cobra.Command{
+	Use:     "nuke",
+	Short:   "Nuke DB",
+	Long:    `Remove all data from the DB`,
+	Example: `  db nuke `,
+	RunE:    nukeDB,
+}
+
 func init() {
 	dbCreateAdmin.Flags().String("email", "", "Admin email")
 	dbCreateAdmin.Flags().String("password", "", "Admin password")
@@ -37,6 +45,8 @@ func init() {
 
 	dbImportGraph.Flags().String("url", "", "URL to folder with graph.json file")
 	dbCmd.AddCommand(dbImportGraph)
+
+	dbCmd.AddCommand(dbNuke)
 
 	rootCmd.AddCommand(dbCmd)
 }
@@ -67,6 +77,19 @@ func createAdminCmdF(command *cobra.Command, _ []string) error {
 	if err != nil {
 		return errors.Wrap(err, "can't save admin in DB")
 	}
+	return nil
+}
+
+func nukeDB(_ *cobra.Command, _ []string) error {
+	conf, err := config.ReadConfig()
+	if err != nil {
+		return errors.Wrap(err, "can't read config")
+	}
+	db := store.CreateStore(&conf.DBSettings, log.NewLogger(&log.LoggerConfiguration{NonLogger: true}))
+	if err := db.Nuke(); err != nil {
+		return errors.Wrap(err, "can't nuke DB")
+	}
+
 	return nil
 }
 
