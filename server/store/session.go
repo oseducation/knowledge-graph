@@ -12,6 +12,7 @@ type SessionStore interface {
 	Save(session *model.Session) (*model.Session, error)
 	GetSessions(userID string) ([]*model.Session, error)
 	Delete(sessionIDOrToken string) error
+	Update(new *model.Session) error
 }
 
 // SQLSessionStore is a struct to store session
@@ -40,7 +41,7 @@ func NewSessionStore(db *SQLStore) SessionStore {
 	}
 }
 
-func (ss SQLSessionStore) Save(session *model.Session) (*model.Session, error) {
+func (ss *SQLSessionStore) Save(session *model.Session) (*model.Session, error) {
 	if session.ID != "" {
 		return nil, errors.New("sessionID is set")
 	}
@@ -67,7 +68,7 @@ func (ss SQLSessionStore) Save(session *model.Session) (*model.Session, error) {
 	return session, nil
 }
 
-func (ss SQLSessionStore) Get(sessionIDOrToken string) (*model.Session, error) {
+func (ss *SQLSessionStore) Get(sessionIDOrToken string) (*model.Session, error) {
 	session := model.Session{}
 	if err := ss.sqlStore.getBuilder(ss.sqlStore.db, &session, ss.sessionSelect.Where(
 		sq.Or{
@@ -80,7 +81,7 @@ func (ss SQLSessionStore) Get(sessionIDOrToken string) (*model.Session, error) {
 	return &session, nil
 }
 
-func (ss SQLSessionStore) GetSessions(userID string) ([]*model.Session, error) {
+func (ss *SQLSessionStore) GetSessions(userID string) ([]*model.Session, error) {
 	sessions := []*model.Session{}
 	if err := ss.sqlStore.selectBuilder(ss.sqlStore.db, &sessions, ss.sessionSelect.
 		Where(sq.Eq{"user_id": userID}).
@@ -90,7 +91,7 @@ func (ss SQLSessionStore) GetSessions(userID string) ([]*model.Session, error) {
 	return sessions, nil
 }
 
-func (ss SQLSessionStore) Delete(sessionIDOrToken string) error {
+func (ss *SQLSessionStore) Delete(sessionIDOrToken string) error {
 	if _, err := ss.sqlStore.execBuilder(ss.sqlStore.db, sq.
 		Delete("sessions").
 		Where(sq.Or{
@@ -99,5 +100,29 @@ func (ss SQLSessionStore) Delete(sessionIDOrToken string) error {
 		})); err != nil {
 		return errors.Wrapf(err, "failed to delete session with id or token '%s'", sessionIDOrToken)
 	}
+	return nil
+}
+
+// Update will update session
+func (ss *SQLSessionStore) Update(new *model.Session) error {
+	if err := new.IsValid(); err != nil {
+		return err
+	}
+
+	_, err := ss.sqlStore.execBuilder(ss.sqlStore.db, sq.
+		Update("users").
+		SetMap(map[string]interface{}{
+			"token":            new.Token,
+			"create_at":        new.CreateAt,
+			"expires_at":       new.ExpiresAt,
+			"last_activity_at": new.LastActivityAt,
+			"user_id":          new.UserID,
+			"role":             new.Role,
+		}).
+		Where(sq.Eq{"ID": new.ID}))
+	if err != nil {
+		return errors.Wrapf(err, "failed to update session with id '%s'", new.ID)
+	}
+
 	return nil
 }

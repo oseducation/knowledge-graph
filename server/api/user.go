@@ -55,8 +55,9 @@ func login(c *gin.Context) {
 	}
 
 	session := &model.Session{
-		UserID: user.ID,
-		Role:   user.Role,
+		UserID:    user.ID,
+		Role:      user.Role,
+		ExpiresAt: model.GetMillis() + int64(a.Config.ServerSettings.SessionLengthInMinutes)*60*1000,
 	}
 	session, err = a.CreateSession(session)
 	if err != nil {
