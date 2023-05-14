@@ -3,7 +3,7 @@
         "SiteURL": "http://localhost:9091",
         "ListenAddress": ":9091",
         "SessionIdleTimeoutInMinutes": 4320,
-        "SessionLengthWebInMinutes": 7200,
+        "SessionLengthInMinutes": 7200,
         "ExtendSessionLengthWithActivity": true
     },
     "DBSettings": {

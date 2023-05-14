@@ -28,6 +28,9 @@ func getTestConfig() *config.Config {
 	config.DBSettings.DriverName = "sqlite3"
 	config.DBSettings.DataSource = "../sqlite-test.db"
 	config.EmailSettings.RequireEmailVerification = true
+	config.ServerSettings.SessionLengthInMinutes = 7200
+	config.ServerSettings.ExtendSessionLengthWithActivity = true
+	config.ServerSettings.SessionIdleTimeoutInMinutes = 3600
 	return config
 }
 
