@@ -67,3 +67,14 @@ func (a *App) GetVideos(options *model.VideoGetOptions) ([]*model.Video, error) 
 	}
 	return videos, nil
 }
+
+func (a *App) GetStatusesForUser(userID string) ([]*model.NodeStatusForUser, error) {
+	return a.Store.Node().GetNodesForUser(userID)
+}
+
+func (a *App) UpdateStatus(status *model.NodeStatusForUser) error {
+	if err := status.IsValid(); err != nil {
+		return errors.Wrap(err, "status not valid")
+	}
+	return a.Store.Node().UpdateStatus(status)
+}

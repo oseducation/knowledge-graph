@@ -3,6 +3,7 @@ export type Node = {
     name: string;
     description: string;
     node_type: string;
+    status: string;
 }
 
 export type Link = {

@@ -15,6 +15,8 @@ type NodeStore interface {
 	Get(id string) (*model.Node, error)
 	GetNodes(options *model.NodeGetOptions) ([]*model.Node, error)
 	Delete(node *model.Node) error
+	GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error)
+	UpdateStatus(status *model.NodeStatusForUser) error
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -145,5 +147,31 @@ func (ns *SQLNodeStore) Delete(node *model.Node) error {
 		return errors.Wrapf(err, "failed to delete node with id '%s'", node.ID)
 	}
 
+	return nil
+}
+
+func (ns *SQLNodeStore) GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error) {
+	var statuses []*model.NodeStatusForUser
+	query := sq.Select("user_nodes").Where(sq.Eq{"user_id": userID})
+
+	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &statuses, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get node statuses for user_id %s", userID)
+	}
+
+	return statuses, nil
+}
+
+func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
+	if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+		Update("user_nodes").
+		SetMap(map[string]interface{}{
+			"status": status.Status,
+		}).
+		Where(sq.And{
+			sq.Eq{"user_id": status.UserID},
+			sq.Eq{"node_id": status.NodeID},
+		})); err != nil {
+		return errors.Wrapf(err, "Can't update status -%v", status)
+	}
 	return nil
 }

@@ -22,6 +22,8 @@ func (apiObj *API) initNode() {
 	apiObj.Nodes.DELETE("/", authMiddleware(), requireNodePermissions(), deleteNode)
 
 	apiObj.Nodes.GET("/:nodeID", getNode)
+
+	apiObj.Nodes.POST("/:nodeID/status", authMiddleware(), updateNodeStatus)
 }
 
 func createNode(c *gin.Context) {
@@ -147,4 +149,46 @@ func getNode(c *gin.Context) {
 		return
 	}
 	responseFormat(c, http.StatusOK, nodes)
+}
+
+func updateNodeStatus(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	nodeID := c.Param("nodeID")
+	if nodeID == "" {
+		responseFormat(c, http.StatusBadRequest, "missing node_id")
+		return
+	}
+
+	status, err := model.NodeStatusForUserFromJSON(c.Request.Body)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "wrong status")
+		return
+	}
+
+	if session.UserID != status.UserID {
+		responseFormat(c, http.StatusBadRequest, "userID mismatch")
+		return
+	}
+
+	if nodeID != status.NodeID {
+		responseFormat(c, http.StatusBadRequest, "nodeID mismatch")
+		return
+	}
+
+	if err := a.UpdateStatus(status); err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	responseFormat(c, http.StatusOK, "status updated")
 }

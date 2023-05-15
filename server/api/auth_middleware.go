@@ -15,6 +15,7 @@ func authMiddleware() gin.HandlerFunc {
 		token := parseAuthTokenFromRequest(c.Request)
 		if token == "" {
 			responseFormat(c, http.StatusUnauthorized, "missing token")
+			c.Abort()
 			return
 		}
 
@@ -69,6 +70,33 @@ func requireUserPermissions() gin.HandlerFunc {
 			return
 		}
 
+		c.Next()
+	}
+}
+
+func splitAuthMiddleware(withSession gin.HandlerFunc, withoutSession gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		a, err := getApp(c)
+		if err != nil {
+			responseFormat(c, http.StatusInternalServerError, err.Error())
+			c.Abort()
+			return
+		}
+
+		token := parseAuthTokenFromRequest(c.Request)
+		if token == "" {
+			withoutSession(c)
+			return
+		}
+
+		session, err := a.GetSession(token)
+		if err != nil {
+			withoutSession(c)
+			return
+		}
+
+		c.Set(sessionKey, session)
+		withSession(c)
 		c.Next()
 	}
 }
