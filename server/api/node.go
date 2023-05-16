@@ -23,7 +23,7 @@ func (apiObj *API) initNode() {
 
 	apiObj.Nodes.GET("/:nodeID", getNode)
 
-	apiObj.Nodes.POST("/:nodeID/status", authMiddleware(), updateNodeStatus)
+	apiObj.Nodes.PUT("/:nodeID/status", authMiddleware(), updateNodeStatus)
 }
 
 func createNode(c *gin.Context) {
