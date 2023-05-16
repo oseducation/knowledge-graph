@@ -40,7 +40,7 @@ const ReactD3Graph = (props: Props) => {
     };
 
     const newNodes = props.graph.nodes.map(node => {
-        return {...node, symbolType: node.node_type === 'lecture' ? 'circle' : 'square', color: node.node_type === 'lecture' ? 'green' : 'blue'}
+        return {...node, symbolType: node.node_type === 'lecture' ? 'circle' : 'square', color: node.status === 'unseen' ? 'green' : 'blue'}
     });
     props.graph.nodes = newNodes;
 

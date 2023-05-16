@@ -10,35 +10,47 @@ import (
 func (apiObj *API) initGraph() {
 	apiObj.Nodes = apiObj.APIRoot.Group("/graph")
 
-	apiObj.Nodes.GET("/", getGraph)
+	apiObj.Nodes.GET("/", splitAuthMiddleware(graphForUser, graphWithoutSession))
 }
 
-func getGraph(c *gin.Context) {
+func graphForUser(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	gr := model.FrontendGraph{}
-	gr.Nodes = make([]model.FrontendNodes, 0, len(a.Graph.Nodes))
-	for _, node := range a.Graph.Nodes {
-		gr.Nodes = append(gr.Nodes, model.FrontendNodes{
-			ID:          node.ID,
-			Name:        node.Name,
-			Description: node.Description,
-			NodeType:    node.NodeType,
-		})
-	}
-	gr.Links = []model.FrontendLinks{}
-	for nodeID, prereqs := range a.Graph.Prerequisites {
-		for _, prereq := range prereqs {
-			gr.Links = append(gr.Links, model.FrontendLinks{
-				Source: prereq,
-				Target: nodeID,
-			})
-		}
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
+	statuses, err := a.GetStatusesForUser(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	statusMap := map[string]*model.NodeStatusForUser{}
+	for _, status := range statuses {
+		statusMap[status.NodeID] = status
+	}
+
+	gr := a.GetFrontEndGraph()
+	for i, node := range gr.Nodes {
+		if status, ok := statusMap[node.ID]; ok {
+			gr.Nodes[i].Status = status.Status
+		}
+	}
+	responseFormat(c, http.StatusOK, gr)
+}
+
+func graphWithoutSession(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	gr := a.GetFrontEndGraph()
 	responseFormat(c, http.StatusOK, gr)
 }

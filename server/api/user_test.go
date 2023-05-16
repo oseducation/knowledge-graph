@@ -71,7 +71,6 @@ func TestUserLogout(t *testing.T) {
 		_, resp, err = th.AdminClient.GetUsers()
 		require.Error(t, err)
 		functionaltesting.CheckUnauthorizedStatus(t, resp)
-
 	})
 }
 

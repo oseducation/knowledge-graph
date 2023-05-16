@@ -116,6 +116,22 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating table sessions")
 			}
 
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS user_nodes (
+					user_id VARCHAR(26),
+					node_id VARCHAR(26),
+					status VARCHAR(32)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table user_nodes")
+			}
+
+			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS user_id_index ON user_nodes (user_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating index on user_nodes table")
+			}
+
 			return nil
 		},
 	},

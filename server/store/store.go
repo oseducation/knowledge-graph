@@ -140,6 +140,10 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not sessions")
 	}
 
+	if _, err := tx.Exec("DROP TABLE IF EXISTS user_nodes"); err != nil {
+		return errors.Wrap(err, "could not user_nodes")
+	}
+
 	if err := tx.Commit(); err != nil {
 		return errors.Wrap(err, "could not commit")
 	}

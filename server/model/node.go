@@ -12,8 +12,14 @@ const (
 	NodeNameMaxRunes        = 128
 	NodeNameMinRunes        = 3
 	NodeDescriptionMaxRunes = 2048
-	NodeTypeLecture         = "lecture"
-	NodeTypeExample         = "example"
+
+	NodeTypeLecture = "lecture"
+	NodeTypeExample = "example"
+
+	NodeStatusStarted  = "started"
+	NodeStatusWatched  = "watched"
+	NodeStatusFinished = "finished"
+	NodeStatusUnseen   = "unseen"
 )
 
 // Node type defines Knowledge Graph node
@@ -30,6 +36,12 @@ type Node struct {
 type NodeWithResources struct {
 	Node
 	Videos []*Video `json:"videos" db:"_"`
+}
+
+type NodeStatusForUser struct {
+	NodeID string `json:"node_id" db:"node_id"`
+	Status string `json:"status" db:"status"`
+	UserID string `json:"user_id" db:"user_id"`
 }
 
 // IsValid validates the node and returns an error if it isn't configured correctly.
@@ -81,6 +93,20 @@ func (n *Node) BeforeUpdate() {
 	n.UpdatedAt = GetMillis()
 }
 
+func (n *NodeStatusForUser) IsValid() error {
+	if !IsValidID(n.NodeID) {
+		return invalidNodeError("", "id", n.NodeID)
+	}
+	if !IsValidID(n.UserID) {
+		return invalidNodeError(n.NodeID, "user_id", n.UserID)
+	}
+	if n.Status != NodeStatusStarted && n.Status != NodeStatusWatched &&
+		n.Status != NodeStatusFinished && n.Status != NodeStatusUnseen {
+		return invalidNodeError(n.NodeID, "status", n.Status)
+	}
+	return nil
+}
+
 // NodeFromJSON will decode the input and return a Node
 func NodeFromJSON(data io.Reader) (*Node, error) {
 	var node *Node
@@ -88,6 +114,14 @@ func NodeFromJSON(data io.Reader) (*Node, error) {
 		return nil, errors.Wrap(err, "can't decode node")
 	}
 	return node, nil
+}
+
+func NodeStatusForUserFromJSON(data io.Reader) (*NodeStatusForUser, error) {
+	var status *NodeStatusForUser
+	if err := json.NewDecoder(data).Decode(&status); err != nil {
+		return nil, errors.Wrap(err, "can't decode NodeStatusForUser")
+	}
+	return status, nil
 }
 
 func invalidNodeError(nodeID, fieldName string, fieldValue any) error {

@@ -42,6 +42,15 @@ func (a *App) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
 	return a.sanitizeUsers(users), nil
 }
 
+// GetUser gets user with id
+func (a *App) GetUser(userID string) (*model.User, error) {
+	user, err := a.Store.User().Get(userID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't get userID = %v", userID)
+	}
+	return user, nil
+}
+
 // CreateUser creates new user
 func (a *App) CreateUser(user *model.User) (*model.User, error) {
 	user.EmailVerified = false
