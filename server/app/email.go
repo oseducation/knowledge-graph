@@ -24,7 +24,7 @@ func (a *App) sendWelcomeEmail(userID string, email string, verified bool, siteU
 			return err
 		}
 		link := fmt.Sprintf("%s/do_verify_email?token=%s&email=%s", siteURL, token.Token, url.QueryEscape(email))
-		body += "<a href=\"" + link + "\">"
+		body += "<a href=\"" + link + "\">Verify Email</a>\n"
 	}
 
 	if err := a.sendMail(email, subject, body); err != nil {
