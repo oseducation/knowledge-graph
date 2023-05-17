@@ -2,10 +2,28 @@ package store
 
 import (
 	"database/sql"
-
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 )
+
+type SystemStore interface {
+	GetCurrentVersion() (string, error)
+}
+
+type SQLSystemStore struct {
+	sqlStore *SQLStore
+}
+
+func NewSystemStore(db *SQLStore) SystemStore {
+	return &SQLSystemStore{
+		sqlStore: db,
+	}
+}
+
+func (ss *SQLSystemStore) GetCurrentVersion() (string, error) {
+	currentVersionStr, err := ss.sqlStore.getSystemValue(ss.sqlStore.db, systemDatabaseVersionKey)
+	return currentVersionStr, err
+}
 
 // getSystemValue queries the System table for the given key
 func (sqlDB *SQLStore) getSystemValue(q queryer, key string) (string, error) {

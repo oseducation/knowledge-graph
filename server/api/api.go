@@ -11,6 +11,7 @@ import (
 )
 
 const APIURLSuffix = "/api/v1"
+const HealthCheckPath = "/healthcheck"
 
 type API struct {
 	Logger  *log.Logger
@@ -32,7 +33,7 @@ func Init(router *gin.Engine, application *app.App) error {
 		c.Next()
 	})
 	apiObj.APIRoot = router.Group(APIURLSuffix)
-
+	apiObj.initHealthCheck()
 	apiObj.initUser()
 	apiObj.initNode()
 	apiObj.initGraph()
@@ -42,6 +43,24 @@ func Init(router *gin.Engine, application *app.App) error {
 	})
 
 	return nil
+}
+
+func (apiObj *API) initHealthCheck() {
+	apiObj.Root.GET(HealthCheckPath, healthCheck)
+}
+
+func healthCheck(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	err = a.PerformDBCheck()
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	responseFormat(c, http.StatusOK, "OK")
 }
 
 func responseFormat(c *gin.Context, respStatus int, data interface{}) {
