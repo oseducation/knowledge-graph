@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 )
