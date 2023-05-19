@@ -4,7 +4,8 @@
         "ListenAddress": ":9091",
         "SessionIdleTimeoutInMinutes": 4320,
         "SessionLengthInMinutes": 7200,
-        "ExtendSessionLengthWithActivity": true
+        "ExtendSessionLengthWithActivity": true,
+        "CookieDomain": ""
     },
     "DBSettings": {
         "DriverName": "sqlite3",

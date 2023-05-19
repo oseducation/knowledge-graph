@@ -24,6 +24,7 @@ func (apiObj *API) initUser() {
 
 	apiObj.Users.POST("/login", login)
 	apiObj.Users.POST("/logout", authMiddleware(), logout)
+	apiObj.Users.GET("/user", authMiddleware(), getUser)
 
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
@@ -64,9 +65,40 @@ func login(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
+	c.SetSameSite(http.SameSiteLaxMode)
 	c.Set(sessionKey, session)
-	c.Header(headerToken, session.Token)
+	c.SetCookie(
+		headerToken,
+		session.Token,
+		a.Config.ServerSettings.SessionLengthInMinutes*60*1000,
+		"/",
+		a.Config.ServerSettings.CookieDomain,
+		true,
+		true,
+	)
+	responseFormat(c, http.StatusOK, user)
+}
+
+// Get the user from the session and return it in the response
+func getUser(c *gin.Context) {
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	user, err := a.GetUser(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	responseFormat(c, http.StatusOK, user)
 }
 

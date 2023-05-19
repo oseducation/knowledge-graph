@@ -2,10 +2,10 @@ import {User} from "../types/users";
 
 import {Rest} from "./rest";
 
-export class UserClient{
+export class UserClient {
     rest: Rest;
 
-    constructor (rest: Rest){
+    constructor(rest: Rest) {
         this.rest = rest;
     }
 
@@ -25,20 +25,15 @@ export class UserClient{
 
         const {
             data: profile,
-            headers,
         } = await this.rest.doFetchWithResponse<User>(
             `${this.getUsersRoute()}/login`,
             {method: 'post', body: JSON.stringify(body)},
         );
 
-        if (headers.has('Token')) {
-            this.rest.setToken(headers.get('Token')!);
-        }
-
         return profile;
     };
 
-    register = async(user: User) => {
+    register = async (user: User) => {
         return this.rest.doFetch<User>(
             `${this.getUsersRoute()}/register`,
             {method: 'post', body: JSON.stringify(user)},
@@ -50,11 +45,15 @@ export class UserClient{
             `${this.getUsersRoute()}/logout`,
             {method: 'post'},
         );
-
-        if (response.ok) {
-            this.rest.setToken('');
-        }
-
         return response;
+    };
+
+    getUser = async () => {
+        const {data} = await this.rest.doFetchWithResponse<User>(
+            `${this.getUsersRoute()}/user`,
+            {method: 'get'},
+        );
+
+        return data;
     };
 }

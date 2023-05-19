@@ -15,6 +15,7 @@ type ServerSettings struct {
 	SessionIdleTimeoutInMinutes     int
 	ExtendSessionLengthWithActivity bool
 	SessionLengthInMinutes          int
+	CookieDomain                    string //Can be configured for each environment
 }
 
 type DBSettings struct {
