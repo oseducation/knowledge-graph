@@ -230,3 +230,11 @@ func getIDAndName(idAndName string) (int, string) {
 	name := strings.Trim(s[1], " ")
 	return id, name
 }
+
+// PerformDBCheck checks if database is connectable
+func (a *App) PerformDBCheck() error {
+	if _, err := a.Store.System().GetCurrentVersion(); err != nil {
+		return err
+	}
+	return nil
+}
