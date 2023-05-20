@@ -16,14 +16,14 @@
         "QueryTimeout": 30
     },
     "EmailSettings": {
-        "RequireEmailVerification": false,
-        "FeedbackName": "",
-        "FeedbackEmail": "test@example.com",
-        "ReplyToAddress": "test@example.com",
-        "SMTPUser": "",
-        "SMTPPassword": "",
-        "SMTPHost": "localhost",
-        "SMTPPort": 10025
+        "RequireEmailVerification": true,
+        "FeedbackName": "Knowledge Graph",
+        "FeedbackEmail": "knowledgegraph.info@gmail.com",
+        "ReplyToAddress": "knowledgegraph.info@gmail.com",
+        "SMTPUser": "knowledgegraph.info@gmail.com",
+        "SMTPPassword": "rdlfdcliahkamaru",
+        "SMTPHost": "smtp.gmail.com",
+        "SMTPPort": 587
     },
     "PasswordSettings": {
         "MinimumLength": 5,
