@@ -28,6 +28,7 @@ type Store interface {
 	Video() VideoStore
 	Graph() GraphStore
 	Session() SessionStore
+	System() SystemStore
 }
 
 // SQLStore struct represents a DB
@@ -41,6 +42,7 @@ type SQLStore struct {
 	videoStore   VideoStore
 	graphStore   GraphStore
 	sessionStore SessionStore
+	systemStore  SystemStore
 	config       *config.DBSettings
 	logger       *log.Logger
 }
@@ -98,6 +100,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.videoStore = NewVideoStore(sqlStore)
 	sqlStore.graphStore = NewGraphStore(sqlStore)
 	sqlStore.sessionStore = NewSessionStore(sqlStore)
+	sqlStore.systemStore = NewSystemStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -274,4 +277,9 @@ func (sqlDB *SQLStore) Graph() GraphStore {
 // Session returns an interface to manage sessions in the DB
 func (sqlDB *SQLStore) Session() SessionStore {
 	return sqlDB.sessionStore
+}
+
+// System returns an interface to get system information from the DB
+func (sqlDB *SQLStore) System() SystemStore {
+	return sqlDB.systemStore
 }
