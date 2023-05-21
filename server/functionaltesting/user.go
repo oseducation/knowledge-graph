@@ -107,7 +107,6 @@ func (c *Client) Logout() (*Response, error) {
 	}
 	defer closeBody(r)
 	c.AuthToken = r.Header.Get(HeaderToken)
-	c.AuthType = HeaderBearer
 
 	return BuildResponse(r), nil
 }
@@ -123,8 +122,13 @@ func (c *Client) login(m map[string]string) (*model.User, *Response, error) {
 		return nil, BuildResponse(r), err
 	}
 	defer closeBody(r)
-	c.AuthToken = r.Header.Get(HeaderToken)
-	c.AuthType = HeaderBearer
+	cookies := r.Cookies()
+	// find the cookie named "token" in the cookies array
+	for _, cookie := range cookies {
+		if cookie.Name == "Token" {
+			c.AuthToken = cookie.Value
+		}
+	}
 
 	u, err := decodeUser(r.Body)
 	if err != nil {
@@ -146,8 +150,6 @@ func (c *Client) VerifyUserEmail(token string) (*Response, error) {
 		return BuildResponse(r), err
 	}
 	defer closeBody(r)
-	c.AuthToken = r.Header.Get(HeaderToken)
-	c.AuthType = HeaderBearer
 	return BuildResponse(r), nil
 }
 
@@ -157,8 +159,6 @@ func (c *Client) SendVerificationEmail() (*Response, error) {
 		return BuildResponse(r), err
 	}
 	defer closeBody(r)
-	c.AuthToken = r.Header.Get(HeaderToken)
-	c.AuthType = HeaderBearer
 	return BuildResponse(r), nil
 }
 
