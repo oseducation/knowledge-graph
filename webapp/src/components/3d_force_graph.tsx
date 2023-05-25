@@ -2,9 +2,10 @@ import React, {useRef, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import ForceGraph3D from 'react-force-graph-3d';
 import ForceGraph2D, {ForceGraphMethods} from 'react-force-graph-2d';
-import { forceCollide } from 'd3';
+import {forceCollide} from 'd3';
 
 import {Graph, Node, Link} from '../types/graph';
+
 import {GraphNodeHoverContext} from './graph';
 
 interface Props {
@@ -58,7 +59,7 @@ const D3ForceGraph = (props: Props) => {
             onNodeClick={onNodeClick}
             dagMode={"lr"}
             nodeVal={20}
-            nodeCanvasObject={(node, ctx, globalScale) => {
+            nodeCanvasObject={(node, ctx) => {
                 const label = node.name;
                 const fontSize = 5;
                 ctx.font = `${fontSize}px Sans-Serif`;

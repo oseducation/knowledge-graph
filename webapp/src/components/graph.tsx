@@ -1,12 +1,13 @@
-import React, {useEffect, useState, useRef, useLayoutEffect, useCallback} from 'react';
+import React, {useEffect, useState, useRef, useLayoutEffect} from 'react';
 import {Stack} from '@mui/material';
 
 import {Client} from '../client/client';
 import {Graph, Node} from '../types/graph';
 
+import useWindowDimensions from '../hooks/use_window_dimensions';
+
 import ForceGraph from './3d_force_graph';
 import GraphRHS from './graph_rhs';
-import useWindowDimensions from '../hooks/use_window_dimensions';
 
 type GraphNodeHoverContextType = {
     node: Node;
