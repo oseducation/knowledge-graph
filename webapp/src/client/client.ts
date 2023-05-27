@@ -2,6 +2,7 @@ import {Rest} from "./rest";
 import {UserClient} from "./user";
 import {GraphClient} from "./graph";
 import {NodeClient} from "./node";
+import {SidebarClient} from "./sidebar";
 
 
 class Client {
@@ -9,12 +10,14 @@ class Client {
     user: UserClient;
     graph: GraphClient;
     node: NodeClient;
+    sidebar: SidebarClient;
 
     constructor(){
-        this.rest = new Rest()
+        this.rest = new Rest();
         this.user = new UserClient(this.rest);
         this.graph = new GraphClient(this.rest);
-        this.node = new NodeClient(this.rest)
+        this.node = new NodeClient(this.rest);
+        this.sidebar = new SidebarClient(this.rest);
     }
 
     User(){
@@ -26,7 +29,11 @@ class Client {
     }
 
     Node(){
-        return this.node
+        return this.node;
+    }
+
+    Sidebar(){
+        return this.sidebar;
     }
 }
 

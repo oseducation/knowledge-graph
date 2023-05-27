@@ -4,9 +4,9 @@ import ForceGraph3D from 'react-force-graph-3d';
 import ForceGraph2D, {ForceGraphMethods} from 'react-force-graph-2d';
 import {forceCollide} from 'd3';
 
-import {Graph, Node, Link} from '../types/graph';
+import {Graph, Node, Link} from '../../types/graph';
 
-import {GraphNodeHoverContext} from './graph';
+import {GraphNodeHoverContext} from './graph_component';
 
 interface Props {
     graph: Graph;

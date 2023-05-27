@@ -1,7 +1,7 @@
 import React from 'react';
 import {Stack} from '@mui/material';
 
-import {GraphNodeHoverContext} from './graph';
+import {GraphNodeHoverContext} from './graph_component';
 
 
 const GraphRHS = () => {
