@@ -9,7 +9,6 @@ interface ItemProps {
     display_name: string;
     areaLabel: string;
     link: string;
-    isCollapsed: boolean;
 }
 
 const Item = (props: ItemProps) => {
@@ -25,11 +24,6 @@ const Item = (props: ItemProps) => {
         setAnchorEl(null);
     };
 
-    if (props.isCollapsed) {
-        return (
-            <></>
-        )
-    }
     return (
         <ListItem
             aria-label={props.areaLabel}

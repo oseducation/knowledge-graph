@@ -1,3 +1,8 @@
+export const NodeStatusStarted  = "started"
+export const NodeStatusWatched  = "watched"
+export const NodeStatusFinished = "finished"
+export const NodeStatusUnseen   = "unseen"
+
 export type Node = {
     id: string;
     name: string;

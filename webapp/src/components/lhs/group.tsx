@@ -43,18 +43,19 @@ const Group = (props: GroupProps) => {
                     {props.group.display_name}
                 </Typography>
             </HeaderButton>
-            <List dense={true}>
-                {props.group.items.map((item) => (
-                    <Item
-                        key={item.id || item.display_name}
-                        areaLabel={item.areaLabel}
-                        display_name={item.display_name}
-                        id={item.id}
-                        isCollapsed={collapsed}
-                        link={item.link}
-                    />
-                ))}
-            </List>
+            {!collapsed &&
+                <List dense={true}>
+                    {props.group.items.map((item) => (
+                        <Item
+                            key={item.id || item.display_name}
+                            areaLabel={item.areaLabel}
+                            display_name={item.display_name}
+                            id={item.id}
+                            link={item.link}
+                        />
+                    ))}
+                </List>
+            }
         </Box>
     );
 };
