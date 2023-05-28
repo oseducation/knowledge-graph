@@ -41,6 +41,15 @@ export class Rest {
         return data;
     };
 
+    doPut = async <TData = any>(url: string, body = {}) => {
+        const {data} = await this.doFetchWithResponse<TData>(url, {
+            method: 'PUT',
+            body,
+        });
+
+        return data;
+    };
+
     doFetchWithResponse = async <ClientDataResponse>(
         url: string,
         options: Options,
