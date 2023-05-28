@@ -3,20 +3,15 @@ import {Stack} from '@mui/material';
 
 import Header from '../components/header';
 import Content from '../components/content';
-import Graph from '../components/graph/graph_component';
 import Footer from '../components/footer';
-import LHSNavigation from '../components/lhs/lhs_navigation';
-
+import Main from '../components/main';
 
 const HomePage = () => {
     return (
         <Stack>
             <Header/>
             <Content/>
-            <Stack direction={'row'}>
-                <LHSNavigation/>
-                <Graph/>
-            </Stack>
+            <Main/>
             <Footer/>
         </Stack>
     )

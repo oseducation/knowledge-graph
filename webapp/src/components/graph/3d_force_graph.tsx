@@ -6,7 +6,7 @@ import {forceCollide} from 'd3';
 
 import {Graph, Node, Link} from '../../types/graph';
 
-import {GraphNodeHoverContext} from './graph_component';
+import {GraphNodeHoverContext} from './../main';
 
 interface Props {
     graph: Graph;
