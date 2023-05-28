@@ -8,6 +8,7 @@ import Sidebar from './sidebar';
 
 interface LHSProps {
     groups: SidebarGroup[];
+    onReload: () => void;
 }
 
 const LHSNavigation = (props: LHSProps) => {
@@ -39,6 +40,7 @@ const LHSNavigation = (props: LHSProps) => {
         >
             <Sidebar
                 groups={groups}
+                onReload={props.onReload}
             />
         </Box>
     );
