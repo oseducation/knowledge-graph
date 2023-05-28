@@ -1,38 +1,17 @@
 import {ClientResponse, Options} from "../types/client";
 import {ServerError} from "../types/errors";
 
-
-const HEADER_AUTH = 'Authorization';
-const HEADER_BEARER = 'Bearer';
 const HEADER_CONTENT_TYPE = 'Content-Type';
 const HEADER_REQUESTED_WITH = 'X-Requested-With';
 const HEADER_X_CSRF_TOKEN = 'X-CSRF-Token';
-const STATUS_UNAUTHORIZED = 401;
-const HEADER_TOKEN = 'Token';
-
 
 export class Rest {
     apiVersion = '/api/v1';
     url = '';
     csrf = '';
-    refreshTokenPath = '/refresh-token';
 
     getBaseRoute() {
         return `${this.url}${this.apiVersion}`;
-    }
-
-    getRefreshTokenRoute() {
-        return `${this.getBaseRoute()}${this.refreshTokenPath}`;
-    }
-
-    // sets the token in the local storage
-    setToken(token: string) {
-        localStorage.setItem(HEADER_TOKEN, token);
-    }
-
-    // gets the token from the local storage
-    getToken() {
-        return localStorage.getItem(HEADER_TOKEN);
     }
 
     doFetch = async <ClientDataResponse>(url: string, options: Options): Promise<ClientDataResponse> => {
@@ -52,27 +31,10 @@ export class Rest {
 
     doFetchWithResponse = async <ClientDataResponse>(
         url: string,
-        options: Options,
-        retry = false): Promise<ClientResponse<ClientDataResponse>> => {
+        options: Options): Promise<ClientResponse<ClientDataResponse>> => {
         const response = await fetch(url, this.getOptions(options));
         const headers = parseAndMergeNestedHeaders(response.headers);
-        // if status is unauthorized, try to refresh the token
-        if (response.status === STATUS_UNAUTHORIZED && !retry) {
-            try {
-                const response = await fetch(this.getRefreshTokenRoute(), this.getOptions({method: 'get'}));
-                const nestedHeaders = parseAndMergeNestedHeaders(response.headers);
-                // if the response has the token header, set the token and retry the request
-                if (nestedHeaders.has(HEADER_TOKEN)) {
-                    this.setToken(nestedHeaders.get(HEADER_TOKEN));
-                    return await this.doFetchWithResponse(url, options, true);
-                }
-            } catch (err) {
-                throw new ClientError({
-                    message: 'Received invalid response from the server.',
-                    url,
-                });
-            }
-        }
+
         let data;
         try {
             data = await response.json();
@@ -104,10 +66,6 @@ export class Rest {
         const headers: { [x: string]: string } = {
             [HEADER_REQUESTED_WITH]: 'XMLHttpRequest',
         };
-
-        if (this.getToken()) {
-            headers[HEADER_AUTH] = `${HEADER_BEARER} ${this.getToken()}`;
-        }
 
         const csrfToken = this.csrf || getCSRFFromCookie();
         if (options.method && options.method.toLowerCase() !== 'get' && csrfToken) {

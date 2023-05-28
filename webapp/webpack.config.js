@@ -3,6 +3,7 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
 module.exports = {
+    devtool: 'inline-source-map',
   entry: './src/index.tsx',
   output: {
     filename: 'bundle.js',

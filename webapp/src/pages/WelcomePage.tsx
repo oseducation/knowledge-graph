@@ -8,10 +8,11 @@ import useAuth from '../hooks/useAuth';
 const WelcomePage = () => {
 
     const navigate = useNavigate();
-    const {user} = useAuth()
+    const {user, setUser} = useAuth()
 
     const logOutHandler = () => {
         Client.User().logout().then(() => {
+            setUser?.(null);
             navigate('/login')
         });
     }

@@ -1,14 +1,10 @@
 package api
 
 import (
-	"net/http"
-	"strings"
-
 	"github.com/gin-gonic/gin"
-)
 
-const AuthHeader = "Authorization"
-const HeaderBearer = "Bearer"
+	"net/http"
+)
 
 func authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -102,12 +98,9 @@ func splitAuthMiddleware(withSession gin.HandlerFunc, withoutSession gin.Handler
 }
 
 func parseAuthTokenFromRequest(r *http.Request) string {
-	authHeader := r.Header.Get(AuthHeader)
-
-	// Parse the token from the header
-	if len(authHeader) > len(HeaderBearer) && strings.EqualFold(authHeader[0:len(HeaderBearer)], HeaderBearer) {
-		// Default session token
-		return authHeader[len(HeaderBearer)+1:]
+	cookie, err := r.Cookie("Token")
+	if err != nil {
+		return ""
 	}
-	return ""
+	return cookie.Value
 }

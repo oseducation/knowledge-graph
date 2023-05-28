@@ -26,7 +26,6 @@ type Client struct {
 	APIURL     string       // The api location of the server, for example "http://localhost:9081/api/v1"
 	HTTPClient *http.Client // The http client
 	AuthToken  string
-	AuthType   string
 	HTTPHeader map[string]string // Headers to be copied over for each request
 }
 
@@ -40,7 +39,7 @@ type Response struct {
 
 func NewClient(url string) *Client {
 	url = strings.TrimRight(url, "/")
-	return &Client{url, url + APIURLSuffix, &http.Client{}, "", "", map[string]string{}}
+	return &Client{url, url + APIURLSuffix, &http.Client{}, "", map[string]string{}}
 }
 
 func (c *Client) DoAPIGet(url string, etag string) (*http.Response, error) {
@@ -73,7 +72,7 @@ func (c *Client) DoAPIRequestReader(method, url string, data io.Reader, headers 
 	}
 
 	if c.AuthToken != "" {
-		rq.Header.Set(HeaderAuth, c.AuthType+" "+c.AuthToken)
+		rq.AddCookie(&http.Cookie{Name: HeaderToken, Value: c.AuthToken})
 	}
 
 	if c.HTTPHeader != nil && len(c.HTTPHeader) > 0 {

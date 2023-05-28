@@ -24,14 +24,15 @@ type TestHelper struct {
 }
 
 func getTestConfig() *config.Config {
-	config := &config.Config{}
-	config.DBSettings.DriverName = "sqlite3"
-	config.DBSettings.DataSource = "../sqlite-test.db"
-	config.EmailSettings.RequireEmailVerification = true
-	config.ServerSettings.SessionLengthInMinutes = 7200
-	config.ServerSettings.ExtendSessionLengthWithActivity = true
-	config.ServerSettings.SessionIdleTimeoutInMinutes = 3600
-	return config
+	cfg := &config.Config{}
+	cfg.DBSettings.DriverName = "sqlite3"
+	cfg.DBSettings.DataSource = "../sqlite-test.db"
+	cfg.EmailSettings.RequireEmailVerification = true
+	cfg.ServerSettings.SessionLengthInMinutes = 7200
+	cfg.ServerSettings.ExtendSessionLengthWithActivity = true
+	cfg.ServerSettings.SessionIdleTimeoutInMinutes = 3600
+	cfg.ServerSettings.CookieDomain = ""
+	return cfg
 }
 
 func Setup(tb testing.TB) *TestHelper {
@@ -39,22 +40,22 @@ func Setup(tb testing.TB) *TestHelper {
 		tb.SkipNow()
 	}
 
-	config := getTestConfig()
+	cfg := getTestConfig()
 	logger := log.NewLogger(&log.LoggerConfiguration{NonLogger: true})
-	server, err := server.NewServer(logger, config)
+	newServer, err := server.NewServer(logger, cfg)
 	if err != nil {
 		panic(err)
 	}
-	server.Config = config
-	err = server.Start()
+	newServer.Config = cfg
+	err = newServer.Start()
 	if err != nil {
 		panic(err)
 	}
-	server.App.Store.EmptyAllTables()
+	newServer.App.Store.EmptyAllTables()
 
 	th := &TestHelper{
-		Server:      server,
-		config:      config,
+		Server:      newServer,
+		config:      cfg,
 		Client:      NewClient("http://localhost:9081/"),
 		UserClient:  NewClient("http://localhost:9081/"),
 		AdminClient: NewClient("http://localhost:9081/"),
