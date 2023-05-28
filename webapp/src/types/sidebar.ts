@@ -5,13 +5,9 @@ export const NextNodesCategoryName = 'nextCategory';
 
 export interface GroupItem {
     id: string;
-    icon: string;
-    itemMenu?: React.ReactNode;
     display_name: string;
-    className: string;
     areaLabel: string;
     link: string;
-    isCollapsed: boolean;
 }
 
 export interface SidebarGroup {

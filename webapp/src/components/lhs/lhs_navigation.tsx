@@ -1,58 +1,46 @@
+import {Box} from '@mui/material';
 import React from 'react';
-import styled from 'styled-components';
+
+import {InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../../types/sidebar';
 
 import Sidebar from './sidebar';
 
-const LHSContainer = styled.div`
-    width: 240px;
 
-    display: flex;
-    flex-direction: column;
-`;
+interface LHSProps {
+    groups: SidebarGroup[];
+}
 
-const LHSNavigation = () => {
-    const it1 = {
-        id: 'it1',
-        icon: 'it1',
-        display_name: 'Karel',
-        className: '',
-        areaLabel: 'Karel',
-        link: '',
-        isCollapsed: false,
+const LHSNavigation = (props: LHSProps) => {
+    let groups = props.groups;
+    if (!props.groups || props.groups.length === 0) {
+        const inProgressGroup = {
+            collapsed: false,
+            display_name: "Nodes In Progress",
+            id: InProgressNodesCategoryName,
+            items: []
+        } as SidebarGroup;
+
+        const nextGroup = {
+            collapsed: false,
+            display_name: "Next Nodes",
+            id: NextNodesCategoryName,
+            items: []
+        } as SidebarGroup;
+
+        groups = [inProgressGroup, nextGroup];
     }
-
-    const it2 = {
-        id: 'it2',
-        icon: 'it2',
-        display_name: 'Java for',
-        className: '',
-        areaLabel: 'Java for',
-        link: '',
-        isCollapsed: false,
-    }
-
-    const g1 = {
-        id: 'inProgressCategory',
-        display_name: 'In Progress',
-        collapsed: false,
-        items: [it1, it2],
-    }
-
-    const g2 = {
-        id: 'nextCategory',
-        display_name: 'Next',
-        collapsed: false,
-        items: [it2, it1],
-    }
-    const groups = [g1, g2];
-
 
     return (
-        <LHSContainer>
+        <Box
+            width={240}
+            height='100%'
+            display='flex'
+            flexDirection='column'
+        >
             <Sidebar
                 groups={groups}
             />
-        </LHSContainer>
+        </Box>
     );
 };
 
