@@ -80,12 +80,12 @@ const computeGroups = (graph: Graph) => {
 }
 
 const useGraph = () => {
-    type graphDataType = {
+    type GraphDataType = {
         graph: Graph;
         groups: SidebarGroup[];
     }
 
-    const [graphData, setGraphData] = useState<graphDataType>({} as graphDataType);
+    const [graphData, setGraphData] = useState<GraphDataType>({} as GraphDataType);
 
     useEffect(() => {
         Client.Graph().get().then((data: Graph) => {

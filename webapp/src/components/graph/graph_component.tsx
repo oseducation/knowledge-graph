@@ -1,10 +1,10 @@
-import React, {useState, useRef, useLayoutEffect} from 'react';
+import React, {useRef} from 'react';
+import {Box} from '@mui/material';
 
 import {Graph} from '../../types/graph';
 import useWindowDimensions from '../../hooks/use_window_dimensions';
 
 import ForceGraph from './3d_force_graph';
-import {Box} from '@mui/material';
 
 interface GraphComponentProps {
     graph: Graph;
