@@ -2,12 +2,20 @@ import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import {Client} from '../client/client';
+<<<<<<< Updated upstream
 import {Graph, Node, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
 import { GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup } from '../types/sidebar';
+=======
+import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
+import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
+import useAuth from '../hooks/useAuth';
+import {User} from '../types/users';
+>>>>>>> Stashed changes
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
 import RHS from './rhs/rhs';
+import NodeDropDownMenu from './node_drop_down';
 
 type GraphNodeHoverContextType = {
     node: Node;
@@ -15,7 +23,7 @@ type GraphNodeHoverContextType = {
 }
 export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextType>({node: {} as Node, setNode: ()=>{}});
 
-const computeGroups = (graph: Graph) => {
+const computeGroups = (graph: Graph, userID: string, onReload: () => void) => {
     const nodesMap = new Map<string, Node>();
     graph.nodes.forEach((node) => {nodesMap.set(node.id, node)})
 
@@ -49,7 +57,13 @@ const computeGroups = (graph: Graph) => {
             areaLabel: node.name,
             display_name: node.name,
             id: node.id,
-            link: node.id
+            link: node.id,
+            itemMenu:
+                <NodeDropDownMenu
+                    nodeID={node.id}
+                    userID={userID}
+                    onReload={onReload}
+                />
         } as GroupItem;
     });
 
@@ -65,7 +79,13 @@ const computeGroups = (graph: Graph) => {
             areaLabel: node.name,
             display_name: node.name,
             id: node.id,
-            link: node.id
+            link: node.id,
+            itemMenu:
+            <NodeDropDownMenu
+                nodeID={node.id}
+                userID={userID}
+                onReload={onReload}
+            />
         } as GroupItem;
     });
 
@@ -79,7 +99,7 @@ const computeGroups = (graph: Graph) => {
     return [inProgressGroup, nextGroup];
 }
 
-const useGraph = (reload: boolean) => {
+const useGraph = (reload: boolean, user: User | null, handleReload: () => void) => {
     type GraphDataType = {
         graph: Graph;
         groups: SidebarGroup[];
@@ -88,10 +108,12 @@ const useGraph = (reload: boolean) => {
     const [graphData, setGraphData] = useState<GraphDataType>({} as GraphDataType);
 
     useEffect(() => {
-        Client.Graph().get().then((data: Graph) => {
-            setGraphData({graph: data, groups: computeGroups(data)})
-        });
-    },[reload]);
+        if (user) {
+            Client.Graph().get().then((data: Graph) => {
+                setGraphData({graph: data, groups: computeGroups(data, user.id, handleReload)})
+            });
+        }
+    },[reload, user]);
 
     return graphData;
 }
@@ -99,20 +121,19 @@ const useGraph = (reload: boolean) => {
 const Main = () => {
     const [node, setNode] = useState<Node>({} as Node);
     const [reload, setReload] = useState<boolean>(false);
-    const {graph, groups} = useGraph(reload);
+    const {user} = useAuth()
 
     const handleReload = () => {
         setReload(prev => !prev);
     };
 
+    const {graph, groups} = useGraph(reload, user, handleReload);
+
     return (
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
             <Grid2 container>
                 <Grid2 xs={3} sx={{maxWidth: '240px'}}>
-                    <LHSNavigation
-                        groups={groups}
-                        onReload={handleReload}
-                    />
+                    <LHSNavigation groups={groups}/>
                 </Grid2>
                 <Grid2 xs={true}>
                     <GraphComponent graph={graph}/>

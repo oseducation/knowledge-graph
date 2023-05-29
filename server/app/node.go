@@ -49,6 +49,7 @@ func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
 	}
 	options := &model.VideoGetOptions{}
 	model.ComposeVideoOptions(
+		model.WithAuthorUsername(),
 		model.NodeID(nodeID),
 		model.VideoPage(0),
 		model.VideoPerPage(defaultVideoPerPage))(options)

@@ -3,7 +3,6 @@ import {useParams} from 'react-router-dom';
 import {Stack} from '@mui/material';
 
 import Header from '../components/header';
-import Footer from '../components/footer';
 import Node from '../components/node';
 
 const HomePage = () => {
@@ -16,7 +15,6 @@ const HomePage = () => {
         <Stack>
             <Header/>
             <Node nodeID={nodeID}/>
-            <Footer/>
         </Stack>
     )
 }

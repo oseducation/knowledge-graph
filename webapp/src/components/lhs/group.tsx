@@ -12,7 +12,6 @@ import Item from './item';
 
 interface GroupProps {
     group: SidebarGroup;
-    onReload: () => void;
 }
 
 const Group = (props: GroupProps) => {
@@ -49,11 +48,7 @@ const Group = (props: GroupProps) => {
                     {props.group.items.map((item) => (
                         <Item
                             key={item.id || item.display_name}
-                            areaLabel={item.areaLabel}
-                            display_name={item.display_name}
-                            id={item.id}
-                            link={item.link}
-                            onReload={props.onReload}
+                            item={item}
                         />
                     ))}
                 </List>

@@ -92,6 +92,7 @@ var migrations = []Migration{
 					id VARCHAR(26) PRIMARY KEY,
 					created_at bigint,
 					deleted_at bigint,
+					name VARCHAR(256),
 					video_type VARCHAR(32),
 					key VARCHAR(128),
 					length bigint,

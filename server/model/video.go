@@ -13,14 +13,16 @@ const VideoURLMaxRunes = 128
 
 // Video type defines videos of the node
 type Video struct {
-	ID        string `json:"id" db:"id"`
-	CreatedAt int64  `json:"created_at,omitempty" db:"created_at"`
-	DeletedAt int64  `json:"deleted_at" db:"deleted_at"`
-	VideoType string `json:"video_type" db:"video_type"` // youtube or from our object storage, currently only supports youtube
-	Key       string `json:"key" db:"key"`               // for youtube - video ID
-	Length    int64  `json:"length" db:"length"`         // in seconds
-	NodeID    string `json:"node_id" db:"node_id"`
-	AuthorID  string `json:"author_id" db:"author_id"`
+	ID             string `json:"id" db:"id"`
+	CreatedAt      int64  `json:"created_at,omitempty" db:"created_at"`
+	DeletedAt      int64  `json:"deleted_at" db:"deleted_at"`
+	Name           string `json:"name" db:"name"`
+	VideoType      string `json:"video_type" db:"video_type"` // youtube or from our object storage, currently only supports youtube
+	Key            string `json:"key" db:"key"`               // for youtube - video ID
+	Length         int64  `json:"length" db:"length"`         // in seconds
+	NodeID         string `json:"node_id" db:"node_id"`
+	AuthorID       string `json:"author_id" db:"author_id"`
+	AuthorUsername string `json:"author_username" db:"author_username"`
 }
 
 // IsValid validates the video and returns an error if it isn't configured correctly.
@@ -81,6 +83,8 @@ type VideoGetOptions struct {
 	Page int
 	// Page size
 	PerPage int
+	// with author username
+	WithAuthorUsername bool
 }
 
 type VideoGetOption func(*VideoGetOptions)
@@ -108,5 +112,11 @@ func VideoPage(page int) VideoGetOption {
 func VideoPerPage(perPage int) VideoGetOption {
 	return func(args *VideoGetOptions) {
 		args.PerPage = perPage
+	}
+}
+
+func WithAuthorUsername() VideoGetOption {
+	return func(args *VideoGetOptions) {
+		args.WithAuthorUsername = true
 	}
 }

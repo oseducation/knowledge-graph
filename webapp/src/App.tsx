@@ -17,8 +17,8 @@ function App() {
             <Route path="/" element={<HomePage/>}/>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
-            <Route path="/nodes/:nodeID" element={<NodePage/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
+                <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
             </Route>
         </Routes>

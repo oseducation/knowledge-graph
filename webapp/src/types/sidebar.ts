@@ -8,6 +8,9 @@ export interface GroupItem {
     display_name: string;
     areaLabel: string;
     link: string;
+    secondary?: string;
+    icon?: React.ReactNode;
+    itemMenu?: React.ReactNode;
 }
 
 export interface SidebarGroup {
