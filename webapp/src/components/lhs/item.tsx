@@ -3,18 +3,22 @@ import {ListItem, ListItemText, IconButton, Menu, MenuItem, ListItemIcon} from '
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {CheckCircleOutline, StarBorderOutlined} from '@mui/icons-material';
 
+import {Client} from '../../client/client';
+import useAuth from '../../hooks/useAuth';
 
 interface ItemProps {
     id: string;
     display_name: string;
     areaLabel: string;
     link: string;
+    onReload: () => void;
 }
 
 const Item = (props: ItemProps) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [isHovered, setIsHovered] = useState(false);
     const open = Boolean(anchorEl);
+    const {user} = useAuth()
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -23,6 +27,14 @@ const Item = (props: ItemProps) => {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const markAsKnown = (id: string) => {
+        if (user) {
+            Client.Node().markAsKnown(id, user.id).then(() => {
+                props.onReload();
+            });
+        }
+    }
 
     return (
         <ListItem
@@ -81,7 +93,7 @@ const Item = (props: ItemProps) => {
                             <ListItemIcon>
                                 <CheckCircleOutline fontSize="small"/>
                             </ListItemIcon>
-                            <ListItemText>
+                            <ListItemText onClick={() => markAsKnown(props.id)}>
                                 I know this
                             </ListItemText>
                         </MenuItem>

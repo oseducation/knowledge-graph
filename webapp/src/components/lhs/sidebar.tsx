@@ -8,6 +8,7 @@ import Group from './group';
 
 interface SidebarProps {
     groups: Array<SidebarGroup>;
+    onReload: () => void;
 }
 
 const Sidebar = (props: SidebarProps) => {
@@ -41,6 +42,7 @@ const Sidebar = (props: SidebarProps) => {
                     <Group
                         key={group.id}
                         group={group}
+                        onReload={props.onReload}
                     />
                 );
             })}

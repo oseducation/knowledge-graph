@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
@@ -152,7 +153,14 @@ func (ns *SQLNodeStore) Delete(node *model.Node) error {
 
 func (ns *SQLNodeStore) GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error) {
 	var statuses []*model.NodeStatusForUser
-	query := sq.Select("user_nodes").Where(sq.Eq{"user_id": userID})
+	query := sq.
+		Select(
+			"un.node_id",
+			"un.user_id",
+			"un.status",
+		).
+		From("user_nodes un").
+		Where(sq.Eq{"user_id": userID})
 
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &statuses, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get node statuses for user_id %s", userID)
@@ -162,16 +170,42 @@ func (ns *SQLNodeStore) GetNodesForUser(userID string) ([]*model.NodeStatusForUs
 }
 
 func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
-	if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
-		Update("user_nodes").
-		SetMap(map[string]interface{}{
-			"status": status.Status,
-		}).
+	var statusValue string
+	err := ns.sqlStore.getBuilder(ns.sqlStore.db, &statusValue, sq.
+		Select("status").
+		From("user_nodes").
 		Where(sq.And{
 			sq.Eq{"user_id": status.UserID},
 			sq.Eq{"node_id": status.NodeID},
-		})); err != nil {
+		}))
+	if err != nil && err != sql.ErrNoRows {
 		return errors.Wrapf(err, "Can't update status -%v", status)
+	}
+	if statusValue == status.Status {
+		return nil
+	}
+	if err == nil {
+		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+			Update("user_nodes").
+			SetMap(map[string]interface{}{
+				"status": status.Status,
+			}).
+			Where(sq.And{
+				sq.Eq{"user_id": status.UserID},
+				sq.Eq{"node_id": status.NodeID},
+			})); err != nil {
+			return errors.Wrapf(err, "Can't update status -%v", status)
+		}
+	} else {
+		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+			Insert("user_nodes").
+			SetMap(map[string]interface{}{
+				"status":  status.Status,
+				"user_id": status.UserID,
+				"node_id": status.NodeID,
+			})); err != nil {
+			return errors.Wrapf(err, "Can't insert status -%v", status)
+		}
 	}
 	return nil
 }

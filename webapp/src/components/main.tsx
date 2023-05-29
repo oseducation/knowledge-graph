@@ -39,7 +39,7 @@ const computeGroups = (graph: Graph) => {
         const node = graph.nodes[i];
         if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
             inProgressNodes.push(node);
-        } else if (!prereqMap.has(node.id)) {
+        } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
             nextNodes.push(node);
         }
     }
@@ -79,7 +79,7 @@ const computeGroups = (graph: Graph) => {
     return [inProgressGroup, nextGroup];
 }
 
-const useGraph = () => {
+const useGraph = (reload: boolean) => {
     type GraphDataType = {
         graph: Graph;
         groups: SidebarGroup[];
@@ -91,20 +91,28 @@ const useGraph = () => {
         Client.Graph().get().then((data: Graph) => {
             setGraphData({graph: data, groups: computeGroups(data)})
         });
-    },[]);
+    },[reload]);
 
     return graphData;
 }
 
 const Main = () => {
     const [node, setNode] = useState<Node>({} as Node);
-    const {graph, groups} = useGraph();
+    const [reload, setReload] = useState<boolean>(false);
+    const {graph, groups} = useGraph(reload);
+
+    const handleReload = () => {
+        setReload(prev => !prev);
+    };
 
     return (
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
             <Grid2 container>
                 <Grid2 xs={3} sx={{maxWidth: '240px'}}>
-                    <LHSNavigation groups={groups}/>
+                    <LHSNavigation
+                        groups={groups}
+                        onReload={handleReload}
+                    />
                 </Grid2>
                 <Grid2 xs={true}>
                     <GraphComponent graph={graph}/>

@@ -12,6 +12,7 @@ import Item from './item';
 
 interface GroupProps {
     group: SidebarGroup;
+    onReload: () => void;
 }
 
 const Group = (props: GroupProps) => {
@@ -52,6 +53,7 @@ const Group = (props: GroupProps) => {
                             display_name={item.display_name}
                             id={item.id}
                             link={item.link}
+                            onReload={props.onReload}
                         />
                     ))}
                 </List>
