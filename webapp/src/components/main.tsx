@@ -2,15 +2,10 @@ import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import {Client} from '../client/client';
-<<<<<<< Updated upstream
 import {Graph, Node, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
-import { GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup } from '../types/sidebar';
-=======
-import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
 import {User} from '../types/users';
->>>>>>> Stashed changes
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
