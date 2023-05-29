@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import {Client} from '../client/client';
-import {Graph, Node, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
+import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
 import { GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup } from '../types/sidebar';
 
 import LHSNavigation from './lhs/lhs_navigation';
@@ -41,6 +41,7 @@ const computeGroups = (graph: Graph) => {
             inProgressNodes.push(node);
         } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
             nextNodes.push(node);
+            node.status = NodeStatusNext;
         }
     }
 

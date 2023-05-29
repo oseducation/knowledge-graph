@@ -3,8 +3,9 @@ import {useNavigate} from 'react-router-dom';
 import ForceGraph3D from 'react-force-graph-3d';
 import ForceGraph2D, {ForceGraphMethods} from 'react-force-graph-2d';
 import {forceCollide} from 'd3';
+import {useTheme} from '@mui/material/styles';
 
-import {Graph, Node, Link} from '../../types/graph';
+import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext} from '../../types/graph';
 
 import {GraphNodeHoverContext} from './../main';
 
@@ -19,14 +20,15 @@ const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
     const fgRef = useRef<ForceGraphMethods<Node, Link>>();
     const {setNode} = React.useContext(GraphNodeHoverContext);
-
+    const nodeRadius = 5;
+    const theme = useTheme();
 
     const onNodeClick = ({id} : Node) => {
         navigate(`/nodes/${id}`)
     };
 
     useEffect(() => {
-        fgRef.current!.d3Force('collide', forceCollide(13))
+        fgRef.current!.d3Force('collide', forceCollide(30))
     },[]);
 
     if (props.dimension3) {
@@ -53,22 +55,33 @@ const D3ForceGraph = (props: Props) => {
             nodeLabel="description"
             width={props.width}
             height={props.height}
-            linkDirectionalParticles={2}
+            // linkDirectionalParticles={1}
             linkDirectionalParticleWidth={4}
             linkWidth={2}
             onNodeClick={onNodeClick}
-            dagMode={"lr"}
+            dagMode={"bu"}
             nodeVal={20}
             nodeCanvasObject={(node, ctx) => {
                 const label = node.name;
                 const fontSize = 5;
                 ctx.font = `${fontSize}px Sans-Serif`;
 
-                const r = 5;
-
                 ctx.beginPath();
-                ctx.arc(node.x || 0, node.y || 0, r, 0, 2 * Math.PI, false);
+                ctx.arc(node.x || 0, node.y || 0, nodeRadius, 0, 2 * Math.PI, false);
                 ctx.fillStyle = 'rgba(31, 120, 180, 0.92)';
+                if (node.status === NodeStatusFinished) {
+                    // ctx.fillStyle = '#85B404';
+                    ctx.fillStyle = theme.palette.success.main;
+                } else if (node.status === NodeStatusStarted || node.status === NodeStatusWatched){
+                    // ctx.fillStyle = '#EEB902';
+                    ctx.fillStyle = theme.palette.info.main;
+                } else if (node.status === NodeStatusNext) {
+                    // ctx.fillStyle = '#2D7DD2';
+                    ctx.fillStyle = theme.palette.primary.main;
+                } else {
+                    // ctx.fillStyle = '#AEADAE';
+                    ctx.fillStyle = theme.palette.grey[400]
+                }
                 ctx.fill();
 
                 ctx.textAlign = 'center';
@@ -77,10 +90,9 @@ const D3ForceGraph = (props: Props) => {
                 ctx.fillText(label, node.x||0, node.y||0);
             }}
             nodePointerAreaPaint={(node, color, ctx) => {
-                const r = 5
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.arc(node.x || 0, node.y || 0, r, 0, 2 * Math.PI, false);
+                ctx.arc(node.x || 0, node.y || 0, nodeRadius, 0, 2 * Math.PI, false);
                 ctx.fill();
             }}
             nodeAutoColorBy={"status"}
