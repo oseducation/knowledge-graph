@@ -37,7 +37,7 @@ func NewGraphStore(db *SQLStore) GraphStore {
 
 // Save saves edge in the DB
 func (gs *SQLGraphStore) Save(edge *model.Edge) error {
-	if _, err := gs.sqlStore.execBuilder(gs.sqlStore.db, sq.
+	if _, err := gs.sqlStore.execBuilder(gs.sqlStore.db, gs.sqlStore.builder.
 		Insert("edges").
 		SetMap(map[string]interface{}{
 			"from_node_id": edge.FromNodeID,
@@ -73,7 +73,7 @@ func (gs *SQLGraphStore) GetEdges(options *model.EdgeGetOptions) ([]*model.Edge,
 
 // Delete removes edge
 func (gs *SQLGraphStore) Delete(edge *model.Edge) error {
-	if _, err := gs.sqlStore.execBuilder(gs.sqlStore.db, sq.
+	if _, err := gs.sqlStore.execBuilder(gs.sqlStore.db, gs.sqlStore.builder.
 		Delete("edges").
 		Where(sq.And{
 			sq.Eq{"g.from_node_id": edge.FromNodeID},

@@ -51,7 +51,7 @@ func (ss *SQLSessionStore) Save(session *model.Session) (*model.Session, error) 
 		return nil, err
 	}
 
-	if _, err := ss.sqlStore.execBuilder(ss.sqlStore.db, sq.
+	if _, err := ss.sqlStore.execBuilder(ss.sqlStore.db, ss.sqlStore.builder.
 		Insert("sessions").
 		SetMap(map[string]interface{}{
 			"id":               session.ID,
@@ -92,7 +92,7 @@ func (ss *SQLSessionStore) GetSessions(userID string) ([]*model.Session, error) 
 }
 
 func (ss *SQLSessionStore) Delete(sessionIDOrToken string) error {
-	if _, err := ss.sqlStore.execBuilder(ss.sqlStore.db, sq.
+	if _, err := ss.sqlStore.execBuilder(ss.sqlStore.db, ss.sqlStore.builder.
 		Delete("sessions").
 		Where(sq.Or{
 			sq.Eq{"token": sessionIDOrToken},
@@ -109,7 +109,7 @@ func (ss *SQLSessionStore) Update(new *model.Session) error {
 		return err
 	}
 
-	_, err := ss.sqlStore.execBuilder(ss.sqlStore.db, sq.
+	_, err := ss.sqlStore.execBuilder(ss.sqlStore.db, ss.sqlStore.builder.
 		Update("users").
 		SetMap(map[string]interface{}{
 			"token":            new.Token,

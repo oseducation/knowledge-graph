@@ -44,7 +44,7 @@ func (ts *SQLTokenStore) Save(token *model.Token) error {
 	if err := token.IsValid(); err != nil {
 		return err
 	}
-	_, err := ts.sqlStore.execBuilder(ts.sqlStore.db, sq.
+	_, err := ts.sqlStore.execBuilder(ts.sqlStore.db, ts.sqlStore.builder.
 		Insert("tokens").
 		Columns("token", "created_at", "type", "extra").
 		Values(token.Token, model.GetMillis(), token.Type, token.Extra))
@@ -77,7 +77,7 @@ func (ts *SQLTokenStore) GetTokenByEmail(email string) ([]*model.Token, error) {
 
 // Delete removes token
 func (ts *SQLTokenStore) Delete(token string) error {
-	if _, err := ts.sqlStore.execBuilder(ts.sqlStore.db, sq.
+	if _, err := ts.sqlStore.execBuilder(ts.sqlStore.db, ts.sqlStore.builder.
 		Delete("tokens").
 		Where(sq.Eq{"token": token})); err != nil {
 		return errors.Wrapf(err, "can't delete token - %s", token)

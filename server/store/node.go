@@ -56,7 +56,7 @@ func (ns *SQLNodeStore) Save(node *model.Node) (*model.Node, error) {
 		return nil, err
 	}
 
-	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 		Insert("nodes").
 		SetMap(map[string]interface{}{
 			"id":          node.ID,
@@ -81,7 +81,7 @@ func (ns *SQLNodeStore) Update(new *model.Node) error {
 		return err
 	}
 
-	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 		Update("nodes").
 		SetMap(map[string]interface{}{
 			"created_at":  new.CreatedAt,
@@ -138,7 +138,7 @@ func (ns *SQLNodeStore) GetNodes(options *model.NodeGetOptions) ([]*model.Node, 
 func (ns *SQLNodeStore) Delete(node *model.Node) error {
 	curTime := model.GetMillis()
 
-	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 		Update("nodes").
 		SetMap(map[string]interface{}{
 			"deleted_at": curTime,

@@ -3,12 +3,14 @@ package store
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
 	//nolint: blank-imports
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
@@ -66,6 +68,12 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	dbSQL, err := sql.Open(config.DriverName, config.DataSource)
 	if err != nil {
 		panic("Failed to connect to database!")
+	}
+
+	// Test connection
+	err = dbSQL.Ping()
+	if err != nil {
+		logger.Fatal("Pinging database", log.Err(err))
 	}
 
 	for i := 0; i < DBPingAttempts; i++ {
@@ -234,6 +242,7 @@ func (sqlDB *SQLStore) exec(e execer, sqlString string, args ...interface{}) (sq
 // exec executes the given query, building the necessary sql.
 func (sqlDB *SQLStore) execBuilder(e execer, b builder) (sql.Result, error) {
 	sqlString, args, err := b.ToSql()
+	fmt.Println(sqlString, args, err)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to build sql")
 	}

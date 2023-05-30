@@ -8,8 +8,8 @@
         "CookieDomain": ""
     },
     "DBSettings": {
-        "DriverName": "sqlite3",
-        "DataSource": "sqlite.db",
+        "DriverName": "postgres",
+        "DataSource": "host=localhost port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable",
         "MaxIdleConns": 20,
         "ConnMaxLifetimeMilliseconds": 3600000,
         "ConnMaxIdleTimeMilliseconds": 300000,
