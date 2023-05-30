@@ -26,6 +26,7 @@ func NewVideoStore(db *SQLStore) VideoStore {
 			"v.id",
 			"v.created_at",
 			"v.deleted_at",
+			"v.name",
 			"v.video_type",
 			"v.key",
 			"v.length",
@@ -56,6 +57,7 @@ func (vs *SQLVideoStore) Save(video *model.Video) (*model.Video, error) {
 			"id":         video.ID,
 			"created_at": video.CreatedAt,
 			"deleted_at": video.DeletedAt,
+			"name":       video.Name,
 			"video_type": video.VideoType,
 			"key":        video.Key,
 			"length":     video.Length,
@@ -81,6 +83,20 @@ func (vs *SQLVideoStore) Get(id string) (*model.Video, error) {
 func (vs *SQLVideoStore) GetVideos(options *model.VideoGetOptions) ([]*model.Video, error) {
 	var videos []*model.Video
 	query := vs.videoSelect
+	if options.WithAuthorUsername {
+		query = vs.sqlStore.builder.Select(
+			"v.id",
+			"v.created_at",
+			"v.deleted_at",
+			"v.name",
+			"v.video_type",
+			"v.key",
+			"v.length",
+			"v.node_id",
+			"v.author_id",
+			"u.username AS author_username",
+		).From("videos v").Join("users u").Where("u.id == v.author_id")
+	}
 	if options.NodeID != "" {
 		query = query.Where(sq.Eq{"v.node_id": options.NodeID})
 	}

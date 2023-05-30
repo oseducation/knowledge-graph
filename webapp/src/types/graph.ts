@@ -26,11 +26,13 @@ export type Video = {
     id: string;
     created_at: number;
     deleted_at: number;
+    name: string;
     video_type: string;
     key: string;
     length: number;
     node_id: string;
     author_id: string;
+    author_username: string;
 }
 
 export type NodeWithResources = {

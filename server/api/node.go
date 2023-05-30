@@ -21,7 +21,7 @@ func (apiObj *API) initNode() {
 	apiObj.Nodes.PUT("/", authMiddleware(), requireNodePermissions(), updateNode)
 	apiObj.Nodes.DELETE("/", authMiddleware(), requireNodePermissions(), deleteNode)
 
-	apiObj.Nodes.GET("/:nodeID", getNode)
+	apiObj.Nodes.GET("/:nodeID", authMiddleware(), getNode)
 
 	apiObj.Nodes.PUT("/:nodeID/status", authMiddleware(), updateNodeStatus)
 }
