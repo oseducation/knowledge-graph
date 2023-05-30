@@ -171,7 +171,7 @@ func (ns *SQLNodeStore) GetNodesForUser(userID string) ([]*model.NodeStatusForUs
 
 func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 	var statusValue string
-	err := ns.sqlStore.getBuilder(ns.sqlStore.db, &statusValue, sq.
+	err := ns.sqlStore.getBuilder(ns.sqlStore.db, &statusValue, ns.sqlStore.builder.
 		Select("status").
 		From("user_nodes").
 		Where(sq.And{
@@ -185,7 +185,7 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 		return nil
 	}
 	if err == nil {
-		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 			Update("user_nodes").
 			SetMap(map[string]interface{}{
 				"status": status.Status,
@@ -197,7 +197,7 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 			return errors.Wrapf(err, "Can't update status -%v", status)
 		}
 	} else {
-		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, sq.
+		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 			Insert("user_nodes").
 			SetMap(map[string]interface{}{
 				"status":  status.Status,
