@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Avatar, AvatarGroup, Box, BoxProps, Button, Divider, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Stack, styled, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 
-import {GraphNodeHoverContext} from './../main';
+import {GraphNodeHoverContext} from '../main';
 import {ActiveUser, NodeStatusFinished, NodeWithResources} from '../../types/graph';
 import {Client} from '../../client/client';
 
@@ -12,14 +12,14 @@ const stringToColor = (st: string) => {
 
     /* eslint-disable no-bitwise */
     for (i = 0; i < st.length; i += 1) {
-      hash = st.charCodeAt(i) + ((hash << 5) - hash);
+        hash = st.charCodeAt(i) + ((hash << 5) - hash);
     }
 
     let color = '#';
 
     for (i = 0; i < 3; i += 1) {
-      const value = (hash >> (i * 8)) & 0xff;
-      color += `00${value.toString(16)}`.slice(-2);
+        const value = (hash >> (i * 8)) & 0xff;
+        color += `00${value.toString(16)}`.slice(-2);
     }
     /* eslint-enable no-bitwise */
 
@@ -80,20 +80,20 @@ const RHS = (props: RHSProps) => {
                     alignItems='center'
                     sx={{border: (theme) => `1px solid ${theme.palette.divider}`}}
                 >
-                   <Typography
+                    <Typography
                         fontSize={20}
                         fontWeight={600}
                         sx={{p:'10px'}}
                     >
                         Node Details
                     </Typography>
-                   <Divider
+                    <Divider
                         orientation='vertical'
                         variant='middle'
                         flexItem
                         sx={{p:'4px 0px'}}
                     />
-                   <Typography
+                    <Typography
                         fontSize={20}
                         fontWeight={500}
                         sx={{p:'10px'}}
@@ -114,7 +114,7 @@ const RHS = (props: RHSProps) => {
                         </Typography>
                         <AvatarGroup max={5}>
                             {nodeWithResources.active_users.map(user =>
-                                <Avatar alt={user.username} {...stringAvatar(user)}/>
+                                <Avatar key={user.user_id} alt={user.username} {...stringAvatar(user)}/>
                             )}
                         </AvatarGroup>
                     </Stack>
@@ -138,7 +138,7 @@ const RHS = (props: RHSProps) => {
                             }
                         >
                             {nodeWithResources.videos.map(video =>
-                                <ListItemButton>
+                                <ListItemButton key={video.id}>
                                     <ListItemIcon>
                                         <YouTubeIcon/>
                                     </ListItemIcon>
