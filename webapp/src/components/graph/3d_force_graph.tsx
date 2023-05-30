@@ -48,6 +48,19 @@ const D3ForceGraph = (props: Props) => {
             />
         );
     }
+
+    const getNodeColor = (node: Node) => {
+        if (node.status === NodeStatusFinished) {
+            return theme.palette.success.main;
+        } else if (node.status === NodeStatusStarted || node.status === NodeStatusWatched){
+            return theme.palette.info.main;
+        } else if (node.status === NodeStatusNext) {
+            return theme.palette.primary.main;
+        } else {
+            return theme.palette.grey[400];
+        }
+    }
+
     return (
         <ForceGraph2D
             ref={fgRef}
@@ -68,20 +81,7 @@ const D3ForceGraph = (props: Props) => {
 
                 ctx.beginPath();
                 ctx.arc(node.x || 0, node.y || 0, nodeRadius, 0, 2 * Math.PI, false);
-                ctx.fillStyle = 'rgba(31, 120, 180, 0.92)';
-                if (node.status === NodeStatusFinished) {
-                    // ctx.fillStyle = '#85B404';
-                    ctx.fillStyle = theme.palette.success.main;
-                } else if (node.status === NodeStatusStarted || node.status === NodeStatusWatched){
-                    // ctx.fillStyle = '#EEB902';
-                    ctx.fillStyle = theme.palette.info.main;
-                } else if (node.status === NodeStatusNext) {
-                    // ctx.fillStyle = '#2D7DD2';
-                    ctx.fillStyle = theme.palette.primary.main;
-                } else {
-                    // ctx.fillStyle = '#AEADAE';
-                    ctx.fillStyle = theme.palette.grey[400]
-                }
+                ctx.fillStyle = getNodeColor(node);
                 ctx.fill();
 
                 ctx.textAlign = 'center';
