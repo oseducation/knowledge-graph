@@ -18,6 +18,7 @@ type UserStore interface {
 	GetUsers(options *model.UserGetOptions) ([]*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	Delete(user *model.User) error
+	ActiveUsers(nodeID string) ([]*model.User, error)
 }
 
 // SQLUserStore is a struct to store users
@@ -179,4 +180,18 @@ func (us *SQLUserStore) Delete(user *model.User) error {
 	}
 
 	return nil
+}
+
+func (us *SQLUserStore) ActiveUsers(nodeID string) ([]*model.User, error) {
+	var users []*model.User
+
+	query := us.userSelect.
+		Join("user_nodes un").
+		Where(sq.Eq{"un.node_id": nodeID}).
+		Where("un.user_id == u.id and (un.status == 'started' or un.status == 'watched')")
+
+	if err := us.sqlStore.selectBuilder(us.sqlStore.db, &users, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get active users for node %s", nodeID)
+	}
+	return users, nil
 }
