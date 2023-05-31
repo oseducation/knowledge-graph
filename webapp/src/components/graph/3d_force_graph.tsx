@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import ForceGraph3D from 'react-force-graph-3d';
-import ForceGraph2D, {ForceGraphMethods} from 'react-force-graph-2d';
+import ForceGraph2D, {ForceGraphMethods, NodeObject} from 'react-force-graph-2d';
 import {forceCollide} from 'd3';
 import {useTheme} from '@mui/material/styles';
 
@@ -14,6 +14,7 @@ interface Props {
     width?: number;
     height?: number;
     dimension3: boolean;
+    focusNodeID?: string;
 }
 
 const D3ForceGraph = (props: Props) => {
@@ -29,7 +30,21 @@ const D3ForceGraph = (props: Props) => {
 
     useEffect(() => {
         fgRef.current!.d3Force('collide', forceCollide(50))
-    },[]);
+        if (props.focusNodeID) {
+            let focusNode = null;
+            for (let i = 0; i < props.graph.nodes.length; i++) {
+                const node = props.graph.nodes[i];
+                if (node.id === props.focusNodeID) {
+                    focusNode = node as NodeObject<Node>
+                    break
+                }
+            }
+            if (focusNode) {
+                fgRef.current!.centerAt(focusNode.x, focusNode.y, 1000);
+                fgRef.current!.zoom(3, 2000);
+            }
+        }
+    },[props.focusNodeID]);
 
     if (props.dimension3) {
         return (

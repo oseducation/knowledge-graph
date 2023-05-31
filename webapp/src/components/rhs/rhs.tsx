@@ -45,21 +45,19 @@ const RHS = (props: RHSProps) => {
     const {node} = React.useContext(GraphNodeHoverContext);
     const theme = useTheme()
 
-    if (!node.id) {
-        return null;
-    }
-
     const [nodeWithResources, setNodeWithResources] = useState<NodeWithResources>({} as NodeWithResources);
 
     useEffect(() => {
-        Client.Node().get(node.id).then((data) => {
-            setNodeWithResources(data);
-        });
+        if (node && node.id) {
+            Client.Node().get(node.id).then((data) => {
+                setNodeWithResources(data);
+            });
+        }
     },[node.id]);
 
 
     const markAsKnown = () => {
-        if (props.userID) {
+        if (props.userID && node.id) {
             Client.Node().markAsKnown(node.id, props.userID).then(() => {
                 props.onReload();
             });
