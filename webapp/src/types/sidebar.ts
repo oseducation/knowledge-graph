@@ -11,6 +11,7 @@ export interface GroupItem {
     secondary?: string;
     icon?: React.ReactNode;
     itemMenu?: React.ReactNode;
+    onClick?: () => void;
 }
 
 export interface SidebarGroup {

@@ -8,6 +8,7 @@ import ForceGraph from './3d_force_graph';
 
 interface GraphComponentProps {
     graph: Graph;
+    focusNodeID?: string;
 }
 
 
@@ -30,6 +31,7 @@ const GraphComponent = (props: GraphComponentProps) => {
                 width={myRef.current?.offsetWidth || 0}
                 height={windowHeight}
                 dimension3={false}
+                focusNodeID={props.focusNodeID}
             />
         </Box>
     );
