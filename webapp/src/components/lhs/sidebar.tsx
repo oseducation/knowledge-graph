@@ -8,6 +8,7 @@ import Group from './group';
 
 interface SidebarProps {
     groups: Array<SidebarGroup>;
+    header?: React.ReactNode;
 }
 
 const Sidebar = (props: SidebarProps) => {
@@ -36,6 +37,7 @@ const Sidebar = (props: SidebarProps) => {
                 }
             }}
         >
+            {props.header}
             {props.groups.map((group) => {
                 return (
                     <Group
