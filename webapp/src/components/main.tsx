@@ -135,7 +135,10 @@ const Main = () => {
                     <GraphComponent graph={graph}/>
                 </Grid2>
                 <Grid2 xs={4} sx={{maxWidth: '400px'}}>
-                    <RHS/>
+                    <RHS
+                        userID={user?.id || ''}
+                        onReload={handleReload}
+                    />
                 </Grid2>
             </Grid2>
         </GraphNodeHoverContext.Provider>

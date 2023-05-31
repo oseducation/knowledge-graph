@@ -35,7 +35,8 @@ type Node struct {
 
 type NodeWithResources struct {
 	Node
-	Videos []*Video `json:"videos" db:"_"`
+	Videos      []*Video `json:"videos" db:"_"`
+	ActiveUsers []*User  `json:"active_users" db:"_"`
 }
 
 type NodeStatusForUser struct {

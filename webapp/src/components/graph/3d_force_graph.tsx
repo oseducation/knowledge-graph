@@ -20,7 +20,7 @@ const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
     const fgRef = useRef<ForceGraphMethods<Node, Link>>();
     const {setNode} = React.useContext(GraphNodeHoverContext);
-    const nodeRadius = 5;
+    const nodeRadius = 30;
     const theme = useTheme();
 
     const onNodeClick = ({id} : Node) => {
@@ -28,7 +28,7 @@ const D3ForceGraph = (props: Props) => {
     };
 
     useEffect(() => {
-        fgRef.current!.d3Force('collide', forceCollide(30))
+        fgRef.current!.d3Force('collide', forceCollide(50))
     },[]);
 
     if (props.dimension3) {
@@ -53,7 +53,7 @@ const D3ForceGraph = (props: Props) => {
         if (node.status === NodeStatusFinished) {
             return theme.palette.success.main;
         } else if (node.status === NodeStatusStarted || node.status === NodeStatusWatched){
-            return theme.palette.info.main;
+            return theme.palette.secondary.main;
         } else if (node.status === NodeStatusNext) {
             return theme.palette.primary.main;
         } else {

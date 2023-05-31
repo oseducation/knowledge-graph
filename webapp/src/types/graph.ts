@@ -35,9 +35,17 @@ export type Video = {
     author_username: string;
 }
 
+export type ActiveUser = {
+    user_id: string;
+    username: string;
+    first_name: string;
+    last_name: string;
+}
+
 export type NodeWithResources = {
     id: string;
     name: string;
     description: string;
     videos: Video[];
+    active_users: ActiveUser[];
 }

@@ -57,7 +57,11 @@ func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "options = %v", options)
 	}
-	return &model.NodeWithResources{Node: *node, Videos: videos}, nil
+	users, err := a.Store.User().ActiveUsers(nodeID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "nodeID = %v", nodeID)
+	}
+	return &model.NodeWithResources{Node: *node, Videos: videos, ActiveUsers: a.sanitizeUsers(users)}, nil
 }
 
 // GetVideos gets filtered videos

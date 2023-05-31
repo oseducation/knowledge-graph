@@ -5,7 +5,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 
 import {NodeWithResources} from '../types/graph';
 import {Client} from '../client/client';
-import { GroupItem, SidebarGroup } from '../types/sidebar';
+import {GroupItem, SidebarGroup} from '../types/sidebar';
 
 import LHSNavigation from './lhs/lhs_navigation';
 
