@@ -17,6 +17,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.server
+    container_name: kg-server
     ports:
       - '9081:9081'
     networks:
@@ -29,6 +30,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.webapp
+    container_name: kg-webapp
     ports:
       - '9091:9091'
     environment:
