@@ -95,7 +95,7 @@ func (vs *SQLVideoStore) GetVideos(options *model.VideoGetOptions) ([]*model.Vid
 			"v.node_id",
 			"v.author_id",
 			"u.username AS author_username",
-		).From("videos v").Join("users u").Where("u.id == v.author_id")
+		).From("videos v").Join("users u on u.id = v.author_id")
 	}
 	if options.NodeID != "" {
 		query = query.Where(sq.Eq{"v.node_id": options.NodeID})
