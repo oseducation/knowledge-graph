@@ -25,6 +25,7 @@ test:
 
 docker-start:
 	docker-compose up -d
+	docker exec knowledge-graph_kg-server_1 go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
 
 docker-stop:
 	docker-compose down
