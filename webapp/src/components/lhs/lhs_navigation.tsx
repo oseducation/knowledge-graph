@@ -8,6 +8,7 @@ import Sidebar from './sidebar';
 
 interface LHSProps {
     groups: SidebarGroup[];
+    header?: React.ReactNode;
 }
 
 const LHSNavigation = (props: LHSProps) => {
@@ -37,7 +38,10 @@ const LHSNavigation = (props: LHSProps) => {
             display='flex'
             flexDirection='column'
         >
-            <Sidebar groups={groups}/>
+            <Sidebar
+                groups={groups}
+                header={props.header}
+            />
         </Box>
     );
 };

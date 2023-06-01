@@ -21,6 +21,7 @@ type API struct {
 	User    *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
 	Nodes   *gin.RouterGroup // 'api/v1/nodes'
 	Node    *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
+	Videos  *gin.RouterGroup // 'api/v1/videos'
 }
 
 // Init initializes api
@@ -37,6 +38,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initUser()
 	apiObj.initNode()
 	apiObj.initGraph()
+	apiObj.initVideo()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")

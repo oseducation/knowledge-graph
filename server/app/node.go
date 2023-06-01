@@ -64,15 +64,6 @@ func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
 	return &model.NodeWithResources{Node: *node, Videos: videos, ActiveUsers: a.sanitizeUsers(users)}, nil
 }
 
-// GetVideos gets filtered videos
-func (a *App) GetVideos(options *model.VideoGetOptions) ([]*model.Video, error) {
-	videos, err := a.Store.Video().GetVideos(options)
-	if err != nil {
-		return nil, errors.Wrapf(err, "options = %v", options)
-	}
-	return videos, nil
-}
-
 func (a *App) GetStatusesForUser(userID string) ([]*model.NodeStatusForUser, error) {
 	return a.Store.Node().GetNodesForUser(userID)
 }
