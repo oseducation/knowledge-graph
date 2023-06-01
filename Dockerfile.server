@@ -1,21 +1,43 @@
-# Use an official Golang runtime as a parent image
-FROM golang:latest
+# Stage 1: Build Stage
+FROM golang:latest AS build
 
 # Set the working directory
 WORKDIR /knowledge-graph-server
 
 # Copy the Golang server's source code into the container
 COPY ./server .
-RUN chmod +x ./entrypoint.sh
 
 # Install any needed packages specified in go.mod and go.sum
 RUN go mod download
 
+# Build the Go application
+RUN cd cmd && go build -o kg-server
+
+# Stage 2: Runtime Stage
+FROM ubuntu:22.04
+
+# Set the working directory
+WORKDIR /knowledge-graph-server
+
+# Copy the binary from the build stage
+COPY --from=build /knowledge-graph-server/cmd/kg-server .
+RUN chmod +x ./kg-server
+
+# Copy the entrypoint script
+COPY ./server/entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
+
+# Copy the config file
+COPY ./server/config/config.json ./config/config.json
+
+# Install jq for json config file processing
+RUN apt-get update \
+    && apt-get install -y jq ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Make port 9081 available to the world outside this container
 EXPOSE 9081
-
-# Install jq for json congig file processing
-RUN apt update && apt install -y jq
 
 # Run the server when the container launches
 ENTRYPOINT ["/knowledge-graph-server/entrypoint.sh"]

@@ -23,17 +23,26 @@ style: golangci-lint vet eslint ## Runs style/lint checks
 test:
 	cd server && go test ./...
 
+docker-build:
+	docker compose build --no-cache
+
 docker-start:
 	docker compose up -d
+
+docker-start-fg:
+	docker compose up
 
 docker-stop:
 	docker compose down
 
-docker-import:
-	docker exec kg-server go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+docker-import: docker-start
+	docker exec kg-server /knowledge-graph-server/kg-server db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+
+docker-container-rm: docker-stop
+	docker compose rm
 
 docker-nuke:
-	docker exec kg-server go run cmd/main.go db nuke
+	docker exec kg-server /knowledge-graph-server/kg-server db nuke
 
 import:
 	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/

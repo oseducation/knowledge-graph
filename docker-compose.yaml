@@ -18,6 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile.server
     container_name: kg-server
+    restart: always
     ports:
       - '9081:9081'
     networks:
@@ -31,6 +32,7 @@ services:
       context: .
       dockerfile: Dockerfile.webapp
     container_name: kg-webapp
+    restart: always
     ports:
       - '9091:9091'
     environment:
