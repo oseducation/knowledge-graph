@@ -51,7 +51,7 @@ func (vs *SQLVideoStore) Save(video *model.Video) (*model.Video, error) {
 		return nil, err
 	}
 
-	_, err := vs.sqlStore.execBuilder(vs.sqlStore.db, sq.
+	_, err := vs.sqlStore.execBuilder(vs.sqlStore.db, vs.sqlStore.builder.
 		Insert("videos").
 		SetMap(map[string]interface{}{
 			"id":         video.ID,
@@ -117,7 +117,7 @@ func (vs *SQLVideoStore) GetVideos(options *model.VideoGetOptions) ([]*model.Vid
 func (vs *SQLVideoStore) Delete(video *model.Video) error {
 	curTime := model.GetMillis()
 
-	_, err := vs.sqlStore.execBuilder(vs.sqlStore.db, sq.
+	_, err := vs.sqlStore.execBuilder(vs.sqlStore.db, vs.sqlStore.builder.
 		Update("videos").
 		SetMap(map[string]interface{}{
 			"deleted_at": curTime,

@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  kg-db:
+    image: postgres:15
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    networks:
+      - kg-network
+
   kg-server:
     build:
       context: .
@@ -9,6 +21,9 @@ services:
       - '9081:9081'
     networks:
       - kg-network
+    environment:
+      - DATABASE_DRIVER_NAME=postgres
+      - DATABASE_DATASOURCE=host=kg-db port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable
 
   kg-webapp:
     build:

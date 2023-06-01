@@ -62,7 +62,7 @@ func (us *SQLUserStore) Save(user *model.User) (*model.User, error) {
 		return nil, err
 	}
 
-	_, err := us.sqlStore.execBuilder(us.sqlStore.db, sq.
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, us.sqlStore.builder.
 		Insert("users").
 		SetMap(map[string]interface{}{
 			"id":                   user.ID,
@@ -92,7 +92,7 @@ func (us *SQLUserStore) Update(new *model.User) error {
 		return err
 	}
 
-	_, err := us.sqlStore.execBuilder(us.sqlStore.db, sq.
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, us.sqlStore.builder.
 		Update("users").
 		SetMap(map[string]interface{}{
 			"created_at":           new.CreatedAt,
@@ -169,7 +169,7 @@ func (us *SQLUserStore) GetByEmail(email string) (*model.User, error) {
 func (us *SQLUserStore) Delete(user *model.User) error {
 	curTime := model.GetMillis()
 
-	_, err := us.sqlStore.execBuilder(us.sqlStore.db, sq.
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, us.sqlStore.builder.
 		Update("users").
 		SetMap(map[string]interface{}{
 			"deleted_at": curTime,
