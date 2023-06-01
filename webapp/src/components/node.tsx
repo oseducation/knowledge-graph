@@ -7,7 +7,10 @@ import {NodeWithResources, Video} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 
+import useAuth from '../hooks/useAuth';
+
 import LHSNavigation from './lhs/lhs_navigation';
+import VideoPlayer from './player';
 
 interface Props {
     nodeID: string;
@@ -17,6 +20,7 @@ const Node = (props: Props) => {
     const [node, setNode] = useState<NodeWithResources>({} as NodeWithResources);
     const [activeVideo, setActiveVideo] = useState<Video | null>(null)
     const theme = useTheme();
+    const {user} = useAuth()
 
     useEffect(() => {
         if (!activeVideo) {
@@ -24,7 +28,7 @@ const Node = (props: Props) => {
                 setNode(data);
             });
         }
-    });
+    },[props.nodeID]);
 
     const computeGroups = (node: NodeWithResources) => {
         const videoItems = node.videos? node.videos.map(video => {
@@ -35,7 +39,10 @@ const Node = (props: Props) => {
                 id: video.id,
                 link: node.id,
                 icon: <YouTubeIcon/>,
-                onClick: () => setActiveVideo(video)
+                onClick: () => {
+                    console.log('setActiveVideo', video)
+                    setActiveVideo(video);
+                }
             } as GroupItem;
         }): [];
 
@@ -86,6 +93,18 @@ const Node = (props: Props) => {
         </Typography>
     );
 
+    const onVideoStarted = () => {
+        if (user && user.id) {
+            Client.Node().markAsStarted(node.id, user.id);
+        }
+    }
+
+    const onVideoEnded = () => {
+        if (user && user.id) {
+            Client.Node().markAsWatched(node.id, user.id);
+        }
+    }
+
     return (
         <Grid2 container height={'100vh'}>
             <Grid2 xs={3} sx={{maxWidth: '240px'}} height={'100%'}>
@@ -93,12 +112,13 @@ const Node = (props: Props) => {
             </Grid2>
             <Grid2 xs={true}>
                 {activeVideo?
-                    <iframe
-                        src={`https://www.youtube.com/embed/${activeVideo.key}`}
-                        height={'100%'}
+                    <VideoPlayer
+                        videoKey={activeVideo.key}
                         width={'100%'}
-                        allow='autoplay; encrypted-media'
-                        allowFullScreen
+                        height={'100%'}
+                        autoplay={true}
+                        onVideoStarted={onVideoStarted}
+                        onVideoEnded={onVideoEnded}
                     />
                     :
                     <Stack>
@@ -106,11 +126,13 @@ const Node = (props: Props) => {
                         <div>
                             {node.videos && node.videos.map((video) => (
                                 <div key={video.key}>
-                                    <iframe
-                                        width='560'
-                                        height='315'
-                                        src={`https://www.youtube.com/embed/${video.key}`}
-                                        allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+                                    <VideoPlayer
+                                        videoKey={video.key}
+                                        width={'560'}
+                                        height={'315'}
+                                        autoplay={false}
+                                        onVideoStarted={onVideoStarted}
+                                        onVideoEnded={onVideoEnded}
                                     />
                                 </div>
                             ))}

@@ -184,6 +184,15 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 	if statusValue == status.Status {
 		return nil
 	}
+
+	if statusValue == model.NodeStatusFinished {
+		return nil
+	}
+
+	if statusValue == model.NodeStatusWatched && status.Status != model.NodeStatusFinished {
+		return nil
+	}
+
 	if err == nil {
 		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 			Update("user_nodes").
