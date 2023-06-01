@@ -28,6 +28,8 @@ services:
     environment:
       - DATABASE_DRIVER_NAME=postgres
       - DATABASE_DATASOURCE=host=kg-db port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable
+    depends_on:
+      - kg-db
 
   kg-webapp:
     build:
