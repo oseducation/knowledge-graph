@@ -10,6 +10,8 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - kg-network
 
@@ -18,6 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile.server
     container_name: kg-server
+    restart: always
     ports:
       - '9081:9081'
     networks:
@@ -25,12 +28,15 @@ services:
     environment:
       - DATABASE_DRIVER_NAME=postgres
       - DATABASE_DATASOURCE=host=kg-db port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable
+    depends_on:
+      - kg-db
 
   kg-webapp:
     build:
       context: .
       dockerfile: Dockerfile.webapp
     container_name: kg-webapp
+    restart: always
     ports:
       - '9091:9091'
     environment:
@@ -43,3 +49,6 @@ services:
 networks:
   kg-network:
     driver: bridge
+
+volumes:
+  postgres-data:
