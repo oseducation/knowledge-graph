@@ -153,7 +153,7 @@ func (ns *SQLNodeStore) Delete(node *model.Node) error {
 
 func (ns *SQLNodeStore) GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error) {
 	var statuses []*model.NodeStatusForUser
-	query := sq.
+	query := ns.sqlStore.builder.
 		Select(
 			"un.node_id",
 			"un.user_id",
