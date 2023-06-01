@@ -24,11 +24,16 @@ test:
 	cd server && go test ./...
 
 docker-start:
-	docker-compose up -d
-	docker exec knowledge-graph_kg-server_1 go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+	docker compose up -d
 
 docker-stop:
-	docker-compose down
+	docker compose down
+
+docker-import:
+	docker exec kg-server go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+
+docker-nuke:
+	docker exec kg-server go run cmd/main.go db nuke
 
 import:
 	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
