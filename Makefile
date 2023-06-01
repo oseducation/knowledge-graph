@@ -27,10 +27,10 @@ docker-build:
 	docker compose build --no-cache
 
 docker-start:
-	docker compose up -d
+	docker compose up -d --build
 
 docker-start-fg:
-	docker compose up
+	docker compose up --build
 
 docker-stop:
 	docker compose down
