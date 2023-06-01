@@ -30,6 +30,12 @@ services:
       - DATABASE_DATASOURCE=host=kg-db port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable
     depends_on:
       - kg-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9081/healthcheck"]
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
+      retries: 3
 
   kg-webapp:
     build:
