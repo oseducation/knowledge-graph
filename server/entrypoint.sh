@@ -13,4 +13,4 @@ if [ -n "$DATABASE_DATASOURCE" ]; then
 fi
 
 # Run make command
-make run-server
+/knowledge-graph-server/kg-server

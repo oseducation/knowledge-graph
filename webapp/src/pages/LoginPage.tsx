@@ -11,7 +11,7 @@ import useAuth from '../hooks/useAuth';
 const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || "/welcome";
+    const from = location.state?.from?.pathname || "/";
     const {setUser} = useAuth();
 
 
@@ -53,14 +53,12 @@ const LoginPage = () => {
                         fullWidth
                         label={'Email'}
                         type={'email'}
-                        name={'email'}
                         {...register("email", {required: true})}
                     />
                     <TextField
                         fullWidth
                         label={'Password'}
                         type={'password'}
-                        name={'password'}
                         {...register("password", {required: true})}
                     />
                     <Stack direction={'row'} justifyContent={'center'}>
