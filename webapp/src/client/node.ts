@@ -1,4 +1,4 @@
-import {NodeStatusFinished, NodeWithResources} from "../types/graph";
+import {NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeWithResources} from "../types/graph";
 
 import {Rest} from "./rest";
 
@@ -23,10 +23,22 @@ export class NodeClient{
     };
 
     markAsKnown = async (nodeID: string, userID: string) => {
+        return this.changeStatus(nodeID, userID, NodeStatusFinished);
+    }
+
+    markAsStarted = async (nodeID: string, userID: string) => {
+        return this.changeStatus(nodeID, userID, NodeStatusStarted);
+    }
+
+    markAsWatched = async (nodeID: string, userID: string) => {
+        return this.changeStatus(nodeID, userID, NodeStatusWatched);
+    }
+
+    changeStatus = async (nodeID: string, userID: string, newStatus: string) => {
         const status = {
             node_id: nodeID,
             user_id: userID,
-            status: NodeStatusFinished
+            status: newStatus
         }
         try {
             this.rest.doPut(`${this.getNodeRoute(nodeID)}/status`, JSON.stringify(status));
