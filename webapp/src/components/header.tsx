@@ -21,6 +21,8 @@ const Header = () => {
                 fontSize={36}
                 fontWeight={'bold'}
                 color={'primary'}
+                onClick={() => navigate('/')}
+                sx={{cursor: 'pointer'}}
             >
                 Knowledge Graph
             </Typography>
