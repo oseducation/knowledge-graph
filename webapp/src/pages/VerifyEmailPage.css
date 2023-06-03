@@ -1,0 +1,41 @@
+.loading-message {
+    color: blue;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.verification-success,
+.verification-failed {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.verification-success p,
+.verification-failed p {
+    font-size: 24px;
+    color: green;
+    text-align: center;
+}
+
+.verification-failed p {
+    color: red;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 18px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
