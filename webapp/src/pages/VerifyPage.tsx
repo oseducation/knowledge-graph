@@ -15,7 +15,7 @@ const VerifyPage: React.FC = () => {
             <p style={{ color: '#666', maxWidth: '60%', textAlign: 'center', marginBottom: '2rem' }}>
                 We just sent a verification email to:
                 <span style={{ color: '#000', fontWeight: 'bold', marginLeft: '1rem' }}>{location.state?.email}</span>.
-                Please check your inbox (and spam folder!) to confirm your account. Let's get you on board!
+                Please check your inbox (and spam folder!) to confirm your account. Let&apos;s get you on board!
             </p>
             <button
                 onClick={navigateToLogin}
