@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
 	"strings"
 
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
 const AuthHeader = "Authorization"
