@@ -24,7 +24,7 @@ func (apiObj *API) initUser() {
 
 	apiObj.Users.POST("/login", login)
 	apiObj.Users.POST("/logout", authMiddleware(), logout)
-	apiObj.Users.GET("/user", authMiddleware(), getUser)
+	apiObj.Users.GET("/me", authMiddleware(), getMe)
 
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
@@ -80,7 +80,7 @@ func login(c *gin.Context) {
 }
 
 // Get the user from the session and return it in the response
-func getUser(c *gin.Context) {
+func getMe(c *gin.Context) {
 	session, err := getSession(c)
 	if err != nil {
 		responseFormat(c, http.StatusUnauthorized, err.Error())
