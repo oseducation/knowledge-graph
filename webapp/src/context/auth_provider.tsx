@@ -28,7 +28,7 @@ export const AuthProvider = (props: Props) => {
         if (user !== null) {
             return user;
         }
-        return Client.User().getUser()
+        return Client.User().getMe()
             .catch(() => null)
     }
 

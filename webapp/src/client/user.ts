@@ -48,9 +48,9 @@ export class UserClient {
         return response;
     };
 
-    getUser = async () => {
+    getMe = async () => {
         const {data} = await this.rest.doFetchWithResponse<User>(
-            `${this.getUsersRoute()}/user`,
+            `${this.getUsersRoute()}/me`,
             {method: 'get'},
         );
 
