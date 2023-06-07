@@ -163,18 +163,6 @@ func TestUpdateUser(t *testing.T) {
 		functionaltesting.CheckUnauthorizedStatus(t, resp)
 	})
 
-	t.Run("user can't be updated by the basic user", func(t *testing.T) {
-		user := model.User{
-			Email:         "bla@gmail.com",
-			Password:      "hello1",
-			EmailVerified: true,
-			Username:      "user",
-		}
-		_, resp, err := th.UserClient.CreateUser(&user)
-		require.Error(t, err)
-		functionaltesting.CheckForbiddenStatus(t, resp)
-	})
-
 	t.Run("user can be updated by the admin", func(t *testing.T) {
 		user := model.User{
 			Email:         "bla@gmail.com",

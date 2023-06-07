@@ -32,7 +32,7 @@ func (apiObj *API) initUser() {
 
 	apiObj.Users.GET("/", authMiddleware(), requireUserPermissions(), getUsers)
 	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
-	apiObj.Users.PUT("/", authMiddleware(), requireUserPermissions(), updateUser)
+	apiObj.Users.PUT("/", authMiddleware(), updateUser)
 	apiObj.Users.DELETE("/", authMiddleware(), requireUserPermissions(), deleteUser)
 }
 

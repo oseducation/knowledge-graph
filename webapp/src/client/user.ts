@@ -56,4 +56,12 @@ export class UserClient {
 
         return data;
     };
+    update = async (user: User) => {
+        const {data} = await this.rest.doFetchWithResponse<User>(
+            `${this.getUsersRoute()}/`,
+            {method: 'put', body: JSON.stringify(user)},
+        );
+
+        return data;
+    };
 }
