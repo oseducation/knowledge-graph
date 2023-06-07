@@ -92,7 +92,7 @@ const ProfileDropdown = () => {
                         border: '1px solid darkred',
                     }}
                 >
-                    {user?.first_name}
+                    {user?.username}
                 </Button>
                 <Popper
                     open={open}
