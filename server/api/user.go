@@ -25,6 +25,7 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/login", login)
 	apiObj.Users.POST("/logout", authMiddleware(), logout)
 	apiObj.Users.GET("/me", authMiddleware(), getMe)
+	apiObj.Users.PUT("/me", authMiddleware(), patchCurrentUser)
 
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
@@ -32,8 +33,50 @@ func (apiObj *API) initUser() {
 
 	apiObj.Users.GET("/", authMiddleware(), requireUserPermissions(), getUsers)
 	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
-	apiObj.Users.PUT("/", authMiddleware(), updateUser)
+	apiObj.Users.PUT("/", authMiddleware(), requireUserPermissions(), updateUser)
 	apiObj.Users.DELETE("/", authMiddleware(), requireUserPermissions(), deleteUser)
+}
+
+func patchCurrentUser(c *gin.Context) {
+	updatedUser, err := model.UserFromJSON(c.Request.Body)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
+		return
+	}
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	session, err := getSession(c)
+
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if session.UserID != updatedUser.ID {
+		responseFormat(c, http.StatusForbidden, "user mismatch")
+		return
+	}
+
+	oldUser, err := a.Store.User().Get(updatedUser.ID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if oldUser.Email != updatedUser.Email ||
+		oldUser.EmailVerified != updatedUser.EmailVerified {
+		responseFormat(c, http.StatusForbidden, "user mismatch")
+		return
+	}
+
+	err = a.UpdateUser(updatedUser)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	responseFormat(c, http.StatusOK, "User updated")
 }
 
 func login(c *gin.Context) {

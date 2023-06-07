@@ -58,7 +58,7 @@ export class UserClient {
     };
     update = async (user: User) => {
         const {data} = await this.rest.doFetchWithResponse<User>(
-            `${this.getUsersRoute()}/`,
+            `${this.getUsersRoute()}/me`,
             {method: 'put', body: JSON.stringify(user)},
         );
 

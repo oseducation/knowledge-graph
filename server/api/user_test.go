@@ -162,7 +162,17 @@ func TestUpdateUser(t *testing.T) {
 		require.Error(t, err)
 		functionaltesting.CheckUnauthorizedStatus(t, resp)
 	})
-
+	t.Run("user can't be updated by the basic user", func(t *testing.T) {
+		user := model.User{
+			Email:         "bla@gmail.com",
+			Password:      "hello1",
+			EmailVerified: true,
+			Username:      "user",
+		}
+		_, resp, err := th.UserClient.CreateUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckForbiddenStatus(t, resp)
+	})
 	t.Run("user can be updated by the admin", func(t *testing.T) {
 		user := model.User{
 			Email:         "bla@gmail.com",
@@ -189,6 +199,33 @@ func TestUpdateUser(t *testing.T) {
 		resp, err := th.AdminClient.UpdateUser(&user)
 		require.Error(t, err)
 		functionaltesting.CheckForbiddenStatus(t, resp)
+	})
+}
+
+func TestPatchCurrentUser(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+
+	t.Run("user can't be updated without authentication", func(t *testing.T) {
+		user := model.User{
+			Email:         "bla@gmail.com",
+			Password:      "hello1",
+			EmailVerified: true,
+			Username:      "user",
+		}
+		resp, err := th.Client.PatchCurrentUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckUnauthorizedStatus(t, resp)
+	})
+	t.Run("user can be updated same user", func(t *testing.T) {
+		registeredUser, resp, err := th.UserClient.GetCurrentUser()
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, resp)
+		registeredUser.Username = "user4"
+		registeredUser.FirstName = "firstname"
+		resp, err = th.UserClient.PatchCurrentUser(registeredUser)
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, resp)
 	})
 }
 
