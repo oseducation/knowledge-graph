@@ -5,7 +5,7 @@
   "proxy": "http://localhost:9081",
   "dependencies": {
     "@emotion/react": "^11.10.6",
-    "@emotion/styled": "^11.10.6",
+    "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.2",
     "@testing-library/jest-dom": "^5.16.5",

@@ -2,11 +2,15 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import {Button, Stack, Typography} from '@mui/material';
 
+import useAuth from "../hooks/useAuth";
+
 import SearchBar from './search_bar';
+import ProfileDropdown from "./ProfileDropdown";
 
 
 const Header = () => {
     const navigate = useNavigate();
+    const {user} = useAuth()
 
     return (
         <Stack
@@ -28,11 +32,17 @@ const Header = () => {
             </Typography>
             <SearchBar/>
             <Button variant='text'>Why Knowledge Graph?</Button>
-            <Button variant='text' color='secondary' onClick={() => navigate('/login')}>Sign In</Button>
-            <Button variant='contained' color='secondary' onClick={() => navigate('/register')}>Sign Up For Free</Button>
+            {user != null && <ProfileDropdown/>}
+            {user == null &&
+                <Button variant='text' color='secondary' onClick={() => navigate('/login')}>Sign In</Button>
+            }
+            {user == null &&
+                <Button variant='contained' color='secondary' onClick={() => navigate('/register')}>Sign Up For
+                    Free</Button>
+            }
 
         </Stack>
-    );
+    )
 };
 
 export default Header;
