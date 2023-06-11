@@ -48,9 +48,9 @@ export class UserClient {
         return response;
     };
 
-    getUser = async () => {
+    getMe = async () => {
         const {data} = await this.rest.doFetchWithResponse<User>(
-            `${this.getUsersRoute()}/user`,
+            `${this.getUsersRoute()}/me`,
             {method: 'get'},
         );
 
@@ -64,6 +64,14 @@ export class UserClient {
         const {data} = await this.rest.doFetchWithResponse<User>(
             `${this.getUsersRoute()}/email/verify`,
             {method: 'post', body: JSON.stringify(body)},
+        );
+
+        return data;
+    };
+    update = async (user: User) => {
+        const {data} = await this.rest.doFetchWithResponse<User>(
+            `${this.getUsersRoute()}/me`,
+            {method: 'put', body: JSON.stringify(user)},
         );
 
         return data;
