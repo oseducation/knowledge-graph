@@ -13,7 +13,7 @@ import (
 )
 
 func (a *App) GetYoutubeVideoInfo(videoID string) (string, int64, error) {
-	apiKey, ok := a.Environment[YOUTUBE_API_KEY]
+	apiKey, ok := a.Environment[YoutubeAPIKey]
 	if !ok {
 		return "", 0, errors.New("no youtube api key")
 	}
@@ -40,7 +40,9 @@ func (a *App) GetYoutubeVideoInfo(videoID string) (string, int64, error) {
 	body, _ := io.ReadAll(resp.Body)
 
 	var apiResponse youtubeResponse
-	json.Unmarshal(body, &apiResponse)
+	if err2 := json.Unmarshal(body, &apiResponse); err2 != nil {
+		return "", 0, errors.Wrap(err2, "unable to marshal")
+	}
 
 	if len(apiResponse.Items) != 1 {
 		return "", 0, errors.Wrap(err, "not a single video for this key")
