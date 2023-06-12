@@ -140,7 +140,7 @@ const RHS = (props: RHSProps) => {
                                     <ListItemIcon>
                                         <YouTubeIcon/>
                                     </ListItemIcon>
-                                    <ListItemText primary={video.name} secondary={"(" + Math.floor(video.length/60) + " min)" } />
+                                    <ListItemText primary={video.name} secondary={"(" + (Math.floor(video.length/60) +1) + " min)" } />
                                 </ListItemButton>
                             )}
 

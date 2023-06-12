@@ -21,7 +21,7 @@ const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
     const fgRef = useRef<ForceGraphMethods<Node, Link>>();
     const {setNode} = React.useContext(GraphNodeHoverContext);
-    const nodeRadius = 30;
+    const nodeRadius = 20;
     const theme = useTheme();
 
     const onNodeClick = ({id} : Node) => {
@@ -87,7 +87,7 @@ const D3ForceGraph = (props: Props) => {
             linkDirectionalParticleWidth={4}
             linkWidth={2}
             onNodeClick={onNodeClick}
-            dagMode={"bu"}
+            dagMode={"lr"}
             nodeVal={20}
             nodeCanvasObject={(node, ctx) => {
                 const label = node.name;

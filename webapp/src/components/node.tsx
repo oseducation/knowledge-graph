@@ -34,7 +34,7 @@ const Node = (props: Props) => {
         const videoItems = node.videos? node.videos.map(video => {
             return {
                 areaLabel: video.name,
-                display_name: video.name + " (" + Math.floor(video.length/60) + " min)",
+                display_name: video.name + " (" + (Math.floor(video.length/60) + 1) + " min)",
                 secondary: "by " + video.author_username,
                 id: video.id,
                 link: node.id,
