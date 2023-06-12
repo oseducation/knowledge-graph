@@ -186,10 +186,14 @@ func (us *SQLUserStore) ActiveUsers(nodeID string) ([]*model.User, error) {
 	var users []*model.User
 
 	query := us.userSelect.
-		Join("user_nodes un").
-		Where(sq.Eq{"un.node_id": nodeID}).
-		Where("un.user_id == u.id and (un.status == 'started' or un.status == 'watched')")
-
+		Join("user_nodes un on un.user_id = u.id").
+		Where(sq.And{
+			sq.Eq{"un.node_id": nodeID},
+			sq.Or{
+				sq.Eq{"un.status": "started"},
+				sq.Eq{"un.status": "watched"},
+			},
+		})
 	if err := us.sqlStore.selectBuilder(us.sqlStore.db, &users, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get active users for node %s", nodeID)
 	}
