@@ -153,6 +153,35 @@ func (c *Client) VerifyUserEmail(token string) (*Response, error) {
 	return BuildResponse(r), nil
 }
 
+// PatchCurrentUser updates a user in the system based on the provided user struct.
+func (c *Client) PatchCurrentUser(user *model.User) (*Response, error) {
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't marshal user")
+	}
+
+	r, err := c.DoAPIPut(c.usersRoute()+"/me", string(userJSON))
+	if err != nil {
+		return BuildResponse(r), err
+	}
+	defer closeBody(r)
+	return BuildResponse(r), nil
+}
+
+// GetCurrentUser gets the current user.
+func (c *Client) GetCurrentUser() (*model.User, *Response, error) {
+	r, err := c.DoAPIGet(c.usersRoute()+"/me", "")
+	if err != nil {
+		return nil, BuildResponse(r), err
+	}
+	defer closeBody(r)
+	u, err := decodeUser(r.Body)
+	if err != nil {
+		return nil, BuildResponse(r), err
+	}
+	return u, BuildResponse(r), nil
+}
+
 func (c *Client) SendVerificationEmail() (*Response, error) {
 	r, err := c.DoAPIPost(c.usersRoute()+"/email/verify/send", "")
 	if err != nil {

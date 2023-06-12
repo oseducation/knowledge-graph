@@ -48,10 +48,30 @@ export class UserClient {
         return response;
     };
 
-    getUser = async () => {
+    getMe = async () => {
         const {data} = await this.rest.doFetchWithResponse<User>(
-            `${this.getUsersRoute()}/user`,
+            `${this.getUsersRoute()}/me`,
             {method: 'get'},
+        );
+
+        return data;
+    };
+
+    verifyEmail = async (token: string) => {
+        const body = {
+            token: token
+        }
+        const {data} = await this.rest.doFetchWithResponse<User>(
+            `${this.getUsersRoute()}/email/verify`,
+            {method: 'post', body: JSON.stringify(body)},
+        );
+
+        return data;
+    };
+    update = async (user: User) => {
+        const {data} = await this.rest.doFetchWithResponse<User>(
+            `${this.getUsersRoute()}/me`,
+            {method: 'put', body: JSON.stringify(user)},
         );
 
         return data;
