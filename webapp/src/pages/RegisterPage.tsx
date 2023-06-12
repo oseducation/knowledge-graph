@@ -22,7 +22,11 @@ const RegisterPage = () => {
     const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
 
     const onSubmit = (data: FormData) => {
-        Client.User().register(data as User).then(() => navigate('/login')).catch((err: ClientError) => {
+        Client.User().register(data as User).then(() => navigate('/verify', {
+            state: {
+                email: data.email,
+            }
+        })).catch((err: ClientError) => {
             setError('root', {type: 'server', message: err.message});
         })
     };
@@ -35,7 +39,9 @@ const RegisterPage = () => {
                         Create your account
                     </Typography>
                     {errors.root &&
-                        <Alert severity="error" onClose={() => {clearErrors()}} >
+                        <Alert severity="error" onClose={() => {
+                            clearErrors()
+                        }}>
                             {errors.root.message}
                         </Alert>
                     }
@@ -53,21 +59,21 @@ const RegisterPage = () => {
                         required
                         label="Username"
                         variant="outlined"
-                        {...register('username', { required: true })}
+                        {...register('username', {required: true})}
                     />
                     <TextField
                         required
                         label="Email"
                         variant="outlined"
                         type="email"
-                        {...register('email', { required: true })}
+                        {...register('email', {required: true})}
                     />
                     <TextField
                         required
                         label="Password"
                         variant="outlined"
                         type="password"
-                        {...register('password', { required: true })}
+                        {...register('password', {required: true})}
                     />
                     <Button type="submit" variant="contained">
                         Create account

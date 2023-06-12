@@ -56,6 +56,18 @@ export class UserClient {
 
         return data;
     };
+
+    verifyEmail = async (token: string) => {
+        const body = {
+            token: token
+        }
+        const {data} = await this.rest.doFetchWithResponse<User>(
+            `${this.getUsersRoute()}/email/verify`,
+            {method: 'post', body: JSON.stringify(body)},
+        );
+
+        return data;
+    };
     update = async (user: User) => {
         const {data} = await this.rest.doFetchWithResponse<User>(
             `${this.getUsersRoute()}/me`,
