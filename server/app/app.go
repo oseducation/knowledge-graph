@@ -41,9 +41,10 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 
 	environment := make(map[string]string)
 	youtubeAPIKey, ok := os.LookupEnv(YoutubeAPIKey)
-	if ok {
-		environment[YoutubeAPIKey] = youtubeAPIKey
+	if !ok {
+		return nil, errors.Wrap(err, "youtube api key is not set")
 	}
+	environment[YoutubeAPIKey] = youtubeAPIKey
 
 	return &App{logger, store, config, graph, environment}, nil
 }
