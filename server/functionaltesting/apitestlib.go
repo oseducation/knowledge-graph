@@ -2,8 +2,10 @@ package functionaltesting
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
+	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
@@ -47,6 +49,10 @@ func Setup(tb testing.TB) *TestHelper {
 		panic(err)
 	}
 	newServer.Config = cfg
+
+	// TODO do the proper mocking of the youtube service
+	os.Setenv(app.YoutubeAPIKey, "YoutubeAPIKey")
+
 	err = newServer.Start()
 	if err != nil {
 		panic(err)

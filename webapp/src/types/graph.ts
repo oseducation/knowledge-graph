@@ -49,3 +49,9 @@ export type NodeWithResources = {
     videos: Video[];
     active_users: ActiveUser[];
 }
+
+export const getVideoLength = (length: number) => {
+    const minutes = Math.floor(length/60)
+    const seconds = length - minutes * 60
+    return "" + minutes + ":" + seconds
+}

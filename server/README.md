@@ -1,13 +1,15 @@
 # Server for the Knowledge Graph
 
 ## Import programming methodology content to the DB using
-```console
-go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
-```
+1. Get the youtube api key, the one with public access will work just fine. See the details [here](https://developers.google.com/youtube/v3/getting-started)
 
-## Create admin user using
+2. Add the key as an environment variable
 ```console
-go run cmd/main.go db create --email bla@gmail.com --password 12345678
+export YOUTUBE_API_KEY='my_youtube_api_key'
+```
+3. Run the import
+```console
+make import
 ```
 
 ## Run server and webapp using

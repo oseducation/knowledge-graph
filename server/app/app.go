@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -15,12 +16,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+const YoutubeAPIKey = "YOUTUBE_API_KEY"
+
 // App type defines application global state
 type App struct {
-	Log    *log.Logger
-	Store  store.Store
-	Config *config.Config
-	Graph  *model.Graph
+	Log         *log.Logger
+	Store       store.Store
+	Config      *config.Config
+	Graph       *model.Graph
+	Environment map[string]string
 }
 
 // NewApp creates new App
@@ -34,7 +38,16 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 	if err != nil {
 		return nil, errors.Wrap(err, "can't construct graph from DB")
 	}
-	return &App{logger, store, config, graph}, nil
+
+	environment := make(map[string]string)
+	youtubeAPIKey, ok := os.LookupEnv(YoutubeAPIKey)
+	println("youtubeAPIKey", youtubeAPIKey, ok)
+	if !ok {
+		return nil, errors.Wrap(err, "youtube api key is not set")
+	}
+	environment[YoutubeAPIKey] = youtubeAPIKey
+
+	return &App{logger, store, config, graph, environment}, nil
 }
 
 // GetSiteURL returns site url from config
@@ -44,9 +57,23 @@ func (a *App) GetSiteURL() string {
 
 // ImportGraph reads graph.json, nodes.json and texts.md files, parses them and imports in the db
 func (a *App) ImportGraph(url string) error {
+	authorContent, err := getFileContent(fmt.Sprintf("%s/author.json", url))
+	if err != nil {
+		return errors.Wrap(err, "can't get author.json file")
+	}
+	var user model.User
+	if err2 := json.Unmarshal([]byte(authorContent), &user); err2 != nil {
+		return errors.Wrapf(err2, "can't unmarshal author.json file\n%s", authorContent)
+	}
+
+	updatedUser, err := a.Store.User().Save(&user)
+	if err != nil {
+		return errors.Wrap(err, "can't save user")
+	}
+
 	graphContent, err := getFileContent(fmt.Sprintf("%s/graph.json", url))
 	if err != nil {
-		return errors.Wrap(err, "can't get graph.json file")
+		return errors.Wrapf(err, "can't get graph.json file\n%s", graphContent)
 	}
 	var graph map[string][]string
 	if err2 := json.Unmarshal([]byte(graphContent), &graph); err2 != nil {
@@ -55,9 +82,15 @@ func (a *App) ImportGraph(url string) error {
 
 	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
 	if err != nil {
-		return errors.Wrap(err, "can't get nodes.json file")
+		return errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
 	}
-	var nodes map[string]model.Node
+
+	type NodeWithKey struct {
+		model.Node
+		Key string `json:"key"`
+	}
+
+	var nodes map[string]NodeWithKey
 	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
 		return errors.Wrap(err, "can't unmarshal nodes.json file")
 	}
@@ -73,11 +106,33 @@ func (a *App) ImportGraph(url string) error {
 
 	for id, node := range nodes {
 		node.NodeType = model.NodeTypeLecture
-		updatedNode, err := a.Store.Node().Save(&node)
+		updatedNode, err := a.Store.Node().Save(&node.Node)
 		if err != nil {
 			return errors.Wrap(err, "can't save node")
 		}
-		nodes[id] = *updatedNode
+		nodes[id] = NodeWithKey{
+			Node: *updatedNode,
+		}
+
+		if node.Key == "" {
+			continue
+		}
+		title, duration, err := a.GetYoutubeVideoInfo(node.Key)
+		if err != nil {
+			return errors.Wrapf(err, "can't get youtube video info %s", node.Key)
+		}
+		video := model.Video{
+			Name:           title,
+			VideoType:      model.YouTubeVideoType,
+			Key:            node.Key,
+			NodeID:         updatedNode.ID,
+			Length:         duration,
+			AuthorID:       updatedUser.ID,
+			AuthorUsername: updatedUser.Username,
+		}
+		if _, err := a.Store.Video().Save(&video); err != nil {
+			return errors.Wrap(err, "can't save video")
+		}
 	}
 
 	for id, node := range exampleNodes {
@@ -86,7 +141,9 @@ func (a *App) ImportGraph(url string) error {
 		if err != nil {
 			return errors.Wrap(err, "can't save node")
 		}
-		nodes[id] = *updatedNode
+		nodes[id] = NodeWithKey{
+			Node: *updatedNode,
+		}
 	}
 
 	for node, prereqs := range graph {

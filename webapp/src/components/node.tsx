@@ -3,7 +3,7 @@ import {Stack, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
-import {NodeWithResources, Video} from '../types/graph';
+import {NodeWithResources, Video, getVideoLength} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 
@@ -34,7 +34,7 @@ const Node = (props: Props) => {
         const videoItems = node.videos? node.videos.map(video => {
             return {
                 areaLabel: video.name,
-                display_name: video.name + " (" + Math.floor(video.length/60) + " min)",
+                display_name: video.name + " (" + getVideoLength(video.length)+ " min)",
                 secondary: "by " + video.author_username,
                 id: video.id,
                 link: node.id,

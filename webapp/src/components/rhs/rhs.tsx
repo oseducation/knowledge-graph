@@ -3,7 +3,7 @@ import {Avatar, AvatarGroup, Box, BoxProps, Button, Divider, List, ListItemButto
 import YouTubeIcon from '@mui/icons-material/YouTube';
 
 import {GraphNodeHoverContext} from '../main';
-import {ActiveUser, NodeStatusFinished, NodeWithResources} from '../../types/graph';
+import {ActiveUser, NodeStatusFinished, NodeWithResources, getVideoLength} from '../../types/graph';
 import {Client} from '../../client/client';
 
 const stringToColor = (st: string) => {
@@ -140,7 +140,7 @@ const RHS = (props: RHSProps) => {
                                     <ListItemIcon>
                                         <YouTubeIcon/>
                                     </ListItemIcon>
-                                    <ListItemText primary={video.name} secondary={"(" + Math.floor(video.length/60) + " min)" } />
+                                    <ListItemText primary={video.name} secondary={"(" + getVideoLength(video.length) + " min)" } />
                                 </ListItemButton>
                             )}
 
