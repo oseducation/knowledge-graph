@@ -22,6 +22,7 @@ func (apiObj *API) initNode() {
 	apiObj.Nodes.DELETE("/", authMiddleware(), requireNodePermissions(), deleteNode)
 
 	apiObj.Nodes.GET("/:nodeID", authMiddleware(), getNode)
+	apiObj.Nodes.POST("/:nodeID/video/:videoID", authMiddleware(), addVideo)
 
 	apiObj.Nodes.PUT("/:nodeID/status", authMiddleware(), updateNodeStatus)
 }
@@ -149,6 +150,41 @@ func getNode(c *gin.Context) {
 		return
 	}
 	responseFormat(c, http.StatusOK, nodes)
+}
+
+func addVideo(c *gin.Context) {
+	nodeID := c.Param("nodeID")
+	if nodeID == "" {
+		responseFormat(c, http.StatusBadRequest, "missing node_id")
+		return
+	}
+
+	videoID := c.Param("videoID")
+	if videoID == "" {
+		responseFormat(c, http.StatusBadRequest, "missing video_id")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// if we have session extend it
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	a.ExtendSessionIfNeeded(session)
+
+	updatedVideo, err := a.AddVideoToNode(nodeID, videoID, session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	responseFormat(c, http.StatusOK, updatedVideo)
 }
 
 func updateNodeStatus(c *gin.Context) {

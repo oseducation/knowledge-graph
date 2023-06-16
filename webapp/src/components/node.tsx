@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Stack, Typography, useTheme} from '@mui/material';
+import {Button, Stack, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
@@ -11,6 +11,7 @@ import useAuth from '../hooks/useAuth';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
+import VideoInput from './video_input';
 
 interface Props {
     nodeID: string;
@@ -40,7 +41,6 @@ const Node = (props: Props) => {
                 link: node.id,
                 icon: <YouTubeIcon/>,
                 onClick: () => {
-                    console.log('setActiveVideo', video)
                     setActiveVideo(video);
                 }
             } as GroupItem;
@@ -139,6 +139,7 @@ const Node = (props: Props) => {
                         </div>
                     </Stack>
                 }
+                <VideoInput nodeID={props.nodeID}/>
             </Grid2>
             <Grid2 xs={4} sx={{maxWidth: '400px'}} bgcolor={'gray'} textAlign={'center'}>
                 Chat coming soon
