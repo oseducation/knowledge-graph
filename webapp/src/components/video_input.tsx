@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Container, TextField, Typography, Button, Snackbar, Alert} from '@mui/material';
+
 import {Client} from '../client/client';
 
 interface Props {
@@ -33,7 +34,7 @@ const VideoInput = (props: Props) => {
             }
         } catch {
             setOpen(true);
-        };
+        }
     };
 
     return (
@@ -44,7 +45,7 @@ const VideoInput = (props: Props) => {
                 </Alert>
             </Snackbar>
             <Typography>
-                Youtube Video ID:
+                YouTube Video:
             </Typography>
             <TextField
                 inputProps={{

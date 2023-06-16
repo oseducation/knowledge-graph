@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Stack, Typography, useTheme} from '@mui/material';
+import {Stack, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
