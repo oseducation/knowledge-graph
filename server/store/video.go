@@ -1,7 +1,10 @@
 package store
 
 import (
+	"database/sql"
+
 	sq "github.com/Masterminds/squirrel"
+	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
@@ -11,6 +14,7 @@ type VideoStore interface {
 	Get(id string) (*model.Video, error)
 	GetVideos(options *model.VideoGetOptions) ([]*model.Video, error)
 	Delete(video *model.Video) error
+	AddUserVideoEngagement(userID, videoID string, userEngagementData *model.UserEngagementData) error
 }
 
 // SQLVideoStore is a struct to store videos
@@ -127,5 +131,88 @@ func (vs *SQLVideoStore) Delete(video *model.Video) error {
 		return errors.Wrapf(err, "failed to delete video with id '%s'", video.ID)
 	}
 
+	return nil
+}
+
+func (vs *SQLVideoStore) AddUserVideoEngagement(userID, videoID string, userEngagementData *model.UserEngagementData) error {
+	curTime := model.GetMillis()
+
+	query := vs.sqlStore.builder.Select(
+		"uv.video_id",
+		"uv.node_id",
+		"uv.last_watched_at",
+		"uv.times_finished",
+		"uv.times_started",
+		"uv.times_abandoned",
+		"uv.last_abandoned_after",
+	).From("user_videos uv").Where(sq.And{
+		sq.Eq{"uv.video_id": videoID},
+		sq.Eq{"uv.user_id": userID},
+	})
+
+	type videoEngagement struct {
+		LastWatchedAt      uint64 `json:"last_watched_at" db:"last_watched_at"`
+		TimesFinished      uint64 `json:"times_finished" db:"times_finished"`
+		TimesStarted       uint64 `json:"times_started" db:"times_started"`
+		TimesAbandoned     uint64 `json:"times_abandoned" db:"times_abandoned"`
+		LastAbandonedAfter uint64 `json:"last_abandoned_after" db:"last_abandoned_after"`
+	}
+
+	var engagement videoEngagement
+
+	firstEngagement := false
+	if err := vs.sqlStore.getBuilder(vs.sqlStore.db, &engagement, query); err != nil {
+		if err == sql.ErrNoRows {
+			firstEngagement = true
+		} else {
+			return errors.Wrapf(err, "can't get user video engagement with userID %s and videoID %s", userID, videoID)
+		}
+	}
+
+	if firstEngagement {
+		if userEngagementData.VideoStatus != model.VideoStatusStarted {
+			vs.sqlStore.logger.Error("wrong video status", log.String("expected", model.VideoStatusStarted), log.String("actual", userEngagementData.VideoStatus))
+		}
+		_, err := vs.sqlStore.execBuilder(vs.sqlStore.db, vs.sqlStore.builder.
+			Insert("user_videos").
+			SetMap(map[string]interface{}{
+				"user_id":              userID,
+				"video_id":             videoID,
+				"last_watched_at":      curTime,
+				"times_finished":       0,
+				"times_started":        1,
+				"times_abandoned":      0,
+				"last_abandoned_after": -1,
+			}))
+		if err != nil {
+			return errors.Wrapf(err, "failed to insert video engagement with with userID %s and videoID %s", userID, videoID)
+		}
+		return nil
+	}
+
+	if userEngagementData.VideoStatus == model.VideoStatusFinished {
+		engagement.TimesFinished++
+	} else if userEngagementData.VideoStatus == model.VideoStatusStarted {
+		engagement.TimesStarted++
+	} else if userEngagementData.VideoStatus == model.VideoStatusAbandoned {
+		engagement.TimesAbandoned++
+		engagement.LastAbandonedAfter = userEngagementData.AbandonWatchingAt
+	}
+	_, err := vs.sqlStore.execBuilder(vs.sqlStore.db, vs.sqlStore.builder.
+		Update("user_videos").
+		SetMap(map[string]interface{}{
+			"last_watched_at":      curTime,
+			"times_finished":       engagement.TimesFinished,
+			"times_started":        engagement.TimesStarted,
+			"times_abandoned":      engagement.TimesAbandoned,
+			"last_abandoned_after": engagement.LastAbandonedAfter,
+		}).
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"video_id": videoID},
+		}))
+	if err != nil {
+		return errors.Wrapf(err, "failed to update video engagement with with userID %s and videoID %s", userID, videoID)
+	}
 	return nil
 }

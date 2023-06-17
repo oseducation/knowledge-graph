@@ -22,3 +22,7 @@ func (a *App) GetVideos(options *model.VideoGetOptions) ([]*model.Video, error) 
 	}
 	return videos, nil
 }
+
+func (a *App) AddUserEngagement(userID, videoID string, data *model.UserEngagementData) error {
+	return a.Store.Video().AddUserVideoEngagement(userID, videoID, data)
+}
