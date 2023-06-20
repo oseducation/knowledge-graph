@@ -138,8 +138,6 @@ func (vs *SQLVideoStore) AddUserVideoEngagement(userID, videoID string, userEnga
 	curTime := model.GetMillis()
 
 	query := vs.sqlStore.builder.Select(
-		"uv.video_id",
-		"uv.node_id",
 		"uv.last_watched_at",
 		"uv.times_finished",
 		"uv.times_started",
