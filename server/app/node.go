@@ -74,3 +74,28 @@ func (a *App) UpdateStatus(status *model.NodeStatusForUser) error {
 	}
 	return a.Store.Node().UpdateStatus(status)
 }
+
+func (a *App) AddVideoToNode(nodeID, videoID, authorID string) (*model.Video, error) {
+	name, length, err := a.GetYoutubeVideoInfo(videoID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "incorrect videoID %s", videoID)
+	}
+	user, err := a.Store.User().Get(authorID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't get user %s", authorID)
+	}
+	video := &model.Video{
+		Name:           name,
+		Length:         length,
+		Key:            videoID,
+		NodeID:         nodeID,
+		AuthorID:       authorID,
+		AuthorUsername: user.Username,
+		VideoType:      model.YouTubeVideoType,
+	}
+	updatedVideo, err := a.Store.Video().Save(video)
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't save video. nodeID %s, videoID %s, authorID %s", nodeID, videoID, authorID)
+	}
+	return updatedVideo, nil
+}

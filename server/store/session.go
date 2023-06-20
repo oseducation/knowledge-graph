@@ -110,7 +110,7 @@ func (ss *SQLSessionStore) Update(new *model.Session) error {
 	}
 
 	_, err := ss.sqlStore.execBuilder(ss.sqlStore.db, ss.sqlStore.builder.
-		Update("users").
+		Update("sessions").
 		SetMap(map[string]interface{}{
 			"token":            new.Token,
 			"create_at":        new.CreateAt,
