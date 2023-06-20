@@ -180,7 +180,7 @@ func (vs *SQLVideoStore) AddUserVideoEngagement(userID, videoID string, userEnga
 				"times_finished":       0,
 				"times_started":        1,
 				"times_abandoned":      0,
-				"last_abandoned_after": -1,
+				"last_abandoned_after": 0,
 			}))
 		if err != nil {
 			return errors.Wrapf(err, "failed to insert video engagement with with userID %s and videoID %s", userID, videoID)
