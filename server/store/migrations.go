@@ -97,7 +97,8 @@ var migrations = []Migration{
 					key VARCHAR(128),
 					length bigint,
 					node_id VARCHAR(26),
-					author_id VARCHAR(26)
+					author_id VARCHAR(26),
+					UNIQUE (video_type, key)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table videos")

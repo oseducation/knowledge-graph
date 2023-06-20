@@ -46,4 +46,9 @@ export class NodeClient{
             return {error};
         }
     }
+
+    addVideoToNode = async (nodeID: string, videoID: string) => {
+        const data = this.rest.doFetch<NodeWithResources>(`${this.getNodeRoute(nodeID)}/video/${videoID}`, {method: 'post'});
+        return data;
+    }
 }
