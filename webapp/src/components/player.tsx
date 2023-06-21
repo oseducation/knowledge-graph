@@ -13,16 +13,16 @@ type VideoPlayerProps = {
     width: string;
     height: string;
     autoplay: boolean;
-    onVideoStarted: () => void;
-    onVideoEnded: () => void;
+    onVideoStarted: (videoKey: string) => void;
+    onVideoEnded: (videoKey: string) => void;
 }
 
 const VideoPlayer = (props: VideoPlayerProps) => {
     const onPlayerStateChange = (event: any) => {
         if (event.data === window.YT.PlayerState.PLAYING) {
-            props.onVideoStarted();
+            props.onVideoStarted(props.videoKey);
         } else if (event.data === window.YT.PlayerState.ENDED) {
-            props.onVideoEnded();
+            props.onVideoEnded(props.videoKey);
         }
     };
 

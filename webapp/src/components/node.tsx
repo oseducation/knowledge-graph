@@ -93,15 +93,17 @@ const Node = (props: Props) => {
         </Typography>
     );
 
-    const onVideoStarted = () => {
+    const onVideoStarted = (videoKey: string) => {
         if (user && user.id) {
             Client.Node().markAsStarted(node.id, user.id);
+            Client.Video().videoStarted(videoKey);
         }
     }
 
-    const onVideoEnded = () => {
+    const onVideoEnded = (videoKey: string) => {
         if (user && user.id) {
             Client.Node().markAsWatched(node.id, user.id);
+            Client.Video().videoFinished(videoKey);
         }
     }
 

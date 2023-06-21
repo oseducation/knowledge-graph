@@ -4,6 +4,10 @@ export const NodeStatusFinished = "finished"
 export const NodeStatusNext     = "next"
 export const NodeStatusUnseen   = "unseen"
 
+export const VideoStatusStarted = "video_status_started"
+export const VideoStatusAbandoned = "video_status_abandoned"
+export const VideoStatusFinished = "video_status_finished"
+
 export type Node = {
     id: string;
     name: string;

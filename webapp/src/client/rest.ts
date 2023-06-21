@@ -29,6 +29,15 @@ export class Rest {
         return data;
     };
 
+    doPost = async <TData = any>(url: string, body = {}) => {
+        const {data} = await this.doFetchWithResponse<TData>(url, {
+            method: 'POST',
+            body,
+        });
+
+        return data;
+    };
+
     doFetchWithResponse = async <ClientDataResponse>(
         url: string,
         options: Options): Promise<ClientResponse<ClientDataResponse>> => {

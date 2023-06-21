@@ -122,16 +122,38 @@ var migrations = []Migration{
 				CREATE TABLE IF NOT EXISTS user_nodes (
 					user_id VARCHAR(26),
 					node_id VARCHAR(26),
-					status VARCHAR(32)
+					status VARCHAR(32),
+					UNIQUE (user_id, node_id)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table user_nodes")
 			}
 
 			if _, err := e.Exec(`
-				CREATE INDEX IF NOT EXISTS user_id_index ON user_nodes (user_id);
+				CREATE INDEX IF NOT EXISTS user_nodes_user_id_index ON user_nodes (user_id);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating index on user_nodes table")
+			}
+
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS user_videos (
+					user_id VARCHAR(26),
+					video_id VARCHAR(26),
+					last_watched_at bigint,
+					times_finished bigint,
+					times_started bigint,
+					times_abandoned bigint,
+					last_abandoned_after bigint,
+					UNIQUE (user_id, video_id)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table user_videos")
+			}
+
+			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS user_videos_user_id_index ON user_videos (user_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating index on user_videos table")
 			}
 
 			return nil

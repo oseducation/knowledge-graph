@@ -11,6 +11,12 @@ import (
 const YouTubeVideoType = "youtube"
 const VideoURLMaxRunes = 128
 
+const (
+	VideoStatusStarted   = "video_status_started"
+	VideoStatusFinished  = "video_status_finished"
+	VideoStatusAbandoned = "video_status_abandoned"
+)
+
 // Video type defines videos of the node
 type Video struct {
 	ID             string `json:"id" db:"id"`
@@ -62,7 +68,7 @@ func (v *Video) BeforeSave() {
 	}
 }
 
-// NodeFromJSON will decode the input and return a Video
+// VideoFromJSON will decode the input and return a Video
 func VideoFromJSON(data io.Reader) (*Video, error) {
 	var video *Video
 	if err := json.NewDecoder(data).Decode(&video); err != nil {
@@ -119,4 +125,18 @@ func WithAuthorUsername() VideoGetOption {
 	return func(args *VideoGetOptions) {
 		args.WithAuthorUsername = true
 	}
+}
+
+type UserEngagementData struct {
+	VideoStatus       string `json:"video_status" db:"video_status"`
+	AbandonWatchingAt uint64 `json:"abandon_watching_at" db:"abandon_watching_at"`
+}
+
+// UserEngagementDataFromJSON will decode the input and return a UserEngagementData
+func UserEngagementDataFromJSON(data io.Reader) (*UserEngagementData, error) {
+	var userData *UserEngagementData
+	if err := json.NewDecoder(data).Decode(&userData); err != nil {
+		return nil, errors.Wrap(err, "can't decode user engagement data")
+	}
+	return userData, nil
 }

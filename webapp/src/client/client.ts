@@ -3,6 +3,7 @@ import {UserClient} from "./user";
 import {GraphClient} from "./graph";
 import {NodeClient} from "./node";
 import {SidebarClient} from "./sidebar";
+import { VideoClient } from "./video";
 
 
 class Client {
@@ -10,6 +11,7 @@ class Client {
     user: UserClient;
     graph: GraphClient;
     node: NodeClient;
+    video: VideoClient;
     sidebar: SidebarClient;
 
     constructor(){
@@ -17,6 +19,7 @@ class Client {
         this.user = new UserClient(this.rest);
         this.graph = new GraphClient(this.rest);
         this.node = new NodeClient(this.rest);
+        this.video = new VideoClient(this.rest)
         this.sidebar = new SidebarClient(this.rest);
     }
 
@@ -30,6 +33,10 @@ class Client {
 
     Node(){
         return this.node;
+    }
+
+    Video(){
+        return this.video;
     }
 
     Sidebar(){
