@@ -33,7 +33,7 @@ export class VideoClient{
 
     videoAbandoned = async (videoID: string, abandonWatchingAt: number) => {
         const status = {
-            video_status: VideoStatusFinished,
+            video_status: VideoStatusAbandoned,
             abandon_watching_at: abandonWatchingAt
         }
         return this.changeStatus(videoID, status);
