@@ -13,8 +13,8 @@ export class VideoClient{
         return `${this.rest.getBaseRoute()}/videos`;
     }
 
-    getVideoRoute(videoID: string) {
-        return `${this.getVideosRoute()}/${videoID}`;
+    getVideoEngageRoute(videoID: string) {
+        return `${this.getVideosRoute()}/engage/${videoID}`;
     }
 
     videoStarted = async (videoID: string) => {
@@ -41,9 +41,15 @@ export class VideoClient{
 
     changeStatus = async (videoID: string, status: any) => {
         try {
-            this.rest.doPost(`${this.getVideoRoute(videoID)}`, JSON.stringify(status));
+            this.rest.doPost(`${this.getVideoEngageRoute(videoID)}`, JSON.stringify(status));
         } catch (error) {
             return {error};
         }
     }
+
+    getNextVideo = async () => {
+        const data = this.rest.doFetch<string>(`${this.getVideosRoute()}/next`, {method: 'get'});
+        return data;
+    }
+
 }

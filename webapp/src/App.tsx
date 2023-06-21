@@ -12,6 +12,7 @@ import {ROLES} from './types/users';
 import VerifyPage from "./pages/VerifyPage";
 import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
+import ShortsPage from './pages/ShortsPage';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
+                <Route path="/shorts" element={<ShortsPage/>}/>
             </Route>
         </Routes>
     );

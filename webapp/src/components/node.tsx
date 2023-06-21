@@ -130,6 +130,7 @@ const Node = (props: Props) => {
                                 <div key={video.key}>
                                     <VideoPlayer
                                         videoKey={video.key}
+                                        key={video.key}
                                         width={'560'}
                                         height={'315'}
                                         autoplay={false}

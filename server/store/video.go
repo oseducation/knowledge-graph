@@ -15,6 +15,7 @@ type VideoStore interface {
 	GetVideos(options *model.VideoGetOptions) ([]*model.Video, error)
 	Delete(video *model.Video) error
 	AddUserVideoEngagement(userID, videoID string, userEngagementData *model.UserEngagementData) error
+	GetVideosFromNodeIDs(nodeIDs []string) ([]string, error)
 }
 
 // SQLVideoStore is a struct to store videos
@@ -77,7 +78,7 @@ func (vs *SQLVideoStore) Save(video *model.Video) (*model.Video, error) {
 // Get gets video by id
 func (vs *SQLVideoStore) Get(id string) (*model.Video, error) {
 	var video model.Video
-	if err := vs.sqlStore.getBuilder(vs.sqlStore.db, &video, vs.videoSelect.Where(sq.Eq{"n.id": id})); err != nil {
+	if err := vs.sqlStore.getBuilder(vs.sqlStore.db, &video, vs.videoSelect.Where(sq.Eq{"v.id": id})); err != nil {
 		return nil, errors.Wrapf(err, "can't get video by id: %s", id)
 	}
 	return &video, nil
@@ -213,4 +214,18 @@ func (vs *SQLVideoStore) AddUserVideoEngagement(userID, videoID string, userEnga
 		return errors.Wrapf(err, "failed to update video engagement with with userID %s and videoID %s", userID, videoID)
 	}
 	return nil
+}
+
+func (vs *SQLVideoStore) GetVideosFromNodeIDs(nodeIDs []string) ([]string, error) {
+	query := vs.sqlStore.builder.Select(
+		"v.key",
+	).From("videos v").Where(sq.Eq{"v.node_id": nodeIDs})
+
+	var videoKeys []string
+
+	if err := vs.sqlStore.selectBuilder(vs.sqlStore.db, &videoKeys, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get videos for nodeIDS options %v", nodeIDs)
+	}
+
+	return videoKeys, nil
 }

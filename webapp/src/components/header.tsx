@@ -31,16 +31,24 @@ const Header = () => {
                 Knowledge Graph
             </Typography>
             <SearchBar/>
-            <Button variant='text'>Why Knowledge Graph?</Button>
-            {user != null && <ProfileDropdown/>}
-            {user == null &&
-                <Button variant='text' color='secondary' onClick={() => navigate('/login')}>Sign In</Button>
+            {user == null ?
+                <>
+                    <Button variant='text'>Why Knowledge Graph?</Button>
+                    <Button variant='text' color='secondary' onClick={() => navigate('/login')}>Sign In</Button>
+                    <Button variant='contained' color='secondary' onClick={() => navigate('/register')}>Sign Up For Free</Button>
+                </>
+                :
+                <>
+                    <Button
+                        variant='text'
+                        style={{margin: '10px'}}
+                        onClick={() => navigate('/shorts')}
+                    >
+                        Shorts Mode
+                    </Button>
+                    <ProfileDropdown/>
+                </>
             }
-            {user == null &&
-                <Button variant='contained' color='secondary' onClick={() => navigate('/register')}>Sign Up For
-                    Free</Button>
-            }
-
         </Stack>
     )
 };
