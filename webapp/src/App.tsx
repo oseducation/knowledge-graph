@@ -13,7 +13,6 @@ import VerifyPage from "./pages/VerifyPage";
 import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
 
-
 function App() {
     return (
         <Routes>

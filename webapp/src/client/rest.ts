@@ -1,5 +1,6 @@
 import {ClientResponse, Options} from "../types/client";
 import {ServerError} from "../types/errors";
+import {User} from "../types/users";
 
 const HEADER_CONTENT_TYPE = 'Content-Type';
 const HEADER_REQUESTED_WITH = 'X-Requested-With';
@@ -9,6 +10,11 @@ export class Rest {
     apiVersion = '/api/v1';
     url = '';
     csrf = '';
+    me = {} as User;
+
+    setMe(user: User) {
+        this.me = user;
+    }
 
     getBaseRoute() {
         return `${this.url}${this.apiVersion}`;

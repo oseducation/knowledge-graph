@@ -31,6 +31,7 @@ type Store interface {
 	Graph() GraphStore
 	Session() SessionStore
 	System() SystemStore
+	Preferences() PreferencesStore
 }
 
 // SQLStore struct represents a DB
@@ -38,15 +39,16 @@ type SQLStore struct {
 	db      *sqlx.DB
 	builder sq.StatementBuilderType
 
-	userStore    UserStore
-	tokenStore   TokenStore
-	nodeStore    NodeStore
-	videoStore   VideoStore
-	graphStore   GraphStore
-	sessionStore SessionStore
-	systemStore  SystemStore
-	config       *config.DBSettings
-	logger       *log.Logger
+	userStore        UserStore
+	tokenStore       TokenStore
+	nodeStore        NodeStore
+	videoStore       VideoStore
+	graphStore       GraphStore
+	sessionStore     SessionStore
+	systemStore      SystemStore
+	preferencesStore PreferencesStore
+	config           *config.DBSettings
+	logger           *log.Logger
 }
 
 // queryer is an interface describing a resource that can query.
@@ -109,6 +111,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.graphStore = NewGraphStore(sqlStore)
 	sqlStore.sessionStore = NewSessionStore(sqlStore)
 	sqlStore.systemStore = NewSystemStore(sqlStore)
+	sqlStore.preferencesStore = NewPreferencesStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -291,4 +294,9 @@ func (sqlDB *SQLStore) Session() SessionStore {
 // System returns an interface to get system information from the DB
 func (sqlDB *SQLStore) System() SystemStore {
 	return sqlDB.systemStore
+}
+
+// Preferences returns an interface to manage preferences in the DB
+func (sqlDB *SQLStore) Preferences() PreferencesStore {
+	return sqlDB.preferencesStore
 }

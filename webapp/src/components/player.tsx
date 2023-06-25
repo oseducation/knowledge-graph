@@ -13,6 +13,7 @@ type VideoPlayerProps = {
     width: string;
     height: string;
     autoplay: boolean;
+    loop?: boolean;
     onVideoStarted: (videoKey: string) => void;
     onVideoEnded: (videoKey: string) => void;
 }
@@ -34,6 +35,10 @@ const VideoPlayer = (props: VideoPlayerProps) => {
         opts!.playerVars = {
             autoplay: 1
         }
+    }
+    if (props.loop) {
+        opts!.playerVars!.loop = 1;
+        opts!.playerVars!.playlist = props.videoKey;
     }
 
     return (

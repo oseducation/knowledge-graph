@@ -6,6 +6,7 @@ import {forceCollide} from 'd3';
 import {useTheme} from '@mui/material/styles';
 
 import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext} from '../../types/graph';
+import useAuth from '../../hooks/useAuth';
 
 import {GraphNodeHoverContext} from './../main';
 
@@ -23,6 +24,8 @@ const D3ForceGraph = (props: Props) => {
     const {setNode} = React.useContext(GraphNodeHoverContext);
     const nodeRadius = 20;
     const theme = useTheme();
+    const {preferences} = useAuth();
+
 
     const onNodeClick = ({id} : Node) => {
         navigate(`/nodes/${id}`)
@@ -87,7 +90,7 @@ const D3ForceGraph = (props: Props) => {
             linkDirectionalParticleWidth={4}
             linkWidth={2}
             onNodeClick={onNodeClick}
-            dagMode={"lr"}
+            dagMode={preferences?.graph_direction || "lr"}
             nodeVal={20}
             nodeCanvasObject={(node, ctx) => {
                 const label = node.name;

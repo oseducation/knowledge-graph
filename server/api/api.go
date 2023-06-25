@@ -14,14 +14,15 @@ const APIURLSuffix = "/api/v1"
 const HealthCheckPath = "/healthcheck"
 
 type API struct {
-	Logger  *log.Logger
-	Root    *gin.Engine
-	APIRoot *gin.RouterGroup // 'api/v1'
-	Users   *gin.RouterGroup // 'api/v1/users'
-	User    *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
-	Nodes   *gin.RouterGroup // 'api/v1/nodes'
-	Node    *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
-	Videos  *gin.RouterGroup // 'api/v1/videos'
+	Logger      *log.Logger
+	Root        *gin.Engine
+	APIRoot     *gin.RouterGroup // 'api/v1'
+	Users       *gin.RouterGroup // 'api/v1/users'
+	User        *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
+	Nodes       *gin.RouterGroup // 'api/v1/nodes'
+	Node        *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
+	Videos      *gin.RouterGroup // 'api/v1/videos'
+	Preferences *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}/preferences'
 }
 
 // Init initializes api
@@ -39,6 +40,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initNode()
 	apiObj.initGraph()
 	apiObj.initVideo()
+	apiObj.initPreferences()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")
