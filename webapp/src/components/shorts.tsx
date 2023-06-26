@@ -7,11 +7,13 @@ import {History} from '../types/history';
 import {Client} from '../client/client';
 
 import VideoPlayer from './player';
+import useAuth from '../hooks/useAuth';
 
 const history = new History();
 
 const Shorts = () => {
     const [videoID, setVideoID] = useState('');
+    const {preferences} = useAuth();
 
     useEffect(() => {
         // Fetch initial video ID
@@ -67,6 +69,7 @@ const Shorts = () => {
                     width={'100%'}
                     height={'600px'}
                     autoplay={true}
+                    loop={preferences?.is_video_looped}
                     onVideoEnded={()=>{}}
                     onVideoStarted={()=>{}}
                 />

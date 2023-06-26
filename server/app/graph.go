@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
@@ -49,8 +48,8 @@ func (a *App) GetNextNodes(userID string) ([]model.Node, []model.Node, error) {
 		if !ok { // it's an unseen node, which can be the next node, let's check it
 			if a.hasNodeFinishedAllPrerequisites(node.ID, statusMap) {
 				nextNodes = append(nextNodes, node)
-				continue
 			}
+			continue
 		}
 		if status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched {
 			inProgressNodes = append(inProgressNodes, node)
@@ -66,8 +65,7 @@ func (a *App) GetNextNodes(userID string) ([]model.Node, []model.Node, error) {
 func (a *App) hasNodeFinishedAllPrerequisites(nodeID string, statuses map[string]*model.NodeStatusForUser) bool {
 	prereqs, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
-		a.Log.Error("no prerequisite for graph node", log.String("nodeID", nodeID))
-		return false
+		return true
 	}
 	for _, prereq := range prereqs {
 		prereqStatus, ok2 := statuses[prereq]
