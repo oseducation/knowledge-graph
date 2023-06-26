@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
@@ -45,26 +46,34 @@ func (a *App) GetNextNodes(userID string) ([]model.Node, []model.Node, error) {
 
 	for _, node := range a.Graph.Nodes {
 		status, ok := statusMap[node.ID]
-		if ok && (status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched) {
+		if !ok { // it's an unseen node, which can be the next node, let's check it
+			if a.hasNodeFinishedAllPrerequisites(node.ID, statusMap) {
+				nextNodes = append(nextNodes, node)
+				continue
+			}
+		}
+		if status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched {
 			inProgressNodes = append(inProgressNodes, node)
-		} else if !ok || status.Status != model.NodeStatusFinished {
-			prereqs, ok2 := a.Graph.Prerequisites[node.ID]
-			if !ok2 {
-				return nil, nil, errors.Wrapf(err, "no prerequisites for node %s", node.ID)
-			}
-			isNext := true
-			for _, prereq := range prereqs {
-				prereqStatus, ok3 := statusMap[prereq]
-				if !ok3 || prereqStatus.Status != model.NodeStatusFinished {
-					isNext = false
-					break
-				}
-			}
-
-			if isNext || !ok {
+		} else if status.Status == model.NodeStatusUnseen || status.Status == "" {
+			if a.hasNodeFinishedAllPrerequisites(node.ID, statusMap) {
 				nextNodes = append(nextNodes, node)
 			}
 		}
 	}
 	return inProgressNodes, nextNodes, nil
+}
+
+func (a *App) hasNodeFinishedAllPrerequisites(nodeID string, statuses map[string]*model.NodeStatusForUser) bool {
+	prereqs, ok := a.Graph.Prerequisites[nodeID]
+	if !ok {
+		a.Log.Error("no prerequisite for graph node", log.String("nodeID", nodeID))
+		return false
+	}
+	for _, prereq := range prereqs {
+		prereqStatus, ok2 := statuses[prereq]
+		if !ok2 || prereqStatus.Status != model.NodeStatusFinished {
+			return false
+		}
+	}
+	return true
 }
