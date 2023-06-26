@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import YouTube, {YouTubeProps} from 'react-youtube';
 
 declare global {
@@ -9,6 +9,7 @@ declare global {
 }
 
 type VideoPlayerProps = {
+    id?: string;
     videoKey: string;
     width: string;
     height: string;
@@ -17,7 +18,15 @@ type VideoPlayerProps = {
     onVideoEnded: (videoKey: string) => void;
 }
 
+let player: any = null;
+
 const VideoPlayer = (props: VideoPlayerProps) => {
+    useEffect(() => {
+        if (player) {
+            player.loadVideoById(props.videoKey);
+        }
+    }, [props.videoKey]);
+
     const onPlayerStateChange = (event: any) => {
         if (event.data === window.YT.PlayerState.PLAYING) {
             props.onVideoStarted(props.videoKey);
@@ -36,13 +45,19 @@ const VideoPlayer = (props: VideoPlayerProps) => {
         }
     }
 
+    const onReady = (event: any) => {
+        player = event.target
+    }
+
     return (
         <YouTube
             style={{height: props.width, width: props.height}}
             videoId={props.videoKey}
-            id={props.videoKey}
+            key={props.id}
             opts={opts}
             onStateChange={onPlayerStateChange}
+            onReady={onReady}
+            onError={(event)=>{console.log("youtube player error", event)}}
         />
     );
 

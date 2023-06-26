@@ -10,8 +10,9 @@ import (
 func (apiObj *API) initVideo() {
 	apiObj.Videos = apiObj.APIRoot.Group("/videos")
 
-	apiObj.Videos.GET("/:videoID", authMiddleware(), getVideo)
-	apiObj.Videos.POST("/:videoID", authMiddleware(), addUserEngagement)
+	apiObj.Videos.GET("/next", authMiddleware(), getNextVideo)
+	apiObj.Videos.GET("/view/:videoID", authMiddleware(), getVideo)
+	apiObj.Videos.POST("/engage/:videoID", authMiddleware(), addUserEngagement)
 }
 
 func getVideo(c *gin.Context) {
@@ -50,7 +51,6 @@ func addUserEngagement(c *gin.Context) {
 	data, err := model.UserEngagementDataFromJSON(c.Request.Body)
 	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "missing user engagement data")
-		return
 	}
 
 	a, err := getApp(c)
@@ -60,8 +60,8 @@ func addUserEngagement(c *gin.Context) {
 	}
 
 	// if we have session extend it
-	session, err2 := getSession(c)
-	if err2 == nil {
+	session, err := getSession(c)
+	if err == nil {
 		a.ExtendSessionIfNeeded(session)
 	}
 
@@ -71,4 +71,26 @@ func addUserEngagement(c *gin.Context) {
 		return
 	}
 	responseFormat(c, http.StatusOK, "data added")
+}
+
+func getNextVideo(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	videoID, err := a.GetNextVideo(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, videoID)
 }

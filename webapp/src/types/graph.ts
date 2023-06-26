@@ -55,7 +55,10 @@ export type NodeWithResources = {
 }
 
 export const getVideoLength = (length: number) => {
-    const minutes = Math.floor(length/60)
-    const seconds = length - minutes * 60
-    return "" + minutes + ":" + seconds
+    const minutes = Math.floor(length/60);
+    const seconds = length - minutes * 60;
+    if (seconds > 9) {
+        return "" + minutes + ":" + seconds;
+    }
+    return "" + minutes + ":0" + seconds;
 }

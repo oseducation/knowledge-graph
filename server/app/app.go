@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
@@ -25,6 +27,7 @@ type App struct {
 	Config      *config.Config
 	Graph       *model.Graph
 	Environment map[string]string
+	Random      *rand.Rand
 }
 
 // NewApp creates new App
@@ -46,7 +49,9 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 	}
 	environment[YoutubeAPIKey] = youtubeAPIKey
 
-	return &App{logger, store, config, graph, environment}, nil
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	return &App{logger, store, config, graph, environment, r}, nil
 }
 
 // GetSiteURL returns site url from config
