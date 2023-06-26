@@ -5,9 +5,9 @@ import {ArrowBackIos, ArrowForwardIos} from '@mui/icons-material';
 
 import {History} from '../types/history';
 import {Client} from '../client/client';
+import useAuth from '../hooks/useAuth';
 
 import VideoPlayer from './player';
-import useAuth from '../hooks/useAuth';
 
 const history = new History();
 
