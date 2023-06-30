@@ -33,7 +33,7 @@ func getPreferences(c *gin.Context) {
 		return
 	}
 
-	if session.UserID != userID && !session.CanManageUsers() {
+	if session.UserID != userID {
 		responseFormat(c, http.StatusForbidden, "user_id mismatch")
 		return
 	}
