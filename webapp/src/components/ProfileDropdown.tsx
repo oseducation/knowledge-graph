@@ -10,19 +10,20 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-
+import SettingsIcon from '@mui/icons-material/Settings';
+import {Dialog, ListItemIcon, ListItemText} from "@mui/material";
 import Stack from '@mui/material/Stack';
-
 import {useNavigate} from "react-router-dom";
 
-import {ListItemIcon, ListItemText} from "@mui/material";
-
 import useAuth from "../hooks/useAuth";
-
 import {Client} from "../client/client";
+
+import Preferences from './preferences';
 
 const ProfileDropdown = () => {
     const [open, setOpen] = React.useState(false);
+    const [openPreferences, setOpenPreferences] = React.useState(false);
+
     const anchorRef = React.useRef<HTMLButtonElement>(null);
     const {user, setUser} = useAuth()
     const navigate = useNavigate();
@@ -67,6 +68,11 @@ const ProfileDropdown = () => {
         }
     }
 
+    const handlePreferences = () => {
+        setOpen(false);
+        setOpenPreferences(true);
+    }
+
     // return focus to the button when we transitioned from !open -> open
     const prevOpen = React.useRef(open);
     React.useEffect(() => {
@@ -101,6 +107,7 @@ const ProfileDropdown = () => {
                     placement="bottom-start"
                     transition
                     disablePortal
+                    style={{zIndex: 2}}
                 >
                     {({TransitionProps, placement}) => (
                         <Grow
@@ -123,7 +130,12 @@ const ProfileDropdown = () => {
                                                 <AccountCircleIcon/>
                                             </ListItemIcon>
                                             <ListItemText primary="Profile"/>
-
+                                        </MenuItem>
+                                        <MenuItem onClick={handlePreferences}>
+                                            <ListItemIcon>
+                                                <SettingsIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Preferences"/>
                                         </MenuItem>
                                         <MenuItem onClick={handleProgress}>
                                             <ListItemIcon>
@@ -143,6 +155,14 @@ const ProfileDropdown = () => {
                         </Grow>
                     )}
                 </Popper>
+            </div>
+            <div>
+                <Dialog
+                    open={openPreferences}
+                    onClose={() => {setOpenPreferences(false)}}
+                >
+                    <Preferences onClose={() => {setOpenPreferences(false)}}/>
+                </Dialog>
             </div>
         </Stack>
     );

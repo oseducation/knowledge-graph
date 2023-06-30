@@ -156,6 +156,22 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating index on user_videos table")
 			}
 
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS preferences (
+					user_id VARCHAR(26),
+					key VARCHAR(32),
+					value VARCHAR(32),
+					UNIQUE (user_id, key)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table user_videos")
+			}
+
+			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS preferences_user_id_index ON preferences (user_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating index on preferences table")
+			}
 			return nil
 		},
 	},

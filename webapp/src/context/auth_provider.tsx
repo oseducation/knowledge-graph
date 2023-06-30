@@ -1,18 +1,22 @@
 import React, {createContext, useEffect, useState} from 'react';
 
-import {User} from '../types/users';
+import {DagMode, User, UserPreferences} from '../types/users';
 import {Client} from "../client/client";
 
 interface UserContextState {
     user: User | null;
     loading: boolean;
     setUser: React.Dispatch<React.SetStateAction<User | null>> | null;
+    preferences: UserPreferences | null;
+    setPreferences: React.Dispatch<React.SetStateAction<UserPreferences | null>> | null;
 }
 
 const AuthContext = createContext<UserContextState>({
     user: null,
     loading: true,
-    setUser: null
+    setUser: null,
+    preferences: null,
+    setPreferences: null
 });
 
 interface Props {
@@ -21,21 +25,34 @@ interface Props {
 
 export const AuthProvider = (props: Props) => {
     const [user, setUser] = useState<User | null>(null);
+    const [preferences, setPreferences] = useState<UserPreferences | null>(null);
     const [loading, setLoading] = useState(true)
 
-    async function getUser() {
-        await setLoading(true);
-        if (user !== null) {
-            return user;
-        }
-        return Client.User().getMe()
-            .catch(() => null)
+    const fetchUserData = async () => {
+        setLoading(true);
+        Client.User().getMe().then((data) => {
+            setUser(data);
+            Client.User().getMyPreferences().then((data) => {
+                const prefs = {} as UserPreferences
+                for (let i=0; i<data.length; i++){
+                    if (data[i].key === 'language') {
+                        prefs.language = data[i].value;
+                    } else if (data[i].key === 'is_video_looped') {
+                        prefs.is_video_looped = Boolean(data[i].value);
+                    } else if (data[i].key === 'graph_direction') {
+                        prefs.graph_direction = data[i].value as DagMode;
+                    }
+                }
+                setPreferences(prefs);
+            });
+        });
     }
 
-    async function isAuthenticated() {
-        const user = await getUser();
-        await setUser(user);
-        await setLoading(false)
+    const isAuthenticated = async () =>{
+        if (!user) {
+            fetchUserData();
+        }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -43,7 +60,7 @@ export const AuthProvider = (props: Props) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{user, loading, setUser}}>
+        <AuthContext.Provider value={{user, loading, setUser, preferences, setPreferences}}>
             {props.children}
         </AuthContext.Provider>
     );

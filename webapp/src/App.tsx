@@ -14,7 +14,6 @@ import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
 import ShortsPage from './pages/ShortsPage';
 
-
 function App() {
     return (
         <Routes>

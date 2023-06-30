@@ -27,6 +27,7 @@ const LoginPage = () => {
         Client.User().login(data.email, data.password)
             .then((user) => {
                 setUser?.(user);
+                Client.rest.setMe(user);
                 return navigate(from, {replace: true});
             }).catch((err: ClientError) => {
                 setError('root', {type: 'server', message: err.message});

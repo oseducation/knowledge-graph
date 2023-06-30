@@ -1,4 +1,4 @@
-import {User} from "../types/users";
+import {Preference, User} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -13,8 +13,12 @@ export class UserClient {
         return `${this.rest.getBaseRoute()}/users`;
     }
 
-    getUserRoute(userId: string) {
-        return `${this.getUsersRoute()}/${userId}`;
+    getUserRoute(userID: string) {
+        return `${this.getUsersRoute()}/${userID}`;
+    }
+
+    getUserPreferencesRoute(userID: string) {
+        return `${this.getUsersRoute()}/${userID}/preferences`;
     }
 
     login = async (email: string, password: string) => {
@@ -54,6 +58,7 @@ export class UserClient {
             {method: 'get'},
         );
 
+        this.rest.me = data
         return data;
     };
 
@@ -68,6 +73,7 @@ export class UserClient {
 
         return data;
     };
+
     update = async (user: User) => {
         const {data} = await this.rest.doFetchWithResponse<User>(
             `${this.getUsersRoute()}/me`,
@@ -76,4 +82,22 @@ export class UserClient {
 
         return data;
     };
+
+    getMyPreferences = async () => {
+        const {data} = await this.rest.doFetchWithResponse<Preference[]>(
+            `${this.getUserPreferencesRoute(this.rest.me.id)}`,
+            {method: 'get'},
+        );
+
+        return data;
+    }
+
+    saveMyPreferences = async (preferences: Preference[]) => {
+        const {data} = await this.rest.doFetchWithResponse<Preference[]>(
+            `${this.getUserPreferencesRoute(this.rest.me.id)}`,
+            {method: 'put', body: JSON.stringify(preferences)},
+        );
+
+        return data;
+    }
 }
