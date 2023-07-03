@@ -1,6 +1,18 @@
 import React from 'react';
-import {Alert, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, Button, DialogTitle, DialogActions, DialogContent} from '@mui/material';
-import {useForm, Controller} from 'react-hook-form';
+import {
+    Alert,
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    FormControlLabel,
+    InputLabel,
+    MenuItem,
+    Select,
+    Switch
+} from '@mui/material';
+import {Controller, useForm} from 'react-hook-form';
 
 import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
@@ -31,7 +43,7 @@ const Preferences = (props: Props) => {
             {
                 key: 'is_video_looped',
                 user_id: user.id,
-                value: ""+(data.is_video_looped || UserPreferencesDefaultValues['is_video_looped'])
+                value: "" + (data.is_video_looped || UserPreferencesDefaultValues['is_video_looped'])
             },
             {
                 key: 'language',
@@ -56,13 +68,15 @@ const Preferences = (props: Props) => {
                 {`${user?.username}'s preferences`}
             </DialogTitle>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <DialogContent style={{display:'flex', alignItems:'stretch', flexDirection:'column' }}>
+                <DialogContent style={{display: 'flex', alignItems: 'stretch', flexDirection: 'column'}}>
                     {errors.root &&
-                        <Alert severity='error' onClose={() => {clearErrors()}} >
+                        <Alert severity='error' onClose={() => {
+                            clearErrors()
+                        }}>
                             {errors.root.message}
                         </Alert>
                     }
-                    <FormControl style={{margin:'16px'}}>
+                    <FormControl style={{margin: '16px'}}>
                         <InputLabel id="language-label">Language</InputLabel>
                         <Controller
                             name='language'
@@ -77,7 +91,7 @@ const Preferences = (props: Props) => {
                         />
                     </FormControl>
 
-                    <FormControl style={{margin:'16px'}}>
+                    <FormControl style={{margin: '16px'}}>
                         <InputLabel id='graphDirection-label'>Graph Direction</InputLabel>
                         <Controller
                             name='graph_direction'
@@ -94,14 +108,14 @@ const Preferences = (props: Props) => {
                         />
                     </FormControl>
 
-                    <FormControl style={{margin:'16px'}}>
+                    <FormControl style={{margin: '16px'}}>
                         <Controller
                             name='is_video_looped'
                             control={control}
                             defaultValue={preferences?.is_video_looped || false}
                             render={({field}) => (
                                 <FormControlLabel
-                                    control={<Switch {...field} checked={field.value} />}
+                                    control={<Switch {...field} checked={field.value}/>}
                                     label={field.value ? 'Should videos loop in shorts mode: Yes' : 'Should videos loop in shorts mode: No'}
                                 />
                             )}

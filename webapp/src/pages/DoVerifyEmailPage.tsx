@@ -44,7 +44,8 @@ const VerifyEmailPage: React.FC = () => {
 
     if (isVerified) {
         return (
-            <Box display="flex"
+            <Box
+                display="flex"
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
@@ -58,8 +59,6 @@ const VerifyEmailPage: React.FC = () => {
                     sx={{
                         mt: 2,
                         p: 1,
-                        backgroundColor: '#4CAF50',
-                        '&:hover': {backgroundColor: '#45a049'},
                         borderRadius: 1,
                         fontSize: '18px'
                     }}
@@ -81,9 +80,6 @@ const VerifyEmailPage: React.FC = () => {
                 sx={{
                     mt: 2,
                     p: 1,
-                    backgroundColor: '#4CAF50',
-                    '&:hover': {backgroundColor: '#45a049'},
-                    borderRadius: 1,
                     fontSize: '18px'
                 }}
             >
