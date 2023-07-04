@@ -120,8 +120,8 @@ func (a *App) ImportGraph(url string) error {
 			// we have an old node that should be updated
 			updatedNode = node.Node.Clone()
 			updatedNode.ID = oldNode.ID
-			if err := a.Store.Node().Update(updatedNode); err != nil {
-				return errors.Wrapf(err, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
+			if err2 := a.Store.Node().Update(updatedNode); err2 != nil {
+				return errors.Wrapf(err2, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
 			}
 			a.Log.Info("updated node", log.String("oldNode", fmt.Sprintf("%v", oldNode)), log.String("newNode", fmt.Sprintf("%v", updatedNode)))
 		} else {
