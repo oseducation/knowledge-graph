@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -109,15 +110,31 @@ func (a *App) ImportGraph(url string) error {
 	}
 
 	for id, node := range nodes {
+		var updatedNode *model.Node
 		node.NodeType = model.NodeTypeLecture
-		updatedNode, err := a.Store.Node().Save(&node.Node)
-		if err != nil {
-			return errors.Wrap(err, "can't save node")
+		oldNode, err := a.Store.Node().GetByName(node.Name)
+		if err != nil && err != sql.ErrNoRows {
+			return errors.Wrapf(err, "can't get node by name - %s", node.Name)
 		}
+		if err == nil {
+			// we have an old node that should be updated
+			updatedNode = node.Node.Clone()
+			updatedNode.ID = oldNode.ID
+			if err := a.Store.Node().Update(updatedNode); err != nil {
+				return errors.Wrapf(err, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
+			}
+			a.Log.Info("updated node", log.String("oldNode", fmt.Sprintf("%v", oldNode)), log.String("newNode", fmt.Sprintf("%v", updatedNode)))
+		} else {
+			// no old node in db, we can just save
+			updatedNode, err = a.Store.Node().Save(&node.Node)
+			if err != nil {
+				return errors.Wrapf(err, "can't save node - %v", node.Node)
+			}
+		}
+
 		nodes[id] = NodeWithKey{
 			Node: *updatedNode,
 		}
-
 		if node.Key == "" {
 			continue
 		}
