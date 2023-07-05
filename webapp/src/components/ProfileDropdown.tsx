@@ -5,7 +5,7 @@ import ProgressIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
-import {Dialog, ListItemIcon, MenuItem, Stack, useTheme} from "@mui/material";
+import {Dialog, ListItemIcon, MenuItem, Stack} from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 
 
@@ -57,20 +57,20 @@ const ProfileDropdown = () => {
 
         // handle all cases here from the profileDestinations array
         switch (destination) {
-            case '/profile':
-                navigate('/profile');
-                break;
-            case '/preferences':
-                handlePreferences();
-                break;
-            case '/':
-                navigate('/');
-                break;
-            case '/logout':
-                logout();
-                break;
-            default:
-                break;
+        case '/profile':
+            navigate('/profile');
+            break;
+        case '/preferences':
+            handlePreferences();
+            break;
+        case '/':
+            navigate('/');
+            break;
+        case '/logout':
+            logout();
+            break;
+        default:
+            break;
         }
     };
 
