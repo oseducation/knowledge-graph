@@ -1,56 +1,153 @@
-import React from 'react';
-import {useNavigate} from 'react-router-dom';
-import {Button, Stack, Typography} from '@mui/material';
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
+import {useNavigate} from "react-router-dom";
+
+
+import {Stack} from "@mui/material";
 
 import useAuth from "../hooks/useAuth";
 
-import SearchBar from './search_bar';
+import SearchBar from "./search_bar";
 import ProfileDropdown from "./ProfileDropdown";
 
 
-const Header = () => {
+function Header() {
+    const [, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const navigate = useNavigate();
     const {user} = useAuth()
 
-    return (
-        <Stack
-            id='header'
-            direction={'row'}
-            alignItems={'center'}
-            display={'flex'}
-            p={'10px 20px'}
-            flexShrink={0}
-        >
-            <Typography
-                fontSize={36}
-                fontWeight={'bold'}
-                color={'primary'}
-                onClick={() => navigate('/')}
-                sx={{cursor: 'pointer'}}
+    const handleCloseNavMenu = () => {
+        setAnchorElNav(null);
+    };
+
+
+    function whyKnowledgeGraphButton() {
+        return (
+            <Button
+                variant="text"
+                onClick={handleCloseNavMenu}
+                sx={
+                    {
+                        color: 'white',
+                        margin: 2,
+                        display: 'flex',
+                        minWidth: "max-content",
+                    }
+                }
             >
-                Knowledge Graph
-            </Typography>
-            <SearchBar/>
-            {user == null ?
-                <>
-                    <Button variant='text'>Why Knowledge Graph?</Button>
-                    <Button variant='text' color='secondary' onClick={() => navigate('/login')}>Sign In</Button>
-                    <Button variant='contained' color='secondary' onClick={() => navigate('/register')}>Sign Up For Free</Button>
-                </>
-                :
-                <>
-                    <Button
-                        variant='text'
-                        style={{margin: '10px'}}
-                        onClick={() => navigate('/shorts')}
-                    >
-                        Shorts Mode
-                    </Button>
-                    <ProfileDropdown/>
-                </>
-            }
-        </Stack>
-    )
-};
+                Why Knowledge Graph?
+            </Button>
+        );
+    }
+
+    function getTitle() {
+        return <Typography
+            variant="h6"
+            noWrap
+            sx={{
+                minWidth: "max-content",
+                mr: 2,
+                display: {xs: 'none', sm: 'block'},
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+            }}
+            align={"center"}>
+            Knowledge Graph
+        </Typography>;
+    }
+
+    const handleBoxClick = () => {
+        navigate('/')
+    }
+
+    function getLogo() {
+        return <Box
+            component="img"
+            sx={{
+                height: 54,
+            }}
+            alt="Knowledge Graph"
+            src="logo.png"
+        />;
+    }
+
+    function logoAndTitle() {
+        return <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={2}
+            onClick={handleBoxClick}
+            sx={{cursor: 'pointer'}}
+        >
+            {getLogo()}
+            {getTitle()}
+        </Stack>;
+    }
+
+    function getLoginButton() {
+        return <Button
+            color='inherit'
+            variant='outlined'
+            onClick={() => navigate('/login')}
+            id="composition-button"
+            sx={{
+                minWidth: "max-content",
+                px: 4,
+            }}
+        >
+            Sign in
+        </Button>
+    }
+
+    return (
+        <AppBar position="static">
+            <Container maxWidth={false}>
+                <Toolbar disableGutters>
+                    {logoAndTitle()}
+                    <SearchBar/>
+                    {user == null ?
+                        <>
+                            {whyKnowledgeGraphButton()}
+                            {getLoginButton()}
+                            <Button
+                                variant='outlined'
+                                color='inherit'
+                                onClick={() => navigate('/register')}
+                                sx={{
+                                    m: 2,
+                                    minWidth: "max-content",
+                                }}>
+                                Sign Up
+                                For
+                                Free
+                            </Button>
+                        </>
+                        :
+                        <>
+                            <Button
+                                variant='text'
+                                style={{margin: '10px'}}
+                                onClick={() => navigate('/shorts')}
+                                sx={{
+                                    minWidth: "max-content",
+                                    color: 'white'
+                                }}
+                            >
+                                Shorts Mode
+                            </Button>
+                            <ProfileDropdown/>
+                        </>
+                    }
+                </Toolbar>
+            </Container>
+        </AppBar>
+    );
+}
 
 export default Header;
