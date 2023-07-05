@@ -1,8 +1,20 @@
 import React from 'react';
-import {Grid, Typography, Link} from '@mui/material';
+import {Grid, Link, Typography} from '@mui/material';
+import {useLocation} from "react-router-dom";
+
+import useAuth from "../hooks/useAuth";
 
 
 const Footer = () => {
+
+    const location = useLocation();
+    const {user} = useAuth()
+
+    console.log(location.pathname)
+    if ((location.pathname == '/' && user != null)) {
+        return null;
+    }
+
     return (
         <footer>
             <Grid container spacing={4} margin={'10px 20px'}>
@@ -39,12 +51,18 @@ const Footer = () => {
                     </Typography>
                     <ul>
                         <li>
-                            <Link href='https://github.com/oseducation/knowledge-graph' underline='none' rel='noopener noreferrer'>
+                            <Link
+                                href='https://github.com/oseducation/knowledge-graph'
+                                underline='none'
+                                rel='noopener noreferrer'>
                                 GitHub
                             </Link>
                         </li>
                         <li>
-                            <Link href='https://knowledge.cloud.mattermost.com' underline='none' target="_blank" rel='noopener noreferrer'>
+                            <Link
+                                href='https://knowledge.cloud.mattermost.com'
+                                underline='none' target="_blank"
+                                rel='noopener noreferrer'>
                                 Mattermost
                             </Link>
                         </li>
