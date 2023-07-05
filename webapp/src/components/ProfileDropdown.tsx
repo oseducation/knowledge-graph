@@ -1,171 +1,140 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import PersonIcon from '@mui/icons-material/Person';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ProgressIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
-import Popper from '@mui/material/Popper';
-import MenuItem from '@mui/material/MenuItem';
-import MenuList from '@mui/material/MenuList';
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+import {Dialog, ListItemIcon, MenuItem, Stack} from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
-import {Dialog, ListItemIcon, ListItemText} from "@mui/material";
-import Stack from '@mui/material/Stack';
+
+
 import {useNavigate} from "react-router-dom";
 
-import useAuth from "../hooks/useAuth";
-import {Client} from "../client/client";
+import {ArrowDropDown, Person2Outlined} from "@mui/icons-material";
 
-import Preferences from './preferences';
+import {Client} from "../client/client";
+import useAuth from "../hooks/useAuth";
+
+import Preferences from "./preferences";
+
+
+const profileDestinations = [
+    {destination: '/profile', displayName: 'Profile', icon: <AccountCircleIcon/>},
+    {destination: '/preferences', displayName: 'Preferences', icon: <SettingsIcon/>},
+    {destination: '/', displayName: 'Progress', icon: <ProgressIcon/>},
+    {destination: '/logout', displayName: 'Logout', icon: <LogoutIcon/>}
+]
 
 const ProfileDropdown = () => {
-    const [open, setOpen] = React.useState(false);
-    const [openPreferences, setOpenPreferences] = React.useState(false);
+    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
-    const anchorRef = React.useRef<HTMLButtonElement>(null);
+    const open = Boolean(anchorElUser)
+
     const {user, setUser} = useAuth()
+
     const navigate = useNavigate();
 
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
+    const [openPreferences, setOpenPreferences] = React.useState(false);
+
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElUser(event.currentTarget);
     };
 
-    const handleClose = (event: Event | React.SyntheticEvent) => {
-        if (
-            anchorRef.current &&
-            anchorRef.current.contains(event.target as HTMLElement)
-        ) {
-            return;
-        }
-
-        setOpen(false);
-    };
-    const handleProfile = (event: Event | React.SyntheticEvent) => {
-        handleClose(event)
-        navigate('/profile')
-    };
-    const handleLogout = (event: Event | React.SyntheticEvent) => {
-        handleClose(event)
+    function logout() {
         Client.User().logout().then(() => {
             setUser?.(null);
             navigate('/login')
         });
-
-    };
-    const handleProgress = (event: Event | React.SyntheticEvent) => {
-        handleClose(event)
-        navigate('/')
-    };
-
-    function handleListKeyDown(event: React.KeyboardEvent) {
-        if (event.key === 'Tab') {
-            event.preventDefault();
-            setOpen(false);
-        } else if (event.key === 'Escape') {
-            setOpen(false);
-        }
     }
 
     const handlePreferences = () => {
-        setOpen(false);
         setOpenPreferences(true);
     }
 
-    // return focus to the button when we transitioned from !open -> open
-    const prevOpen = React.useRef(open);
-    React.useEffect(() => {
-        if (prevOpen.current && !open) {
-            anchorRef.current!.focus();
+    const handleCloseUserMenu = (destination: string) => {
+        setAnchorElUser(null);
+
+        // handle all cases here from the profileDestinations array
+        switch (destination) {
+        case '/profile':
+            navigate('/profile');
+            break;
+        case '/preferences':
+            handlePreferences();
+            break;
+        case '/':
+            navigate('/');
+            break;
+        case '/logout':
+            logout();
+            break;
+        default:
+            break;
         }
+    };
 
-        prevOpen.current = open;
-    }, [open]);
+    return <Stack direction="row" spacing={2}>
 
-    return (
-        <Stack direction="row" spacing={2}>
-            <div>
-                <Button
-                    ref={anchorRef}
-                    id="composition-button"
-                    aria-controls={open ? 'composition-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-haspopup="true"
-                    onClick={handleToggle}
-                    startIcon={<PersonIcon/>}
-                    sx={{
-                        border: '1px solid darkred',
-                    }}
-                >
-                    {user?.username}
-                </Button>
-                <Popper
-                    open={open}
-                    anchorEl={anchorRef.current}
-                    role={undefined}
-                    placement="bottom-start"
-                    transition
-                    disablePortal
-                    style={{zIndex: 2}}
-                >
-                    {({TransitionProps, placement}) => (
-                        <Grow
-                            {...TransitionProps}
-                            style={{
-                                transformOrigin:
-                                    placement === 'bottom-start' ? 'left top' : 'left bottom',
-                            }}
-                        >
-                            <Paper>
-                                <ClickAwayListener onClickAway={handleClose}>
-                                    <MenuList
-                                        autoFocusItem={open}
-                                        id="composition-menu"
-                                        aria-labelledby="composition-button"
-                                        onKeyDown={handleListKeyDown}
-                                    >
-                                        <MenuItem onClick={handleProfile}>
-                                            <ListItemIcon>
-                                                <AccountCircleIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Profile"/>
-                                        </MenuItem>
-                                        <MenuItem onClick={handlePreferences}>
-                                            <ListItemIcon>
-                                                <SettingsIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Preferences"/>
-                                        </MenuItem>
-                                        <MenuItem onClick={handleProgress}>
-                                            <ListItemIcon>
-                                                <ProgressIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Progress"/>
-                                        </MenuItem>
-                                        <MenuItem onClick={handleLogout}>
-                                            <ListItemIcon>
-                                                <LogoutIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Logout"/>
-                                        </MenuItem>
-                                    </MenuList>
-                                </ClickAwayListener>
-                            </Paper>
-                        </Grow>
-                    )}
-                </Popper>
-            </div>
-            <div>
-                <Dialog
-                    open={openPreferences}
-                    onClose={() => {setOpenPreferences(false)}}
-                >
-                    <Preferences onClose={() => {setOpenPreferences(false)}}/>
-                </Dialog>
-            </div>
-        </Stack>
-    );
+        <Box sx={{flexGrow: 0}}>
+            <Button
+                aria-haspopup="true"
+                variant='outlined'
+                color='inherit'
+                onClick={handleOpenUserMenu}
+                id="composition-button"
+                startIcon={<Person2Outlined/>}
+                endIcon={<ArrowDropDown/>}
+                sx={{
+                    textTransform: "none",
+                }}
+            >
+                {user?.username}
+            </Button>
+            <Menu
+                sx={{mt: '45px'}}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                open={open}
+                onClose={handleCloseUserMenu}
+            >
+                {profileDestinations.map((destination) => (
+                    <MenuItem
+                        key={"profileMenu" + destination.displayName}
+                        onClick={() => handleCloseUserMenu(destination.destination)}
+                    >
+                        <ListItemIcon>
+                            {destination.icon}
+                        </ListItemIcon>
+                        {destination.displayName}
+                    </MenuItem>
+                ))}
+
+
+            </Menu>
+        </Box>
+
+        <Dialog
+            open={openPreferences}
+            onClose={() => {
+                setOpenPreferences(false)
+            }}
+        >
+            <Preferences onClose={() => {
+                setOpenPreferences(false)
+            }}/>
+        </Dialog>
+
+    </Stack>
 }
 
 export default ProfileDropdown

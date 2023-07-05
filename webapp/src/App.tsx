@@ -20,12 +20,12 @@ function App() {
             <Route path="/" element={<HomePage/>}/>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
-            <Route path="/profile" element={<ProfilePage/>}/>
             <Route path="/verify" element={<VerifyPage/>}/>
             <Route path="/do_verify_email" element={<DoVerifyEmailPage/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
+                <Route path="/profile" element={<ProfilePage/>}/>
                 <Route path="/shorts" element={<ShortsPage/>}/>
             </Route>
         </Routes>
