@@ -3,8 +3,9 @@ import {Avatar, AvatarGroup, Box, BoxProps, Button, Divider, List, ListItemButto
 import YouTubeIcon from '@mui/icons-material/YouTube';
 
 import {GraphNodeHoverContext} from '../main';
-import {ActiveUser, NodeStatusFinished, NodeWithResources, getVideoLength} from '../../types/graph';
+import {NodeStatusFinished, NodeWithResources, getVideoLength} from '../../types/graph';
 import {Client} from '../../client/client';
+import {User} from '../../types/users';
 
 const stringToColor = (st: string) => {
     let hash = 0;
@@ -26,7 +27,7 @@ const stringToColor = (st: string) => {
     return color;
 }
 
-const stringAvatar = (user: ActiveUser) => {
+const stringAvatar = (user: User) => {
     const name = user.first_name + ' ' + user.last_name
     return {
         sx: {
@@ -112,7 +113,7 @@ const RHS = (props: RHSProps) => {
                         </Typography>
                         <AvatarGroup max={5}>
                             {nodeWithResources.active_users.map(user =>
-                                <Avatar key={user.user_id} alt={user.username} {...stringAvatar(user)}/>
+                                <Avatar key={user.id} alt={user.username} {...stringAvatar(user)}/>
                             )}
                         </AvatarGroup>
                     </Stack>
