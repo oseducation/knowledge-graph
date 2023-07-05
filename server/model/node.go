@@ -94,6 +94,19 @@ func (n *Node) BeforeUpdate() {
 	n.UpdatedAt = GetMillis()
 }
 
+// Clone returns copy of an object.
+func (n *Node) Clone() *Node {
+	var newNode Node
+	newNode.ID = n.ID
+	newNode.Name = n.Name
+	newNode.NodeType = n.NodeType
+	newNode.CreatedAt = n.CreatedAt
+	newNode.UpdatedAt = n.UpdatedAt
+	newNode.DeletedAt = n.DeletedAt
+	newNode.Description = n.Description
+	return &newNode
+}
+
 func (n *NodeStatusForUser) IsValid() error {
 	if !IsValidID(n.NodeID) {
 		return invalidNodeError("", "id", n.NodeID)
