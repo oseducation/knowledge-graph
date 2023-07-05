@@ -14,6 +14,7 @@ type NodeStore interface {
 	Save(node *model.Node) (*model.Node, error)
 	Update(new *model.Node) error
 	Get(id string) (*model.Node, error)
+	GetByName(name string) (*model.Node, error)
 	GetNodes(options *model.NodeGetOptions) ([]*model.Node, error)
 	Delete(node *model.Node) error
 	GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error)
@@ -99,11 +100,20 @@ func (ns *SQLNodeStore) Update(new *model.Node) error {
 	return nil
 }
 
-// GetNodes gets node by id
+// Get gets node by id
 func (ns *SQLNodeStore) Get(id string) (*model.Node, error) {
 	var node model.Node
 	if err := ns.sqlStore.getBuilder(ns.sqlStore.db, &node, ns.nodeSelect.Where(sq.Eq{"n.id": id})); err != nil {
 		return nil, errors.Wrapf(err, "can't get node by id: %s", id)
+	}
+	return &node, nil
+}
+
+// GetByName gets node by it's name
+func (ns *SQLNodeStore) GetByName(name string) (*model.Node, error) {
+	var node model.Node
+	if err := ns.sqlStore.getBuilder(ns.sqlStore.db, &node, ns.nodeSelect.Where(sq.Eq{"n.name": name})); err != nil {
+		return nil, errors.Wrapf(err, "can't get node by name: %s", name)
 	}
 	return &node, nil
 }
