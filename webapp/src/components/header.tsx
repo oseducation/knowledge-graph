@@ -11,7 +11,6 @@ import {Stack, styled} from "@mui/material";
 
 import useAuth from "../hooks/useAuth";
 
-import SearchBar from "./search_bar";
 import ProfileDropdown from "./ProfileDropdown";
 
 
