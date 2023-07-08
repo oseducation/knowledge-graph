@@ -1,5 +1,5 @@
-# KnowledgeGraph
-Knowledge Graph is an educational startup that is built on the concept of representing knowledge as a graph, where nodes represent concepts or topics, and edges represent relationships between them. The platform aims to provide a personalized learning experience to learners of all ages, from kindergarten to adulthood.
+# vitsi.ai
+Vitsi is an educational startup that is built on the concept of representing knowledge as a graph, where nodes represent concepts or topics, and edges represent relationships between them. The platform aims to provide a personalized learning experience to learners of all ages, from kindergarten to adulthood.
 
 ## Problems with current education system
 
@@ -27,6 +27,6 @@ There is a short video mode of learning similar to youtube shorts, facebook reel
 Follow the commands [here](/server/README.md)
 
 ## Interested in contributing?
-Please see [CONTRIBUTING.md](/CONTRIBUTING.md). Also join the [Contributors server](https://knowledge.cloud.mattermost.com) to join discussions about contributions, development, and more.
+Please see [CONTRIBUTING.md](/CONTRIBUTING.md). Also join the [Discord server](https://discord.gg/qGvkkd3eTM) to join discussions about contributions, development, and more.
 
 

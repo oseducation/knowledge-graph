@@ -15,12 +15,12 @@ check_prereq()
 
     local dependency=$1 required_version=$2 installed_version=$3
 
-    type $dependency >/dev/null 2>&1 || { echo >&2 "KnowledgeGraph requires '$dependency' but it doesn't appear to be installed.  Aborting."; exit 1; }
+    type $dependency >/dev/null 2>&1 || { echo >&2 "Vitsi requires '$dependency' but it doesn't appear to be installed.  Aborting."; exit 1; }
 
     if check_version $installed_version $required_version; then
         echo "$dependency minimum requirement met. Required: $required_version, Found: $installed_version"
     else
-        echo "WARNING! KnowledgeGraph did not find the minimum supported version of '$dependency' installed. Required: $required_version, Found: $installed_version"
+        echo "WARNING! Vitsi did not find the minimum supported version of '$dependency' installed. Required: $required_version, Found: $installed_version"
         echo "We highly recommend stopping installation and updating dependencies before continuing"
         read -p "Enter Y to continue anyway (not recommended)." -n 1 -r
         echo

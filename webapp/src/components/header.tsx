@@ -24,7 +24,7 @@ function Header() {
     };
 
 
-    function whyKnowledgeGraphButton() {
+    function whyVitsiButton() {
         return (
             <Button
                 variant="text"
@@ -38,7 +38,7 @@ function Header() {
                     }
                 }
             >
-                Why Knowledge Graph?
+                Why VITSI?
             </Button>
         );
     }
@@ -55,7 +55,7 @@ function Header() {
                 letterSpacing: '.3rem',
             }}
             align={"center"}>
-            Knowledge Graph
+            VITSI.AI
         </Typography>;
     }
 
@@ -69,7 +69,7 @@ function Header() {
             sx={{
                 height: 54,
             }}
-            alt="Knowledge Graph"
+            alt="vitsi.ai"
             src="logo.png"
         />;
     }
@@ -111,7 +111,7 @@ function Header() {
                     <Spacer/>
                     {user == null ?
                         <>
-                            {whyKnowledgeGraphButton()}
+                            {whyVitsiButton()}
                             {getLoginButton()}
                             <Button
                                 variant='outlined'

@@ -20,7 +20,7 @@ const Footer = () => {
             <Grid container spacing={4} margin={'10px 20px'}>
                 <Grid item xs={12} sm={6}>
                     <Typography variant='h5' gutterBottom>
-                        Knowledge Graph
+                        VITSI.AI
                     </Typography>
                     <ul>
                         <li>
@@ -60,10 +60,10 @@ const Footer = () => {
                         </li>
                         <li>
                             <Link
-                                href='https://knowledge.cloud.mattermost.com'
+                                href='https://discord.gg/qGvkkd3eTM'
                                 underline='none' target="_blank"
                                 rel='noopener noreferrer'>
-                                Mattermost
+                                Discord
                             </Link>
                         </li>
                     </ul>
