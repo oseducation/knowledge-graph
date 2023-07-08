@@ -1,6 +1,6 @@
 # Contributing Guide #
 
-Thank you for your interest in contributing to Knowledge Graph. This is a generic guide that details how to contribute in a way that is efficient for everyone.
+Thank you for your interest in contributing to `vitsi.ai`. This is a generic guide that details how to contribute in a way that is efficient for everyone.
 
 
 ## Reporting Bugs ##
