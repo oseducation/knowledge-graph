@@ -63,7 +63,7 @@ const Content = () => {
                         fontSize={26}
                         fontWeight={'bold'}
                     >
-                        The World's Knowledge at Your Fingertips
+                        The World&apos;s Knowledge at Your Fingertips
                     </Typography>
                     <p>
                         Every piece of knowledge in the world can be depicted through a prerequisite graph, where understanding all the prerequisites paves the way for learning novel concepts. We are building such a graph.
@@ -93,13 +93,13 @@ const Content = () => {
                         Community Contributions
                     </Typography>
                     <p>
-                        Learning is better together. Help the community by sharing resources, or take advantage of others' expertise to enrich your understanding.
+                        Learning is better together. Help the community by sharing resources, or take advantage of others&apos; expertise to enrich your understanding.
                     </p>
                 </Container>
                 <Box
                     component="img"
                     sx={{
-                        height: 512,
+                        height: 400,
                     }}
                     alt="vitsi.ai"
                     src="screen.png"
@@ -115,9 +115,9 @@ const Content = () => {
                 bgcolor={'primary.light'}
             >
                 <Typography
-                        fontSize={26}
-                        fontWeight={'bold'}
-                        m={'20px'}
+                    fontSize={26}
+                    fontWeight={'bold'}
+                    m={'20px'}
                 >
                     From Vitsi Community
                 </Typography>
