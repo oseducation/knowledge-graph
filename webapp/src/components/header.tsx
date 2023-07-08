@@ -7,8 +7,7 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import {useNavigate} from "react-router-dom";
 
-
-import {Stack} from "@mui/material";
+import {Stack, styled} from "@mui/material";
 
 import useAuth from "../hooks/useAuth";
 
@@ -110,7 +109,7 @@ function Header() {
             <Container maxWidth={false}>
                 <Toolbar disableGutters>
                     {logoAndTitle()}
-                    <SearchBar/>
+                    <Spacer/>
                     {user == null ?
                         <>
                             {whyKnowledgeGraphButton()}
@@ -149,5 +148,10 @@ function Header() {
         </AppBar>
     );
 }
+
+const Spacer = styled('div')(() => ({
+    position: 'relative',
+    width: '100%'
+}));
 
 export default Header;
