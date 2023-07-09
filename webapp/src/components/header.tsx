@@ -15,33 +15,8 @@ import ProfileDropdown from "./ProfileDropdown";
 
 
 function Header() {
-    const [, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const navigate = useNavigate();
     const {user} = useAuth()
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
-
-
-    function whyVitsiButton() {
-        return (
-            <Button
-                variant="text"
-                onClick={handleCloseNavMenu}
-                sx={
-                    {
-                        color: 'white',
-                        margin: 2,
-                        display: 'flex',
-                        minWidth: "max-content",
-                    }
-                }
-            >
-                Why VITSI?
-            </Button>
-        );
-    }
 
     function getTitle() {
         return <Typography
@@ -111,7 +86,6 @@ function Header() {
                     <Spacer/>
                     {user == null ?
                         <>
-                            {whyVitsiButton()}
                             {getLoginButton()}
                             <Button
                                 variant='outlined'
