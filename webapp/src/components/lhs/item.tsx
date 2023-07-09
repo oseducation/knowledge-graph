@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {ListItem, ListItemText, ClickAwayListener, ListItemIcon, useTheme} from '@mui/material';
+import {ClickAwayListener, ListItem, ListItemIcon, ListItemText, useTheme} from '@mui/material';
 
 import {GroupItem} from '../../types/sidebar';
 
@@ -32,8 +32,20 @@ const Item = (props: ItemProps) => {
                     },
                 }}
             >
-                {props.item.icon && <ListItemIcon sx={{color: 'white', minWidth: 0, margin:'0px 4px'}}>{props.item.icon}</ListItemIcon>}
-                <ListItemText secondaryTypographyProps={{color: 'white'}} primary={props.item.display_name} secondary={props.item.secondary}/>
+                {props.item.icon && <ListItemIcon
+                    sx={{
+                        color: 'white',
+                        margin: '0px 4px',
+                        minWidth: 0
+                    }}>{props.item.icon}</ListItemIcon>}
+                <ListItemText
+                    sx={{
+                        'marginRight': isHovered ? 0 : 4,
+                    }}
+                    secondaryTypographyProps={{color: 'white'}}
+                    primary={props.item.display_name}
+                    secondary={props.item.secondary}
+                />
             </ListItem>
         </ClickAwayListener>
     );
