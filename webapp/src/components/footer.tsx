@@ -10,7 +10,6 @@ const Footer = () => {
     const location = useLocation();
     const {user} = useAuth()
 
-    console.log(location.pathname)
     if ((location.pathname == '/' && user != null)) {
         return null;
     }
