@@ -15,13 +15,8 @@ import ProfileDropdown from "./ProfileDropdown";
 
 
 function Header() {
-    const [, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const navigate = useNavigate();
     const {user} = useAuth()
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
 
     function getTitle() {
         return <Typography
