@@ -2,8 +2,10 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import * as React from "react";
 
-import Footer from "./components/footer";
 import {useLocation} from "react-router-dom";
+
+import Footer from "./components/footer";
+
 import useAuth from "./hooks/useAuth";
 
 
