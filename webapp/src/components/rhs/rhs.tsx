@@ -1,11 +1,30 @@
 import React, {useEffect, useState} from 'react';
-import {Avatar, AvatarGroup, Box, BoxProps, Button, Divider, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Stack, styled, Typography, useTheme} from '@mui/material';
+import {
+    Avatar,
+    AvatarGroup,
+    Box,
+    BoxProps,
+    Button,
+    Divider,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    ListSubheader,
+    Stack,
+    styled,
+    Typography,
+    useTheme
+} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 
+import {useNavigate} from "react-router-dom";
+
 import {GraphNodeHoverContext} from '../main';
-import {NodeStatusFinished, NodeWithResources, getVideoLength} from '../../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeWithResources} from '../../types/graph';
 import {Client} from '../../client/client';
 import {User} from '../../types/users';
+
 
 const stringToColor = (st: string) => {
     let hash = 0;
@@ -47,6 +66,7 @@ const RHS = (props: RHSProps) => {
     const theme = useTheme()
 
     const [nodeWithResources, setNodeWithResources] = useState<NodeWithResources>({} as NodeWithResources);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (node && node.id) {
@@ -54,7 +74,7 @@ const RHS = (props: RHSProps) => {
                 setNodeWithResources(data);
             });
         }
-    },[node.id]);
+    }, [node.id]);
 
 
     const markAsKnown = () => {
@@ -82,7 +102,7 @@ const RHS = (props: RHSProps) => {
                     <Typography
                         fontSize={20}
                         fontWeight={600}
-                        sx={{p:'10px'}}
+                        sx={{p: '10px'}}
                     >
                         Node Details
                     </Typography>
@@ -90,22 +110,22 @@ const RHS = (props: RHSProps) => {
                         orientation='vertical'
                         variant='middle'
                         flexItem
-                        sx={{p:'4px 0px'}}
+                        sx={{p: '4px 0px'}}
                     />
                     <Typography
                         fontSize={20}
                         fontWeight={500}
-                        sx={{p:'10px'}}
+                        sx={{p: '10px'}}
                     >
                         {node.name}
                     </Typography>
                 </Stack>
 
-                <Box sx={{p:'10px'}}>{node.description}</Box>
+                <Box sx={{p: '10px'}}>{node.description}</Box>
                 {nodeWithResources.active_users && nodeWithResources.active_users.length > 0 &&
                     <Stack direction='row' alignItems='center'>
                         <Typography
-                            sx={{p:'10px'}}
+                            sx={{p: '10px'}}
                             fontSize={18}
                             fontWeight={500}
                         >
@@ -122,7 +142,7 @@ const RHS = (props: RHSProps) => {
                     <>
                         <Divider/>
                         <List
-                            sx={{width: '100%', maxWidth: 400, height:'100%', bgcolor: 'background.paper'}}
+                            sx={{width: '100%', maxWidth: 400, height: '100%', bgcolor: 'background.paper'}}
                             component="nav"
                             aria-labelledby="resources"
                             subheader={
@@ -137,11 +157,18 @@ const RHS = (props: RHSProps) => {
                             }
                         >
                             {nodeWithResources.videos.map(video =>
-                                <ListItemButton key={video.id}>
+                                <ListItemButton
+                                    key={video.id}
+                                    onClick={
+                                        () => navigate(`/nodes/${nodeWithResources.id}`)
+                                    }
+                                >
                                     <ListItemIcon>
                                         <YouTubeIcon/>
                                     </ListItemIcon>
-                                    <ListItemText primary={video.name} secondary={"(" + getVideoLength(video.length) + " min)" } />
+                                    <ListItemText
+                                        primary={video.name}
+                                        secondary={"(" + getVideoLength(video.length) + " min)"}/>
                                 </ListItemButton>
                             )}
 
@@ -151,7 +178,7 @@ const RHS = (props: RHSProps) => {
                 <Box bgcolor='background.paper' display='flex' justifyContent='center'>
                     <Button
                         variant="contained"
-                        sx={{margin:'40px'}}
+                        sx={{margin: '40px'}}
                         onClick={() => markAsKnown()}
                         disabled={node.status === NodeStatusFinished}
                     >
