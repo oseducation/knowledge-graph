@@ -23,26 +23,6 @@ function Header() {
         setAnchorElNav(null);
     };
 
-
-    function whyVitsiButton() {
-        return (
-            <Button
-                variant="text"
-                onClick={handleCloseNavMenu}
-                sx={
-                    {
-                        color: 'white',
-                        margin: 2,
-                        display: 'flex',
-                        minWidth: "max-content",
-                    }
-                }
-            >
-                Why VITSI?
-            </Button>
-        );
-    }
-
     function getTitle() {
         return <Typography
             variant="h6"
@@ -111,7 +91,6 @@ function Header() {
                     <Spacer/>
                     {user == null ?
                         <>
-                            {whyVitsiButton()}
                             {getLoginButton()}
                             <Button
                                 variant='outlined'
