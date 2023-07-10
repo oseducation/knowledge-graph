@@ -13,6 +13,7 @@ import VerifyPage from "./pages/VerifyPage";
 import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
 import ShortsPage from './pages/ShortsPage';
+import ContactUs from './pages/ContactUsPage';
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/register" element={<RegisterPage/>}/>
             <Route path="/verify" element={<VerifyPage/>}/>
             <Route path="/do_verify_email" element={<DoVerifyEmailPage/>}/>
+            <Route path="/contact" element={<ContactUs/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
