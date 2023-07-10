@@ -39,7 +39,7 @@ const Footer = () => {
                         </li>
                         <li>
                             <Link href='/contact' underline='none'>
-                                Contact
+                                Contact Us
                             </Link>
                         </li>
                     </ul>
