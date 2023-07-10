@@ -26,6 +26,12 @@ const VideoPlayer = (props: VideoPlayerProps) => {
         if (player) {
             player.loadVideoById(props.videoKey);
         }
+        return () => {
+            if (player) {
+                player.destroy();
+                player = null;
+            }
+          };
     }, [props.videoKey]);
 
     const onPlayerStateChange = (event: any) => {
