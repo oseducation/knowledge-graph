@@ -8,7 +8,7 @@ const Terms = () => {
 
             <Typography variant="h5">1. Introduction</Typography>
             <Typography paragraph>
-                Welcome to Vitsi! These terms and conditions outline the rules and regulations for the use of Vitsi's Website, located at vitsi.ai.
+                Welcome to Vitsi! These terms and conditions outline the rules and regulations for the use of Vitsi&apos;s Website, located at vitsi.ai.
                 By accessing this website we assume you accept these terms and conditions. Do not continue to use Vitsi if you do not agree to take all of the terms and conditions stated on this page.
             </Typography>
             <Typography variant="h5">2. License</Typography>
@@ -17,7 +17,7 @@ const Terms = () => {
             </Typography>
             <Typography variant="h5">3. Cookies</Typography>
             <Typography paragraph>
-                We employ the use of cookies. By accessing Vitsi, you agreed to use cookies in agreement with the Vitsi's Privacy Policy.
+                We employ the use of cookies. By accessing Vitsi, you agreed to use cookies in agreement with the Vitsi&apos;s Privacy Policy.
             </Typography>
             <Typography variant="h5">4. User Content</Typography>
             <Typography paragraph>

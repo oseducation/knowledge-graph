@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
             <Box my={2}>
                 <Typography variant="h2">Privacy Policy</Typography>
                 <Typography variant="body1" paragraph>
-                    Your privacy is important to us. It is Company's policy to respect your privacy regarding any information we may collect from you across our website, http://www.vitsi.ai, and other sites we own and operate.
+                    Your privacy is important to us. It is Company&apos;s policy to respect your privacy regarding any information we may collect from you across our website, http://www.vitsi.ai, and other sites we own and operate.
                 </Typography>
                 <Typography variant="h4">Information we collect</Typography>
                 <Typography variant="body1" paragraph>
