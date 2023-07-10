@@ -31,7 +31,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
                 player.destroy();
                 player = null;
             }
-          };
+        };
     }, [props.videoKey]);
 
     const onPlayerStateChange = (event: any) => {
