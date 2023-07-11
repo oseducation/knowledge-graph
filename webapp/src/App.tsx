@@ -14,6 +14,8 @@ import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
 import ShortsPage from './pages/ShortsPage';
 import ContactUs from './pages/ContactUsPage';
+import Terms from './pages/TermsPage';
+import PrivacyPolicy from './pages/PrivacyPage';
 
 function App() {
     return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/verify" element={<VerifyPage/>}/>
             <Route path="/do_verify_email" element={<DoVerifyEmailPage/>}/>
             <Route path="/contact" element={<ContactUs/>}/>
+            <Route path="/terms" element={<Terms/>}/>
+            <Route path="/privacy" element={<PrivacyPolicy/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
