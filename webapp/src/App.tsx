@@ -16,6 +16,7 @@ import ShortsPage from './pages/ShortsPage';
 import ContactUs from './pages/ContactUsPage';
 import Terms from './pages/TermsPage';
 import PrivacyPolicy from './pages/PrivacyPage';
+import AboutUs from './pages/AboutUs';
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/contact" element={<ContactUs/>}/>
             <Route path="/terms" element={<Terms/>}/>
             <Route path="/privacy" element={<PrivacyPolicy/>}/>
+            <Route path="/about" element={<AboutUs/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
