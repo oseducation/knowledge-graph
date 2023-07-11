@@ -21,13 +21,13 @@ const AboutUs = () => {
                     Traditional education, being course-based, tends to be inefficient:
                     <List>
                         <ListItemText>
-                            1. Course content can not align with every learner's needs
+                            1. Course content can not align with every learner&apos;s needs
                         </ListItemText>
                         <ListItemText>
                             2. Enrolling into a full course might be too much commitment
                         </ListItemText>
                         <ListItemText>
-                            3. Courses are something you start and finish, not something you do - it's not aligned with lifelong learning
+                            3. Courses are something you start and finish, not something you do - it&apos;s not aligned with lifelong learning
                         </ListItemText>
                         <ListItemText>
                             4. It is hard to understand where each individual course fits in the big picture of knowledge
