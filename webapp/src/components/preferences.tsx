@@ -116,7 +116,7 @@ const Preferences = (props: Props) => {
                             render={({field}) => (
                                 <FormControlLabel
                                     control={<Switch {...field} checked={field.value}/>}
-                                    label={field.value ? 'Should videos loop in shorts mode: Yes' : 'Should videos loop in shorts mode: No'}
+                                    label={field.value ? 'Should videos loop in carousel mode: Yes' : 'Should videos loop in carousel mode: No'}
                                 />
                             )}
                         />
