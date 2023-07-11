@@ -11,7 +11,7 @@ import VideoPlayer from './player';
 
 const history = new History();
 
-const Shorts = () => {
+const Carousel = () => {
     const [videoID, setVideoID] = useState('');
     const {preferences} = useAuth();
 
@@ -81,4 +81,4 @@ const Shorts = () => {
     );
 };
 
-export default Shorts;
+export default Carousel;
