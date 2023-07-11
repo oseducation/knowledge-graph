@@ -33,10 +33,14 @@ const LHSNavigation = (props: LHSProps) => {
 
     return (
         <Box
+            id='groups'
             width={240}
-            height='100%'
-            display='flex'
-            flexDirection='column'
+            sx={{
+                flexDirection: 'column',
+                height: '100%',
+                direction: 'column',
+                bgcolor: 'primary.dark',
+            }}
         >
             <Sidebar
                 groups={groups}

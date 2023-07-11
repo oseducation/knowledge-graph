@@ -16,15 +16,18 @@ export default function AppLayout() {
     return (<ThemeProvider theme={theme}>
         <Box
             sx={{
+                direction: 'column',
                 display: 'flex',
                 flexDirection: 'column',
                 minHeight: '100vh',
-                maxWidth: 'false'
+                maxWidth: 'false',
+                overflow: 'auto',
+                overscrollBehavior: 'none'
             }}
         >
             <Header/>
             <CssBaseline/>
-            <Container component="main" sx={{mb: 2}} maxWidth={false} disableGutters>
+            <Container component="main" maxWidth={false} disableGutters>
                 <App/>
             </Container>
             <FooterContainer/>
