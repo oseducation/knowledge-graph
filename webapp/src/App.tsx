@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
+import {useMediaQuery, Theme} from '@mui/material';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -18,6 +19,10 @@ import Terms from './pages/TermsPage';
 import PrivacyPolicy from './pages/PrivacyPage';
 
 function App() {
+    const isSmallScreen = useMediaQuery<Theme>((theme: Theme) => theme.breakpoints.down('lg'));
+    if (isSmallScreen) {
+        return <div>Sorry, this app is not optimized for mobile devices. Please visit us on a larger screen for the best experience.</div>
+    }
     return (
         <Routes>
             <Route path="/" element={<HomePage/>}/>
