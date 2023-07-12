@@ -1,7 +1,6 @@
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Button, Stack, Typography, Box, Grid, Avatar} from '@mui/material';
-import {Container} from '@mui/system';
+import {Button, Stack, Typography, Box, Avatar} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 
 
