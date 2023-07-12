@@ -12,7 +12,7 @@ import {ROLES} from './types/users';
 import VerifyPage from "./pages/VerifyPage";
 import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
-import ShortsPage from './pages/ShortsPage';
+import CarouselPage from './pages/CarouselPage';
 import ContactUs from './pages/ContactUsPage';
 import Terms from './pages/TermsPage';
 import PrivacyPolicy from './pages/PrivacyPage';
@@ -32,7 +32,7 @@ function App() {
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
                 <Route path="/profile" element={<ProfilePage/>}/>
-                <Route path="/shorts" element={<ShortsPage/>}/>
+                <Route path="/carousel" element={<CarouselPage/>}/>
             </Route>
         </Routes>
     );

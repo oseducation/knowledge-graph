@@ -105,13 +105,13 @@ function Header() {
                             <Button
                                 variant='text'
                                 style={{margin: '10px'}}
-                                onClick={() => navigate('/shorts')}
+                                onClick={() => navigate('/carousel')}
                                 sx={{
                                     minWidth: "max-content",
                                     color: 'white'
                                 }}
                             >
-                                Shorts Mode
+                                Carousel Mode
                             </Button>
                             <ProfileDropdown/>
                         </>
