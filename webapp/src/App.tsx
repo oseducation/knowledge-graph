@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
+import {useMediaQuery, Theme} from '@mui/material';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -12,13 +13,17 @@ import {ROLES} from './types/users';
 import VerifyPage from "./pages/VerifyPage";
 import DoVerifyEmailPage from "./pages/DoVerifyEmailPage";
 import ProfilePage from "./pages/ProfilePage";
-import ShortsPage from './pages/ShortsPage';
+import CarouselPage from './pages/CarouselPage';
 import ContactUs from './pages/ContactUsPage';
 import Terms from './pages/TermsPage';
 import PrivacyPolicy from './pages/PrivacyPage';
 import AboutUs from './pages/AboutUs';
 
 function App() {
+    const isSmallScreen = useMediaQuery<Theme>((theme: Theme) => theme.breakpoints.down('lg'));
+    if (isSmallScreen) {
+        return <div>Sorry, this app is not optimized for mobile devices. Please visit us on a larger screen for the best experience.</div>
+    }
     return (
         <Routes>
             <Route path="/" element={<HomePage/>}/>
@@ -34,7 +39,7 @@ function App() {
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
                 <Route path="/profile" element={<ProfilePage/>}/>
-                <Route path="/shorts" element={<ShortsPage/>}/>
+                <Route path="/carousel" element={<CarouselPage/>}/>
             </Route>
         </Routes>
     );
