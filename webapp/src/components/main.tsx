@@ -1,17 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import {Box, Drawer} from '@mui/material';
 
 import {Client} from '../client/client';
 import useAuth from '../hooks/useAuth';
 import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
+import useDrawer from '../hooks/useDrawer';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
 import RHS from './rhs/rhs';
 import NodeDropDownMenu from './node_drop_down';
-import {Box, Drawer} from '@mui/material';
-import useDrawer from '../hooks/useDrawer';
+
 
 type GraphNodeHoverContextType = {
     node: Node;
