@@ -65,7 +65,7 @@ const VerifyEmailPage = () => {
             {isVerified === VerifyEmailStatus.ERROR &&
                 <Error color={"error"} sx={{fontSize: 80}}/>
             }
-            {isVerified !== VerifyEmailStatus.SUCCESS &&
+            {isVerified === VerifyEmailStatus.SUCCESS &&
                 <CheckCircle color={"success"} sx={{fontSize: 80}}/>
             }
 
