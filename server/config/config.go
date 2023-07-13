@@ -16,6 +16,7 @@ type ServerSettings struct {
 	ExtendSessionLengthWithActivity bool
 	SessionLengthInMinutes          int
 	CookieDomain                    string //Can be configured for each environment
+	HTTPS                           bool
 }
 
 type DBSettings struct {

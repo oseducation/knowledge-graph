@@ -7,7 +7,6 @@ import AppLayout from "./AppLayout";
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
-const isChrome = window.navigator.userAgent.includes("Chrome");
 
 let element = (
     <React.StrictMode>
@@ -19,8 +18,5 @@ let element = (
     </React.StrictMode>
 );
 
-if (!isChrome) {
-    element = <div>For better usage, please use Chrome</div>
-}
 
 root.render(element);
