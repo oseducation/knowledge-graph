@@ -1,9 +1,12 @@
 import * as React from 'react';
 import {useNavigate} from "react-router-dom";
-import {AppBar, Box, Toolbar, Typography, Container, Button, Stack, styled, useMediaQuery} from "@mui/material";
+import {AppBar, Box, Toolbar, Typography, Container, Button, Stack, styled, useMediaQuery, IconButton} from "@mui/material";
 import {useTheme} from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 
 import useAuth from "../hooks/useAuth";
+import useDrawer from '../hooks/useDrawer';
 
 import ProfileDropdown from "./ProfileDropdown";
 
@@ -13,7 +16,8 @@ function Header() {
     const {user} = useAuth()
     const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
-
+    const {open, setOpen} = useDrawer();
+    const isLoggedInOnThePhone = user && isPhone;
 
     function getTitle() {
         return <Typography
@@ -76,11 +80,27 @@ function Header() {
         </Button>
     }
 
+    const handleDrawerToggle = () => {
+        setOpen?.(!open);
+    };
+
     return (
         <AppBar position="static">
             <Container maxWidth={false}>
                 <Toolbar disableGutters>
-                    {logoAndTitle()}
+                    {<IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={handleDrawerToggle}
+                        sx={{
+                            mr: 2,
+                            display: {xs: 'block', sm: 'block', md: 'none'},
+                        }}
+                    >
+                        <MenuIcon/>
+                    </IconButton>}
+                    {!isLoggedInOnThePhone && logoAndTitle()}
                     <Spacer/>
                     {user == null ?
                         <>
@@ -100,18 +120,25 @@ function Header() {
                         </>
                         :
                         <>
-                            <Button
-                                variant='text'
-                                style={{margin: '10px'}}
-                                onClick={() => navigate('/carousel')}
-                                sx={{
-                                    minWidth: {xs: 'min-content', sm: 'max-content'},
-                                    color: 'white',
-                                    whiteSpace: 'nowrap'
-                                }}
-                            >
-                                Carousel Mode
-                            </Button>
+                            {isLoggedInOnThePhone?
+                                <ViewCarouselIcon
+                                    style={{margin: '10px'}}
+                                    onClick={() => navigate('/carousel')}
+                                />
+                                :
+                                <Button
+                                    variant='text'
+                                    style={{margin: '10px'}}
+                                    onClick={() => navigate('/carousel')}
+                                    sx={{
+                                        minWidth: {xs: 'min-content', sm: 'max-content'},
+                                        color: 'white',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    Carousel Mode
+                                </Button>
+                            }
                             <ProfileDropdown/>
                         </>
                     }

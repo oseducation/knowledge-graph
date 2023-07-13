@@ -86,10 +86,7 @@ const RHS = (props: RHSProps) => {
     }
 
     return (
-        <StyledBox
-            width={400}
-            height='100%'
-        >
+        <StyledBox height='100%'>
             <Stack bgcolor={theme.palette.grey[100]} height={'100%'}>
                 <Stack
                     direction='row'
