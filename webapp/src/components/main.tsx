@@ -18,7 +18,10 @@ type GraphNodeHoverContextType = {
     node: Node;
     setNode: React.Dispatch<React.SetStateAction<Node>>;
 }
-export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextType>({node: {} as Node, setNode: ()=>{}});
+export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextType>({
+    node: {} as Node, setNode: () => {
+    }
+});
 
 const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup[]) => {
     type GraphDataType = {
@@ -33,7 +36,7 @@ const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup
             setGraphData({graph: data, groups: computeGroups(data)})
         });
 
-    },[reload]);
+    }, [reload]);
 
     return graphData;
 }
@@ -55,7 +58,9 @@ const Main = () => {
 
     const computeGroups = (graph: Graph) => {
         const nodesMap = new Map<string, Node>();
-        graph.nodes.forEach((node) => {nodesMap.set(node.id, node)})
+        graph.nodes.forEach((node) => {
+            nodesMap.set(node.id, node)
+        })
 
         const prereqMap = new Map<string, Node>();
         for (let i = 0; i < graph.links.length; i++) {
@@ -144,7 +149,12 @@ const Main = () => {
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
             {user && <Box
                 component="nav"
-                sx={{ width: {sm: 240}, flexShrink: {sm: 0}}}
+                sx={{
+                    height: 'calc(100vh - 64px)',
+                    overflowY: 'auto',
+                    width: {sm: 240},
+                    flexShrink: {sm: 0}
+                }}
                 aria-label="drawer"
             >
                 <Drawer
@@ -155,8 +165,8 @@ const Main = () => {
                         keepMounted: true, // Better open performance on mobile.
                     }}
                     sx={{
-                        display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+                        display: {xs: 'block', sm: 'none'},
+                        '& .MuiDrawer-paper': {boxSizing: 'border-box', width: 240},
                     }}
                 >
                     <LHSNavigation groups={groups}/>
@@ -164,16 +174,29 @@ const Main = () => {
             </Box>}
 
             <Grid2 container disableEqualOverflow>
-                <Grid2 xs={3} sx={{maxWidth: '240px', display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}}}>
+                <Grid2 xs={3} sx={{
+                    height: 'calc(100vh - 64px)',
+                    overflowY: 'auto',
+                    maxWidth: '240px',
+                    display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}
+                }}>
                     <LHSNavigation groups={groups}/>
                 </Grid2>
-                <Grid2 xs={true}>
+                <Grid2 xs={true} sx={{
+                    height: 'calc(100vh - 64px)',
+                    overflowY: 'auto',
+                }}>
                     <GraphComponent
                         graph={graph}
                         focusNodeID={focusedNodeID}
                     />
                 </Grid2>
-                <Grid2 xs={3} sx={{maxWidth: '400px', display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}}}>
+                <Grid2 xs={3} sx={{
+                    height: 'calc(100vh - 64px)',
+                    overflowY: 'auto',
+                    maxWidth: '400px',
+                    display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
+                }}>
                     <RHS
                         userID={user?.id || ''}
                         onReload={handleReload}
