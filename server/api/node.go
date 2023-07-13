@@ -133,6 +133,12 @@ func getNode(c *gin.Context) {
 		return
 	}
 
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
@@ -149,6 +155,18 @@ func getNode(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	statuses, err := a.GetStatusesForUser(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+	}
+	statusMap := map[string]*model.NodeStatusForUser{}
+	for _, status := range statuses {
+		statusMap[status.NodeID] = status
+	}
+	if status, ok := statusMap[nodes.ID]; ok {
+		nodes.Status = status.Status
+	}
+
 	responseFormat(c, http.StatusOK, nodes)
 }
 

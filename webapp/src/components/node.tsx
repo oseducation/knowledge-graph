@@ -3,7 +3,7 @@ import {Box, Divider, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
-import {getVideoLength, NodeWithResources, Video} from '../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeWithResources, Video} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 
@@ -153,6 +153,7 @@ const Node = (props: Props) => {
                         <NodeTitleSection
                             nodeTitle={node.name}
                             nodeDescription={node.description}
+                            nodeFinished={node.status === NodeStatusFinished}
                             loading={loading}
                             onMarlAsKnown={markAsKnown}
                         />
