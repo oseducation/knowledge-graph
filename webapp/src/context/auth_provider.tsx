@@ -45,6 +45,9 @@ export const AuthProvider = (props: Props) => {
                 }
                 setPreferences(prefs);
             });
+        }).catch((err) => {
+            console.log('error while getting me', err);
+            setUser(null);
         });
     }
 

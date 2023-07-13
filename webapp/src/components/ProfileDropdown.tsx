@@ -5,9 +5,9 @@ import ProgressIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
-import {Dialog, ListItemIcon, MenuItem, Stack} from "@mui/material";
+import {Dialog, ListItemIcon, MenuItem, Stack, useMediaQuery} from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
-
+import {useTheme} from '@mui/material/styles';
 
 import {useNavigate} from "react-router-dom";
 
@@ -28,14 +28,12 @@ const profileDestinations = [
 
 const ProfileDropdown = () => {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-
     const open = Boolean(anchorElUser)
-
     const {user, setUser} = useAuth()
-
     const navigate = useNavigate();
-
     const [openPreferences, setOpenPreferences] = React.useState(false);
+    const theme = useTheme();
+    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -89,7 +87,7 @@ const ProfileDropdown = () => {
                     textTransform: "none",
                 }}
             >
-                {user?.username}
+                {!isPhone && user?.username}
             </Button>
             <Menu
                 sx={{mt: '45px'}}

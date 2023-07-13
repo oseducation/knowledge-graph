@@ -10,6 +10,8 @@ import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
 import RHS from './rhs/rhs';
 import NodeDropDownMenu from './node_drop_down';
+import {Box, Drawer} from '@mui/material';
+import useDrawer from '../hooks/useDrawer';
 
 type GraphNodeHoverContextType = {
     node: Node;
@@ -39,10 +41,15 @@ const Main = () => {
     const [node, setNode] = useState<Node>({} as Node);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
     const [reload, setReload] = useState<boolean>(false);
-    const {user} = useAuth()
+    const {user} = useAuth();
+    const {open, setOpen} = useDrawer();
 
     const handleReload = () => {
         setReload(prev => !prev);
+    };
+
+    const handleDrawerToggle = () => {
+        setOpen?.(!open);
     };
 
     const computeGroups = (graph: Graph) => {
@@ -134,8 +141,29 @@ const Main = () => {
 
     return (
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
-            <Grid2 container>
-                <Grid2 xs={3} sx={{maxWidth: '240px'}}>
+            {user && <Box
+                component="nav"
+                sx={{ width: {sm: 240}, flexShrink: {sm: 0}}}
+                aria-label="drawer"
+            >
+                <Drawer
+                    variant="temporary"
+                    open={open}
+                    onClose={handleDrawerToggle}
+                    ModalProps={{
+                        keepMounted: true, // Better open performance on mobile.
+                    }}
+                    sx={{
+                        display: { xs: 'block', sm: 'none' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+                    }}
+                >
+                    <LHSNavigation groups={groups}/>
+                </Drawer>
+            </Box>}
+
+            <Grid2 container disableEqualOverflow>
+                <Grid2 xs={3} sx={{maxWidth: '240px', display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}}}>
                     <LHSNavigation groups={groups}/>
                 </Grid2>
                 <Grid2 xs={true}>
@@ -144,7 +172,7 @@ const Main = () => {
                         focusNodeID={focusedNodeID}
                     />
                 </Grid2>
-                <Grid2 xs={4} sx={{maxWidth: '400px'}}>
+                <Grid2 xs={3} sx={{maxWidth: '400px', display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}}}>
                     <RHS
                         userID={user?.id || ''}
                         onReload={handleReload}

@@ -9,26 +9,31 @@ import FooterContainer from "./Footer";
 import App from "./App";
 import {AppTheme} from "./ThemeOptions";
 import Header from "./components/header";
+import {DrawerProvider} from './context/drawer_provider';
 
 const theme = createTheme(AppTheme);
 
 export default function AppLayout() {
-    return (<ThemeProvider theme={theme}>
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                minHeight: '100vh',
-                maxWidth: 'false'
-            }}
-        >
-            <Header/>
-            <CssBaseline/>
-            <Container component="main" maxWidth={false} disableGutters>
-                <App/>
-            </Container>
-            <FooterContainer/>
-        </Box>
-    </ThemeProvider>);
+    return (
+        <ThemeProvider theme={theme}>
+            <DrawerProvider>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: '100vh',
+                        maxWidth: 'false'
+                    }}
+                >
+                    <Header/>
+                    <CssBaseline/>
+                    <Container component="main" maxWidth={false} disableGutters>
+                        <App/>
+                    </Container>
+                    <FooterContainer/>
+                </Box>
+            </DrawerProvider>
+        </ThemeProvider>
+    );
 }
 
