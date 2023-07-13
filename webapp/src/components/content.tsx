@@ -1,129 +1,156 @@
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Button, Stack, Typography, Box, Grid, Avatar} from '@mui/material';
-import {Container} from '@mui/system';
+import {Button, Stack, Typography, Box, Avatar} from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
+
 
 
 const Content = () => {
     const navigate = useNavigate();
 
     return (
-        <Stack direction={'column'}>
-            <Box
+        <Grid2 container spacing={2} disableEqualOverflow m={0}>
+            <Grid2 container
+                m={0}
+                xs={12}
                 id='hero-section'
-                alignItems={'center'}
-                display={'flex'}
-                height={300}
+                height={400}
                 bgcolor={'primary.dark'}
             >
-                <Container>
-                    <Stack direction={'row'}>
-                        <Stack p={'0 100px'}>
-                            <Typography
-                                fontSize={32}
-                                fontWeight={'bold'}
-                                color={'white'}
-                                p={'30px 0'}
-                                whiteSpace={'nowrap'}
-                            >
-                                Lifelong Learning Without Courses
-                            </Typography>
-                            <Typography
-                                fontSize={26}
-                                fontWeight={'bold'}
-                                color={'white'}
-                            >
-                                First the Seeds, Then the Forest - Learning Made Easy
-                            </Typography>
-                        </Stack>
-                        <Box display={'flex'} alignItems={'center'} whiteSpace={'nowrap'}>
-                            <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>Sign Up For Free</Button>
-                        </Box>
-                        <Box
-                            component="img"
-                            sx={{
-                                height: 200,
-                            }}
-                            alt="screenshot"
-                            src="android-chrome-512x512.png"
-                            m={'40px'}
-                        />
+                <Grid2
+                    xs={12} sm={9} md={6}
+                    display={'flex'}
+                    alignItems={'center'}
+                >
+                    <Stack>
+                        <Typography
+                            fontSize={32}
+                            fontWeight={'bold'}
+                            color={'white'}
+                            p={'30px 0'}
+                        >
+                            Lifelong Learning Without Courses
+                        </Typography>
+                        <Typography
+                            fontSize={26}
+                            fontWeight={'bold'}
+                            color={'white'}
+                        >
+                            First the Seeds, Then the Forest - Learning Made Easy
+                        </Typography>
                     </Stack>
-                </Container>
-            </Box>
-            <Box
+                </Grid2>
+                <Grid2
+                    xs={12} sm={3} md={3}
+                    display={'flex'}
+                    alignItems={'center'}>
+                    <Box mr={1}>
+                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>Sign Up For Free</Button>
+                    </Box>
+                </Grid2>
+                <Grid2
+                    xs={0} sm={0} md={3}
+                    display={'flex'}
+                    alignItems={'center'}
+                >
+                    <Box
+                        component="img"
+                        sx={{
+                            height: 150,
+                            display: {xs: 'none', sm: 'none', md: 'block'},
+                        }}
+                        alt="logo"
+                        src="android-chrome-512x512.png"
+                        m={'40px'}
+                    />
+                </Grid2>
+            </Grid2>
+            <Grid2 container
+                m={0}
+                p={1}
+                xs={12}
                 id='feature-section'
-                alignItems={'center'}
                 display={'flex'}
-                // height={600}
+                alignItems={'center'}
                 bgcolor={'white'}
             >
-                <Container>
+                <Grid2 xs={12} sm={9} md={6}>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
                         The World&apos;s Knowledge at Your Fingertips
                     </Typography>
-                    <p>
+                    <Typography paragraph>
                         Every piece of knowledge in the world can be depicted through a prerequisite graph, where understanding all the prerequisites paves the way for learning novel concepts. We are building such a graph.
-                    </p>
+                    </Typography>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
                         Built for Lifelong Learning
                     </Typography>
-                    <p>
+                    <Typography paragraph>
                         No matter where you are in your learning journey, our platform adapts to you. From coding to cooking, explore interconnected concepts and skills at your own pace.
-                    </p>
+                    </Typography>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
                         Personalized Pathways
                     </Typography>
-                    <p>
+                    <Typography paragraph>
                         Our algorithm suggests the next concepts to learn based on your past mastery and your future goals. Gain the confidence of knowing you’re on the right path.
-                    </p>
+                    </Typography>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
                         Community Contributions
                     </Typography>
-                    <p>
+                    <Typography paragraph>
                         Learning is better together. Help the community by sharing resources, or take advantage of others&apos; expertise to enrich your understanding.
-                    </p>
-                </Container>
-                <Box
-                    component="img"
-                    sx={{
-                        height: 400,
-                    }}
-                    alt="vitsi.ai"
-                    src="screen.png"
-                    m={'40px'}
-                />
-            </Box>
-            <Box
-                id='testimonials-section'
-                alignItems={'center'}
-                display={'flex'}
-                flexDirection={'column'}
-                height={600}
+                    </Typography>
+                </Grid2>
+                <Grid2 xs={12} sm={3} md={6}
+                    display={'flex'}
+                    alignItems={'center'}
+                    p={1}
+                >
+
+                    <Box
+                        component="img"
+                        sx={{width: '100%'}}
+                        alt="vitsi.ai"
+                        src="screen.png"
+                    />
+                </Grid2>
+            </Grid2>
+            <Grid2 container
+                m={0}
+                p={1}
+                xs={12}
+                id='testimoenials-sction'
                 bgcolor={'primary.light'}
             >
-                <Typography
-                    fontSize={26}
-                    fontWeight={'bold'}
-                    m={'20px'}
+                <Grid2
+                    m={0} p={1} xs={12}
+                    display="flex"
+                    alignItems="center"
+                    flexDirection={'column'}
                 >
-                    From Vitsi Community
-                </Typography>
-                <Grid container spacing={2}>
+                    <Typography
+                        fontSize={26}
+                        fontWeight={'bold'}
+                        m={'20px'}
+                    >
+                        From Vitsi Community
+                    </Typography>
+                </Grid2>
+
+                <Grid2 m={0} p={0} container spacing={2}>
                     {testimonials.map((testimonial, index) => (
-                        <Grid item xs={'auto'} sm={6} md={4} key={index}>
+                        <Grid2 m={0} p={1} xs={12} sm={6} md={4} key={index} width={'100%'}>
                             <Box
                                 bgcolor="white"
                                 boxShadow={2}
@@ -132,6 +159,7 @@ const Content = () => {
                                 flexDirection="column"
                                 alignItems="center"
                                 minHeight={200}
+                                width={'100%'}
                                 m={'8px'}
                             >
                                 <Avatar alt={testimonial.name} src={testimonial.image} sx={{width: 80, height: 80}} />
@@ -140,38 +168,51 @@ const Content = () => {
                                 </Typography>
                                 <Typography align="center">{testimonial.message}</Typography>
                             </Box>
-                        </Grid>
+                        </Grid2>
                     ))}
-                </Grid>
-            </Box>
-            <Box
+                </Grid2>
+            </Grid2>
+            <Grid2 container
+                m={0}
+                p={1}
+                xs={12}
                 id='action-section'
-                alignItems={'center'}
-                display={'flex'}
                 height={300}
-                bgcolor={'white'}
+                bgcolor={'primary.dark'}
             >
-                <Container>
-                    <Stack direction={'row'}>
-                        <Stack p={'0 100px'}>
-                            <Typography
-                                fontSize={32}
-                                fontWeight={'bold'}
-                                p={'30px 0'}
-                            >
-                                Ready to Unlock Your Learning Potential?
-                            </Typography>
-                            <Typography fontSize={20}>
-                                Join us at Vitsi.ai and transform the way you learn.
-                            </Typography>
-                        </Stack>
-                        <Box display={'flex'} alignItems={'center'} whiteSpace={'nowrap'}>
-                            <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>Sign Up For Free</Button>
-                        </Box>
+                <Grid2
+                    xs={12} sm={9} md={6}
+                    m={0}
+                    p={1}
+                    display={'flex'}
+                    alignItems={'center'}
+                >
+                    <Stack>
+                        <Typography
+                            fontSize={32}
+                            fontWeight={'bold'}
+                            color={'white'}
+                        >
+                            Ready to Unlock Your Learning Potential?
+                        </Typography>
+                        <Typography
+                            fontSize={20}
+                            color={'white'}
+                        >
+                            Join us at Vitsi.ai and transform the way you learn.
+                        </Typography>
                     </Stack>
-                </Container>
-            </Box>
-        </Stack>
+                </Grid2>
+                <Grid2
+                    xs={12} sm={3} md={3}
+                    display={'flex'}
+                    alignItems={'center'}>
+                    <Box mr={1}>
+                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>Sign Up For Free</Button>
+                    </Box>
+                </Grid2>
+            </Grid2>
+        </Grid2>
     );
 };
 

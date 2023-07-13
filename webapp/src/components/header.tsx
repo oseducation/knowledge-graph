@@ -1,13 +1,7 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
 import {useNavigate} from "react-router-dom";
-
-import {Stack, styled} from "@mui/material";
+import {AppBar, Box, Toolbar, Typography, Container, Button, Stack, styled, useMediaQuery} from "@mui/material";
+import {useTheme} from '@mui/material/styles';
 
 import useAuth from "../hooks/useAuth";
 
@@ -17,6 +11,9 @@ import ProfileDropdown from "./ProfileDropdown";
 function Header() {
     const navigate = useNavigate();
     const {user} = useAuth()
+    const theme = useTheme();
+    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+
 
     function getTitle() {
         return <Typography
@@ -45,7 +42,8 @@ function Header() {
                 height: 54,
             }}
             alt="vitsi.ai"
-            src="logo.png"
+            src="/logo.png"
+            mr="4px"
         />;
     }
 
@@ -68,10 +66,10 @@ function Header() {
             color='inherit'
             variant='outlined'
             onClick={() => navigate('/login')}
-            id="composition-button"
+            id="login-button"
             sx={{
-                minWidth: "max-content",
-                px: 4,
+                minWidth: {xs: 'min-content', sm: 'max-content'},
+                whiteSpace: 'nowrap'
             }}
         >
             Sign in
@@ -93,11 +91,11 @@ function Header() {
                                 onClick={() => navigate('/register')}
                                 sx={{
                                     m: 2,
-                                    minWidth: "max-content",
+                                    minWidth: {xs: 'min-content', sm: 'max-content'},
+                                    whiteSpace: 'nowrap'
                                 }}>
                                 Sign Up
-                                For
-                                Free
+                                {isPhone? "" : " For Free"}
                             </Button>
                         </>
                         :
@@ -107,8 +105,9 @@ function Header() {
                                 style={{margin: '10px'}}
                                 onClick={() => navigate('/carousel')}
                                 sx={{
-                                    minWidth: "max-content",
-                                    color: 'white'
+                                    minWidth: {xs: 'min-content', sm: 'max-content'},
+                                    color: 'white',
+                                    whiteSpace: 'nowrap'
                                 }}
                             >
                                 Carousel Mode
