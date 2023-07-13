@@ -8,7 +8,7 @@ import AppLayout from "./AppLayout";
 const container = document.getElementById('root');
 const root = createRoot(container!);
 
-let element = (
+const element = (
     <React.StrictMode>
         <AuthProvider>
             <BrowserRouter>
