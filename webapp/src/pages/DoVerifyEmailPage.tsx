@@ -1,78 +1,76 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {Box, Button, Typography} from '@mui/material';
+import {CheckCircle, Error,} from '@mui/icons-material';
 
 import {Client} from '../client/client';
 
-const VerifyEmailPage: React.FC = () => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [isVerified, setIsVerified] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+enum VerifyEmailStatus {
+    PENDING,
+    SUCCESS,
+    ERROR
+}
+
+const VerifyEmailPage = () => {
+    const [isVerified, setIsVerified] = useState(VerifyEmailStatus.PENDING);
     const location = useLocation();
     const navigate = useNavigate();
 
+    const token = new URLSearchParams(location.search).get('token');
+
+    async function verifyEmail() {
+        return Client.User().verifyEmail(token != null ? token : '');
+    }
+
     useEffect(() => {
-        const token = new URLSearchParams(location.search).get('token');
-        if (token) {
-            Client.User().verifyEmail(token)
-                .then(() => {
-                    setIsVerified(true);
-                    setIsLoading(false);
-                })
-                .catch(error => {
-                    setIsVerified(false);
-                    setIsLoading(false);
-                    setErrorMessage(error.response ? error.response.data.message : error.message);
-                });
-        } else {
-            setIsLoading(false);
-            setErrorMessage('No verification token provided');
+        let ignore = false;
+        verifyEmail()
+            .then(() => {
+                if (!ignore) {
+                    setIsVerified(VerifyEmailStatus.SUCCESS);
+                }
+            })
+            .catch(() => {
+                if (!ignore) {
+                    setIsVerified(VerifyEmailStatus.ERROR);
+                }
+            });
+
+        return () => {
+            ignore = true;
         }
-    }, [location]);
+    }, [token]);
 
     const handleButtonClick = () => {
         navigate('/login');
-    }
+    };
 
-    if (isLoading) {
-        return (
-            <Typography variant="h6" sx={{color: 'blue', textAlign: 'center', mt: 4}}>
-                Verifying...
-            </Typography>
-        );
-    }
-
-    if (isVerified) {
-        return (
-            <Box
-                display="flex"
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="center"
-                sx={{height: '100%'}}>
-                <Typography variant="h6" sx={{color: 'green', textAlign: 'center'}}>
-                    Email verification was successful!
-                </Typography>
-                <Button
-                    variant="contained"
-                    onClick={handleButtonClick}
-                    sx={{
-                        mt: 2,
-                        p: 1,
-                        borderRadius: 1,
-                        fontSize: '18px'
-                    }}
-                >
-                    Go to Login
-                </Button>
-            </Box>
-        );
+    let message = 'Email verification was successful!';
+    let color = 'green';
+    if (isVerified === VerifyEmailStatus.ERROR) {
+        message = 'Verification Failed: We were unable to verify your email address using the link provided. This could be due to an incorrect or expired URL.'
+        color = 'red';
     }
 
     return (
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" sx={{height: '100vh'}}>
-            <Typography variant="h6" sx={{color: 'red', textAlign: 'center'}}>
-                Email verification failed: {errorMessage}
+        <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            sx={{
+                p: 4,
+                height: '100%'
+            }}>
+            {isVerified === VerifyEmailStatus.ERROR &&
+                <Error color={"error"} sx={{fontSize: 80}}/>
+            }
+            {isVerified !== VerifyEmailStatus.SUCCESS &&
+                <CheckCircle color={"success"} sx={{fontSize: 80}}/>
+            }
+
+            <Typography variant="h6" sx={{color: {color}, textAlign: 'center'}}>
+                {message}
             </Typography>
             <Button
                 variant="contained"
@@ -80,7 +78,10 @@ const VerifyEmailPage: React.FC = () => {
                 sx={{
                     mt: 2,
                     p: 1,
-                    fontSize: '18px'
+                    borderRadius: 1,
+                    fontSize: '18px',
+                    marginLeft: 'auto',
+                    marginRight: 'auto'
                 }}
             >
                 Go to Login
