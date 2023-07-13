@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Stack, Typography, useTheme} from '@mui/material';
+import {Box, Divider, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
-import {NodeWithResources, Video, getVideoLength} from '../types/graph';
+import {getVideoLength, NodeWithResources, Video} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 
@@ -12,6 +12,7 @@ import useAuth from '../hooks/useAuth';
 import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
 import VideoInput from './video_input';
+import NodeTitleSection from "./node_title_section";
 
 interface Props {
     nodeID: string;
@@ -20,22 +21,32 @@ interface Props {
 const Node = (props: Props) => {
     const [node, setNode] = useState<NodeWithResources>({} as NodeWithResources);
     const [activeVideo, setActiveVideo] = useState<Video | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
     const theme = useTheme();
     const {user} = useAuth()
 
+    function loadNode() {
+        setLoading(true)
+        Client.Node().get(props.nodeID).then((data) => {
+            setNode(data);
+            setLoading(false)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        }).catch(_ => {
+            setLoading(false)
+        });
+    }
+
     useEffect(() => {
         if (!activeVideo) {
-            Client.Node().get(props.nodeID).then((data) => {
-                setNode(data);
-            });
+            loadNode();
         }
-    },[props.nodeID]);
+    }, [props.nodeID]);
 
     const computeGroups = (node: NodeWithResources) => {
-        const videoItems = node.videos? node.videos.map(video => {
+        const videoItems = node.videos ? node.videos.map(video => {
             return {
                 areaLabel: video.name,
-                display_name: video.name + " (" + getVideoLength(video.length)+ " min)",
+                display_name: video.name + " (" + getVideoLength(video.length) + " min)",
                 secondary: "by " + video.author_username,
                 id: video.id,
                 link: node.id,
@@ -44,7 +55,7 @@ const Node = (props: Props) => {
                     setActiveVideo(video);
                 }
             } as GroupItem;
-        }): [];
+        }) : [];
 
         const videosGroup = {
             collapsed: false,
@@ -107,13 +118,21 @@ const Node = (props: Props) => {
         }
     }
 
+    const markAsKnown = () => {
+        if (user && user.id) {
+            Client.Node().markAsKnown(node.id, user.id).then(() => {
+                loadNode();
+            });
+        }
+    }
+
     return (
         <Grid2 container height={'100vh'}>
             <Grid2 xs={3} sx={{maxWidth: '240px'}} height={'100%'}>
                 <LHSNavigation groups={groups} header={header}/>
             </Grid2>
             <Grid2 xs={true}>
-                {activeVideo?
+                {activeVideo ?
                     <VideoPlayer
                         videoKey={activeVideo.key}
                         width={'100%'}
@@ -123,26 +142,43 @@ const Node = (props: Props) => {
                         onVideoEnded={onVideoEnded}
                     />
                     :
-                    <Stack>
-                        <p>{node.description}</p>
-                        <div>
-                            {node.videos && node.videos.map((video) => (
-                                <div key={video.key}>
-                                    <VideoPlayer
-                                        videoKey={video.key}
-                                        key={video.key}
-                                        width={'560'}
-                                        height={'315'}
-                                        autoplay={false}
-                                        onVideoStarted={onVideoStarted}
-                                        onVideoEnded={onVideoEnded}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </Stack>
+                    <Box
+                        display={"flex"}
+                        flexDirection={"column"}
+                        sx={{
+                            width: '100%',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <NodeTitleSection
+                            nodeTitle={node.name}
+                            nodeDescription={node.description}
+                            loading={loading}
+                            onMarlAsKnown={markAsKnown}
+                        />
+                        {node.videos && node.videos.map((video) => (
+                            <Box
+                                key={video.key}
+                                sx={{
+                                    mb: 8
+                                }}
+                            >
+                                <VideoPlayer
+                                    videoKey={video.key}
+                                    key={video.key}
+                                    width={'560'}
+                                    height={'315'}
+                                    autoplay={false}
+                                    onVideoStarted={onVideoStarted}
+                                    onVideoEnded={onVideoEnded}
+                                />
+                                <Divider variant={"fullWidth"}/>
+                            </Box>
+                        ))}
+                        <VideoInput nodeID={props.nodeID}/>
+                    </Box>
                 }
-                <VideoInput nodeID={props.nodeID}/>
+
             </Grid2>
             <Grid2 xs={4} sx={{maxWidth: '400px'}} bgcolor={'gray'} textAlign={'center'}>
                 Chat coming soon
