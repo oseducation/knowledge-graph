@@ -2,3 +2,7 @@
   white-space: nowrap;
   text-align: center;
 }
+
+body {
+  overscroll-behavior-y: none;
+}

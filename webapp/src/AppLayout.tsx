@@ -21,8 +21,6 @@ export default function AppLayout() {
                 flexDirection: 'column',
                 minHeight: '100vh',
                 maxWidth: 'false',
-                overflow: 'auto',
-                overscrollBehavior: 'none'
             }}
         >
             <Header/>
