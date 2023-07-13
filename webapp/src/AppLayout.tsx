@@ -19,7 +19,8 @@ export default function AppLayout() {
             <DrawerProvider>
                 <Box
                     sx={{
-                        direction: 'column', display: 'flex',
+                        direction: 'column',
+                        display: 'flex',
                         flexDirection: 'column',
                         minHeight: '100vh',
                         maxWidth: 'false',

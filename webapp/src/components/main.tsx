@@ -150,8 +150,6 @@ const Main = () => {
             {user && <Box
                 component="nav"
                 sx={{
-                    height: 'calc(100vh - 64px)',
-                    overflowY: 'auto',
                     width: {sm: 240},
                     flexShrink: {sm: 0}
                 }}
@@ -165,6 +163,8 @@ const Main = () => {
                         keepMounted: true, // Better open performance on mobile.
                     }}
                     sx={{
+                        height: 'calc(100vh - 64px)',
+                        overflowY: 'auto',
                         display: {xs: 'block', sm: 'none'},
                         '& .MuiDrawer-paper': {boxSizing: 'border-box', width: 240},
                     }}
