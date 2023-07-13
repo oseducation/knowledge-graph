@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import {Box, Button, List, Typography, ButtonProps} from '@mui/material';
+import {Box, Button, ButtonProps, Divider, List, Typography} from '@mui/material';
 import {styled} from '@mui/material/styles';
 
-import {SidebarGroup, InProgressNodesCategoryName, NextNodesCategoryName} from '../../types/sidebar';
+import {InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../../types/sidebar';
 import {Client} from '../../client/client';
 
 import Item from './item';
@@ -19,12 +19,11 @@ const Group = (props: GroupProps) => {
 
     return (
         <Box
-            boxSizing={'border-box'}
             color={'primary.contrastText'}
         >
             <HeaderButton
                 variant='text'
-                startIcon={collapsed? <ChevronRightIcon/> :<ExpandMoreIcon/>}
+                startIcon={collapsed ? <ChevronRightIcon/> : <ExpandMoreIcon/>}
                 aria-label={props.group.display_name}
                 onClick={() => {
                     // Currently InProgressNodes category and NextNodes category are automatically generated and
@@ -46,10 +45,13 @@ const Group = (props: GroupProps) => {
             {!collapsed &&
                 <List dense={true}>
                     {props.group.items.map((item) => (
-                        <Item
-                            key={item.id || item.display_name}
-                            item={item}
-                        />
+                        <>
+                            <Item
+                                key={item.id || item.display_name}
+                                item={item}
+                            />
+                            <Divider/>
+                        </>
                     ))}
                 </List>
             }

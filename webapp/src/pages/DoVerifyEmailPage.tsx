@@ -49,7 +49,7 @@ const VerifyEmailPage: React.FC = () => {
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{height: '100vh'}}>
+                sx={{height: '100%'}}>
                 <Typography variant="h6" sx={{color: 'green', textAlign: 'center'}}>
                     Email verification was successful!
                 </Typography>

@@ -15,7 +15,10 @@ type GraphNodeHoverContextType = {
     node: Node;
     setNode: React.Dispatch<React.SetStateAction<Node>>;
 }
-export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextType>({node: {} as Node, setNode: ()=>{}});
+export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextType>({
+    node: {} as Node, setNode: () => {
+    }
+});
 
 const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup[]) => {
     type GraphDataType = {
@@ -30,7 +33,7 @@ const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup
             setGraphData({graph: data, groups: computeGroups(data)})
         });
 
-    },[reload]);
+    }, [reload]);
 
     return graphData;
 }
@@ -47,7 +50,9 @@ const Main = () => {
 
     const computeGroups = (graph: Graph) => {
         const nodesMap = new Map<string, Node>();
-        graph.nodes.forEach((node) => {nodesMap.set(node.id, node)})
+        graph.nodes.forEach((node) => {
+            nodesMap.set(node.id, node)
+        })
 
         const prereqMap = new Map<string, Node>();
         for (let i = 0; i < graph.links.length; i++) {
@@ -135,16 +140,35 @@ const Main = () => {
     return (
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
             <Grid2 container>
-                <Grid2 xs={3} sx={{maxWidth: '240px'}}>
+                <Grid2
+                    sx={{
+                        maxWidth: '240px',
+                        height: 'calc(100vh - 64px)',
+                        overflowY: 'auto',
+                    }}
+                    xs={3}
+                >
                     <LHSNavigation groups={groups}/>
                 </Grid2>
-                <Grid2 xs={true}>
+                <Grid2
+                    sx={{
+                        height: 'calc(100vh - 64px)',
+                        overflowY: 'auto',
+                    }}
+                    xs={true}>
                     <GraphComponent
                         graph={graph}
                         focusNodeID={focusedNodeID}
                     />
                 </Grid2>
-                <Grid2 xs={4} sx={{maxWidth: '400px'}}>
+                <Grid2
+                    sx={{
+                        maxWidth: '400px',
+                        height: 'calc(100vh - 64px)',
+                        overflowY: 'auto',
+                    }}
+                    xs={4}
+                >
                     <RHS
                         userID={user?.id || ''}
                         onReload={handleReload}
