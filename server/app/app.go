@@ -57,7 +57,7 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 
 // GetSiteURL returns site url from config
 func (a *App) GetSiteURL() string {
-	return "http://localhost:9081"
+	return a.Config.ServerSettings.SiteURL
 }
 
 // ImportGraph reads graph.json, nodes.json and texts.md files, parses them and imports in the db
