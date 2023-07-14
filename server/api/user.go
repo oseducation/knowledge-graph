@@ -116,7 +116,7 @@ func login(c *gin.Context) {
 		a.Config.ServerSettings.SessionLengthInMinutes*60*1000,
 		"/",
 		a.Config.ServerSettings.CookieDomain,
-		true,
+		a.Config.ServerSettings.HTTPS,
 		true,
 	)
 	responseFormat(c, http.StatusOK, user)
