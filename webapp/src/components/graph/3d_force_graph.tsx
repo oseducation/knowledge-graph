@@ -32,7 +32,10 @@ const D3ForceGraph = (props: Props) => {
     };
 
     useEffect(() => {
-        fgRef.current!.d3Force('collide', forceCollide(50))
+        if (props.dimension3) {
+            return
+        }
+        fgRef.current!.d3Force('collide', forceCollide(50));
         if (props.focusNodeID) {
             let focusNode = null;
             for (let i = 0; i < props.graph.nodes.length; i++) {
@@ -87,7 +90,7 @@ const D3ForceGraph = (props: Props) => {
             width={props.width}
             height={props.height}
             // linkDirectionalParticles={1}
-            linkDirectionalParticleWidth={4}
+            // linkDirectionalParticleWidth={4}
             linkWidth={2}
             onNodeClick={onNodeClick}
             dagMode={preferences?.graph_direction || "lr"}
@@ -118,12 +121,15 @@ const D3ForceGraph = (props: Props) => {
             dagLevelDistance={50}
             d3VelocityDecay={0.3}
             linkDirectionalArrowLength={6}
-            linkDirectionalArrowRelPos={1}
+            linkDirectionalArrowRelPos={0.5}
             onNodeHover={(node: Node | null) => {
                 if (node) {
                     setNode(node)
                 }
             }}
+            cooldownTicks={100}
+            warmupTicks={200}
+            onEngineStop={() => fgRef.current!.zoomToFit(1000)}
         />
     )
 

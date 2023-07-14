@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Box} from '@mui/material';
 
 import {Graph} from '../../types/graph';
@@ -11,25 +11,23 @@ interface GraphComponentProps {
     focusNodeID?: string;
 }
 
-
 const GraphComponent = (props: GraphComponentProps) => {
     const myRef = useRef<HTMLDivElement>(null);
     const {windowHeight} = useWindowDimensions();
+    const [width, setWidth] = useState(0);
 
-    if (!props.graph || !props.graph.nodes){
-        return (
-            <div>
-                Graph
-            </div>
-        )
-    }
+    useEffect(() => {
+        if (myRef.current) {
+            setWidth(myRef.current.offsetWidth)
+        }
+    }, []);
 
     return (
         <Box ref={myRef}>
             <ForceGraph
                 graph={props.graph}
-                width={myRef.current?.offsetWidth || 0}
-                height={windowHeight}
+                width={width}
+                height={windowHeight-64}
                 dimension3={false}
                 focusNodeID={props.focusNodeID}
             />
