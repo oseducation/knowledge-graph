@@ -44,15 +44,12 @@ const Group = (props: GroupProps) => {
             </HeaderButton>
             {!collapsed &&
                 <List dense={true}>
-                    {props.group.items.map((item) => (
-                        <>
-                            <Item
-                                key={item.id || item.display_name}
-                                item={item}
-                            />
+                    {props.group.items.map((item) =>
+                        <div key={item.id || item.display_name}>
+                            <Item item={item}/>
                             <Divider/>
-                        </>
-                    ))}
+                        </div>
+                    )}
                 </List>
             }
         </Box>
