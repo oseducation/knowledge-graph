@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import {Box, Drawer} from '@mui/material';
+import {Box, Drawer, useTheme} from '@mui/material';
 
 import {Client} from '../client/client';
 import useAuth from '../hooks/useAuth';
@@ -47,6 +47,10 @@ const Main = () => {
     const [reload, setReload] = useState<boolean>(false);
     const {user} = useAuth();
     const {open, setOpen} = useDrawer();
+
+    const {
+        mixins: {toolbar},
+    } = useTheme();
 
     const handleReload = () => {
         setReload(prev => !prev);
@@ -145,6 +149,8 @@ const Main = () => {
 
     const {graph, groups} = useGraph(reload, computeGroups);
 
+    // https://github.com/mui/material-ui/issues/10739#issuecomment-1365008174
+    const staticHeight = `calc(100vh - (${toolbar?.minHeight}px + ${8}px))`;
     return (
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
             {user && <Box
@@ -163,7 +169,7 @@ const Main = () => {
                         keepMounted: true, // Better open performance on mobile.
                     }}
                     sx={{
-                        height: 'calc(100vh - 64px)',
+                        height: staticHeight,
                         overflowY: 'auto',
                         display: {xs: 'block', sm: 'none'},
                         '& .MuiDrawer-paper': {boxSizing: 'border-box', width: 240},
@@ -175,7 +181,7 @@ const Main = () => {
 
             <Grid2 container disableEqualOverflow>
                 <Grid2 xs={3} sx={{
-                    height: 'calc(100vh - 64px)',
+                    height: staticHeight,
                     overflowY: 'auto',
                     maxWidth: '240px',
                     display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}
@@ -183,7 +189,7 @@ const Main = () => {
                     <LHSNavigation groups={groups}/>
                 </Grid2>
                 <Grid2 xs={true} sx={{
-                    height: 'calc(100vh - 64px)',
+                    height: staticHeight,
                     overflowY: 'auto',
                 }}>
                     <GraphComponent
@@ -192,7 +198,7 @@ const Main = () => {
                     />
                 </Grid2>
                 <Grid2 xs={3} sx={{
-                    height: 'calc(100vh - 64px)',
+                    height: staticHeight,
                     overflowY: 'auto',
                     maxWidth: '400px',
                     display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
