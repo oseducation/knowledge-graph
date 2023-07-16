@@ -26,12 +26,10 @@ const Node = (props: Props) => {
     const {user} = useAuth()
 
     function loadNode() {
-        setLoading(true)
         Client.Node().get(props.nodeID).then((data) => {
             setNode(data);
             setLoading(false)
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        }).catch(_ => {
+        }).catch(() => {
             setLoading(false)
         });
     }
@@ -120,9 +118,14 @@ const Node = (props: Props) => {
 
     const markAsKnown = () => {
         if (user && user.id) {
-            Client.Node().markAsKnown(node.id, user.id).then(() => {
-                loadNode();
-            });
+            setLoading(true)
+            Client.Node().markAsKnown(node.id, user.id)
+                .then(() => {
+                    loadNode();
+                })
+                .catch(() => {
+                    setLoading(false)
+                })
         }
     }
 
