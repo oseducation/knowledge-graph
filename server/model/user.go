@@ -17,6 +17,7 @@ const (
 	UserNameMaxLength     = 64
 	UserNameMinLength     = 1
 	UserPasswordMaxLength = 72
+	PasswordMinLength     = 6
 	UserFirstNameMaxRunes = 64
 	UserLastNameMaxRunes  = 64
 )
@@ -127,6 +128,10 @@ func (u *User) IsValid() error {
 
 	if len(u.Password) > UserPasswordMaxLength {
 		return invalidUserError(u.ID, "password_limit", "")
+	}
+
+	if len(u.Password) < PasswordMinLength {
+		return invalidUserError(u.ID, "password", "")
 	}
 
 	return nil

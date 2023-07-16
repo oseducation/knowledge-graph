@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/log"
@@ -29,7 +30,7 @@ func (apiObj *API) initUser() {
 
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
-	apiObj.Users.POST("/email/verify/send", sendVerificationEmail)
+	apiObj.Users.POST("/email/verify/send", authMiddleware(), sendVerificationEmail)
 
 	apiObj.Users.GET("/", authMiddleware(), requireUserPermissions(), getUsers)
 	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
@@ -72,7 +73,11 @@ func patchCurrentUser(c *gin.Context) {
 	}
 
 	err = a.UpdateUser(updatedUser)
+
 	if err != nil {
+		if strings.Contains(err.Error(), "invalid user") {
+			responseFormat(c, http.StatusBadRequest, err.Error())
+		}
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -231,6 +236,9 @@ func createUser(c *gin.Context) {
 
 	ruser, err := a.CreateUser(user)
 	if err != nil {
+		if strings.Contains(err.Error(), "invalid user") {
+			responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
+		}
 		responseFormat(c, http.StatusInternalServerError, "Error while creating user")
 		return
 	}
@@ -250,6 +258,11 @@ func updateUser(c *gin.Context) {
 	}
 
 	oldUser, err := a.Store.User().Get(updatedUser.ID)
+	if oldUser == nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
+		return
+	}
+
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
