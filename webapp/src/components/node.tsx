@@ -3,7 +3,7 @@ import {Box, Divider, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
-import {getVideoLength, NodeWithResources, Video} from '../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeWithResources, Video} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 
@@ -26,12 +26,10 @@ const Node = (props: Props) => {
     const {user} = useAuth()
 
     function loadNode() {
-        setLoading(true)
         Client.Node().get(props.nodeID).then((data) => {
             setNode(data);
             setLoading(false)
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        }).catch(_ => {
+        }).catch(() => {
             setLoading(false)
         });
     }
@@ -120,9 +118,14 @@ const Node = (props: Props) => {
 
     const markAsKnown = () => {
         if (user && user.id) {
-            Client.Node().markAsKnown(node.id, user.id).then(() => {
-                loadNode();
-            });
+            setLoading(true)
+            Client.Node().markAsKnown(node.id, user.id)
+                .then(() => {
+                    loadNode();
+                })
+                .catch(() => {
+                    setLoading(false)
+                })
         }
     }
 
@@ -153,6 +156,7 @@ const Node = (props: Props) => {
                         <NodeTitleSection
                             nodeTitle={node.name}
                             nodeDescription={node.description}
+                            nodeFinished={node.status === NodeStatusFinished}
                             loading={loading}
                             onMarlAsKnown={markAsKnown}
                         />

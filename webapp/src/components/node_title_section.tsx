@@ -1,12 +1,14 @@
 import {Box, Paper} from "@mui/material";
-import {LoadingButton} from '@mui/lab';
 
 import React from "react";
+
+import IKnowThisButton from "./I_konw_this_button";
 
 
 interface Props {
     nodeTitle: string;
     nodeDescription: string;
+    nodeFinished: boolean;
     loading: boolean;
     onMarlAsKnown: () => void;
 }
@@ -25,17 +27,10 @@ const NodeTitleSection = (props: Props) => {
                     <h1>{props.nodeTitle}</h1>
                     <p>{props.nodeDescription}</p>
                 </Box>
-                <LoadingButton
+                <IKnowThisButton
+                    isNodeFinished={props.nodeFinished}
                     loading={props.loading}
-                    variant="contained"
-                    onClick={props.onMarlAsKnown}
-                    sx={{
-                        alignSelf: "center",
-                        ml: 2,
-                    }}
-                >
-                    I know this
-                </LoadingButton>
+                    onMarkAsKnown={props.onMarlAsKnown}/>
             </Box>
         </Paper>
     );
