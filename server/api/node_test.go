@@ -65,13 +65,13 @@ func TestGetNodes(t *testing.T) {
 	t.Run("can get nodes when nods exist", func(t *testing.T) {
 		node := testNode
 		node.Name = "Node1"
-		_, _, err := th.AdminClient.CreateNode(&node)
+		_, _, _ = th.AdminClient.CreateNode(&node)
 		node.Name = "Node2"
-		_, _, err = th.AdminClient.CreateNode(&node)
+		_, _, err := th.AdminClient.CreateNode(&node)
 		require.NoError(t, err)
 
-		nodes, _, err2 := th.AdminClient.GetNodes(0, 2, "Node1", "", "")
-		require.NoError(t, err2)
+		nodes, _, err := th.AdminClient.GetNodes(0, 2, "Node1", "", "")
+		require.NoError(t, err)
 		require.Truef(t, len(nodes) == 1, "nodes = %v", nodes)
 
 	})
@@ -83,10 +83,10 @@ func TestGetNodesWhenNodesExist(t *testing.T) {
 	node := testNode
 	node.Name = "Node1"
 	node.Description = "Description1"
-	_, _, err := th.AdminClient.CreateNode(&node)
+	_, _, _ = th.AdminClient.CreateNode(&node)
 	node.Name = "Node2"
 	node.Description = "Description2"
-	_, _, err = th.AdminClient.CreateNode(&node)
+	_, _, err := th.AdminClient.CreateNode(&node)
 	require.NoError(t, err)
 
 	t.Run("can get nodes when nods exist", func(t *testing.T) {
@@ -147,7 +147,6 @@ func TestUpdateNodeInvalidJson(t *testing.T) {
 	defer th.TearDown()
 	t.Run("can not update node with invalid json", func(t *testing.T) {
 		node := testNode
-		//node.ID = testNodeId
 		_, resp, err := th.AdminClient.CreateNode(&node)
 		require.Error(t, err)
 		functionaltesting.CheckBadRequestStatus(t, resp)
