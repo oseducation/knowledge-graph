@@ -190,6 +190,12 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		if _, err := sqlDB.db.Exec("DELETE FROM sessions"); err != nil {
 			sqlDB.logger.Fatal("can't delete from sessions", log.Err(err))
 		}
+		if _, err := sqlDB.db.Exec("DELETE FROM nodes"); err != nil {
+			sqlDB.logger.Fatal("can't delete from nodes", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM user_nodes"); err != nil {
+			sqlDB.logger.Fatal("can't delete from nodes", log.Err(err))
+		}
 	}
 }
 
