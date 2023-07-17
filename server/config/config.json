@@ -5,7 +5,8 @@
         "SessionIdleTimeoutInMinutes": 4320,
         "SessionLengthInMinutes": 7200,
         "ExtendSessionLengthWithActivity": true,
-        "CookieDomain": ""
+        "CookieDomain": "",
+        "HTTPS": false
     },
     "DBSettings": {
         "DriverName": "sqlite3",

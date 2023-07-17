@@ -184,12 +184,16 @@ const Main = () => {
                 </Grid2>
                 <Grid2 xs={true} sx={{
                     height: 'calc(100vh - 64px)',
-                    overflowY: 'auto',
+                    overflow: "hidden",
                 }}>
-                    <GraphComponent
-                        graph={graph}
-                        focusNodeID={focusedNodeID}
-                    />
+                    {graph && graph.nodes?
+                        <GraphComponent
+                            graph={graph}
+                            focusNodeID={focusedNodeID}
+                        />
+                        :
+                        <div>Graph</div>
+                    }
                 </Grid2>
                 <Grid2 xs={3} sx={{
                     height: 'calc(100vh - 64px)',

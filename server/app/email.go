@@ -68,7 +68,8 @@ func (a *App) createVerifyEmailToken(userID string, newEmail string) (*model.Tok
 
 	token := model.NewToken(model.TokenTypeVerifyEmail, string(jsonData))
 
-	if err := a.Store.Token().Save(token); err != nil {
+	err = a.Store.Token().Save(token)
+	if err != nil {
 		return nil, err
 	}
 
