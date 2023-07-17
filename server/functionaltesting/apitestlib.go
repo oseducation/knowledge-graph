@@ -70,7 +70,7 @@ func Setup(tb testing.TB) *TestHelper {
 	return th
 }
 
- func SetupWithInvalidJSON(tb testing.TB) *TestHelper {
+func SetupWithInvalidJSON(tb testing.TB) *TestHelper {
 	th := Setup(tb)
 	th.Client.UseInvalidJSON = true
 	th.UserClient.UseInvalidJSON = true
