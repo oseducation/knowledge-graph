@@ -72,9 +72,9 @@ func Setup(tb testing.TB) *TestHelper {
 
 func SetupWithInvalidJson(tb testing.TB) *TestHelper {
 	th := Setup(tb)
-	th.Client.UseInvalidJson = true
-	th.UserClient.UseInvalidJson = true
-	th.AdminClient.UseInvalidJson = true
+	th.Client.UseInvalidJSON = true
+	th.UserClient.UseInvalidJSON = true
+	th.AdminClient.UseInvalidJSON = true
 	return th
 }
 

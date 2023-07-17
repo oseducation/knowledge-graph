@@ -27,7 +27,7 @@ type Client struct {
 	HTTPClient     *http.Client // The http client
 	AuthToken      string
 	HTTPHeader     map[string]string // Headers to be copied over for each request
-	UseInvalidJson bool              // If true, the client will send invalid json to the server
+	UseInvalidJSON bool              // If true, the client will send invalid json to the server
 }
 
 type Response struct {
@@ -69,7 +69,7 @@ func (c *Client) DoAPIRequest(method, url, data, etag string) (*http.Response, e
 
 func (c *Client) DoAPIRequestReader(method, url string, data io.Reader, headers map[string]string) (*http.Response, error) {
 	rq, err := http.NewRequest(method, url, data)
-	if c.UseInvalidJson {
+	if c.UseInvalidJSON {
 		rq, err = http.NewRequest(method, url, strings.NewReader("invalid json"))
 	}
 	if err != nil {
