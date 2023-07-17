@@ -25,7 +25,6 @@ import {Client} from '../../client/client';
 import {User} from '../../types/users';
 import IKnowThisButton from "../I_konw_this_button";
 
-
 const stringToColor = (st: string) => {
     let hash = 0;
     let i;
@@ -69,13 +68,10 @@ const RHS = (props: RHSProps) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(false)
 
-
     useEffect(() => {
-        console.log("re render")
         if (node && node.id) {
             Client.Node().get(node.id).then((data) => {
                 setNodeWithResources(data);
-
             });
         }
     }, [node.id]);
@@ -182,11 +178,12 @@ const RHS = (props: RHSProps) => {
                         </List>
                     </>
                 }
-                <Box bgcolor='background.paper' display='flex' justifyContent='center'>
+                <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
                     <IKnowThisButton
                         isNodeFinished={node.status === NodeStatusFinished}
                         loading={loading}
-                        onMarkAsKnown={markAsKnown}/>
+                        onMarkAsKnown={markAsKnown}
+                    />
                 </Box>
             </Stack>
         </StyledBox>
