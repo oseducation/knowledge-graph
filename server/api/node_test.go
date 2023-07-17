@@ -70,8 +70,8 @@ func TestGetNodes(t *testing.T) {
 		_, _, err = th.AdminClient.CreateNode(&node)
 		require.NoError(t, err)
 
-		nodes, _, err := th.AdminClient.GetNodes(0, 2, "Node1", "", "")
-		require.NoError(t, err)
+		nodes, _, err2 := th.AdminClient.GetNodes(0, 2, "Node1", "", "")
+		require.NoError(t, err2)
 		require.Truef(t, len(nodes) == 1, "nodes = %v", nodes)
 
 	})
