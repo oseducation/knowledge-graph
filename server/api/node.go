@@ -139,16 +139,30 @@ func getNode(c *gin.Context) {
 		return
 	}
 
-	// if we have session extend it
-	if session, err2 := getSession(c); err2 == nil {
-		a.ExtendSessionIfNeeded(session)
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
 	}
+	a.ExtendSessionIfNeeded(session)
 
 	nodes, err := a.GetNode(nodeID)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	statuses, err := a.GetStatusesForUser(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+	}
+	statusMap := map[string]*model.NodeStatusForUser{}
+	for _, status := range statuses {
+		statusMap[status.NodeID] = status
+	}
+	if status, ok := statusMap[nodes.ID]; ok {
+		nodes.Status = status.Status
+	}
+
 	responseFormat(c, http.StatusOK, nodes)
 }
 

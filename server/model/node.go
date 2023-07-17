@@ -35,6 +35,7 @@ type Node struct {
 
 type NodeWithResources struct {
 	Node
+	Status      string   `json:"status" db:"_"`
 	Videos      []*Video `json:"videos" db:"_"`
 	ActiveUsers []*User  `json:"active_users" db:"_"`
 }

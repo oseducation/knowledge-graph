@@ -4,7 +4,6 @@ import {
     AvatarGroup,
     Box,
     BoxProps,
-    Button,
     Divider,
     List,
     ListItemButton,
@@ -24,7 +23,7 @@ import {GraphNodeHoverContext} from '../main';
 import {getVideoLength, NodeStatusFinished, NodeWithResources} from '../../types/graph';
 import {Client} from '../../client/client';
 import {User} from '../../types/users';
-
+import IKnowThisButton from "../I_konw_this_button";
 
 const stringToColor = (st: string) => {
     let hash = 0;
@@ -67,6 +66,7 @@ const RHS = (props: RHSProps) => {
 
     const [nodeWithResources, setNodeWithResources] = useState<NodeWithResources>({} as NodeWithResources);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(() => {
         if (node && node.id) {
@@ -77,11 +77,17 @@ const RHS = (props: RHSProps) => {
     }, [node.id]);
 
 
-    const markAsKnown = () => {
+    function markAsKnown() {
         if (props.userID && node.id) {
-            Client.Node().markAsKnown(node.id, props.userID).then(() => {
-                props.onReload();
-            });
+            setLoading(true)
+            Client.Node().markAsKnown(node.id, props.userID)
+                .then(() => {
+                    props.onReload();
+                    setLoading(false)
+                })
+                .catch(() => {
+                    setLoading(false)
+                });
         }
     }
 
@@ -172,15 +178,12 @@ const RHS = (props: RHSProps) => {
                         </List>
                     </>
                 }
-                <Box bgcolor='background.paper' display='flex' justifyContent='center'>
-                    <Button
-                        variant="contained"
-                        sx={{margin: '40px'}}
-                        onClick={() => markAsKnown()}
-                        disabled={node.status === NodeStatusFinished}
-                    >
-                        I know this
-                    </Button>
+                <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
+                    <IKnowThisButton
+                        isNodeFinished={node.status === NodeStatusFinished}
+                        loading={loading}
+                        onMarkAsKnown={markAsKnown}
+                    />
                 </Box>
             </Stack>
         </StyledBox>

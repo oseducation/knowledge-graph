@@ -45,6 +45,7 @@ export type NodeWithResources = {
     id: string;
     name: string;
     description: string;
+    status: string;
     videos: Video[];
     active_users: User[];
 }

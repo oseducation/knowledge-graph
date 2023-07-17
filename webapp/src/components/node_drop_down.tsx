@@ -8,7 +8,7 @@ import {Client} from '../client/client';
 type NodeDropDownMenuProps = {
     userID: string;
     nodeID: string;
-    onReload:() => void;
+    onReload: () => void;
 }
 
 const NodeDropDownMenu = (props: NodeDropDownMenuProps) => {

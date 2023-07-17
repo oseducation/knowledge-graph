@@ -41,7 +41,7 @@ export class NodeClient{
             status: newStatus
         }
         try {
-            this.rest.doPut(`${this.getNodeRoute(nodeID)}/status`, JSON.stringify(status));
+            await this.rest.doPut(`${this.getNodeRoute(nodeID)}/status`, JSON.stringify(status));
         } catch (error) {
             return {error};
         }
