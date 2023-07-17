@@ -40,7 +40,7 @@ func TestCreateNode(t *testing.T) {
 		functionaltesting.CheckBadRequestStatus(t, resp)
 	})
 }
-func TestCreateNodeInvalidJson(t *testing.T) {
+func TestCreateNodeInvalidJSON(t *testing.T) {
 	th := functionaltesting.SetupWithInvalidJSON(t)
 	defer th.TearDown()
 	t.Run("can not create node with invalid json", func(t *testing.T) {

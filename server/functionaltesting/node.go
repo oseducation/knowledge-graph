@@ -73,9 +73,9 @@ func (c *Client) UpdateNode(node *model.Node) (*Response, error) {
 }
 
 // DeleteNode deletes a node in the system based on the provided node struct.
-func (c *Client) DeleteNode(nodeId string) (*Response, error) {
+func (c *Client) DeleteNode(nodeID string) (*Response, error) {
 
-	r, err := c.DoAPIDelete(c.nodesRoute()+"/"+nodeId, "")
+	r, err := c.DoAPIDelete(c.nodesRoute()+"/"+nodeID, "")
 	if err != nil {
 		return BuildResponse(r), err
 	}
