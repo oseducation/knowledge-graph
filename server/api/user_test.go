@@ -86,7 +86,7 @@ func TestUserLogout(t *testing.T) {
 	})
 }
 func TestUserLoginWithInvalidJson(t *testing.T) {
-	th := functionaltesting.SetupWithInvalidJson(t)
+	th := functionaltesting.SetupWithInvalidJSON(t)
 	defer th.TearDown()
 
 	t.Run("should not be able to login with wrong json format", func(t *testing.T) {
@@ -113,7 +113,7 @@ func TestRegisterUser(t *testing.T) {
 }
 
 func TestRegisterUserWithInvalidJson(t *testing.T) {
-	th := functionaltesting.SetupWithInvalidJson(t)
+	th := functionaltesting.SetupWithInvalidJSON(t)
 	defer th.TearDown()
 
 	t.Run("should not register user with existing email", func(t *testing.T) {
@@ -191,7 +191,7 @@ func TestCreateUser(t *testing.T) {
 	})
 }
 func TestCreateUserInvalidJson(t *testing.T) {
-	th := functionaltesting.SetupWithInvalidJson(t)
+	th := functionaltesting.SetupWithInvalidJSON(t)
 	defer th.TearDown()
 
 	t.Run("can't create user with invalid username", func(t *testing.T) {

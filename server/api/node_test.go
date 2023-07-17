@@ -41,7 +41,7 @@ func TestCreateNode(t *testing.T) {
 	})
 }
 func TestCreateNodeInvalidJson(t *testing.T) {
-	th := functionaltesting.SetupWithInvalidJson(t)
+	th := functionaltesting.SetupWithInvalidJSON(t)
 	defer th.TearDown()
 	t.Run("can not create node with invalid json", func(t *testing.T) {
 		node := testNode
@@ -143,7 +143,7 @@ func TestUpdateNode(t *testing.T) {
 }
 
 func TestUpdateNodeInvalidJson(t *testing.T) {
-	th := functionaltesting.SetupWithInvalidJson(t)
+	th := functionaltesting.SetupWithInvalidJSON(t)
 	defer th.TearDown()
 	t.Run("can not update node with invalid json", func(t *testing.T) {
 		node := testNode
