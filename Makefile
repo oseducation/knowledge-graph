@@ -51,3 +51,6 @@ nuke:
 	cd server && go run cmd/main.go db nuke
 
 n-run: nuke import run
+
+modules-tidy:
+	cd server && go mod tidy
