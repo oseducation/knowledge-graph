@@ -247,38 +247,34 @@ func TestGetNodesWithPagination(t *testing.T) {
 	})
 }
 
-// will be implemented in the future. Needs status field in the NodeWithResources struct
-//
-//func TestUpdateNodeStatus(t *testing.T) {
-//	th := functionaltesting.Setup(t)
-//	defer th.TearDown()
-//	node := testNode
-//	node.Name = "Node1"
-//	node.Description = "Description1"
-//	createdNode, resp, err := th.AdminClient.CreateNode(&node)
-//	require.NoError(t, err)
-//	functionaltesting.CheckCreatedStatus(t, resp)
-//	t.Run("can update node status", func(t *testing.T) {
-//		status := model.NodeStatusForUser{
-//			NodeID: createdNode.ID,
-//			UserID: th.AdminUser.ID,
-//			Status: "finished",
-//		}
-//		resp, err := th.AdminClient.UpdateNodeStatus(createdNode.ID, &status)
-//		require.NoError(t, err)
-//		functionaltesting.CheckOKStatus(t, resp)
-//		nodeWithResources, resp2, err2 := th.AdminClient.GetNode(createdNode.ID)
-//		require.NoError(t, err2)
-//		functionaltesting.CheckOKStatus(t, resp2)
-//		require.Truef(t, nodeWithResources, "nodes = %v", nodeWithResources)
-//	})
-//
-//	t.Run("can't update node status with missing data", func(t *testing.T) {
-//		status := model.NodeStatusForUser{
-//			// fill in the status fields with missing or invalid data
-//		}
-//		resp, err := th.AdminClient.UpdateNodeStatus("validnodeid", &status)
-//		require.Error(t, err)
-//		functionaltesting.CheckBadRequestStatus(t, resp)
-//	})
-//}
+func TestUpdateNodeStatus(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+	node := testNode
+	node.Name = "Node1"
+	node.Description = "Description1"
+	createdNode, resp, err := th.AdminClient.CreateNode(&node)
+	require.NoError(t, err)
+	functionaltesting.CheckCreatedStatus(t, resp)
+	t.Run("can update node status", func(t *testing.T) {
+		status := model.NodeStatusForUser{
+			NodeID: createdNode.ID,
+			UserID: th.AdminUser.ID,
+			Status: "finished",
+		}
+		resp, err := th.AdminClient.UpdateNodeStatus(createdNode.ID, &status)
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, resp)
+		nodeWithResources, resp2, err2 := th.AdminClient.GetNode(createdNode.ID)
+		require.NoError(t, err2)
+		functionaltesting.CheckOKStatus(t, resp2)
+		require.Truef(t, nodeWithResources.Status == "finished", "nodes = %v", nodeWithResources)
+	})
+
+	t.Run("can't update node status with missing data", func(t *testing.T) {
+		status := model.NodeStatusForUser{}
+		resp, err := th.AdminClient.UpdateNodeStatus(createdNode.ID, &status)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+}
