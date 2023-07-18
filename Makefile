@@ -18,7 +18,7 @@ vet:
 eslint:
 	cd webapp && npx eslint --ext .js,.jsx,.tsx,.ts . --quiet --cache
 
-style: golangci-lint vet eslint ## Runs style/lint checks
+style: golangci-lint modules-tidy vet eslint ## Runs style/lint checks
 
 test:
 	cd server && go test ./...
@@ -51,3 +51,6 @@ nuke:
 	cd server && go run cmd/main.go db nuke
 
 n-run: nuke import run
+
+modules-tidy:
+	cd server && go mod tidy
