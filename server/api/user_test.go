@@ -58,6 +58,12 @@ func TestUserLogin(t *testing.T) {
 		functionaltesting.CheckOKStatus(t, resp)
 		require.Equal(t, loggedInUser.ID, registeredUser.ID)
 	})
+
+	t.Run("can't login with invalid password", func(t *testing.T) {
+		_, resp, err := th.Client.LoginByEmail("validuser@example.com", "invalidpassword")
+		require.Error(t, err)
+		functionaltesting.CheckUnauthorizedStatus(t, resp)
+	})
 }
 
 func TestUserLogout(t *testing.T) {
@@ -71,6 +77,54 @@ func TestUserLogout(t *testing.T) {
 		_, resp, err = th.AdminClient.GetUsers()
 		require.Error(t, err)
 		functionaltesting.CheckUnauthorizedStatus(t, resp)
+	})
+
+	t.Run("can't logout when not logged in", func(t *testing.T) {
+		resp, err := th.Client.Logout()
+		require.Error(t, err)
+		functionaltesting.CheckUnauthorizedStatus(t, resp)
+	})
+}
+func TestUserLoginWithInvalidJson(t *testing.T) {
+	th := functionaltesting.SetupWithInvalidJSON(t)
+	defer th.TearDown()
+
+	t.Run("should not be able to login with wrong json format", func(t *testing.T) {
+		_, resp, err := th.UserClient.LoginByEmail("email", "password")
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+}
+
+func TestRegisterUser(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+
+	t.Run("should not register user with existing email", func(t *testing.T) {
+		user := model.User{
+			Email:    "basic_user@someRandomEmail.com",
+			Password: "password",
+			Username: "username",
+		}
+		_, resp, err := th.Client.RegisterUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckConflictStatus(t, resp)
+	})
+}
+
+func TestRegisterUserWithInvalidJson(t *testing.T) {
+	th := functionaltesting.SetupWithInvalidJSON(t)
+	defer th.TearDown()
+
+	t.Run("should not register user with existing email", func(t *testing.T) {
+		user := model.User{
+			Email:    "valid@someRandomEmail.com",
+			Password: "password",
+			Username: "username",
+		}
+		_, resp, err := th.Client.RegisterUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
 	})
 }
 
@@ -111,6 +165,45 @@ func TestCreateUser(t *testing.T) {
 		}
 		_, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
+	})
+
+	t.Run("can't create user with existing email", func(t *testing.T) {
+		user := model.User{
+			Email:         "basic_user@someRandomEmail.com",
+			Password:      "hello1",
+			EmailVerified: true,
+			Username:      "user",
+		}
+		_, _, err := th.AdminClient.CreateUser(&user)
+		require.Error(t, err)
+	})
+
+	t.Run("can't create user with invalid username", func(t *testing.T) {
+		user := model.User{
+			Email:         "validemail@example.com",
+			Password:      "password",
+			EmailVerified: true,
+			Username:      "", // empty username
+		}
+		_, resp, err := th.AdminClient.CreateUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+}
+func TestCreateUserInvalidJson(t *testing.T) {
+	th := functionaltesting.SetupWithInvalidJSON(t)
+	defer th.TearDown()
+
+	t.Run("can't create user with invalid username", func(t *testing.T) {
+		user := model.User{
+			Email:         "validemail@example.com",
+			Password:      "password",
+			EmailVerified: true,
+			Username:      "testValidUsername",
+		}
+		_, resp, err := th.AdminClient.CreateUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
 	})
 }
 
@@ -200,6 +293,30 @@ func TestUpdateUser(t *testing.T) {
 		require.Error(t, err)
 		functionaltesting.CheckForbiddenStatus(t, resp)
 	})
+
+	t.Run("can't update non-existent user", func(t *testing.T) {
+		user := model.User{
+			Email:         "nonexistentuser@example.com",
+			Password:      "hello1",
+			EmailVerified: true,
+			Username:      "user",
+		}
+		resp, err := th.AdminClient.UpdateUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+
+	t.Run("can't update user with invalid fields", func(t *testing.T) {
+		user := model.User{
+			Email:         "validemail@example.com",
+			Password:      "password",
+			EmailVerified: true,
+			Username:      "", // empty username
+		}
+		resp, err := th.AdminClient.UpdateUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
 }
 
 func TestPatchCurrentUser(t *testing.T) {
@@ -226,6 +343,37 @@ func TestPatchCurrentUser(t *testing.T) {
 		resp, err = th.UserClient.PatchCurrentUser(registeredUser)
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, resp)
+	})
+	t.Run("should not update email", func(t *testing.T) {
+		user, _, _ := th.UserClient.GetCurrentUser()
+		user.Email = "newemail@example.com"
+		resp, err := th.UserClient.PatchCurrentUser(user)
+		require.Error(t, err)
+		functionaltesting.CheckForbiddenStatus(t, resp)
+	})
+
+	t.Run("should not update email verified", func(t *testing.T) {
+		user, _, _ := th.UserClient.GetCurrentUser()
+		user.EmailVerified = !user.EmailVerified
+		resp, err := th.UserClient.PatchCurrentUser(user)
+		require.Error(t, err)
+		functionaltesting.CheckForbiddenStatus(t, resp)
+	})
+
+	t.Run("can't patch current user with invalid fields", func(t *testing.T) {
+		user, _, _ := th.UserClient.GetCurrentUser()
+		user.Username = "" // empty username
+		resp, err := th.UserClient.PatchCurrentUser(user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+
+	t.Run("can't patch current user with invalid password", func(t *testing.T) {
+		user, _, _ := th.UserClient.GetCurrentUser()
+		user.Password = "" // empty password
+		resp, err := th.UserClient.PatchCurrentUser(user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
 	})
 }
 
@@ -260,6 +408,12 @@ func TestDeleteUser(t *testing.T) {
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, resp)
 	})
+
+	t.Run("can't delete non-existent user", func(t *testing.T) {
+		resp, err := th.AdminClient.DeleteUser("nonexistentuserid")
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
 }
 
 func TestVerifyUserEmail(t *testing.T) {
@@ -281,7 +435,7 @@ func TestVerifyUserEmail(t *testing.T) {
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, resp)
 	})
-	t.Run("email can,t be verified with wrong token", func(t *testing.T) {
+	t.Run("email can't be verified with wrong token", func(t *testing.T) {
 		user := model.User{
 			Email:         "bla4@gmail.com",
 			Password:      "hello1",
@@ -296,6 +450,12 @@ func TestVerifyUserEmail(t *testing.T) {
 		require.Error(t, err)
 		functionaltesting.CheckBadRequestStatus(t, resp)
 	})
+
+	t.Run("should not verify email with invalid token", func(t *testing.T) {
+		resp, err := th.Client.VerifyUserEmail("invalidtoken")
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
 }
 
 func TestSendVerificationEmail(t *testing.T) {
@@ -303,8 +463,32 @@ func TestSendVerificationEmail(t *testing.T) {
 	defer th.TearDown()
 	// For now, we don't send email. So we just check that the request is OK
 	t.Run("verification email request should return OK", func(t *testing.T) {
-		response, err := th.Client.SendVerificationEmail()
+		response, err := th.UserClient.SendVerificationEmail()
 		require.NoError(t, err)
 		functionaltesting.CheckOKStatus(t, response)
+	})
+
+	t.Run("can't send verification email when not logged in", func(t *testing.T) {
+		resp, err := th.Client.SendVerificationEmail()
+		require.Error(t, err)
+		functionaltesting.CheckUnauthorizedStatus(t, resp)
+	})
+}
+
+func TestGetMe(t *testing.T) {
+	th := functionaltesting.Setup(t)
+	defer th.TearDown()
+	th.Server.Config.EmailSettings.RequireEmailVerification = false
+	t.Run("should return current user", func(t *testing.T) {
+		user, resp, err := th.UserClient.GetCurrentUser()
+		require.NoError(t, err)
+		functionaltesting.CheckOKStatus(t, resp)
+		require.Equal(t, th.BasicUser.ID, user.ID)
+	})
+
+	t.Run("should return error if not authenticated", func(t *testing.T) {
+		_, resp, err := th.Client.GetCurrentUser()
+		require.Error(t, err)
+		functionaltesting.CheckUnauthorizedStatus(t, resp)
 	})
 }

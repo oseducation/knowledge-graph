@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/model"
@@ -19,7 +20,7 @@ func (apiObj *API) initNode() {
 	apiObj.Nodes.GET("/", authMiddleware(), requireNodePermissions(), getNodes)
 	apiObj.Nodes.POST("/", authMiddleware(), requireNodePermissions(), createNode)
 	apiObj.Nodes.PUT("/", authMiddleware(), requireNodePermissions(), updateNode)
-	apiObj.Nodes.DELETE("/", authMiddleware(), requireNodePermissions(), deleteNode)
+	apiObj.Nodes.DELETE("/:nodeID", authMiddleware(), requireNodePermissions(), deleteNode)
 
 	apiObj.Nodes.GET("/:nodeID", authMiddleware(), getNode)
 	apiObj.Nodes.POST("/:nodeID/video/:videoID", authMiddleware(), addVideo)
@@ -42,6 +43,9 @@ func createNode(c *gin.Context) {
 
 	rnode, err := a.CreateNode(node)
 	if err != nil {
+		if strings.Contains(err.Error(), "invalid node error") {
+			responseFormat(c, http.StatusBadRequest, "Invalid or missing `node` in the request body")
+		}
 		responseFormat(c, http.StatusInternalServerError, "Error while creating node")
 		return
 	}
@@ -94,6 +98,9 @@ func updateNode(c *gin.Context) {
 
 	err = a.UpdateNode(updatedNode)
 	if err != nil {
+		if strings.Contains(err.Error(), "invalid node error") {
+			responseFormat(c, http.StatusBadRequest, "Invalid or missing `node` in the request body")
+		}
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -101,7 +108,7 @@ func updateNode(c *gin.Context) {
 }
 
 func deleteNode(c *gin.Context) {
-	nodeID := c.Query("node_id")
+	nodeID := c.Param("nodeID")
 	if nodeID == "" {
 		responseFormat(c, http.StatusBadRequest, "missing node_id")
 		return
@@ -148,7 +155,7 @@ func getNode(c *gin.Context) {
 
 	nodes, err := a.GetNode(nodeID)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error())
+		responseFormat(c, http.StatusBadRequest, "unknown node")
 		return
 	}
 	statuses, err := a.GetStatusesForUser(session.UserID)

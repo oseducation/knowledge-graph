@@ -70,6 +70,14 @@ func Setup(tb testing.TB) *TestHelper {
 	return th
 }
 
+func SetupWithInvalidJSON(tb testing.TB) *TestHelper {
+	th := Setup(tb)
+	th.Client.UseInvalidJSON = true
+	th.UserClient.UseInvalidJSON = true
+	th.AdminClient.UseInvalidJSON = true
+	return th
+}
+
 func (th *TestHelper) Init() {
 	id := model.NewID()
 	admin := &model.User{

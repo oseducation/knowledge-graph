@@ -123,10 +123,10 @@ func (ns *SQLNodeStore) GetNodes(options *model.NodeGetOptions) ([]*model.Node, 
 	var nodes []*model.Node
 	query := ns.nodeSelect
 	if options.TermInName != "" {
-		query = query.Where(sq.Like{"n.name": fmt.Sprintf("%%\"%s\"%%", options.TermInName)})
+		query = query.Where(sq.Like{"n.name": fmt.Sprint("%", options.TermInName, "%")})
 	}
 	if options.TermInDescription != "" {
-		query = query.Where(sq.Like{"n.description": fmt.Sprintf("%%\"%s\"%%", options.TermInName)})
+		query = query.Where(sq.Like{"n.description": fmt.Sprint("%", options.TermInDescription, "%")})
 	}
 	if !options.IncludeDeleted {
 		query = query.Where("n.deleted_at = 0")

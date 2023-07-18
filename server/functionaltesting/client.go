@@ -22,11 +22,12 @@ const (
 )
 
 type Client struct {
-	URL        string       // The location of the server, for example  "http://localhost:9081"
-	APIURL     string       // The api location of the server, for example "http://localhost:9081/api/v1"
-	HTTPClient *http.Client // The http client
-	AuthToken  string
-	HTTPHeader map[string]string // Headers to be copied over for each request
+	URL            string       // The location of the server, for example  "http://localhost:9081"
+	APIURL         string       // The api location of the server, for example "http://localhost:9081/api/v1"
+	HTTPClient     *http.Client // The http client
+	AuthToken      string
+	HTTPHeader     map[string]string // Headers to be copied over for each request
+	UseInvalidJSON bool              // If true, the client will send invalid json to the server
 }
 
 type Response struct {
@@ -39,7 +40,12 @@ type Response struct {
 
 func NewClient(url string) *Client {
 	url = strings.TrimRight(url, "/")
-	return &Client{url, url + APIURLSuffix, &http.Client{}, "", map[string]string{}}
+	return &Client{
+		URL:        url,
+		APIURL:     url + APIURLSuffix,
+		HTTPClient: &http.Client{},
+		HTTPHeader: map[string]string{},
+	}
 }
 
 func (c *Client) DoAPIGet(url string, etag string) (*http.Response, error) {
@@ -63,6 +69,9 @@ func (c *Client) DoAPIRequest(method, url, data, etag string) (*http.Response, e
 
 func (c *Client) DoAPIRequestReader(method, url string, data io.Reader, headers map[string]string) (*http.Response, error) {
 	rq, err := http.NewRequest(method, url, data)
+	if c.UseInvalidJSON {
+		rq, err = http.NewRequest(method, url, strings.NewReader("invalid json"))
+	}
 	if err != nil {
 		return nil, err
 	}
