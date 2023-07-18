@@ -57,7 +57,7 @@ jobs:
           cache: false
       - uses: actions/checkout@v3
       - name: Run go mod tidy
-        run: make modules-tidy
+        run: go mod tidy
       - name: Check modules
         run: if [[ -n $(git status --porcelain) ]]; then echo "Please tidy up the Go modules using make modules-tidy"; git diff; exit 1; fi
 
