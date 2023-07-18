@@ -1,7 +1,7 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import ForceGraph3D from 'react-force-graph-3d';
-import ForceGraph2D, {ForceGraphMethods, NodeObject} from 'react-force-graph-2d';
+import ForceGraph2D, {ForceGraphMethods, LinkObject, NodeObject} from 'react-force-graph-2d';
 import {forceCollide} from 'd3';
 import {useTheme} from '@mui/material/styles';
 
@@ -21,11 +21,12 @@ interface Props {
 const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
     const fgRef = useRef<ForceGraphMethods<Node, Link>>();
-    const {setNode} = React.useContext(GraphNodeHoverContext);
+    const {node, setNode} = React.useContext(GraphNodeHoverContext);
     const nodeRadius = 20;
     const theme = useTheme();
     const {preferences} = useAuth();
-
+    const [highlightNodes, setHighlightNodes] = useState(new Set());
+    const [highlightLinks, setHighlightLinks] = useState(new Set());
 
     const onNodeClick = ({id} : Node) => {
         navigate(`/nodes/${id}`)
@@ -82,6 +83,40 @@ const D3ForceGraph = (props: Props) => {
         }
     }
 
+    const paintRing = (node: NodeObject<NodeObject<Node>>, ctx: CanvasRenderingContext2D, color: string) => {
+        // add ring just for highlighted nodes
+        ctx.beginPath();
+        ctx.arc(node.x || 0, node.y || 0, nodeRadius * 1.4, 0, 2 * Math.PI, false);
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+
+    const updateHighlight = () => {
+        setHighlightNodes(highlightNodes);
+        setHighlightLinks(highlightLinks);
+    };
+
+    const handleNodeHover = (hoveredNode: Node) => {
+        highlightNodes.clear();
+        highlightLinks.clear();
+        if (!hoveredNode) {
+            return;
+        }
+
+        highlightNodes.add(hoveredNode.id);
+        props.graph.links.forEach((link: LinkObject<Node, Link>) => {
+            if ((link.source as Node).id === hoveredNode.id) {
+                highlightLinks.add(link);
+                highlightNodes.add((link.target as Node).id);
+            } else if ((link.target as Node).id === hoveredNode.id) {
+                highlightLinks.add(link);
+                highlightNodes.add((link.source as Node).id);
+            }
+        });
+
+        updateHighlight();
+    };
+
     return (
         <ForceGraph2D
             ref={fgRef}
@@ -89,26 +124,32 @@ const D3ForceGraph = (props: Props) => {
             nodeLabel="description"
             width={props.width}
             height={props.height}
-            // linkDirectionalParticles={1}
-            // linkDirectionalParticleWidth={4}
-            linkWidth={2}
+            linkDirectionalParticleWidth={4}
+            linkDirectionalParticles={link => highlightLinks.has(link) ? 2 : 0}
+            linkWidth={link => highlightLinks.has(link) ? 5 : 2}
             onNodeClick={onNodeClick}
             dagMode={preferences?.graph_direction || "lr"}
             nodeVal={20}
-            nodeCanvasObject={(node, ctx) => {
-                const label = node.name;
+            nodeCanvasObject={(currentNode, ctx) => {
+                if (currentNode.id === node?.id) {
+                    paintRing(currentNode, ctx, 'red');
+                } else if (highlightNodes.has(currentNode.id)){
+                    paintRing(currentNode, ctx, 'orange');
+                }
+
+                const label = currentNode.name;
                 const fontSize = 5;
                 ctx.font = `${fontSize}px Sans-Serif`;
 
                 ctx.beginPath();
-                ctx.arc(node.x || 0, node.y || 0, nodeRadius, 0, 2 * Math.PI, false);
-                ctx.fillStyle = getNodeColor(node);
+                ctx.arc(currentNode.x || 0, currentNode.y || 0, nodeRadius, 0, 2 * Math.PI, false);
+                ctx.fillStyle = getNodeColor(currentNode);
                 ctx.fill();
 
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = 'black';
-                ctx.fillText(label, node.x||0, node.y||0);
+                ctx.fillText(label, currentNode.x||0, currentNode.y||0);
             }}
             nodePointerAreaPaint={(node, color, ctx) => {
                 ctx.fillStyle = color;
@@ -124,7 +165,8 @@ const D3ForceGraph = (props: Props) => {
             linkDirectionalArrowRelPos={0.5}
             onNodeHover={(node: Node | null) => {
                 if (node) {
-                    setNode(node)
+                    setNode(node);
+                    handleNodeHover(node);
                 }
             }}
             cooldownTicks={100}
@@ -132,7 +174,6 @@ const D3ForceGraph = (props: Props) => {
             onEngineStop={() => fgRef.current!.zoomToFit(1000)}
         />
     )
-
 }
 
 export default D3ForceGraph;
