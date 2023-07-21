@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Divider, Typography, useTheme} from '@mui/material';
+import {Box, Container, Divider, Drawer, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
@@ -13,6 +13,7 @@ import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
 import VideoInput from './video_input';
 import NodeTitleSection from "./node_title_section";
+import useDrawer from '../hooks/useDrawer';
 
 interface Props {
     nodeID: string;
@@ -24,6 +25,10 @@ const Node = (props: Props) => {
     const [loading, setLoading] = useState<boolean>(false)
     const theme = useTheme();
     const {user} = useAuth()
+    const {open, setOpen} = useDrawer();
+    const {
+        mixins: {toolbar},
+    } = useTheme();
 
     function loadNode() {
         Client.Node().get(props.nodeID).then((data) => {
@@ -39,6 +44,10 @@ const Node = (props: Props) => {
             loadNode();
         }
     }, [props.nodeID]);
+
+    const handleDrawerToggle = () => {
+        setOpen?.(!open);
+    };
 
     const computeGroups = (node: NodeWithResources) => {
         const videoItems = node.videos ? node.videos.map(video => {
@@ -129,12 +138,49 @@ const Node = (props: Props) => {
         }
     }
 
+    // https://github.com/mui/material-ui/issues/10739#issuecomment-1365008174
+    const staticHeight = `calc(100vh - (${toolbar?.minHeight}px + ${8}px))`;
+
     return (
-        <Grid2 container height={'100vh'}>
-            <Grid2 xs={3} sx={{maxWidth: '240px'}} height={'100%'}>
-                <LHSNavigation groups={groups} header={header}/>
+        <>
+            {user && <Box
+                component="nav"
+                sx={{
+                    width: {sm: 240},
+                    flexShrink: {sm: 0}
+                }}
+                aria-label="drawer"
+            >
+                <Drawer
+                    variant="temporary"
+                    open={open}
+                    onClose={handleDrawerToggle}
+                    ModalProps={{
+                        keepMounted: true, // Better open performance on mobile.
+                    }}
+                    sx={{
+                        height: staticHeight,
+                        overflowY: 'auto',
+                        display: {xs: 'block', sm: 'block', md:'none'},
+                        '& .MuiDrawer-paper': {boxSizing: 'border-box', width: 240},
+                    }}
+                >
+                    <LHSNavigation groups={groups}/>
+                </Drawer>
+            </Box>}
+        <Grid2 container disableEqualOverflow>
+            <Grid2 xs={3} sx={{
+                height: staticHeight,
+                overflowY: 'auto',
+                maxWidth: '240px',
+                display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}
+            }}>
+                <LHSNavigation groups={groups}/>
             </Grid2>
-            <Grid2 xs={true}>
+            <Grid2 xs={true} sx={{
+                height: staticHeight,
+                overflowY: 'auto',
+            }}>
                 {activeVideo ?
                     <VideoPlayer
                         videoKey={activeVideo.key}
@@ -160,34 +206,48 @@ const Node = (props: Props) => {
                             loading={loading}
                             onMarlAsKnown={markAsKnown}
                         />
-                        {node.videos && node.videos.map((video) => (
-                            <Box
-                                key={video.key}
-                                sx={{
-                                    mb: 8
-                                }}
-                            >
-                                <VideoPlayer
-                                    videoKey={video.key}
+                        <Grid2 sx={{overflow: 'scroll'}} xs={10}>
+                            {node.videos && node.videos.map((video) => (
+                                <Box
                                     key={video.key}
-                                    width={'560'}
-                                    height={'315'}
-                                    autoplay={false}
-                                    onVideoStarted={onVideoStarted}
-                                    onVideoEnded={onVideoEnded}
-                                />
-                                <Divider variant={"fullWidth"}/>
-                            </Box>
-                        ))}
+                                    sx={{
+                                        mb: 8,
+                                        height: {sm: 300, md: 500, lg: 700}
+                                    }}
+                                >
+                                    <VideoPlayer
+                                        videoKey={video.key}
+                                        key={video.key}
+                                        width={'100%'}
+                                        height={'100%'}
+                                        autoplay={false}
+                                        onVideoStarted={onVideoStarted}
+                                        onVideoEnded={onVideoEnded}
+                                    />
+                                    <Divider variant={"fullWidth"}/>
+                                </Box>
+                            ))}
+                        </Grid2>
                         <VideoInput nodeID={props.nodeID}/>
                     </Box>
                 }
 
             </Grid2>
-            <Grid2 xs={4} sx={{maxWidth: '400px'}} bgcolor={'gray'} textAlign={'center'}>
+            <Grid2
+                xs={3}
+                sx={{
+                    height: staticHeight,
+                    overflowY: 'auto',
+                    maxWidth: '400px',
+                    display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
+                }}
+                textAlign={'center'}
+                bgcolor={'gray'}
+            >
                 Chat coming soon
             </Grid2>
         </Grid2>
+        </>
     )
 }
 
