@@ -2,7 +2,7 @@ name: 'Docker Build'
 
 on:
   push:
-    branches: 'main'
+    branches: '*'
 
 jobs:
   Docker_Build:
@@ -35,7 +35,7 @@ jobs:
           file: './Dockerfile.server'
           pull: 'true'
           push: 'true'
-          tags: 218502875136.dkr.ecr.eu-central-1.amazonaws.com/knowledge-graph-server:latest
+          tags: public.ecr.aws/w7h2f4s9/vitsi-server:latest
           cache-from: 'type=local,src=/tmp/.buildx-cache'
           cache-to: 'type=local,dest=/tmp/.buildx-cache'
           platforms: linux/amd64
@@ -51,7 +51,7 @@ jobs:
           file: './Dockerfile.webapp'
           pull: 'true'
           push: 'true'
-          tags: 218502875136.dkr.ecr.eu-central-1.amazonaws.com/knowledge-graph-webapp:latest
+          tags: public.ecr.aws/w7h2f4s9/vitsi-webapp:latest
           cache-from: 'type=local,src=/tmp/.buildx-cache'
           cache-to: 'type=local,dest=/tmp/.buildx-cache'
           platforms: linux/amd64
