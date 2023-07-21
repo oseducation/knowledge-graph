@@ -1,19 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Container, Divider, Drawer, Typography, useTheme} from '@mui/material';
+import {Box, Divider, Drawer, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Grid2 from '@mui/material/Unstable_Grid2';
 
 import {getVideoLength, NodeStatusFinished, NodeWithResources, Video} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
-
 import useAuth from '../hooks/useAuth';
+import useDrawer from '../hooks/useDrawer';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
 import VideoInput from './video_input';
 import NodeTitleSection from "./node_title_section";
-import useDrawer from '../hooks/useDrawer';
 
 interface Props {
     nodeID: string;
@@ -168,85 +167,84 @@ const Node = (props: Props) => {
                     <LHSNavigation groups={groups}/>
                 </Drawer>
             </Box>}
-        <Grid2 container disableEqualOverflow>
-            <Grid2 xs={3} sx={{
-                height: staticHeight,
-                overflowY: 'auto',
-                maxWidth: '240px',
-                display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}
-            }}>
-                <LHSNavigation groups={groups}/>
-            </Grid2>
-            <Grid2 xs={true} sx={{
-                height: staticHeight,
-                overflowY: 'auto',
-            }}>
-                {activeVideo ?
-                    <VideoPlayer
-                        videoKey={activeVideo.key}
-                        width={'100%'}
-                        height={'100%'}
-                        autoplay={true}
-                        onVideoStarted={onVideoStarted}
-                        onVideoEnded={onVideoEnded}
-                    />
-                    :
-                    <Box
-                        display={"flex"}
-                        flexDirection={"column"}
-                        sx={{
-                            width: '100%',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <NodeTitleSection
-                            nodeTitle={node.name}
-                            nodeDescription={node.description}
-                            nodeFinished={node.status === NodeStatusFinished}
-                            loading={loading}
-                            onMarlAsKnown={markAsKnown}
-                        />
-                        <Grid2 sx={{overflow: 'scroll'}} xs={10}>
-                            {node.videos && node.videos.map((video) => (
-                                <Box
-                                    key={video.key}
-                                    sx={{
-                                        mb: 8,
-                                        height: {sm: 300, md: 500, lg: 700}
-                                    }}
-                                >
-                                    <VideoPlayer
-                                        videoKey={video.key}
-                                        key={video.key}
-                                        width={'100%'}
-                                        height={'100%'}
-                                        autoplay={false}
-                                        onVideoStarted={onVideoStarted}
-                                        onVideoEnded={onVideoEnded}
-                                    />
-                                    <Divider variant={"fullWidth"}/>
-                                </Box>
-                            ))}
-                        </Grid2>
-                        <VideoInput nodeID={props.nodeID}/>
-                    </Box>
-                }
-
-            </Grid2>
-            <Grid2
-                xs={3}
-                sx={{
+            <Grid2 container disableEqualOverflow>
+                <Grid2 xs={3} sx={{
                     height: staticHeight,
                     overflowY: 'auto',
-                    maxWidth: '400px',
-                    display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
-                }}
-                textAlign={'center'}
-                bgcolor={'gray'}
-            >
-                Chat coming soon
+                    maxWidth: '240px',
+                    display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}
+                }}>
+                    <LHSNavigation groups={groups} header={header}/>
+                </Grid2>
+                <Grid2 xs={true} sx={{
+                    height: staticHeight,
+                    overflowY: 'auto',
+                }}>
+                    {activeVideo ?
+                        <VideoPlayer
+                            videoKey={activeVideo.key}
+                            width={'100%'}
+                            height={'100%'}
+                            autoplay={true}
+                            onVideoStarted={onVideoStarted}
+                            onVideoEnded={onVideoEnded}
+                        />
+                        :
+                        <Box
+                            display={"flex"}
+                            flexDirection={"column"}
+                            sx={{
+                                width: '100%',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <NodeTitleSection
+                                nodeTitle={node.name}
+                                nodeDescription={node.description}
+                                nodeFinished={node.status === NodeStatusFinished}
+                                loading={loading}
+                                onMarlAsKnown={markAsKnown}
+                            />
+                            <Grid2 sx={{overflow: 'scroll'}} xs={10}>
+                                {node.videos && node.videos.map((video) => (
+                                    <Box
+                                        key={video.key}
+                                        sx={{
+                                            mb: 8,
+                                            height: {sm: 300, md: 500, lg: 700}
+                                        }}
+                                    >
+                                        <VideoPlayer
+                                            videoKey={video.key}
+                                            key={video.key}
+                                            width={'100%'}
+                                            height={'100%'}
+                                            autoplay={false}
+                                            onVideoStarted={onVideoStarted}
+                                            onVideoEnded={onVideoEnded}
+                                        />
+                                        <Divider variant={"fullWidth"}/>
+                                    </Box>
+                                ))}
+                            </Grid2>
+                            <VideoInput nodeID={props.nodeID}/>
+                        </Box>
+                    }
+                </Grid2>
+                <Grid2
+                    xs={3}
+                    sx={{
+                        height: staticHeight,
+                        overflowY: 'auto',
+                        maxWidth: '400px',
+                        display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
+                    }}
+                    textAlign={'center'}
+                    bgcolor={'gray'}
+                >
+                    Chat coming soon
+                </Grid2>
             </Grid2>
-        </Grid2>
         </>
     )
 }
