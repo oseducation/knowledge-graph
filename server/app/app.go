@@ -37,11 +37,13 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 		if err := importKnowledgeGraphToDB(config.ServerSettings.KnowledgeGraphImportURL, store, logger); err != nil {
 			return nil, errors.Wrap(err, "can't import knowledge graph")
 		}
+		logger.Info("graph imported to DB")
 	}
 	graph, err := store.Graph().ConstructGraphFromDB()
 	if err != nil {
 		return nil, errors.Wrap(err, "can't construct graph from DB")
 	}
+	logger.Info("graph constructed", log.String("nodes", strconv.Itoa(len(graph.Nodes))), log.String("prerequisites", strconv.Itoa(len(graph.Prerequisites))))
 
 	environment := make(map[string]string)
 	youtubeAPIKey, ok := os.LookupEnv(YoutubeAPIKey)
