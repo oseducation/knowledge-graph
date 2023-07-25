@@ -60,7 +60,7 @@ const Carousel = () => {
 
     return (
         <div {...handlers}>
-            <Container style={{height: '100%', display: 'flex', alignItems: 'center'}}>
+            <Container style={{height: '100%', display: 'flex', alignItems: 'center', flexDirection: 'row', justifyContent: 'center'}}>
                 <IconButton onClick={getPreviousVideo}>
                     <ArrowBackIos/>
                 </IconButton>
