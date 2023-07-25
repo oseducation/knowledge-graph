@@ -44,3 +44,14 @@ jobs:
             org.opencontainers.image.version=latest
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
+      - name: Install webapp dependencies
+        run: npm i --force
+      - name: Build webapp
+        run: make build-webapp
+      - name: Upload public to S3 root (excluding index.html)
+        run: |
+          aws s3 sync webapp/public/ s3://vitsi-ai-bucket/ --exclude "index.html"
+      - name: Upload /dist to S3 root
+        run: |
+          aws s3 sync webapp/dist/ s3://vitsi-ai-bucket/
+
