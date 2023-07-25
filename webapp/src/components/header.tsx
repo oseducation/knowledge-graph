@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {AppBar, Box, Toolbar, Typography, Container, Button, Stack, styled, useMediaQuery, IconButton} from "@mui/material";
 import {useTheme} from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -18,6 +18,12 @@ function Header() {
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
     const {open, setOpen} = useDrawer();
     const isLoggedInOnThePhone = user && isPhone;
+    const location = useLocation();
+
+    let hasIconButton = true;
+    if (location.pathname == '/carousel') {
+        hasIconButton = false
+    }
 
     function getTitle() {
         return <Typography
@@ -88,7 +94,7 @@ function Header() {
         <AppBar position="static">
             <Container maxWidth={false}>
                 <Toolbar disableGutters>
-                    {<IconButton
+                    {hasIconButton && <IconButton
                         color="inherit"
                         aria-label="open drawer"
                         edge="start"
