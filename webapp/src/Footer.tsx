@@ -13,6 +13,10 @@ const FooterContainer: React.FC = () => {
     const location = useLocation();
     const {user} = useAuth()
 
+    if (location.pathname !== '/') {
+        return null;
+    }
+
     if ((location.pathname == '/' && user != null)) {
         return null;
     }

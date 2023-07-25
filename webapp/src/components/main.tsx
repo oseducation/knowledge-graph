@@ -171,7 +171,7 @@ const Main = () => {
                     sx={{
                         height: staticHeight,
                         overflowY: 'auto',
-                        display: {xs: 'block', sm: 'none'},
+                        display: {xs: 'block', sm: 'block', md: 'none'},
                         '& .MuiDrawer-paper': {boxSizing: 'border-box', width: 240},
                     }}
                 >
