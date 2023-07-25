@@ -103,8 +103,10 @@ func importGraphCmdF(command *cobra.Command, _ []string) error {
 		return errors.New("can't run server")
 	}
 	defer srv.Shutdown()
-	if err := srv.App.ImportGraph(url); err != nil {
+	password, err := srv.App.ImportGraph(url)
+	if err != nil {
 		return errors.Wrap(err, "can't import graph")
 	}
+	println("password", password)
 	return nil
 }

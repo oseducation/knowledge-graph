@@ -61,33 +61,36 @@ func (a *App) GetSiteURL() string {
 }
 
 // ImportGraph reads graph.json, nodes.json and texts.md files, parses them and imports in the db
-func (a *App) ImportGraph(url string) error {
+func (a *App) ImportGraph(url string) (string, error) {
 	authorContent, err := getFileContent(fmt.Sprintf("%s/author.json", url))
 	if err != nil {
-		return errors.Wrap(err, "can't get author.json file")
+		return "", errors.Wrap(err, "can't get author.json file")
 	}
 	var user model.User
 	if err2 := json.Unmarshal([]byte(authorContent), &user); err2 != nil {
-		return errors.Wrapf(err2, "can't unmarshal author.json file\n%s", authorContent)
+		return "", errors.Wrapf(err2, "can't unmarshal author.json file\n%s", authorContent)
 	}
+
+	password := model.NewRandomString(20)
+	user.Password = password
 
 	updatedUser, err := a.Store.User().Save(&user)
 	if err != nil {
-		return errors.Wrap(err, "can't save user")
+		return "", errors.Wrap(err, "can't save user")
 	}
 
 	graphContent, err := getFileContent(fmt.Sprintf("%s/graph.json", url))
 	if err != nil {
-		return errors.Wrapf(err, "can't get graph.json file\n%s", graphContent)
+		return "", errors.Wrapf(err, "can't get graph.json file\n%s", graphContent)
 	}
 	var graph map[string][]string
 	if err2 := json.Unmarshal([]byte(graphContent), &graph); err2 != nil {
-		return errors.Wrap(err2, "can't unmarshal graph.json file")
+		return "", errors.Wrap(err2, "can't unmarshal graph.json file")
 	}
 
 	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
 	if err != nil {
-		return errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
+		return "", errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
 	}
 
 	type NodeWithKey struct {
@@ -97,38 +100,38 @@ func (a *App) ImportGraph(url string) error {
 
 	var nodes map[string]NodeWithKey
 	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
-		return errors.Wrap(err, "can't unmarshal nodes.json file")
+		return "", errors.Wrap(err, "can't unmarshal nodes.json file")
 	}
 
 	examplesContent, err := getFileContent(fmt.Sprintf("%s/examples.json", url))
 	if err != nil {
-		return errors.Wrap(err, "can't get examples.json file")
+		return "", errors.Wrap(err, "can't get examples.json file")
 	}
 	var exampleNodes map[string]model.Node
 	if err := json.Unmarshal([]byte(examplesContent), &exampleNodes); err != nil {
-		return errors.Wrap(err, "can't unmarshal examples.json file")
+		return "", errors.Wrap(err, "can't unmarshal examples.json file")
 	}
 
 	for id, node := range nodes {
 		var updatedNode *model.Node
 		node.NodeType = model.NodeTypeLecture
 		oldNode, err := a.Store.Node().GetByName(node.Name)
-		if err != nil && err != sql.ErrNoRows {
-			return errors.Wrapf(err, "can't get node by name - %s", node.Name)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return "", errors.Wrapf(err, "can't get node by name - %s", node.Name)
 		}
 		if err == nil {
 			// we have an old node that should be updated
 			updatedNode = node.Node.Clone()
 			updatedNode.ID = oldNode.ID
 			if err2 := a.Store.Node().Update(updatedNode); err2 != nil {
-				return errors.Wrapf(err2, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
+				return "", errors.Wrapf(err2, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
 			}
 			a.Log.Info("updated node", log.String("oldNode", fmt.Sprintf("%v", oldNode)), log.String("newNode", fmt.Sprintf("%v", updatedNode)))
 		} else {
 			// no old node in db, we can just save
 			updatedNode, err = a.Store.Node().Save(&node.Node)
 			if err != nil {
-				return errors.Wrapf(err, "can't save node - %v", node.Node)
+				return "", errors.Wrapf(err, "can't save node - %v", node.Node)
 			}
 		}
 
@@ -140,7 +143,7 @@ func (a *App) ImportGraph(url string) error {
 		}
 		title, duration, err := a.GetYoutubeVideoInfo(node.Key)
 		if err != nil {
-			return errors.Wrapf(err, "can't get youtube video info %s", node.Key)
+			return "", errors.Wrapf(err, "can't get youtube video info %s", node.Key)
 		}
 		video := model.Video{
 			Name:           title,
@@ -152,7 +155,7 @@ func (a *App) ImportGraph(url string) error {
 			AuthorUsername: updatedUser.Username,
 		}
 		if _, err := a.Store.Video().Save(&video); err != nil {
-			return errors.Wrap(err, "can't save video")
+			return "", errors.Wrap(err, "can't save video")
 		}
 	}
 
@@ -160,7 +163,7 @@ func (a *App) ImportGraph(url string) error {
 		node.NodeType = model.NodeTypeExample
 		updatedNode, err := a.Store.Node().Save(&node)
 		if err != nil {
-			return errors.Wrap(err, "can't save node")
+			return "", errors.Wrap(err, "can't save node")
 		}
 		nodes[id] = NodeWithKey{
 			Node: *updatedNode,
@@ -174,11 +177,11 @@ func (a *App) ImportGraph(url string) error {
 				ToNodeID:   nodes[node].ID,
 			}
 			if err := a.Store.Graph().Save(&edge); err != nil {
-				return errors.Wrap(err, "can't save edge")
+				return "", errors.Wrap(err, "can't save edge")
 			}
 		}
 	}
-	return nil
+	return password, nil
 }
 
 func importKnowledgeGraphToDB(url string, db store.Store, logger *log.Logger) error {
