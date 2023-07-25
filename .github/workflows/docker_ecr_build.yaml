@@ -44,19 +44,3 @@ jobs:
             org.opencontainers.image.version=latest
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-      - name: 'Build and push webapp'
-        uses: 'docker/build-push-action@v4.1.1'
-        with:
-          context: '.'
-          file: './Dockerfile.webapp'
-          pull: 'true'
-          push: 'true'
-          tags: 218502875136.dkr.ecr.eu-central-1.amazonaws.com/knowledge-graph-webapp:latest
-          cache-from: 'type=local,src=/tmp/.buildx-cache'
-          cache-to: 'type=local,dest=/tmp/.buildx-cache'
-          platforms: linux/amd64
-          labels: |
-            org.opencontainers.image.documentation=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=latest
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
