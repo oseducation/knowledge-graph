@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: vitsi-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vitsi-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vitsi-server
+    spec:
+      containers:
+      - image: 218502875136.dkr.ecr.eu-central-1.amazonaws.com/knowledge-graph-server:latest
+        imagePullPolicy: Always
+        name: vitsi-server
+        ports:
+        - containerPort: 9081
+        env:
+        - name: DATABASE_DRIVER_NAME
+          valueFrom:
+           secretKeyRef:
+             name: kg-db-credentials
+             key: database_driver_name
+        - name: DATABASE_DATASOURCE
+          valueFrom:
+           secretKeyRef:
+             name: kg-db-credentials
+             key: database_datasource
+        - name: YOUTUBE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: kg-db-credentials
+              key: youtube_api_key
+        - name: SITE_URL
+          valueFrom:
+            secretKeyRef:
+              name: kg-db-credentials
+              key: site_url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: default
+  name: service-vitsi-server
+spec:
+  ports:
+    - port: 9081
+      targetPort: 9081
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: vitsi-server
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: default
+  name: ingress-vitsi-server
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: service-vitsi-server
+              port:
+                number: 9081

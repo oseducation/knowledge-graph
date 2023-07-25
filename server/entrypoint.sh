@@ -12,5 +12,11 @@ if [ -n "$DATABASE_DATASOURCE" ]; then
   jq --arg source "$DATABASE_DATASOURCE" '.DBSettings.DataSource = $source' config/config.json > /tmp/config.json && mv /tmp/config.json config/config.json
 fi
 
+# Check if SITE_URL environment variable is defined
+if [ -n "$SITE_URL" ]; then
+  # Update JSON file using jq
+  jq --arg source "$SITE_URL" '.ServerSettings.SiteURL = $source' config/config.json > /tmp/config.json && mv /tmp/config.json config/config.json
+fi
+
 # Run make command
 /knowledge-graph-server/kg-server
