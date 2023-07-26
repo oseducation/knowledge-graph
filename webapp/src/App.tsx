@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
-import {useMediaQuery, Theme} from '@mui/material';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
