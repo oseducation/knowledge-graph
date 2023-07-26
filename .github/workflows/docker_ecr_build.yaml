@@ -45,7 +45,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
       - name: Install webapp dependencies
-        run: npm i --force
+        run: cd webapp && npm i --force
       - name: Build webapp
         run: make build-webapp
       - name: Upload public to S3 root (excluding index.html)
