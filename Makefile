@@ -54,3 +54,7 @@ n-run: nuke import run
 
 modules-tidy:
 	cd server && go mod tidy
+
+build-webapp:
+	cd webapp && npm run build
+
