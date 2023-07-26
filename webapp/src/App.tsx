@@ -20,10 +20,6 @@ import PrivacyPolicy from './pages/PrivacyPage';
 import AboutUs from './pages/AboutUs';
 
 function App() {
-    const isSmallScreen = useMediaQuery<Theme>((theme: Theme) => theme.breakpoints.down('lg'));
-    if (isSmallScreen) {
-        return <div>Sorry, this app is not optimized for mobile devices. Please visit us on a larger screen for the best experience.</div>
-    }
     return (
         <Routes>
             <Route path="/" element={<HomePage/>}/>
