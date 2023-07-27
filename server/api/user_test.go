@@ -138,6 +138,7 @@ func TestCreateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		_, resp, err := th.Client.CreateUser(&user)
 		require.Error(t, err)
@@ -150,6 +151,7 @@ func TestCreateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		_, resp, err := th.UserClient.CreateUser(&user)
 		require.Error(t, err)
@@ -162,6 +164,7 @@ func TestCreateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		_, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
@@ -173,6 +176,7 @@ func TestCreateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		_, _, err := th.AdminClient.CreateUser(&user)
 		require.Error(t, err)
@@ -184,6 +188,20 @@ func TestCreateUser(t *testing.T) {
 			Password:      "password",
 			EmailVerified: true,
 			Username:      "", // empty username
+			Lang:          "en",
+		}
+		_, resp, err := th.AdminClient.CreateUser(&user)
+		require.Error(t, err)
+		functionaltesting.CheckBadRequestStatus(t, resp)
+	})
+
+	t.Run("can't create user without language", func(t *testing.T) {
+		user := model.User{
+			Email:         "validemail@example.com",
+			Password:      "password",
+			EmailVerified: true,
+			Username:      "username1", // empty username
+			Lang:          "",
 		}
 		_, resp, err := th.AdminClient.CreateUser(&user)
 		require.Error(t, err)
@@ -250,6 +268,7 @@ func TestUpdateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		resp, err := th.Client.UpdateUser(&user)
 		require.Error(t, err)
@@ -261,6 +280,7 @@ func TestUpdateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		_, resp, err := th.UserClient.CreateUser(&user)
 		require.Error(t, err)
@@ -272,6 +292,7 @@ func TestUpdateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		createdUser, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
@@ -401,6 +422,7 @@ func TestDeleteUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		createdUser, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
@@ -426,6 +448,7 @@ func TestVerifyUserEmail(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user3",
+			Lang:          "en",
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
 		require.NoError(t, err)

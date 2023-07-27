@@ -38,6 +38,7 @@ func NewNodeStore(db *SQLStore) NodeStore {
 			"n.name",
 			"n.description",
 			"n.node_type",
+			"n.lang",
 		).
 		From("nodes n")
 
@@ -67,6 +68,7 @@ func (ns *SQLNodeStore) Save(node *model.Node) (*model.Node, error) {
 			"name":        node.Name,
 			"description": node.Description,
 			"node_type":   node.NodeType,
+			"lang":        node.Lang,
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save node with name:%s", node.Name)
@@ -91,6 +93,7 @@ func (ns *SQLNodeStore) Update(new *model.Node) error {
 			"name":        new.Name,
 			"description": new.Description,
 			"node_type":   new.NodeType,
+			"lang":        new.Lang,
 		}).
 		Where(sq.Eq{"ID": new.ID}))
 	if err != nil {

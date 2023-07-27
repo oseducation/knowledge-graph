@@ -13,6 +13,7 @@ import (
 type UserStore interface {
 	Save(user *model.User) (*model.User, error)
 	Update(new *model.User) error
+	UpdateLanguage(userID string, newLanguage string) error
 	Get(id string) (*model.User, error)
 	GetAll() ([]*model.User, error)
 	GetUsers(options *model.UserGetOptions) ([]*model.User, error)
@@ -43,6 +44,7 @@ func NewUserStore(db *SQLStore) UserStore {
 			"u.email_verified",
 			"u.last_password_update",
 			"u.role",
+			"u.lang",
 		).
 		From("users u")
 
@@ -77,6 +79,7 @@ func (us *SQLUserStore) Save(user *model.User) (*model.User, error) {
 			"email_verified":       user.EmailVerified,
 			"last_password_update": user.LastPasswordUpdate,
 			"role":                 user.Role,
+			"lang":                 user.Lang,
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save user with username:%s and email:%s", user.Username, user.Email)
@@ -106,6 +109,7 @@ func (us *SQLUserStore) Update(new *model.User) error {
 			"email_verified":       new.EmailVerified,
 			"last_password_update": new.LastPasswordUpdate,
 			"role":                 new.Role,
+			"lang":                 new.Lang,
 		}).
 		Where(sq.Eq{"ID": new.ID}))
 	if err != nil {
@@ -198,4 +202,23 @@ func (us *SQLUserStore) ActiveUsers(nodeID string) ([]*model.User, error) {
 		return nil, errors.Wrapf(err, "can't get active users for node %s", nodeID)
 	}
 	return users, nil
+}
+
+// Update will update language for user
+func (us *SQLUserStore) UpdateLanguage(userID string, language string) error {
+	if language != model.LanguageEnglish && language != model.LanguageGeorgian {
+		return errors.Errorf("unknown language - %s", language)
+	}
+
+	_, err := us.sqlStore.execBuilder(us.sqlStore.db, us.sqlStore.builder.
+		Update("users").
+		SetMap(map[string]interface{}{
+			"lang": language,
+		}).
+		Where(sq.Eq{"ID": userID}))
+	if err != nil {
+		return errors.Wrapf(err, "failed to update language for user with id '%s'", userID)
+	}
+
+	return nil
 }

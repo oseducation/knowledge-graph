@@ -1,6 +1,8 @@
 package store
 
 import (
+	"fmt"
+
 	"github.com/blang/semver"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -57,6 +59,37 @@ var migrations = []Migration{
 			}
 
 			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS sessions (
+					id VARCHAR(26) PRIMARY KEY,
+					token VARCHAR(26),
+					create_at bigint,
+					expires_at bigint,
+					last_activity_at bigint,
+					user_id VARCHAR(26),
+					role VARCHAR(32)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table sessions")
+			}
+
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS preferences (
+					user_id VARCHAR(26),
+					key VARCHAR(32),
+					value VARCHAR(32),
+					UNIQUE (user_id, key)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table preferences")
+			}
+
+			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS preferences_user_id_index ON preferences (user_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating index on preferences table")
+			}
+
+			if _, err := e.Exec(`
 				CREATE TABLE IF NOT EXISTS nodes (
 					id VARCHAR(26) PRIMARY KEY,
 					created_at bigint,
@@ -105,20 +138,6 @@ var migrations = []Migration{
 			}
 
 			if _, err := e.Exec(`
-				CREATE TABLE IF NOT EXISTS sessions (
-					id VARCHAR(26) PRIMARY KEY,
-					token VARCHAR(26),
-					create_at bigint,
-					expires_at bigint,
-					last_activity_at bigint,
-					user_id VARCHAR(26),
-					role VARCHAR(32)
-				);
-			`); err != nil {
-				return errors.Wrapf(err, "failed creating table sessions")
-			}
-
-			if _, err := e.Exec(`
 				CREATE TABLE IF NOT EXISTS user_nodes (
 					user_id VARCHAR(26),
 					node_id VARCHAR(26),
@@ -156,23 +175,50 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating index on user_videos table")
 			}
 
-			if _, err := e.Exec(`
-				CREATE TABLE IF NOT EXISTS preferences (
-					user_id VARCHAR(26),
-					key VARCHAR(32),
-					value VARCHAR(32),
-					UNIQUE (user_id, key)
-				);
-			`); err != nil {
-				return errors.Wrapf(err, "failed creating table user_videos")
-			}
+			return nil
+		},
+	},
+	{
+		fromVersion: semver.MustParse("0.1.0"),
+		toVersion:   semver.MustParse("0.2.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE users ADD COLUMN lang VARCHAR(2) DEFAULT 'ge';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column lang to table users")
+				}
+				if _, err := e.Exec(`
+					ALTER TABLE nodes ADD COLUMN lang VARCHAR(2) DEFAULT 'ge';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column lang to table users")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "users", "lang", "VARCHAR(2) DEFAULT 'ge'"); err != nil {
+					return errors.Wrapf(err, "failed adding column lang to table users")
+				}
 
-			if _, err := e.Exec(`
-				CREATE INDEX IF NOT EXISTS preferences_user_id_index ON preferences (user_id);
-			`); err != nil {
-				return errors.Wrapf(err, "failed creating index on preferences table")
+				if err := addColumnToPGTable(e, "nodes", "lang", "VARCHAR(2) DEFAULT 'ge'"); err != nil {
+					return errors.Wrapf(err, "failed adding column lang to table nodes")
+				}
 			}
 			return nil
 		},
 	},
+}
+
+var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {
+	_, err := e.Exec(fmt.Sprintf(`
+		DO
+		$$
+		BEGIN
+			ALTER TABLE %s ADD %s %s;
+		EXCEPTION
+			WHEN duplicate_column THEN
+				RAISE NOTICE 'Ignoring ALTER TABLE statement. Column "%s" already exists in table "%s".';
+		END
+		$$;
+	`, tableName, columnName, columnType, columnName, tableName))
+
+	return err
 }
