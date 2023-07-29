@@ -173,11 +173,18 @@ func logout(c *gin.Context) {
 }
 
 func registerUser(c *gin.Context) {
+	acceptedLanguage := c.GetHeader("Accept-Language")
+	defaultLanguage := model.LanguageEnglish
+	if strings.Contains(acceptedLanguage, model.LanguageGeorgian) {
+		defaultLanguage = model.LanguageGeorgian
+	}
+
 	user, err := model.UserFromJSON(c.Request.Body)
 	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
 		return
 	}
+	user.Lang = defaultLanguage
 
 	a, err := getApp(c)
 	if err != nil {
@@ -190,6 +197,17 @@ func registerUser(c *gin.Context) {
 		a.Log.Error("Can't register a user", log.Err(err))
 		responseFormat(c, http.StatusConflict, "User already exists")
 		return
+	}
+
+	err = a.Store.Preferences().Save([]model.Preference{
+		{
+			UserID: ruser.ID,
+			Key:    "language",
+			Value:  user.Lang,
+		},
+	})
+	if err != nil {
+		a.Log.Error("Can't save preferences for user", log.String("username", ruser.Username), log.Err(err))
 	}
 	responseFormat(c, http.StatusCreated, ruser)
 }

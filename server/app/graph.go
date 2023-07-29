@@ -5,10 +5,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (a *App) GetFrontEndGraph() *model.FrontendGraph {
+func (a *App) GetFrontEndGraph(language string) *model.FrontendGraph {
 	gr := model.FrontendGraph{}
 	gr.Nodes = make([]model.FrontendNodes, 0, len(a.Graph.Nodes))
+	nodesMap := map[string]struct{}{}
 	for _, node := range a.Graph.Nodes {
+		if node.Lang != language {
+			continue
+		}
 		gr.Nodes = append(gr.Nodes, model.FrontendNodes{
 			ID:          node.ID,
 			Name:        node.Name,
@@ -16,10 +20,17 @@ func (a *App) GetFrontEndGraph() *model.FrontendGraph {
 			NodeType:    node.NodeType,
 			Status:      model.NodeStatusUnseen,
 		})
+		nodesMap[node.ID] = struct{}{}
 	}
 	gr.Links = []model.FrontendLinks{}
 	for nodeID, prereqs := range a.Graph.Prerequisites {
+		if _, ok := nodesMap[nodeID]; !ok {
+			continue
+		}
 		for _, prereq := range prereqs {
+			if _, ok := nodesMap[prereq]; !ok {
+				continue
+			}
 			gr.Links = append(gr.Links, model.FrontendLinks{
 				Source: prereq,
 				Target: nodeID,

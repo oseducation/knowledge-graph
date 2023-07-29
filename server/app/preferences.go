@@ -14,6 +14,11 @@ func (a *App) UpdatePreferencesForUser(userID string, preferences []model.Prefer
 		if userID != preference.UserID {
 			return errors.New("user_id mismatch")
 		}
+		if preference.Key == "language" {
+			if err := a.Store.User().UpdateLanguage(userID, preference.Value); err != nil {
+				return errors.New("can't update user language")
+			}
+		}
 	}
 	return a.Store.Preferences().Save(preferences)
 }

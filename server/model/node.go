@@ -20,6 +20,9 @@ const (
 	NodeStatusWatched  = "watched"
 	NodeStatusFinished = "finished"
 	NodeStatusUnseen   = "unseen"
+
+	LanguageEnglish  = "en"
+	LanguageGeorgian = "ge"
 )
 
 // Node type defines Knowledge Graph node
@@ -31,6 +34,7 @@ type Node struct {
 	Name        string `json:"name" db:"name"`
 	Description string `json:"description,omitempty" db:"description"`
 	NodeType    string `json:"node_type" db:"node_type"`
+	Lang        string `json:"lang" db:"lang"`
 }
 
 type NodeWithResources struct {
@@ -72,6 +76,10 @@ func (n *Node) IsValid() error {
 		return invalidNodeError(n.ID, "node_type", n.NodeType)
 	}
 
+	if n.Lang != LanguageEnglish && n.Lang != LanguageGeorgian {
+		return invalidNodeError(n.ID, "lang", n.Lang)
+	}
+
 	return nil
 }
 
@@ -105,6 +113,7 @@ func (n *Node) Clone() *Node {
 	newNode.UpdatedAt = n.UpdatedAt
 	newNode.DeletedAt = n.DeletedAt
 	newNode.Description = n.Description
+	newNode.Lang = n.Lang
 	return &newNode
 }
 

@@ -36,7 +36,13 @@ func graphForUser(c *gin.Context) {
 		statusMap[status.NodeID] = status
 	}
 
-	gr := a.GetFrontEndGraph()
+	user, err := a.Store.User().Get(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	gr := a.GetFrontEndGraph(user.Lang)
 	for i, node := range gr.Nodes {
 		if status, ok := statusMap[node.ID]; ok {
 			gr.Nodes[i].Status = status.Status
@@ -51,6 +57,6 @@ func graphWithoutSession(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	gr := a.GetFrontEndGraph()
+	gr := a.GetFrontEndGraph(model.LanguageEnglish)
 	responseFormat(c, http.StatusOK, gr)
 }

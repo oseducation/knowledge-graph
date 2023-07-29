@@ -13,6 +13,7 @@ var testNode = model.Node{
 	Name:        "test node name",
 	Description: "test node description",
 	NodeType:    "example",
+	Lang:        "en",
 }
 var invalidNode = model.Node{}
 
