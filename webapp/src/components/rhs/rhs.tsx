@@ -88,6 +88,7 @@ const RHS = (props: RHSProps) => {
                 .catch(() => {
                     setLoading(false)
                 });
+            props.onReload();
         }
     }
 
@@ -102,6 +103,7 @@ const RHS = (props: RHSProps) => {
                 .catch(() => {
                     setLoading(false)
                 });
+            props.onReload();
         }
     }
 
