@@ -28,8 +28,10 @@ const D3ForceGraph = (props: Props) => {
     const [highlightNodes, setHighlightNodes] = useState(new Set());
     const [highlightLinks, setHighlightLinks] = useState(new Set());
 
-    const onNodeClick = ({id} : Node) => {
-        navigate(`/nodes/${id}`)
+    const onNodeClick = ({id, status} : Node) => {
+        if (status === NodeStatusFinished || status === NodeStatusNext || status === NodeStatusStarted || status === NodeStatusWatched) {
+            navigate(`/nodes/${id}`);
+        }
     };
 
     useEffect(() => {
