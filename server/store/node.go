@@ -198,10 +198,6 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 		return nil
 	}
 
-	if statusValue == model.NodeStatusFinished {
-		return nil
-	}
-
 	if statusValue == model.NodeStatusWatched && status.Status != model.NodeStatusFinished {
 		return nil
 	}

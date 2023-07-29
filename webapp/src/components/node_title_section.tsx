@@ -10,7 +10,8 @@ interface Props {
     nodeDescription: string;
     nodeFinished: boolean;
     loading: boolean;
-    onMarlAsKnown: () => void;
+    onMarkAsKnown: () => void;
+    onMarkAsStarted: () => void;
 }
 
 const NodeTitleSection = (props: Props) => {
@@ -30,7 +31,9 @@ const NodeTitleSection = (props: Props) => {
                 <IKnowThisButton
                     isNodeFinished={props.nodeFinished}
                     loading={props.loading}
-                    onMarkAsKnown={props.onMarlAsKnown}/>
+                    onMarkAsKnown={props.onMarkAsKnown}
+                    onMarkAsStarted={props.onMarkAsStarted}
+                />
             </Box>
         </Paper>
     );

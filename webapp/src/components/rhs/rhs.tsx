@@ -91,6 +91,20 @@ const RHS = (props: RHSProps) => {
         }
     }
 
+    function markAsStarted() {
+        if (props.userID && node.id) {
+            setLoading(true)
+            Client.Node().markAsStarted(node.id, props.userID)
+                .then(() => {
+                    props.onReload();
+                    setLoading(false)
+                })
+                .catch(() => {
+                    setLoading(false)
+                });
+        }
+    }
+
     return (
         <StyledBox height='100%'>
             <Stack bgcolor={theme.palette.grey[100]} height={'100%'}>
@@ -183,6 +197,7 @@ const RHS = (props: RHSProps) => {
                         isNodeFinished={node.status === NodeStatusFinished}
                         loading={loading}
                         onMarkAsKnown={markAsKnown}
+                        onMarkAsStarted={markAsStarted}
                     />
                 </Box>
             </Stack>
