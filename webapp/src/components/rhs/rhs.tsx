@@ -88,6 +88,22 @@ const RHS = (props: RHSProps) => {
                 .catch(() => {
                     setLoading(false)
                 });
+            props.onReload();
+        }
+    }
+
+    function markAsStarted() {
+        if (props.userID && node.id) {
+            setLoading(true)
+            Client.Node().markAsStarted(node.id, props.userID)
+                .then(() => {
+                    props.onReload();
+                    setLoading(false)
+                })
+                .catch(() => {
+                    setLoading(false)
+                });
+            props.onReload();
         }
     }
 
@@ -183,6 +199,7 @@ const RHS = (props: RHSProps) => {
                         isNodeFinished={node.status === NodeStatusFinished}
                         loading={loading}
                         onMarkAsKnown={markAsKnown}
+                        onMarkAsStarted={markAsStarted}
                     />
                 </Box>
             </Stack>

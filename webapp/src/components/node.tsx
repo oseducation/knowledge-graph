@@ -137,6 +137,19 @@ const Node = (props: Props) => {
         }
     }
 
+    const markAsStarted = () => {
+        if (user && user.id) {
+            setLoading(true)
+            Client.Node().markAsStarted(node.id, user.id)
+                .then(() => {
+                    loadNode();
+                })
+                .catch(() => {
+                    setLoading(false)
+                })
+        }
+    }
+
     // https://github.com/mui/material-ui/issues/10739#issuecomment-1365008174
     const staticHeight = `calc(100vh - (${toolbar?.minHeight}px + ${8}px))`;
 
@@ -203,7 +216,8 @@ const Node = (props: Props) => {
                                 nodeDescription={node.description}
                                 nodeFinished={node.status === NodeStatusFinished}
                                 loading={loading}
-                                onMarlAsKnown={markAsKnown}
+                                onMarkAsKnown={markAsKnown}
+                                onMarkAsStarted={markAsStarted}
                             />
                             <Grid2 sx={{overflow: 'scroll'}} xs={10}>
                                 {node.videos && node.videos.map((video) => (
