@@ -49,7 +49,7 @@ function Header() {
         return <Box
             component="img"
             sx={{
-                height: 54,
+                height: 52,
             }}
             alt="vitsi.ai"
             src="/logo.png"
@@ -67,7 +67,7 @@ function Header() {
             sx={{cursor: 'pointer'}}
         >
             {getLogo()}
-            {getTitle()}
+            {!isLoggedInOnThePhone && getTitle()}
         </Stack>;
     }
 
@@ -106,7 +106,7 @@ function Header() {
                     >
                         <MenuIcon/>
                     </IconButton>}
-                    {!isLoggedInOnThePhone && logoAndTitle()}
+                    {logoAndTitle()}
                     <Spacer/>
                     {user == null ?
                         <>
