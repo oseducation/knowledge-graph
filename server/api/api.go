@@ -40,6 +40,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initNode()
 	apiObj.initGraph()
 	apiObj.initVideo()
+	apiObj.initText()
 	apiObj.initPreferences()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {

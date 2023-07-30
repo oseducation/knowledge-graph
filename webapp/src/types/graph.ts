@@ -41,6 +41,19 @@ export type Video = {
     author_username: string;
 }
 
+export type Text = {
+    id: string;
+    created_at: number;
+    updated_at: number;
+    deleted_at: number;
+    name: string;
+    text: string;
+    node_id: string;
+    author_id: string;
+    author_username: string;
+}
+
+
 export type NodeWithResources = {
     id: string;
     name: string;
@@ -48,6 +61,7 @@ export type NodeWithResources = {
     status: string;
     videos: Video[];
     active_users: User[];
+    texts: Text[];
 }
 
 export const getVideoLength = (length: number) => {
