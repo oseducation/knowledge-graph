@@ -45,7 +45,7 @@ const VideoInput = (props: Props) => {
                 </Alert>
             </Snackbar>
             <Typography>
-                YouTube Video:
+                Do you know the better way to explain this topic? Please upload the YouTube video here:
             </Typography>
             <TextField
                 inputProps={{
