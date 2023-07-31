@@ -19,6 +19,7 @@
     "react-force-graph-2d": "^1.25.0",
     "react-force-graph-3d": "^1.23.0",
     "react-hook-form": "^7.43.9",
+    "react-markdown": "^8.0.7",
     "react-router-dom": "^6.10.0",
     "react-swipeable": "^7.0.1",
     "react-youtube": "^10.1.0",

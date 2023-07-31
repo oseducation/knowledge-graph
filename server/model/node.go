@@ -42,6 +42,7 @@ type NodeWithResources struct {
 	Status      string   `json:"status" db:"_"`
 	Videos      []*Video `json:"videos" db:"_"`
 	ActiveUsers []*User  `json:"active_users" db:"_"`
+	Texts       []*Text  `json:"texts" db:"_"`
 }
 
 type NodeStatusForUser struct {

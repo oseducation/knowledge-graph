@@ -28,6 +28,7 @@ type Store interface {
 	Token() TokenStore
 	Node() NodeStore
 	Video() VideoStore
+	Text() TextStore
 	Graph() GraphStore
 	Session() SessionStore
 	System() SystemStore
@@ -43,6 +44,7 @@ type SQLStore struct {
 	tokenStore       TokenStore
 	nodeStore        NodeStore
 	videoStore       VideoStore
+	textStore        TextStore
 	graphStore       GraphStore
 	sessionStore     SessionStore
 	systemStore      SystemStore
@@ -108,6 +110,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.tokenStore = NewTokenStore(sqlStore)
 	sqlStore.nodeStore = NewNodeStore(sqlStore)
 	sqlStore.videoStore = NewVideoStore(sqlStore)
+	sqlStore.textStore = NewTextStore(sqlStore)
 	sqlStore.graphStore = NewGraphStore(sqlStore)
 	sqlStore.sessionStore = NewSessionStore(sqlStore)
 	sqlStore.systemStore = NewSystemStore(sqlStore)
@@ -148,6 +151,10 @@ func (sqlDB *SQLStore) Nuke() error {
 
 	if _, err := tx.Exec("DROP TABLE IF EXISTS videos"); err != nil {
 		return errors.Wrap(err, "could not videos")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS texts"); err != nil {
+		return errors.Wrap(err, "could not texts")
 	}
 
 	if _, err := tx.Exec("DROP TABLE IF EXISTS sessions"); err != nil {
@@ -194,7 +201,13 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 			sqlDB.logger.Fatal("can't delete from nodes", log.Err(err))
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM user_nodes"); err != nil {
-			sqlDB.logger.Fatal("can't delete from nodes", log.Err(err))
+			sqlDB.logger.Fatal("can't delete from user_nodes", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM texts"); err != nil {
+			sqlDB.logger.Fatal("can't delete from texts", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM videos"); err != nil {
+			sqlDB.logger.Fatal("can't delete from videos", log.Err(err))
 		}
 	}
 }
@@ -285,6 +298,11 @@ func (sqlDB *SQLStore) Node() NodeStore {
 // Video returns an interface to manage video in the DB
 func (sqlDB *SQLStore) Video() VideoStore {
 	return sqlDB.videoStore
+}
+
+// Text returns an interface to manage text in the DB
+func (sqlDB *SQLStore) Text() TextStore {
+	return sqlDB.textStore
 }
 
 // Graph returns an interface to manage graph edges in the DB

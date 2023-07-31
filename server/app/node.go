@@ -5,7 +5,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-const defaultVideoPerPage = 20
+const (
+	defaultVideoPerPage = 20
+	defaultTextPerPage  = 20
+)
 
 // CreateNode creates new node
 func (a *App) CreateNode(node *model.Node) (*model.Node, error) {
@@ -61,7 +64,23 @@ func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "nodeID = %v", nodeID)
 	}
-	return &model.NodeWithResources{Node: *node, Videos: videos, ActiveUsers: a.sanitizeUsers(users)}, nil
+	textOptions := &model.TextGetOptions{}
+	model.ComposeTextOptions(
+		model.TextWithAuthorUsername(),
+		model.TextNodeID(nodeID),
+		model.TextPage(0),
+		model.TextPerPage(defaultTextPerPage))(textOptions)
+	texts, err := a.Store.Text().GetTexts(textOptions)
+	if err != nil {
+		return nil, errors.Wrapf(err, "text options = %v", textOptions)
+	}
+
+	return &model.NodeWithResources{
+		Node:        *node,
+		Videos:      videos,
+		ActiveUsers: a.sanitizeUsers(users),
+		Texts:       texts,
+	}, nil
 }
 
 func (a *App) GetStatusesForUser(userID string) ([]*model.NodeStatusForUser, error) {

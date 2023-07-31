@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Divider, Drawer, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import Grid2 from '@mui/material/Unstable_Grid2';
+import ReactMarkdown from 'react-markdown'
 
-import {getVideoLength, NodeStatusFinished, NodeWithResources, Video} from '../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
@@ -20,7 +22,7 @@ interface Props {
 
 const Node = (props: Props) => {
     const [node, setNode] = useState<NodeWithResources>({} as NodeWithResources);
-    const [activeVideo, setActiveVideo] = useState<Video | null>(null)
+    const [activeItem, setActiveItem] = useState<Video | Text | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const theme = useTheme();
     const {user} = useAuth()
@@ -39,7 +41,7 @@ const Node = (props: Props) => {
     }
 
     useEffect(() => {
-        if (!activeVideo) {
+        if (!activeItem) {
             loadNode();
         }
     }, [props.nodeID]);
@@ -58,7 +60,7 @@ const Node = (props: Props) => {
                 link: node.id,
                 icon: <YouTubeIcon/>,
                 onClick: () => {
-                    setActiveVideo(video);
+                    setActiveItem(video);
                 }
             } as GroupItem;
         }) : [];
@@ -70,11 +72,25 @@ const Node = (props: Props) => {
             items: videoItems
         } as SidebarGroup;
 
+        const textItems = node.texts ? node.texts.map(text => {
+            return {
+                areaLabel: text.name,
+                display_name: text.name,
+                secondary: "by " + text.author_username,
+                id: text.id,
+                link: node.id,
+                icon: <TextSnippetIcon/>,
+                onClick: () => {
+                    setActiveItem(text);
+                }
+            } as GroupItem;
+        }) : [];
+
         const textsGroup = {
             collapsed: false,
             display_name: "Texts",
             id: "texts",
-            items: []
+            items: textItems,
         } as SidebarGroup;
 
         const testsGroup = {
@@ -94,7 +110,7 @@ const Node = (props: Props) => {
             fontSize={20}
             fontWeight={600}
             color={theme.palette.primary.contrastText}
-            onClick={() => setActiveVideo(null)}
+            onClick={() => setActiveItem(null)}
             sx={{
                 p: '10px 2px',
                 cursor: 'pointer',
@@ -193,16 +209,22 @@ const Node = (props: Props) => {
                     height: staticHeight,
                     overflowY: 'auto',
                 }}>
-                    {activeVideo ?
+                    {activeItem && determineIfIsVideo(activeItem) &&
                         <VideoPlayer
-                            videoKey={activeVideo.key}
+                            videoKey={activeItem.key}
                             width={'100%'}
                             height={'100%'}
                             autoplay={true}
                             onVideoStarted={onVideoStarted}
                             onVideoEnded={onVideoEnded}
                         />
-                        :
+                    }
+                    {activeItem && determineIfIsText(activeItem) &&
+                        <ReactMarkdown>
+                            {activeItem.text}
+                        </ReactMarkdown>
+                    }
+                    {!activeItem &&
                         <Box
                             display={"flex"}
                             flexDirection={"column"}
@@ -261,6 +283,20 @@ const Node = (props: Props) => {
             </Grid2>
         </>
     )
+}
+
+const determineIfIsVideo = (toBeDetermined: Video | Text): toBeDetermined is Video => {
+    if((toBeDetermined as Video).key){
+        return true
+    }
+    return false
+}
+
+const determineIfIsText = (toBeDetermined: Video | Text): toBeDetermined is Text => {
+    if((toBeDetermined as Text).text){
+        return true
+    }
+    return false
 }
 
 export default Node;
