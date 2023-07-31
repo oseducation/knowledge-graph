@@ -62,6 +62,11 @@ func (a *App) GetSiteURL() string {
 	return a.Config.ServerSettings.SiteURL
 }
 
+type NodeWithKey struct {
+	model.Node
+	Key string `json:"key"`
+}
+
 // ImportGraph reads graph.json, nodes.json and texts.md files, parses them and imports in the db
 func (a *App) ImportGraph(url string) (string, error) {
 	authorContent, err := getFileContent(fmt.Sprintf("%s/author.json", url))
@@ -78,6 +83,18 @@ func (a *App) ImportGraph(url string) (string, error) {
 
 	updatedUser, err := a.Store.User().Save(&user)
 	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint") {
+			var err2 error
+			updatedUser, err2 = a.Store.User().GetByEmail(user.Email)
+			if err2 != nil {
+				return "", errors.Wrap(err, "can't get same user from db")
+			}
+			password = "same as before"
+		} else {
+			return "", errors.Wrap(err, "can't save user")
+		}
+	}
+	if err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
 		return "", errors.Wrap(err, "can't save user")
 	}
 
@@ -95,11 +112,6 @@ func (a *App) ImportGraph(url string) (string, error) {
 		return "", errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
 	}
 
-	type NodeWithKey struct {
-		model.Node
-		Key string `json:"key"`
-	}
-
 	var nodes map[string]NodeWithKey
 	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
 		return "", errors.Wrap(err, "can't unmarshal nodes.json file")
@@ -115,26 +127,11 @@ func (a *App) ImportGraph(url string) (string, error) {
 	}
 
 	for id, node := range nodes {
-		var updatedNode *model.Node
 		node.NodeType = model.NodeTypeLecture
-		oldNode, err := a.Store.Node().GetByName(node.Name)
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return "", errors.Wrapf(err, "can't get node by name - %s", node.Name)
-		}
-		if err == nil {
-			// we have an old node that should be updated
-			updatedNode = node.Node.Clone()
-			updatedNode.ID = oldNode.ID
-			if err2 := a.Store.Node().Update(updatedNode); err2 != nil {
-				return "", errors.Wrapf(err2, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
-			}
-			a.Log.Info("updated node", log.String("oldNode", fmt.Sprintf("%v", oldNode)), log.String("newNode", fmt.Sprintf("%v", updatedNode)))
-		} else {
-			// no old node in db, we can just save
-			updatedNode, err = a.Store.Node().Save(&node.Node)
-			if err != nil {
-				return "", errors.Wrapf(err, "can't save node - %v", node.Node)
-			}
+		node.Lang = updatedUser.Lang
+		updatedNode, err := a.importNode(&node.Node)
+		if err != nil {
+			return "", errors.Wrap(err, "can't import node")
 		}
 
 		nodes[id] = NodeWithKey{
@@ -143,29 +140,32 @@ func (a *App) ImportGraph(url string) (string, error) {
 		if node.Key == "" {
 			continue
 		}
+
 		title, duration, err := a.GetYoutubeVideoInfo(node.Key)
 		if err != nil {
 			return "", errors.Wrapf(err, "can't get youtube video info %s", node.Key)
 		}
+
 		video := model.Video{
-			Name:           title,
-			VideoType:      model.YouTubeVideoType,
-			Key:            node.Key,
-			NodeID:         updatedNode.ID,
-			Length:         duration,
-			AuthorID:       updatedUser.ID,
-			AuthorUsername: updatedUser.Username,
+			Name:      title,
+			VideoType: model.YouTubeVideoType,
+			Key:       node.Key,
+			NodeID:    updatedNode.ID,
+			Length:    duration,
+			AuthorID:  updatedUser.ID,
 		}
-		if _, err := a.Store.Video().Save(&video); err != nil {
+
+		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
 			return "", errors.Wrap(err, "can't save video")
 		}
 	}
 
 	for id, node := range exampleNodes {
 		node.NodeType = model.NodeTypeExample
-		updatedNode, err := a.Store.Node().Save(&node)
+		node.Lang = updatedUser.Lang
+		updatedNode, err := a.importNode(&node)
 		if err != nil {
-			return "", errors.Wrap(err, "can't save node")
+			return "", errors.Wrap(err, "can't import example node")
 		}
 		nodes[id] = NodeWithKey{
 			Node: *updatedNode,
@@ -178,12 +178,74 @@ func (a *App) ImportGraph(url string) (string, error) {
 				FromNodeID: nodes[prereq].ID,
 				ToNodeID:   nodes[node].ID,
 			}
-			if err := a.Store.Graph().Save(&edge); err != nil {
+			if err := a.Store.Graph().Save(&edge); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
 				return "", errors.Wrap(err, "can't save edge")
 			}
 		}
 	}
+
+	if err := a.importNodeTexts(nodes, updatedUser.ID, url); err != nil {
+		return "", errors.Wrap(err, "can't import texts for nodes")
+	}
+
 	return password, nil
+}
+
+func (a *App) importNode(node *model.Node) (*model.Node, error) {
+	var updatedNode *model.Node
+	oldNode, err := a.Store.Node().GetByName(node.Name)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.Wrapf(err, "can't get node by name - %s", node.Name)
+	}
+	if err == nil {
+		if oldNode.Name == node.Name &&
+			oldNode.Description == node.Description &&
+			oldNode.NodeType == node.NodeType &&
+			oldNode.Lang == node.Lang {
+			// nothing needs to be changed
+			return oldNode, nil
+		}
+		// node needs to be updated
+		updatedNode = node.Clone()
+		updatedNode.ID = oldNode.ID
+		updatedNode.CreatedAt = oldNode.CreatedAt
+		if err2 := a.Store.Node().Update(updatedNode); err2 != nil {
+			return nil, errors.Wrapf(err2, "can't update node with id `%s` and name `%s`", updatedNode.ID, updatedNode.Name)
+		}
+		a.Log.Info("updated node", log.String("oldNode", fmt.Sprintf("%v", oldNode)), log.String("newNode", fmt.Sprintf("%v", updatedNode)))
+		return updatedNode, nil
+	}
+
+	// no old node in db, we can just save
+	updatedNode, err = a.Store.Node().Save(node)
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't save node - %v", node)
+	}
+
+	return updatedNode, nil
+}
+
+func (a *App) importNodeTexts(nodes map[string]NodeWithKey, userID, url string) error {
+	for id, node := range nodes {
+		filename := fmt.Sprintf("%s/texts/%s.md", url, id)
+		mdContent, err := getFileContent(filename)
+		if err != nil {
+			return errors.Wrapf(err, "can't get %s file\n%s", filename, mdContent)
+		}
+		if strings.Contains(mdContent, "404: Not Found") {
+			continue
+		}
+		name := strings.Split(mdContent, "\n")[0][2:]
+		if _, err := a.Store.Text().Save(&model.Text{
+			Name:     name,
+			Text:     mdContent,
+			NodeID:   node.ID,
+			AuthorID: userID,
+		}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+			return errors.Wrap(err, "can't save text")
+		}
+	}
+	return nil
 }
 
 func importKnowledgeGraphToDB(url string, db store.Store, logger *log.Logger) error {

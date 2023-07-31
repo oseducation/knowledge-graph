@@ -218,7 +218,8 @@ var migrations = []Migration{
 					name VARCHAR(256),
 					text VARCHAR(65535),
 					node_id VARCHAR(26),
-					author_id VARCHAR(26)
+					author_id VARCHAR(26),
+					UNIQUE (name)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table texts")
