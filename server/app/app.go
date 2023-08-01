@@ -181,9 +181,9 @@ func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID str
 	}
 
 	type ExampleNode struct {
-		Name     string
-		MD       string
-		Solution string
+		Name       string
+		ProblemMD  string
+		SolutionMD string
 	}
 
 	var exampleNodes map[string]ExampleNode
@@ -208,39 +208,73 @@ func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID str
 			return errors.Wrap(err, "can't import example node")
 		}
 
-		if eNode.MD != "" {
-			pName := fmt.Sprintf("Problem: %s", eNode.Name)
-			if lang == model.LanguageGeorgian {
-				pName = fmt.Sprintf("ამოცანა: %s", eNode.Name)
-			}
-			if _, err := a.Store.Text().Save(&model.Text{
-				Name:     pName,
-				Text:     eNode.MD,
-				NodeID:   updatedNode.ID,
-				AuthorID: userID,
-			}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
-				return errors.Wrap(err, "can't save text")
-			}
+		if err := a.saveProblemText(url, eNode.Name, lang, eNode.ProblemMD, updatedNode.ID, userID); err != nil {
+			return errors.Wrap(err, "can't save problem text")
 		}
 
-		if eNode.Solution != "" {
-			sName := fmt.Sprintf("Solution: %s", eNode.Name)
-			if lang == model.LanguageGeorgian {
-				sName = fmt.Sprintf("ამოხსნა: %s", eNode.Name)
-			}
-			if _, err := a.Store.Text().Save(&model.Text{
-				Name:     sName,
-				Text:     eNode.Solution,
-				NodeID:   updatedNode.ID,
-				AuthorID: userID,
-			}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
-				return errors.Wrap(err, "can't save text")
-			}
+		if err := a.saveSolutionText(url, eNode.Name, lang, eNode.SolutionMD, updatedNode.ID, userID); err != nil {
+			return errors.Wrap(err, "can't save solution text")
 		}
 
 		nodes[id] = NodeWithKey{
 			Node: *updatedNode,
 		}
+	}
+	return nil
+}
+
+func (a *App) saveProblemText(url, name, lang, problemMD, nodeID, userID string) error {
+	mdContent := problemMD
+	if mdContent == "" {
+		filename := fmt.Sprintf("%s/problems/%s.md", url, name)
+		var err error
+		mdContent, err = getFileContent(filename)
+		if err != nil {
+			return errors.Wrapf(err, "can't get file content %s", filename)
+		}
+		if strings.Contains(mdContent, "404: Not Found") {
+			return nil
+		}
+	}
+	pName := fmt.Sprintf("Problem: %s", name)
+	if lang == model.LanguageGeorgian {
+		pName = fmt.Sprintf("ამოცანა: %s", name)
+	}
+	if _, err := a.Store.Text().Save(&model.Text{
+		Name:     pName,
+		Text:     mdContent,
+		NodeID:   nodeID,
+		AuthorID: userID,
+	}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+		return errors.Wrap(err, "can't save problem text")
+	}
+	return nil
+}
+
+func (a *App) saveSolutionText(url, name, lang, solutionMD, nodeID, userID string) error {
+	mdContent := solutionMD
+	if mdContent == "" {
+		filename := fmt.Sprintf("%s/solutions/%s.md", url, name)
+		var err error
+		mdContent, err = getFileContent(filename)
+		if err != nil {
+			return errors.Wrapf(err, "can't get file content %s", filename)
+		}
+		if strings.Contains(mdContent, "404: Not Found") {
+			return nil
+		}
+	}
+	sName := fmt.Sprintf("Solution: %s", name)
+	if lang == model.LanguageGeorgian {
+		sName = fmt.Sprintf("ამოხსნა: %s", name)
+	}
+	if _, err := a.Store.Text().Save(&model.Text{
+		Name:     sName,
+		Text:     mdContent,
+		NodeID:   nodeID,
+		AuthorID: userID,
+	}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+		return errors.Wrap(err, "can't save solution text")
 	}
 	return nil
 }
