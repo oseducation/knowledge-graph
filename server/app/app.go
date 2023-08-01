@@ -181,9 +181,10 @@ func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID str
 	}
 
 	type ExampleNode struct {
-		Name       string
-		ProblemMD  string
-		SolutionMD string
+		Name         string
+		ProblemMD    string
+		SolutionMD   string
+		SolutionCode string
 	}
 
 	var exampleNodes map[string]ExampleNode
@@ -213,6 +214,10 @@ func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID str
 		}
 
 		if err := a.saveSolutionText(url, eNode.Name, lang, eNode.SolutionMD, updatedNode.ID, userID); err != nil {
+			return errors.Wrap(err, "can't save solution text")
+		}
+
+		if err := a.saveSolutionCode(url, eNode.Name, lang, eNode.SolutionCode, updatedNode.ID, userID); err != nil {
 			return errors.Wrap(err, "can't save solution text")
 		}
 
@@ -271,6 +276,34 @@ func (a *App) saveSolutionText(url, name, lang, solutionMD, nodeID, userID strin
 	if _, err := a.Store.Text().Save(&model.Text{
 		Name:     sName,
 		Text:     mdContent,
+		NodeID:   nodeID,
+		AuthorID: userID,
+	}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+		return errors.Wrap(err, "can't save solution text")
+	}
+	return nil
+}
+
+func (a *App) saveSolutionCode(url, name, lang, solutionCode, nodeID, userID string) error {
+	codeContent := solutionCode
+	if codeContent == "" {
+		filename := fmt.Sprintf("%s/codes/%s.java", url, name)
+		var err error
+		codeContent, err = getFileContent(filename)
+		if err != nil {
+			return errors.Wrapf(err, "can't get file content %s", filename)
+		}
+		if strings.Contains(codeContent, "404: Not Found") {
+			return nil
+		}
+	}
+	sName := fmt.Sprintf("Code: %s", name)
+	if lang == model.LanguageGeorgian {
+		sName = fmt.Sprintf("კოდი: %s", name)
+	}
+	if _, err := a.Store.Text().Save(&model.Text{
+		Name:     sName,
+		Text:     fmt.Sprintf("```java\n%s```", codeContent),
 		NodeID:   nodeID,
 		AuthorID: userID,
 	}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
