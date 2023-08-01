@@ -1,0 +1,30 @@
+name: 'Docker Build'
+
+on:
+  push:
+    branches: 'main'
+
+jobs:
+  Docker_Build:
+    runs-on: 'ubuntu-22.04'
+    name: 'Docker Build'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v3.5.3'
+      - name: 'Configure AWS credentials'
+        uses: 'aws-actions/configure-aws-credentials@v2.2.0'
+        with:
+          aws-access-key-id: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          aws-secret-access-key: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          aws-region: 'eu-central-1'
+      - name: Install webapp dependencies
+        run: cd webapp && npm i --force
+      - name: Build webapp
+        run: make build-webapp
+      - name: Upload public to S3 root (excluding index.html)
+        run: |
+          aws s3 sync webapp/public/ s3://vitsi-ai-bucket/ --exclude "index.html"
+      - name: Upload /dist to S3 root
+        run: |
+          aws s3 sync webapp/dist/ s3://vitsi-ai-bucket/
+
