@@ -1,4 +1,4 @@
-name: 'Docker Build'
+name: 'Build and Deploy'
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 jobs:
   Docker_Build:
     runs-on: 'ubuntu-22.04'
-    name: 'Docker Build'
+    name: 'Build and Deploy'
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@v3.5.3'
@@ -27,4 +27,15 @@ jobs:
       - name: Upload /dist to S3 root
         run: |
           aws s3 sync webapp/dist/ s3://vitsi-ai-bucket/
-
+      - name: build and deploy server
+          uses: appleboy/ssh-action@v1.0.0
+          with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USER }}
+            key: ${{ secrets.SSH_KEY }}
+            port: 22
+            script: |
+              cd knowledge-graph/
+              git pull
+              sudo -E make docker-stop
+              sudo -E make docker-start
