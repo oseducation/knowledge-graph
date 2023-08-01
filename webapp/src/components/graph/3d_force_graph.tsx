@@ -143,15 +143,22 @@ const D3ForceGraph = (props: Props) => {
                 const fontSize = 5;
                 ctx.font = `${fontSize}px Sans-Serif`;
 
-                ctx.beginPath();
-                ctx.arc(currentNode.x || 0, currentNode.y || 0, nodeRadius, 0, 2 * Math.PI, false);
-                ctx.fillStyle = getNodeColor(currentNode);
-                ctx.fill();
+                const x = currentNode.x || 0
+                const y = currentNode.y || 0
+                if (currentNode.node_type === 'lecture') {
+                    ctx.beginPath();
+                    ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = getNodeColor(currentNode);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = getNodeColor(currentNode);
+                    ctx.fillRect(x-nodeRadius, y-nodeRadius, 2*nodeRadius, 2*nodeRadius);
+                }
 
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = 'black';
-                ctx.fillText(label, currentNode.x||0, currentNode.y||0);
+                ctx.fillText(label, x, y);
             }}
             nodePointerAreaPaint={(node, color, ctx) => {
                 ctx.fillStyle = color;

@@ -117,15 +117,6 @@ func (a *App) ImportGraph(url string) (string, error) {
 		return "", errors.Wrap(err, "can't unmarshal nodes.json file")
 	}
 
-	examplesContent, err := getFileContent(fmt.Sprintf("%s/examples.json", url))
-	if err != nil {
-		return "", errors.Wrap(err, "can't get examples.json file")
-	}
-	var exampleNodes map[string]model.Node
-	if err := json.Unmarshal([]byte(examplesContent), &exampleNodes); err != nil {
-		return "", errors.Wrap(err, "can't unmarshal examples.json file")
-	}
-
 	for id, node := range nodes {
 		node.NodeType = model.NodeTypeLecture
 		node.Lang = updatedUser.Lang
@@ -160,16 +151,8 @@ func (a *App) ImportGraph(url string) (string, error) {
 		}
 	}
 
-	for id, node := range exampleNodes {
-		node.NodeType = model.NodeTypeExample
-		node.Lang = updatedUser.Lang
-		updatedNode, err := a.importNode(&node)
-		if err != nil {
-			return "", errors.Wrap(err, "can't import example node")
-		}
-		nodes[id] = NodeWithKey{
-			Node: *updatedNode,
-		}
+	if err := a.importExamples(nodes, url, updatedUser.Lang, updatedUser.ID); err != nil {
+		return "", errors.Wrap(err, "can't import examples")
 	}
 
 	for node, prereqs := range graph {
@@ -189,6 +172,77 @@ func (a *App) ImportGraph(url string) (string, error) {
 	}
 
 	return password, nil
+}
+
+func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID string) error {
+	examplesContent, err := getFileContent(fmt.Sprintf("%s/examples.json", url))
+	if err != nil {
+		return errors.Wrap(err, "can't get examples.json file")
+	}
+
+	type ExampleNode struct {
+		Name     string
+		MD       string
+		Solution string
+	}
+
+	var exampleNodes map[string]ExampleNode
+	if err := json.Unmarshal([]byte(examplesContent), &exampleNodes); err != nil {
+		return errors.Wrap(err, "can't unmarshal examples.json file")
+	}
+
+	for id, eNode := range exampleNodes {
+		description := "Try to solve the problem before viewing the solution"
+		if lang == model.LanguageGeorgian {
+			description = "შეეცადე თავად ამოხსნა ამოცანა, სანამ ამოხსნას ნახავ"
+		}
+		node := model.Node{
+			Name:        eNode.Name,
+			Description: description,
+			NodeType:    model.NodeTypeExample,
+			Lang:        lang,
+		}
+
+		updatedNode, err := a.importNode(&node)
+		if err != nil {
+			return errors.Wrap(err, "can't import example node")
+		}
+
+		if eNode.MD != "" {
+			pName := fmt.Sprintf("Problem: %s", eNode.Name)
+			if lang == model.LanguageGeorgian {
+				pName = fmt.Sprintf("ამოცანა: %s", eNode.Name)
+			}
+			if _, err := a.Store.Text().Save(&model.Text{
+				Name:     pName,
+				Text:     eNode.MD,
+				NodeID:   updatedNode.ID,
+				AuthorID: userID,
+			}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+				return errors.Wrap(err, "can't save text")
+			}
+		}
+
+		if eNode.Solution != "" {
+			sName := fmt.Sprintf("Solution: %s", eNode.Name)
+			if lang == model.LanguageGeorgian {
+				sName = fmt.Sprintf("ამოხსნა: %s", eNode.Name)
+			}
+			if _, err := a.Store.Text().Save(&model.Text{
+				Name:     sName,
+				Text:     eNode.Solution,
+				NodeID:   updatedNode.ID,
+				AuthorID: userID,
+			}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+				return errors.Wrap(err, "can't save text")
+			}
+		}
+
+		nodes[id] = NodeWithKey{
+			Node: *updatedNode,
+		}
+	}
+	return nil
 }
 
 func (a *App) importNode(node *model.Node) (*model.Node, error) {
