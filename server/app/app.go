@@ -83,7 +83,7 @@ func (a *App) ImportGraph(url string) (string, error) {
 
 	updatedUser, err := a.Store.User().Save(&user)
 	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint") {
+		if strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 			var err2 error
 			updatedUser, err2 = a.Store.User().GetByEmail(user.Email)
 			if err2 != nil {
@@ -94,7 +94,7 @@ func (a *App) ImportGraph(url string) (string, error) {
 			return "", errors.Wrap(err, "can't save user")
 		}
 	}
-	if err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+	if err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 		return "", errors.Wrap(err, "can't save user")
 	}
 
@@ -155,7 +155,7 @@ func (a *App) ImportGraph(url string) (string, error) {
 			AuthorID:  updatedUser.ID,
 		}
 
-		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 			return "", errors.Wrap(err, "can't save video")
 		}
 	}
@@ -178,7 +178,7 @@ func (a *App) ImportGraph(url string) (string, error) {
 				FromNodeID: nodes[prereq].ID,
 				ToNodeID:   nodes[node].ID,
 			}
-			if err := a.Store.Graph().Save(&edge); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+			if err := a.Store.Graph().Save(&edge); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 				return "", errors.Wrap(err, "can't save edge")
 			}
 		}
@@ -241,7 +241,7 @@ func (a *App) importNodeTexts(nodes map[string]NodeWithKey, userID, url string) 
 			Text:     mdContent,
 			NodeID:   node.ID,
 			AuthorID: userID,
-		}); err != nil && !strings.Contains(err.Error(), "UNIQUE constraint") {
+		}); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 			return errors.Wrap(err, "can't save text")
 		}
 	}
