@@ -16,7 +16,7 @@ import {
     useTheme
 } from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useNavigate} from "react-router-dom";
 
 import {GraphNodeHoverContext} from '../main';
@@ -157,7 +157,7 @@ const RHS = (props: RHSProps) => {
                         </AvatarGroup>
                     </Stack>
                 }
-                {nodeWithResources.videos && nodeWithResources.videos.length > 0 &&
+                {((nodeWithResources.videos && nodeWithResources.videos.length > 0) || (nodeWithResources.texts && nodeWithResources.texts.length > 0)) &&
                     <>
                         <Divider/>
                         <List
@@ -175,7 +175,7 @@ const RHS = (props: RHSProps) => {
                                 </ListSubheader>
                             }
                         >
-                            {nodeWithResources.videos.map(video =>
+                            {nodeWithResources.videos && nodeWithResources.videos.map(video =>
                                 <ListItemButton
                                     key={video.id}
                                     onClick={
@@ -190,7 +190,22 @@ const RHS = (props: RHSProps) => {
                                         secondary={"(" + getVideoLength(video.length) + " min)"}/>
                                 </ListItemButton>
                             )}
-
+                            {nodeWithResources.videos && nodeWithResources.videos.length > 0 && <Divider/>}
+                            {nodeWithResources.texts && nodeWithResources.texts.map(text =>
+                                <ListItemButton
+                                    key={text.name}
+                                    onClick={
+                                        () => navigate(`/nodes/${nodeWithResources.id}`)
+                                    }
+                                >
+                                    <ListItemIcon>
+                                        <TextSnippetIcon/>
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={text.name}
+                                    />
+                                </ListItemButton>
+                            )}
                         </List>
                     </>
                 }
