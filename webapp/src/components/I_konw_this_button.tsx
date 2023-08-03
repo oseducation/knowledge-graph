@@ -1,5 +1,6 @@
 import {LoadingButton} from "@mui/lab";
 import React from "react";
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     isNodeFinished: boolean;
@@ -8,6 +9,8 @@ type Props = {
     onMarkAsStarted: () => void;
 }
 const IKnowThisButton = (props: Props) => {
+    const {t} = useTranslation();
+
     return (
         <>
             {props.isNodeFinished ?
@@ -25,7 +28,7 @@ const IKnowThisButton = (props: Props) => {
                             ml: 2,
                         }}
                     >
-                        Revisit
+                        {t("Revisit")}
                     </LoadingButton>
                 </>
                 :
@@ -39,7 +42,7 @@ const IKnowThisButton = (props: Props) => {
                             ml: 2,
                         }}
                     >
-                        I know this
+                        {t("I know this")}
                     </LoadingButton>
                 </>
             }

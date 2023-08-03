@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Avatar, Button, Container, InputLabel, Paper, Stack, TextField, Typography} from '@mui/material';
 import {Person} from '@mui/icons-material';
+import {useTranslation} from 'react-i18next';
 
 import useAuth from "../hooks/useAuth";
 import {Client} from "../client/client";
@@ -12,6 +13,7 @@ const ProfilePage: React.FC = () => {
     const [username, setUsername] = useState('');
     const [profilePic, setProfilePic] = useState<any>();
     const [hasChanges, setHasChanges] = useState(false);
+    const {t} = useTranslation();
 
     const {user} = useAuth();
 
@@ -62,7 +64,7 @@ const ProfilePage: React.FC = () => {
         <Container maxWidth="xs" style={{display: 'flex', alignItems: 'center'}}>
             <Paper style={{width: '100%', padding: '32px'}} elevation={3}>
                 <Typography variant="h5" style={{textAlign: 'center', marginBottom: '16px'}}>
-                    Account Information
+                    {t("Account Information")}
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <Stack spacing={2}>
@@ -72,7 +74,7 @@ const ProfilePage: React.FC = () => {
                         >
                             {profilePic ? null : <Person/>}
                         </Avatar>
-                        <InputLabel>First Name</InputLabel>
+                        <InputLabel>{t("First Name")}</InputLabel>
                         <TextField
                             value={name}
                             onChange={handleNameChange}
@@ -80,7 +82,7 @@ const ProfilePage: React.FC = () => {
                             error={name.trim() === ''}
                             helperText={name.trim() === '' ? 'First Name is required' : ''}
                         />
-                        <InputLabel>Last Name</InputLabel>
+                        <InputLabel>{t("Last Name")}</InputLabel>
                         <TextField
                             value={surname}
                             onChange={handleSurnameChange}
@@ -88,7 +90,7 @@ const ProfilePage: React.FC = () => {
                             error={surname.trim() === ''}
                             helperText={surname.trim() === '' ? 'Last Name is required' : ''}
                         />
-                        <InputLabel>Username</InputLabel>
+                        <InputLabel>{t("Username")}</InputLabel>
                         <TextField
                             value={username}
                             onChange={handleUsernameChange}
@@ -97,7 +99,7 @@ const ProfilePage: React.FC = () => {
                             helperText={username.trim() === '' ? 'Username is required' : ''}
                         />
                         <Button type="submit" disabled={!allFieldsValid || !hasChanges}>
-                            Save
+                            {t("Save")}
                         </Button>
                     </Stack>
                 </form>

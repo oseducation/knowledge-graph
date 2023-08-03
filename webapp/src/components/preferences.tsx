@@ -12,6 +12,7 @@ import {
     Select,
     Switch
 } from '@mui/material';
+import {useTranslation} from "react-i18next";
 import {Controller, useForm} from 'react-hook-form';
 
 import {Client} from '../client/client';
@@ -25,6 +26,7 @@ interface Props {
 
 const Preferences = (props: Props) => {
     const {user, preferences, setPreferences} = useAuth();
+    const {t, i18n} = useTranslation();
 
     const {control, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<UserPreferences>();
 
@@ -52,6 +54,10 @@ const Preferences = (props: Props) => {
             },
         ]
 
+        if (i18n.language !== data.language) {
+            i18n.changeLanguage(data.language);
+        }
+
         Client.User().saveMyPreferences(prefs)
             .then(() => {
                 setPreferences?.(data);
@@ -65,7 +71,7 @@ const Preferences = (props: Props) => {
     return (
         <>
             <DialogTitle>
-                {`${user?.username}'s preferences`}
+                {`${user?.username}'s ${t("preferences")}`}
             </DialogTitle>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <DialogContent style={{display: 'flex', alignItems: 'stretch', flexDirection: 'column'}}>
@@ -77,32 +83,32 @@ const Preferences = (props: Props) => {
                         </Alert>
                     }
                     <FormControl style={{margin: '16px'}}>
-                        <InputLabel id="language-label">Language</InputLabel>
+                        <InputLabel id="language-label">{t("Language")}</InputLabel>
                         <Controller
                             name='language'
                             control={control}
                             defaultValue={preferences?.language || "en"}
                             render={({field}) => (
                                 <Select labelId='language-label' id='language' {...field}>
-                                    <MenuItem value='en'>English</MenuItem>
-                                    <MenuItem value='ge'>Georgian</MenuItem>
+                                    <MenuItem value='en'>{t("English")}</MenuItem>
+                                    <MenuItem value='ge'>{t("Georgian")}</MenuItem>
                                 </Select>
                             )}
                         />
                     </FormControl>
 
                     <FormControl style={{margin: '16px'}}>
-                        <InputLabel id='graphDirection-label'>Graph Direction</InputLabel>
+                        <InputLabel id='graphDirection-label'>{t("Graph Direction")}</InputLabel>
                         <Controller
                             name='graph_direction'
                             control={control}
-                            defaultValue={preferences?.graph_direction || 'rl'}
+                            defaultValue={preferences?.graph_direction || 'lr'}
                             render={({field}) => (
                                 <Select labelId='graphDirection-label' id='graphDirection' {...field}>
-                                    <MenuItem value='td'>Top down</MenuItem>
-                                    <MenuItem value='bu'>Bottom up</MenuItem>
-                                    <MenuItem value='rl'>Right to Left</MenuItem>
-                                    <MenuItem value='lr'>Left to Right</MenuItem>
+                                    <MenuItem value='td'>{t("Top down")}</MenuItem>
+                                    <MenuItem value='bu'>{t("Bottom up")}</MenuItem>
+                                    <MenuItem value='lr'>{t("Left to Right")}</MenuItem>
+                                    <MenuItem value='rl'>{t("Right to Left")}</MenuItem>
                                 </Select>
                             )}
                         />
@@ -116,15 +122,15 @@ const Preferences = (props: Props) => {
                             render={({field}) => (
                                 <FormControlLabel
                                     control={<Switch {...field} checked={field.value}/>}
-                                    label={field.value ? 'Should videos loop in carousel mode: Yes' : 'Should videos loop in carousel mode: No'}
+                                    label={field.value ? t('Should videos loop in carousel mode: Yes') : t('Should videos loop in carousel mode: No')}
                                 />
                             )}
                         />
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button type={'submit'}>Save</Button>
-                    <Button id="cancel" onClick={props.onClose}>Cancel</Button>
+                    <Button type={'submit'}>{t("Save")}</Button>
+                    <Button id="cancel" onClick={props.onClose}>{t("Cancel")}</Button>
                 </DialogActions>
             </form>
         </>

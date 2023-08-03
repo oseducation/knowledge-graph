@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Container, TextField, Typography, Button, Snackbar, Alert} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 
 import {Client} from '../client/client';
 
@@ -10,6 +11,7 @@ interface Props {
 const VideoInput = (props: Props) => {
     const [inputValue, setInputValue] = useState('');
     const [open, setOpen] = useState(false);
+    const {t} = useTranslation();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
@@ -41,11 +43,11 @@ const VideoInput = (props: Props) => {
         <Container style={{display: 'flex', alignItems: 'center'}}>
             <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error" sx={{width: '100%'}}>
-                    Please insert youtube video url
+                    {t("Please insert youtube video url")}
                 </Alert>
             </Snackbar>
             <Typography>
-                Do you know the better way to explain this topic? Please upload the YouTube video here:
+                {t("Do you know the better way to explain this topic? Please upload the YouTube video here:")}
             </Typography>
             <TextField
                 inputProps={{
@@ -63,7 +65,7 @@ const VideoInput = (props: Props) => {
                 value={inputValue}
                 onChange={handleInputChange}
             />
-            <Button variant="contained" onClick={handleClick}>Upload Video</Button>
+            <Button variant="contained" onClick={handleClick}>{t("Upload Video")}</Button>
         </Container>
     );
 }

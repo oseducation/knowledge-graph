@@ -4,6 +4,7 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import ReactMarkdown from 'react-markdown'
+import {useTranslation} from 'react-i18next';
 
 import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text} from '../types/graph';
 import {Client} from '../client/client';
@@ -27,6 +28,7 @@ const Node = (props: Props) => {
     const theme = useTheme();
     const {user} = useAuth()
     const {open, setOpen} = useDrawer();
+    const {t} = useTranslation();
     const {
         mixins: {toolbar},
     } = useTheme();
@@ -67,7 +69,7 @@ const Node = (props: Props) => {
 
         const videosGroup = {
             collapsed: false,
-            display_name: "Videos",
+            display_name: t("Videos"),
             id: "videos",
             items: videoItems
         } as SidebarGroup;
@@ -88,14 +90,14 @@ const Node = (props: Props) => {
 
         const textsGroup = {
             collapsed: false,
-            display_name: "Texts",
+            display_name: t("Texts"),
             id: "texts",
             items: textItems,
         } as SidebarGroup;
 
         const testsGroup = {
             collapsed: false,
-            display_name: "Tests",
+            display_name: t("Tests"),
             id: "tests",
             items: []
         } as SidebarGroup;
@@ -278,7 +280,7 @@ const Node = (props: Props) => {
                     textAlign={'center'}
                     bgcolor={'gray'}
                 >
-                    Chat coming soon
+                    {t("Chat coming soon")}
                 </Grid2>
             </Grid2>
         </>

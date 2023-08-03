@@ -2,11 +2,46 @@ import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import {Button, Stack, Typography, Box, Avatar} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
-
+import {useTranslation} from 'react-i18next';
 
 
 const Content = () => {
     const navigate = useNavigate();
+    const {t} = useTranslation();
+
+    type Testimonial = {
+        name: string;
+        message: string;
+        image: string;
+    };
+
+    const testimonials = [
+        {
+            name: t("George"),
+            message: t("Love it! Courses are too much of a commitment"),
+            image: ""
+        },{
+            name: t("Nino"),
+            message: t("Vitsi.ai's knowledge graph is an innovation in learning. I believe it will provide an intuitive and clear learning path for various subjects."),
+            image: ""
+        },{
+            name: t("David"),
+            message: t("Mapping knowledge into a prerequisite graph could help learners better understand and absorb information."),
+            image: ""
+        },{
+            name: t("Luke"),
+            message: t("It's like building a mind map but for all the knowledge in the world!"),
+            image: ""
+        },{
+            name: t("Ann"),
+            message: t("Understanding the prerequisites before jumping into a complex topic is crucial, and their idea seems to address that perfectly."),
+            image: ""
+        },{
+            name: t("Mariam"),
+            message: t("Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information."),
+            image: ""
+        }
+    ] as Testimonial[];
 
     return (
         <Grid2 container spacing={2} disableEqualOverflow m={0}>
@@ -29,14 +64,14 @@ const Content = () => {
                             color={'white'}
                             p={'30px 0'}
                         >
-                            Lifelong Learning Without Courses
+                            {t("Lifelong Learning Without Courses")}
                         </Typography>
                         <Typography
                             fontSize={26}
                             fontWeight={'bold'}
                             color={'white'}
                         >
-                            First the Seeds, Then the Forest - Learning Made Easy
+                            {t("Veni, Vidi, Vitsi AI - Learning Made Easy")}
                         </Typography>
                     </Stack>
                 </Grid2>
@@ -45,7 +80,7 @@ const Content = () => {
                     display={'flex'}
                     alignItems={'center'}>
                     <Box mr={1}>
-                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>Sign Up For Free</Button>
+                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>{t("Sign Up For Free")}</Button>
                     </Box>
                 </Grid2>
                 <Grid2
@@ -79,37 +114,37 @@ const Content = () => {
                         fontSize={26}
                         fontWeight={'bold'}
                     >
-                        The World&apos;s Knowledge at Your Fingertips
+                        {t("The World's Knowledge at Your Fingertips")}
                     </Typography>
                     <Typography paragraph>
-                        Every piece of knowledge in the world can be depicted through a prerequisite graph, where understanding all the prerequisites paves the way for learning novel concepts. We are building such a graph.
+                        {t("Every piece of knowledge in the world can be depicted through a prerequisite graph, where understanding all the prerequisites paves the way for learning novel concepts. We are building such a graph.")}
                     </Typography>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
-                        Built for Lifelong Learning
+                        {t("Built for Lifelong Learning")}
                     </Typography>
                     <Typography paragraph>
-                        No matter where you are in your learning journey, our platform adapts to you. From coding to cooking, explore interconnected concepts and skills at your own pace.
+                        {t("No matter where you are in your learning journey, our platform adapts to you. From coding to cooking, explore interconnected concepts and skills at your own pace.")}
                     </Typography>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
-                        Personalized Pathways
+                        {t("Personalized Pathways")}
                     </Typography>
                     <Typography paragraph>
-                        Our algorithm suggests the next concepts to learn based on your past mastery and your future goals. Gain the confidence of knowing you’re on the right path.
+                        {t("Our algorithm suggests the next concepts to learn based on your past mastery and your future goals. Gain the confidence of knowing you’re on the right path.")}
                     </Typography>
                     <Typography
                         fontSize={26}
                         fontWeight={'bold'}
                     >
-                        Community Contributions
+                        {t("Community Contributions")}
                     </Typography>
                     <Typography paragraph>
-                        Learning is better together. Help the community by sharing resources, or take advantage of others&apos; expertise to enrich your understanding.
+                        {t("Learning is better together. Help the community by sharing resources, or take advantage of others' expertise to enrich your understanding.")}
                     </Typography>
                 </Grid2>
                 <Grid2 xs={12} sm={3} md={6}
@@ -144,7 +179,7 @@ const Content = () => {
                         fontWeight={'bold'}
                         m={'20px'}
                     >
-                        From Vitsi Community
+                        {t("From Vitsi Community")}
                     </Typography>
                 </Grid2>
 
@@ -193,13 +228,13 @@ const Content = () => {
                             fontWeight={'bold'}
                             color={'white'}
                         >
-                            Ready to Unlock Your Learning Potential?
+                            {t("Ready to Unlock Your Learning Potential?")}
                         </Typography>
                         <Typography
                             fontSize={20}
                             color={'white'}
                         >
-                            Join us at Vitsi.ai and transform the way you learn.
+                            {t("Join us at Vitsi.ai and transform the way you learn.")}
                         </Typography>
                     </Stack>
                 </Grid2>
@@ -208,46 +243,12 @@ const Content = () => {
                     display={'flex'}
                     alignItems={'center'}>
                     <Box mr={1}>
-                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>Sign Up For Free</Button>
+                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>{t("Sign Up For Free")}</Button>
                     </Box>
                 </Grid2>
             </Grid2>
         </Grid2>
     );
 };
-
-type Testimonial = {
-    name: string;
-    message: string;
-    image: string;
-};
-
-const testimonials = [
-    {
-        name: "George",
-        message: "Love it! Courses are too much of a commitment",
-        image: ""
-    },{
-        name: "Nino",
-        message: "Vitsi.ai's knowledge graph is an innovation in learning. I believe it will provide an intuitive and clear learning path for various subjects.",
-        image: ""
-    },{
-        name: "David",
-        message: "Mapping knowledge into a prerequisite graph could help learners better understand and absorb information.",
-        image: ""
-    },{
-        name: "Luke",
-        message: "It's like building a mind map but for all the knowledge in the world!",
-        image: ""
-    },{
-        name: "Ann",
-        message: "Understanding the prerequisites before jumping into a complex topic is crucial, and their idea seems to address that perfectly.",
-        image: ""
-    },{
-        name: "Mariam",
-        message: "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information.",
-        image: ""
-    }
-] as Testimonial[];
 
 export default Content;

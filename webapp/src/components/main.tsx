@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {Box, Drawer, useTheme} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 
 import {Client} from '../client/client';
 import useAuth from '../hooks/useAuth';
@@ -47,6 +48,7 @@ const Main = () => {
     const [reload, setReload] = useState<boolean>(false);
     const {user} = useAuth();
     const {open, setOpen} = useDrawer();
+    const {t} = useTranslation();
 
     const {
         mixins: {toolbar},
@@ -113,7 +115,7 @@ const Main = () => {
 
         const inProgressGroup = {
             collapsed: false,
-            display_name: "Topics In Progress",
+            display_name: t("Topics In Progress"),
             id: InProgressNodesCategoryName,
             items: inProgressItems
         } as SidebarGroup;
@@ -139,7 +141,7 @@ const Main = () => {
 
         const nextGroup = {
             collapsed: false,
-            display_name: "Next Topics",
+            display_name: t("Next Topics"),
             id: NextNodesCategoryName,
             items: nextItems
         } as SidebarGroup;

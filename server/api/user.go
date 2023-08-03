@@ -173,18 +173,18 @@ func logout(c *gin.Context) {
 }
 
 func registerUser(c *gin.Context) {
-	acceptedLanguage := c.GetHeader("Accept-Language")
-	defaultLanguage := model.LanguageEnglish
-	if strings.Contains(acceptedLanguage, model.LanguageGeorgian) {
-		defaultLanguage = model.LanguageGeorgian
-	}
+	// acceptedLanguage := c.GetHeader("Accept-Language")
+	// defaultLanguage := model.LanguageEnglish
+	// if strings.Contains(acceptedLanguage, model.LanguageGeorgian) {
+	// 	defaultLanguage = model.LanguageGeorgian
+	// }
 
 	user, err := model.UserFromJSON(c.Request.Body)
 	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
 		return
 	}
-	user.Lang = defaultLanguage
+	user.Lang = model.LanguageGeorgian
 
 	a, err := getApp(c)
 	if err != nil {

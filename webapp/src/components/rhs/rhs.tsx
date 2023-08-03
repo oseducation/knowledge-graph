@@ -18,6 +18,7 @@ import {
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useNavigate} from "react-router-dom";
+import {useTranslation} from 'react-i18next';
 
 import {GraphNodeHoverContext} from '../main';
 import {getVideoLength, NodeStatusFinished, NodeWithResources} from '../../types/graph';
@@ -63,6 +64,7 @@ type RHSProps = {
 const RHS = (props: RHSProps) => {
     const {node} = React.useContext(GraphNodeHoverContext);
     const theme = useTheme()
+    const {t} = useTranslation();
 
     const [nodeWithResources, setNodeWithResources] = useState<NodeWithResources>({} as NodeWithResources);
     const navigate = useNavigate();
@@ -123,7 +125,7 @@ const RHS = (props: RHSProps) => {
                         fontWeight={600}
                         sx={{p: '10px'}}
                     >
-                        Node Details
+                        {t("Topic Details")}
                     </Typography>
                     <Divider
                         orientation='vertical'
@@ -148,7 +150,7 @@ const RHS = (props: RHSProps) => {
                             fontSize={18}
                             fontWeight={500}
                         >
-                            Active Learners
+                            {t("Active Learners")}
                         </Typography>
                         <AvatarGroup max={5}>
                             {nodeWithResources.active_users.map(user =>
@@ -170,7 +172,7 @@ const RHS = (props: RHSProps) => {
                                         fontSize={18}
                                         fontWeight={600}
                                     >
-                                        Resources
+                                        {t("Resources")}
                                     </Typography>
                                 </ListSubheader>
                             }

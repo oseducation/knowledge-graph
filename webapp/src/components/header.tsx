@@ -4,6 +4,7 @@ import {AppBar, Box, Toolbar, Typography, Container, Button, Stack, styled, useM
 import {useTheme} from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import {useTranslation} from 'react-i18next';
 
 import useAuth from "../hooks/useAuth";
 import useDrawer from '../hooks/useDrawer';
@@ -19,6 +20,7 @@ function Header() {
     const {open, setOpen} = useDrawer();
     const isLoggedInOnThePhone = user && isPhone;
     const location = useLocation();
+    const {t} = useTranslation();
 
     let hasIconButton = true;
     if (location.pathname == '/carousel') {
@@ -82,7 +84,7 @@ function Header() {
                 whiteSpace: 'nowrap'
             }}
         >
-            Sign in
+            {t("Sign in")}
         </Button>
     }
 
@@ -120,8 +122,8 @@ function Header() {
                                     minWidth: {xs: 'min-content', sm: 'max-content'},
                                     whiteSpace: 'nowrap'
                                 }}>
-                                Sign Up
-                                {isPhone? "" : " For Free"}
+
+                                {isPhone? t("Sign Up") : t("Sign Up For Free")}
                             </Button>
                         </>
                         :
@@ -142,7 +144,7 @@ function Header() {
                                         whiteSpace: 'nowrap'
                                     }}
                                 >
-                                    Carousel Mode
+                                    {t("Carousel Mode")}
                                 </Button>
                             }
                             <ProfileDropdown/>

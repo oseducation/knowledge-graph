@@ -8,6 +8,7 @@ import Menu from "@mui/material/Menu";
 import {Dialog, ListItemIcon, MenuItem, Stack, useMediaQuery} from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useTheme} from '@mui/material/styles';
+import {useTranslation} from 'react-i18next';
 
 import {useNavigate} from "react-router-dom";
 
@@ -19,13 +20,6 @@ import useAuth from "../hooks/useAuth";
 import Preferences from "./preferences";
 
 
-const profileDestinations = [
-    {destination: '/profile', displayName: 'Profile', icon: <AccountCircleIcon/>},
-    {destination: '/preferences', displayName: 'Preferences', icon: <SettingsIcon/>},
-    {destination: '/', displayName: 'Progress', icon: <ProgressIcon/>},
-    {destination: '/logout', displayName: 'Logout', icon: <LogoutIcon/>}
-]
-
 const ProfileDropdown = () => {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorElUser)
@@ -34,6 +28,14 @@ const ProfileDropdown = () => {
     const [openPreferences, setOpenPreferences] = React.useState(false);
     const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+    const {t} = useTranslation();
+
+    const profileDestinations = [
+        {destination: '/profile', displayName: t('Profile'), icon: <AccountCircleIcon/>},
+        {destination: '/preferences', displayName: t('Preferences'), icon: <SettingsIcon/>},
+        {destination: '/', displayName: t('Progress'), icon: <ProgressIcon/>},
+        {destination: '/logout', displayName: t('Logout'), icon: <LogoutIcon/>}
+    ]
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);

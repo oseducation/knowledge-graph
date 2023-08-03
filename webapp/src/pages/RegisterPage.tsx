@@ -3,6 +3,7 @@ import {Alert, Button, Stack, TextField, Typography} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
 import {useForm} from 'react-hook-form';
+import {useTranslation} from 'react-i18next';
 
 import {User} from '../types/users';
 import {Client} from '../client/client';
@@ -10,6 +11,7 @@ import {ClientError} from '../client/rest';
 
 const RegisterPage = () => {
     const navigate = useNavigate();
+    const {t} = useTranslation();
 
     type FormData = {
         first_name: string;
@@ -36,7 +38,7 @@ const RegisterPage = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Stack spacing={2}>
                     <Typography paragraph={true} fontSize={26} fontWeight={'bold'}>
-                        Create your account
+                        {t("Create your account")}
                     </Typography>
                     {errors.root &&
                         <Alert severity="error" onClose={() => {
@@ -46,37 +48,37 @@ const RegisterPage = () => {
                         </Alert>
                     }
                     <TextField
-                        label="First Name"
+                        label={t("First Name")}
                         variant="outlined"
                         {...register("first_name")}
                     />
                     <TextField
-                        label="Last Name"
+                        label={t("Last Name")}
                         variant="outlined"
                         {...register('last_name')}
                     />
                     <TextField
                         required
-                        label="Username"
+                        label={t("Username")}
                         variant="outlined"
                         {...register('username', {required: true})}
                     />
                     <TextField
                         required
-                        label="Email"
+                        label={t("Email")}
                         variant="outlined"
                         type="email"
                         {...register('email', {required: true})}
                     />
                     <TextField
                         required
-                        label="Password"
+                        label={t("Password")}
                         variant="outlined"
                         type="password"
                         {...register('password', {required: true})}
                     />
                     <Button type="submit" variant="contained">
-                        Create account
+                        {t("Create account")}
                     </Button>
                 </Stack>
             </form>
