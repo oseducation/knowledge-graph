@@ -27,12 +27,14 @@ const Sidebar = (props: SidebarProps) => {
         >
             {props.header}
             {props.groups.map((group) => {
-                return (
-                    <Group
-                        key={group.id}
-                        group={group}
-                    />
-                );
+                if (group && group.items && group.items.length > 0) {
+                    return (
+                        <Group
+                            key={group.id}
+                            group={group}
+                        />
+                    );
+                }
             })}
         </Box>
     );
