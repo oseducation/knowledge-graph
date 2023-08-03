@@ -16,14 +16,14 @@ const LHSNavigation = (props: LHSProps) => {
     if (!props.groups || props.groups.length === 0) {
         const inProgressGroup = {
             collapsed: false,
-            display_name: "Nodes In Progress",
+            display_name: "Topics In Progress",
             id: InProgressNodesCategoryName,
             items: []
         } as SidebarGroup;
 
         const nextGroup = {
             collapsed: false,
-            display_name: "Next Nodes",
+            display_name: "Next Topics",
             id: NextNodesCategoryName,
             items: []
         } as SidebarGroup;

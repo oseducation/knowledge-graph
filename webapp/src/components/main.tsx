@@ -113,7 +113,7 @@ const Main = () => {
 
         const inProgressGroup = {
             collapsed: false,
-            display_name: "Nodes In Progress",
+            display_name: "Topics In Progress",
             id: InProgressNodesCategoryName,
             items: inProgressItems
         } as SidebarGroup;
@@ -139,7 +139,7 @@ const Main = () => {
 
         const nextGroup = {
             collapsed: false,
-            display_name: "Next Nodes",
+            display_name: "Next Topics",
             id: NextNodesCategoryName,
             items: nextItems
         } as SidebarGroup;
