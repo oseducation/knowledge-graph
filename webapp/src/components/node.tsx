@@ -6,7 +6,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import ReactMarkdown from 'react-markdown'
 import {useTranslation} from 'react-i18next';
 
-import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text} from '../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text, NodeStatusUnseen, NodeStatusStarted} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
@@ -130,14 +130,18 @@ const Node = (props: Props) => {
 
     const onVideoStarted = (videoKey: string) => {
         if (user && user.id) {
-            Client.Node().markAsStarted(node.id, user.id);
+            if (node.status === ''|| node.status === NodeStatusUnseen) {
+                Client.Node().markAsStarted(node.id, user.id);
+            }
             Client.Video().videoStarted(videoKey);
         }
     }
 
     const onVideoEnded = (videoKey: string) => {
         if (user && user.id) {
-            Client.Node().markAsWatched(node.id, user.id);
+            if (node.status === '' || node.status === NodeStatusUnseen || node.status === NodeStatusStarted) {
+                Client.Node().markAsWatched(node.id, user.id);
+            }
             Client.Video().videoFinished(videoKey);
         }
     }
