@@ -21,7 +21,7 @@ import {useNavigate} from "react-router-dom";
 import {useTranslation} from 'react-i18next';
 
 import {GraphNodeHoverContext} from '../main';
-import {getVideoLength, NodeStatusFinished, NodeWithResources} from '../../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeStatusNext, NodeWithResources} from '../../types/graph';
 import {Client} from '../../client/client';
 import {User} from '../../types/users';
 import IKnowThisButton from "../I_konw_this_button";
@@ -109,6 +109,12 @@ const RHS = (props: RHSProps) => {
         }
     }
 
+    const navigateToResources = () => {
+        if (nodeWithResources.status === NodeStatusFinished || nodeWithResources.status === NodeStatusNext) {
+            navigate(`/nodes/${nodeWithResources.id}`);
+        }
+    }
+
     return (
         <StyledBox height='100%'>
             <Stack bgcolor={theme.palette.grey[100]} height={'100%'}>
@@ -180,9 +186,7 @@ const RHS = (props: RHSProps) => {
                             {nodeWithResources.videos && nodeWithResources.videos.map(video =>
                                 <ListItemButton
                                     key={video.id}
-                                    onClick={
-                                        () => navigate(`/nodes/${nodeWithResources.id}`)
-                                    }
+                                    onClick={navigateToResources}
                                 >
                                     <ListItemIcon>
                                         <YouTubeIcon/>
@@ -196,9 +200,7 @@ const RHS = (props: RHSProps) => {
                             {nodeWithResources.texts && nodeWithResources.texts.map(text =>
                                 <ListItemButton
                                     key={text.name}
-                                    onClick={
-                                        () => navigate(`/nodes/${nodeWithResources.id}`)
-                                    }
+                                    onClick={navigateToResources}
                                 >
                                     <ListItemIcon>
                                         <TextSnippetIcon/>
