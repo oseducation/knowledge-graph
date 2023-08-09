@@ -32,6 +32,7 @@ export const AuthProvider = (props: Props) => {
         setLoading(true);
         Client.User().getMe().then((data) => {
             setUser(data);
+            setLoading(false);
             Client.User().getMyPreferences().then((data) => {
                 const prefs = {} as UserPreferences
                 for (let i=0; i<data.length; i++){
@@ -51,15 +52,10 @@ export const AuthProvider = (props: Props) => {
         });
     }
 
-    const isAuthenticated = async () =>{
-        if (!user) {
+    useEffect(() => {
+        if (!user || !preferences) {
             fetchUserData();
         }
-        setLoading(false)
-    }
-
-    useEffect(() => {
-        isAuthenticated();
     }, [])
 
     return (

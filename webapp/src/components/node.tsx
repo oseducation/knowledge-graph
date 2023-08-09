@@ -243,7 +243,7 @@ const Node = (props: Props) => {
                                 onMarkAsKnown={markAsKnown}
                                 onMarkAsStarted={markAsStarted}
                             />
-                            <Grid2 sx={{overflow: 'scroll'}} xs={10}>
+                            <Grid2 xs={10}>
                                 {node.videos && node.videos.map((video) => (
                                     <Box
                                         key={video.key}
