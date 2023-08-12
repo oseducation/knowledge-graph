@@ -227,6 +227,46 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.3.0"),
+		toVersion:   semver.MustParse("0.4.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS questions (
+					id VARCHAR(26) PRIMARY KEY,
+					question VARCHAR(8192),
+					question_type VARCHAR(32),
+					node_id VARCHAR(26),
+					UNIQUE (question)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table question")
+			}
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS question_choices (
+					id VARCHAR(26) PRIMARY KEY,
+					question_id VARCHAR(26),
+					choice VARCHAR(1024),
+					is_right_choice boolean
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table question_choices")
+			}
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS user_question_answers (
+					user_id VARCHAR(26),
+					question_id VARCHAR(26),
+					choice_id VARCHAR(26),
+					is_right boolean,
+					created_at bigint
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table user_question_answers")
+			}
+
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {

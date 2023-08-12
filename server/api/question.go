@@ -6,16 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (apiObj *API) initText() {
-	apiObj.Texts = apiObj.APIRoot.Group("/texts")
+func (apiObj *API) initQuestion() {
+	apiObj.Questions = apiObj.APIRoot.Group("/questions")
 
-	apiObj.Texts.GET("/:textID", authMiddleware(), getText)
+	apiObj.Questions.GET("/:questionID", authMiddleware(), getQuestion)
 }
 
-func getText(c *gin.Context) {
-	textID := c.Param("textID")
-	if textID == "" {
-		responseFormat(c, http.StatusBadRequest, "missing text_id")
+func getQuestion(c *gin.Context) {
+	questionID := c.Param("question_id")
+	if questionID == "" {
+		responseFormat(c, http.StatusBadRequest, "missing question_id")
 		return
 	}
 
@@ -30,10 +30,10 @@ func getText(c *gin.Context) {
 		a.ExtendSessionIfNeeded(session)
 	}
 
-	text, err := a.GetText(textID)
+	question, err := a.GetQuestion(questionID)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	responseFormat(c, http.StatusOK, text)
+	responseFormat(c, http.StatusOK, question)
 }

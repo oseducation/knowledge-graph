@@ -156,6 +156,7 @@ func getNode(c *gin.Context) {
 	nodes, err := a.GetNode(nodeID)
 	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "unknown node")
+		a.Log.Error(err.Error())
 		return
 	}
 	statuses, err := a.GetStatusesForUser(session.UserID)

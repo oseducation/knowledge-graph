@@ -77,7 +77,12 @@ const resources = {
             "Ann": "Ann",
             "Understanding the prerequisites before jumping into a complex topic is crucial, and their idea seems to address that perfectly.": "Understanding the prerequisites before jumping into a complex topic is crucial, and their idea seems to address that perfectly.",
             "Mariam": "Mariam",
-            "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information.": "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information."
+            "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information.": "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information.",
+            "question": "question",
+            "Choose wisely": "Choose wisely",
+            "You got it!": "You got it!",
+            "Sorry, wrong answer!": "Sorry, wrong answer!",
+            "Check Answer": "Check Answer"
         }
     },
     ge: {
@@ -152,7 +157,12 @@ const resources = {
             "Ann": "ანნა",
             "Understanding the prerequisites before jumping into a complex topic is crucial, and their idea seems to address that perfectly.": "კომპლექსურ თემაზე გადასვლამდე მარტივი რაღაცების ცოდნა გადამწყვეტია, მათი იდეა მშვენივრად ეხმიანება ამას",
             "Mariam": "მარიამი",
-            "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information.": "დამაინტრიგებელია სხვადასხვა ცნებების ერთმანეთთან დაკავშირების იდეა. მგონი ჩვენი ტვინიც ასე ქმნის კავშირებს ინფორმაციებს შორის."
+            "Vitsi.ai's concept of linking concepts together is intriguing. It mirrors how our brain creates connections between related pieces of information.": "დამაინტრიგებელია სხვადასხვა ცნებების ერთმანეთთან დაკავშირების იდეა. მგონი ჩვენი ტვინიც ასე ქმნის კავშირებს ინფორმაციებს შორის.",
+            "question": "შეკითხვა",
+            "Choose wisely": "აბა კარგად დაფიქრდი",
+            "You got it!": "ეგაა!",
+            "Sorry, wrong answer!": "აუ, არასწორია! :(",
+            "Check Answer": "შეამოწმე"
         }
     }
 };

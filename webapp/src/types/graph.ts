@@ -53,6 +53,19 @@ export type Text = {
     author_username: string;
 }
 
+export type QuestionChoice = {
+    id: string;
+    choice: string;
+    is_right_choice: boolean;
+}
+
+export type Question = {
+    id: string;
+    question: string;
+    question_type: string;
+    node_id: string;
+    choices: QuestionChoice[];
+}
 
 export type NodeWithResources = {
     id: string;
@@ -62,6 +75,7 @@ export type NodeWithResources = {
     videos: Video[];
     active_users: User[];
     texts: Text[];
+    questions: Question[];
 }
 
 export const getVideoLength = (length: number) => {

@@ -39,10 +39,11 @@ type Node struct {
 
 type NodeWithResources struct {
 	Node
-	Status      string   `json:"status" db:"_"`
-	Videos      []*Video `json:"videos" db:"_"`
-	ActiveUsers []*User  `json:"active_users" db:"_"`
-	Texts       []*Text  `json:"texts" db:"_"`
+	Status      string      `json:"status" db:"_"`
+	Videos      []*Video    `json:"videos" db:"_"`
+	ActiveUsers []*User     `json:"active_users" db:"_"`
+	Texts       []*Text     `json:"texts" db:"_"`
+	Questions   []*Question `json:"questions" db:"_"`
 }
 
 type NodeStatusForUser struct {

@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	defaultVideoPerPage = 20
-	defaultTextPerPage  = 20
+	defaultVideoPerPage    = 20
+	defaultTextPerPage     = 20
+	defaultQuestionPerPage = 20
 )
 
 // CreateNode creates new node
@@ -75,11 +76,23 @@ func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
 		return nil, errors.Wrapf(err, "text options = %v", textOptions)
 	}
 
+	questionOptions := &model.QuestionGetOptions{}
+	model.ComposeQuestionOptions(
+		model.QuestionWithAnswers(),
+		model.QuestionNodeID(nodeID),
+		model.QuestionPage(0),
+		model.QuestionPerPage(defaultQuestionPerPage))(questionOptions)
+	questions, err := a.Store.Question().GetQuestions(questionOptions)
+	if err != nil {
+		return nil, errors.Wrapf(err, "question options = %v", questionOptions)
+	}
+
 	return &model.NodeWithResources{
 		Node:        *node,
 		Videos:      videos,
 		ActiveUsers: a.sanitizeUsers(users),
 		Texts:       texts,
+		Questions:   questions,
 	}, nil
 }
 

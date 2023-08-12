@@ -22,6 +22,8 @@ type API struct {
 	Nodes       *gin.RouterGroup // 'api/v1/nodes'
 	Node        *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
 	Videos      *gin.RouterGroup // 'api/v1/videos'
+	Texts       *gin.RouterGroup // 'api/v1/texts'
+	Questions   *gin.RouterGroup // 'api/v1/questions'
 	Preferences *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}/preferences'
 }
 
@@ -41,6 +43,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initGraph()
 	apiObj.initVideo()
 	apiObj.initText()
+	apiObj.initQuestion()
 	apiObj.initPreferences()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
