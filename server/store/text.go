@@ -77,7 +77,7 @@ func (ts *SQLTextStore) Get(id string) (*model.Text, error) {
 	return &text, nil
 }
 
-// GetTexts gets nodes with options
+// GetTexts gets texts with options
 func (ts *SQLTextStore) GetTexts(options *model.TextGetOptions) ([]*model.Text, error) {
 	var texts []*model.Text
 	query := ts.textSelect

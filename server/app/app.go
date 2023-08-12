@@ -171,6 +171,10 @@ func (a *App) ImportGraph(url string) (string, error) {
 		return "", errors.Wrap(err, "can't import texts for nodes")
 	}
 
+	if err := a.importNodeQuestions(nodes, url); err != nil {
+		return "", errors.Wrap(err, "can't import questions for nodes")
+	}
+
 	return password, nil
 }
 
@@ -344,6 +348,28 @@ func (a *App) importNode(node *model.Node) (*model.Node, error) {
 	}
 
 	return updatedNode, nil
+}
+
+func (a *App) importNodeQuestions(nodes map[string]NodeWithKey, url string) error {
+	for id, node := range nodes {
+		filename := fmt.Sprintf("%s/questions/%s.json", url, id)
+		jsonContent, err := getFileContent(filename)
+		if err != nil {
+			return errors.Wrapf(err, "can't get %s file\n%s", filename, jsonContent)
+		}
+		if strings.Contains(jsonContent, "404: Not Found") {
+			continue
+		}
+		question, err := model.QuestionFromJSON(strings.NewReader(jsonContent))
+		if err != nil {
+			return errors.Wrapf(err, "can't convert jsonContent to question - %s", jsonContent)
+		}
+		question.NodeID = node.ID
+		if _, err := a.Store.Question().Save(question); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			return errors.Wrap(err, "can't save question")
+		}
+	}
+	return nil
 }
 
 func (a *App) importNodeTexts(nodes map[string]NodeWithKey, userID, url string) error {

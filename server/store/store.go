@@ -29,6 +29,7 @@ type Store interface {
 	Node() NodeStore
 	Video() VideoStore
 	Text() TextStore
+	Question() QuestionStore
 	Graph() GraphStore
 	Session() SessionStore
 	System() SystemStore
@@ -45,6 +46,7 @@ type SQLStore struct {
 	nodeStore        NodeStore
 	videoStore       VideoStore
 	textStore        TextStore
+	questionStore    QuestionStore
 	graphStore       GraphStore
 	sessionStore     SessionStore
 	systemStore      SystemStore
@@ -111,6 +113,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.nodeStore = NewNodeStore(sqlStore)
 	sqlStore.videoStore = NewVideoStore(sqlStore)
 	sqlStore.textStore = NewTextStore(sqlStore)
+	sqlStore.questionStore = NewQuestionStore(sqlStore)
 	sqlStore.graphStore = NewGraphStore(sqlStore)
 	sqlStore.sessionStore = NewSessionStore(sqlStore)
 	sqlStore.systemStore = NewSystemStore(sqlStore)
@@ -303,6 +306,11 @@ func (sqlDB *SQLStore) Video() VideoStore {
 // Text returns an interface to manage text in the DB
 func (sqlDB *SQLStore) Text() TextStore {
 	return sqlDB.textStore
+}
+
+// Question returns an interface to manage question in the DB
+func (sqlDB *SQLStore) Question() QuestionStore {
+	return sqlDB.questionStore
 }
 
 // Graph returns an interface to manage graph edges in the DB

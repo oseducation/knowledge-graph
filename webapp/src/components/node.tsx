@@ -2,11 +2,12 @@ import React, {useEffect, useState} from 'react';
 import {Box, Divider, Drawer, Typography, useTheme} from '@mui/material';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import QuizIcon from '@mui/icons-material/Quiz';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import ReactMarkdown from 'react-markdown'
 import {useTranslation} from 'react-i18next';
 
-import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text, NodeStatusUnseen, NodeStatusStarted} from '../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text, Question, NodeStatusUnseen, NodeStatusStarted} from '../types/graph';
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
@@ -16,6 +17,7 @@ import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
 import VideoInput from './video_input';
 import NodeTitleSection from "./node_title_section";
+import QuestionComponent from './question';
 
 interface Props {
     nodeID: string;
@@ -23,7 +25,7 @@ interface Props {
 
 const Node = (props: Props) => {
     const [node, setNode] = useState<NodeWithResources>({} as NodeWithResources);
-    const [activeItem, setActiveItem] = useState<Video | Text | null>(null)
+    const [activeItem, setActiveItem] = useState<Video | Text | Question | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const theme = useTheme();
     const {user} = useAuth()
@@ -88,6 +90,19 @@ const Node = (props: Props) => {
             } as GroupItem;
         }) : [];
 
+        const questionItems = node.questions ? node.questions.map((question, index) => {
+            return {
+                areaLabel: t("question") + " " + (index+1),
+                display_name: t("question") + " " + (index+1),
+                id: question.id,
+                link: node.id,
+                icon: <QuizIcon/>,
+                onClick: () => {
+                    setActiveItem(question);
+                }
+            } as GroupItem;
+        }) : [];
+
         const textsGroup = {
             collapsed: false,
             display_name: t("Texts"),
@@ -95,14 +110,14 @@ const Node = (props: Props) => {
             items: textItems,
         } as SidebarGroup;
 
-        const testsGroup = {
+        const questionsGroup = {
             collapsed: false,
             display_name: t("Tests"),
             id: "tests",
-            items: []
+            items: questionItems,
         } as SidebarGroup;
 
-        return [videosGroup, textsGroup, testsGroup];
+        return [videosGroup, textsGroup, questionsGroup];
     }
 
     const groups = computeGroups(node)
@@ -230,6 +245,9 @@ const Node = (props: Props) => {
                             {activeItem.text}
                         </ReactMarkdown>
                     }
+                    {activeItem && determineIfIsQuestion(activeItem) &&
+                        <QuestionComponent question={activeItem}/>
+                    }
                     {!activeItem &&
                         <Box
                             display={"flex"}
@@ -291,15 +309,22 @@ const Node = (props: Props) => {
     )
 }
 
-const determineIfIsVideo = (toBeDetermined: Video | Text): toBeDetermined is Video => {
+const determineIfIsVideo = (toBeDetermined: Video | Text | Question): toBeDetermined is Video => {
     if((toBeDetermined as Video).key){
         return true
     }
     return false
 }
 
-const determineIfIsText = (toBeDetermined: Video | Text): toBeDetermined is Text => {
+const determineIfIsText = (toBeDetermined: Video | Text | Question): toBeDetermined is Text => {
     if((toBeDetermined as Text).text){
+        return true
+    }
+    return false
+}
+
+const determineIfIsQuestion = (toBeDetermined: Video | Text | Question): toBeDetermined is Question => {
+    if((toBeDetermined as Question).question){
         return true
     }
     return false
