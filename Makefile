@@ -47,6 +47,9 @@ docker-nuke:
 import:
 	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
 
+import-khan:
+	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/khan-math-en/
+
 nuke:
 	cd server && go run cmd/main.go db nuke
 
