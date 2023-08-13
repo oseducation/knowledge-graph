@@ -9,6 +9,8 @@ import {User} from '../types/users';
 import {Client} from '../client/client';
 import {ClientError} from '../client/rest';
 
+declare const gtag: Gtag.Gtag;
+
 const RegisterPage = () => {
     const navigate = useNavigate();
     const {t} = useTranslation();
@@ -24,11 +26,16 @@ const RegisterPage = () => {
     const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
 
     const onSubmit = (data: FormData) => {
-        Client.User().register(data as User).then(() => navigate('/verify', {
-            state: {
-                email: data.email,
-            }
-        })).catch((err: ClientError) => {
+        Client.User().register(data as User).then(() => {
+            gtag('event', 'sign_up', {
+                method: 'email'
+            });
+            navigate('/verify', {
+                state: {
+                    email: data.email,
+                }
+            });
+        }).catch((err: ClientError) => {
             setError('root', {type: 'server', message: err.message});
         })
     };

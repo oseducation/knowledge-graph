@@ -9,6 +9,8 @@ import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
 import useAuth from '../hooks/useAuth';
 
+declare const gtag: Gtag.Gtag;
+
 const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -30,6 +32,9 @@ const LoginPage = () => {
             .then((user) => {
                 setUser?.(user);
                 Client.rest.setMe(user);
+                gtag('event', 'login', {
+                    method: 'email'
+                });
                 return navigate(from, {replace: true});
             }).catch((err: ClientError) => {
                 setError('root', {type: 'server', message: err.message});
