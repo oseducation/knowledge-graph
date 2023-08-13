@@ -4,7 +4,6 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import QuizIcon from '@mui/icons-material/Quiz';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import ReactMarkdown from 'react-markdown'
 import {useTranslation} from 'react-i18next';
 
 import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text, Question, NodeStatusUnseen, NodeStatusStarted} from '../types/graph';
@@ -18,7 +17,7 @@ import VideoPlayer from './player';
 import VideoInput from './video_input';
 import NodeTitleSection from "./node_title_section";
 import QuestionComponent from './question';
-
+import Markdown from './markdown';
 interface Props {
     nodeID: string;
 }
@@ -241,9 +240,7 @@ const Node = (props: Props) => {
                         />
                     }
                     {activeItem && determineIfIsText(activeItem) &&
-                        <ReactMarkdown>
-                            {activeItem.text}
-                        </ReactMarkdown>
+                        <Markdown text={activeItem.text}/>
                     }
                     {activeItem && determineIfIsQuestion(activeItem) &&
                         <QuestionComponent question={activeItem}/>

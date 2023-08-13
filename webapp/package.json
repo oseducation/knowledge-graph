@@ -24,7 +24,10 @@
     "react-markdown": "^8.0.7",
     "react-router-dom": "^6.10.0",
     "react-swipeable": "^7.0.1",
+    "react-syntax-highlighter": "^15.5.0",
     "react-youtube": "^10.1.0",
+    "rehype-katex": "^6.0.3",
+    "remark-math": "^5.1.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -66,6 +69,7 @@
     "@types/react": "^18.0.31",
     "@types/react-d3-graph": "^2.6.3",
     "@types/react-dom": "^18.0.11",
+    "@types/react-syntax-highlighter": "^15.5.7",
     "@types/styled-components": "^5.1.26",
     "@types/youtube-player": "^5.5.7",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
