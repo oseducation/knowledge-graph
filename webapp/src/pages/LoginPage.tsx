@@ -9,7 +9,7 @@ import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
 import useAuth from '../hooks/useAuth';
 
-declare let gtag: Function;
+declare const gtag: Gtag.Gtag;
 
 const LoginPage = () => {
     const navigate = useNavigate();

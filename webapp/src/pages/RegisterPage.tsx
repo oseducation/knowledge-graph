@@ -9,7 +9,7 @@ import {User} from '../types/users';
 import {Client} from '../client/client';
 import {ClientError} from '../client/rest';
 
-declare let gtag: Function;
+declare const gtag: Gtag.Gtag;
 
 const RegisterPage = () => {
     const navigate = useNavigate();

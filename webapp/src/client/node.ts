@@ -2,7 +2,7 @@ import {NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeWithResour
 
 import {Rest} from "./rest";
 
-declare let gtag: Function;
+declare const gtag: Gtag.Gtag;
 
 export class NodeClient{
     rest: Rest;
