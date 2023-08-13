@@ -2,6 +2,8 @@ import {NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeWithResour
 
 import {Rest} from "./rest";
 
+declare let gtag: Function;
+
 export class NodeClient{
     rest: Rest;
 
@@ -23,14 +25,26 @@ export class NodeClient{
     };
 
     markAsKnown = async (nodeID: string, userID: string) => {
+        gtag('event', 'learn', {
+            status: 'know',
+            node: nodeID
+        });
         return this.changeStatus(nodeID, userID, NodeStatusFinished);
     }
 
     markAsStarted = async (nodeID: string, userID: string) => {
+        gtag('event', 'learn', {
+            status: 'started',
+            node: nodeID
+        });
         return this.changeStatus(nodeID, userID, NodeStatusStarted);
     }
 
     markAsWatched = async (nodeID: string, userID: string) => {
+        gtag('event', 'learn', {
+            status: 'watched',
+            node: nodeID
+        });
         return this.changeStatus(nodeID, userID, NodeStatusWatched);
     }
 
