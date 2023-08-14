@@ -110,7 +110,7 @@ const RHS = (props: RHSProps) => {
     }
 
     const navigateToResources = () => {
-        if (nodeWithResources.status === NodeStatusFinished || nodeWithResources.status === NodeStatusNext) {
+        if (nodeWithResources.status === NodeStatusFinished || nodeWithResources.status === NodeStatusNext || nodeWithResources.status === '') {
             navigate(`/nodes/${nodeWithResources.id}`);
         }
     }
@@ -214,12 +214,14 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    <IKnowThisButton
-                        isNodeFinished={node.status === NodeStatusFinished}
-                        loading={loading}
-                        onMarkAsKnown={markAsKnown}
-                        onMarkAsStarted={markAsStarted}
-                    />
+                    {(nodeWithResources.status === NodeStatusFinished || nodeWithResources.status === NodeStatusNext || nodeWithResources.status === '') &&
+                        <IKnowThisButton
+                            isNodeFinished={node.status === NodeStatusFinished}
+                            loading={loading}
+                            onMarkAsKnown={markAsKnown}
+                            onMarkAsStarted={markAsStarted}
+                        />
+                    }
                 </Box>
             </Stack>
         </StyledBox>
