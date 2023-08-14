@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {Button, Stack, Typography, Box, Avatar} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 import {useTranslation} from 'react-i18next';
+import VideoPlayer from './player';
 
 
 const Content = () => {
@@ -160,6 +161,26 @@ const Content = () => {
                         src="screen.png"
                     />
                 </Grid2>
+            </Grid2>
+            <Grid2 container
+                m={0}
+                p={1}
+                xs={12}
+                id='feature-section'
+                display={'flex'}
+                alignItems={'center'}
+                justifyContent={'center'}
+                bgcolor={'white'}
+            >
+                <VideoPlayer
+                    videoKey={'hvBEDC4dtzM'}
+                    width={'100%'}
+                    height={'600px'}
+                    autoplay={true}
+                    loop={false}
+                    onVideoEnded={()=>{}}
+                    onVideoStarted={()=>{}}
+                />
             </Grid2>
             <Grid2 container
                 m={0}
