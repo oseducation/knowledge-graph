@@ -145,8 +145,8 @@ func addNodeCmdF(command *cobra.Command, _ []string) error {
 		return errors.New("prerequisite json is required")
 	}
 	var prerequisites []string
-	if err := json.Unmarshal([]byte(prerequisiteJSON), &prerequisites); err != nil {
-		return errors.Wrap(err, "can't unmarshal prerequisites' json")
+	if err2 := json.Unmarshal([]byte(prerequisiteJSON), &prerequisites); err2 != nil {
+		return errors.Wrap(err2, "can't unmarshal prerequisites' json")
 	}
 
 	postRequisiteJSON, err := command.Flags().GetString("post")
@@ -154,8 +154,8 @@ func addNodeCmdF(command *cobra.Command, _ []string) error {
 		return errors.New("post-requisite json is required")
 	}
 	var postRequisites []string
-	if err := json.Unmarshal([]byte(postRequisiteJSON), &postRequisites); err != nil {
-		return errors.Wrap(err, "can't unmarshal post-requisites' json")
+	if err2 := json.Unmarshal([]byte(postRequisiteJSON), &postRequisites); err2 != nil {
+		return errors.Wrap(err2, "can't unmarshal post-requisites' json")
 	}
 
 	authorID, err := command.Flags().GetString("author")
@@ -195,7 +195,7 @@ func addNodeCmdF(command *cobra.Command, _ []string) error {
 	for _, prereq := range prerequisites {
 		prereqNode, err := srv.App.Store.Node().GetByName(prereq)
 		if err != nil {
-			return errors.Wrapf(err, "no prereq node in db", prereq)
+			return errors.Wrapf(err, "no prereq - %s node in db", prereq)
 		}
 		if err := srv.App.Store.Graph().Save(&model.Edge{
 			FromNodeID: prereqNode.ID,
@@ -208,7 +208,7 @@ func addNodeCmdF(command *cobra.Command, _ []string) error {
 	for _, postReq := range postRequisites {
 		postReqNode, err := srv.App.Store.Node().GetByName(postReq)
 		if err != nil {
-			return errors.Wrapf(err, "no postReq node in db", postReq)
+			return errors.Wrapf(err, "no postReq - %s node in db", postReq)
 		}
 		if err := srv.App.Store.Graph().Save(&model.Edge{
 			FromNodeID: updatedNode.ID,
