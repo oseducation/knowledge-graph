@@ -1,6 +1,10 @@
 package commands
 
 import (
+	"encoding/json"
+	"strings"
+
+	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
@@ -30,6 +34,14 @@ var dbImportGraph = &cobra.Command{
 	RunE:    importGraphCmdF,
 }
 
+var dbAddNode = &cobra.Command{
+	Use:     "add-node",
+	Short:   "Add a single node",
+	Long:    `Add a single node with node details, prerequisites and post-requisites`,
+	Example: `  db add-node --node '{node json}' --pre '[list of prerequisites]' --post '[list of post-requisites]'`,
+	RunE:    addNodeCmdF,
+}
+
 var dbNuke = &cobra.Command{
 	Use:     "nuke",
 	Short:   "Nuke DB",
@@ -45,6 +57,12 @@ func init() {
 
 	dbImportGraph.Flags().String("url", "", "URL to folder with graph.json file")
 	dbCmd.AddCommand(dbImportGraph)
+
+	dbAddNode.Flags().String("node", "", "a string in json format with node data")
+	dbAddNode.Flags().String("pre", "", "a list in json format with prerequisite node names")
+	dbAddNode.Flags().String("post", "", "a list in json format with post-requisite node names")
+	dbAddNode.Flags().String("author", "", "an authorID of the node")
+	dbCmd.AddCommand(dbAddNode)
 
 	dbCmd.AddCommand(dbNuke)
 
@@ -108,5 +126,96 @@ func importGraphCmdF(command *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "can't import graph")
 	}
 	println("password", password)
+	return nil
+}
+
+func addNodeCmdF(command *cobra.Command, _ []string) error {
+	nodeJSON, err := command.Flags().GetString("node")
+	if err != nil || nodeJSON == "" {
+		return errors.New("node json is required")
+	}
+
+	var node app.NodeWithKey
+	if err2 := json.Unmarshal([]byte(nodeJSON), &node); err2 != nil {
+		return errors.Wrap(err, "can't unmarshal nodeJSON")
+	}
+
+	prerequisiteJSON, err := command.Flags().GetString("pre")
+	if err != nil || prerequisiteJSON == "" {
+		return errors.New("prerequisite json is required")
+	}
+	var prerequisites []string
+	if err := json.Unmarshal([]byte(prerequisiteJSON), &prerequisites); err != nil {
+		return errors.Wrap(err, "can't unmarshal prerequisites' json")
+	}
+
+	postRequisiteJSON, err := command.Flags().GetString("post")
+	if err != nil || postRequisiteJSON == "" {
+		return errors.New("post-requisite json is required")
+	}
+	var postRequisites []string
+	if err := json.Unmarshal([]byte(postRequisiteJSON), &postRequisites); err != nil {
+		return errors.Wrap(err, "can't unmarshal post-requisites' json")
+	}
+
+	authorID, err := command.Flags().GetString("author")
+	if err != nil || authorID == "" {
+		return errors.New("author json is required")
+	}
+
+	srv, err := runServer()
+	if err != nil {
+		return errors.New("can't run server")
+	}
+	defer srv.Shutdown()
+
+	updatedNode, err := srv.App.Store.Node().Save(&node.Node)
+	if err != nil {
+		return errors.Wrap(err, "can't save node to db")
+	}
+
+	title, duration, err := srv.App.GetYoutubeVideoInfo(node.Key)
+	if err != nil {
+		return errors.Wrapf(err, "can't get youtube video info %s", node.Key)
+	}
+
+	video := model.Video{
+		Name:      title,
+		VideoType: model.YouTubeVideoType,
+		Key:       node.Key,
+		NodeID:    updatedNode.ID,
+		Length:    duration,
+		AuthorID:  authorID,
+	}
+
+	if _, err := srv.App.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+		return errors.Wrap(err, "can't save video")
+	}
+
+	for _, prereq := range prerequisites {
+		prereqNode, err := srv.App.Store.Node().GetByName(prereq)
+		if err != nil {
+			return errors.Wrapf(err, "no prereq node in db", prereq)
+		}
+		if err := srv.App.Store.Graph().Save(&model.Edge{
+			FromNodeID: prereqNode.ID,
+			ToNodeID:   updatedNode.ID,
+		}); err != nil {
+			return errors.Wrap(err, "can't save prereq edge")
+		}
+	}
+
+	for _, postReq := range postRequisites {
+		postReqNode, err := srv.App.Store.Node().GetByName(postReq)
+		if err != nil {
+			return errors.Wrapf(err, "no postReq node in db", postReq)
+		}
+		if err := srv.App.Store.Graph().Save(&model.Edge{
+			FromNodeID: updatedNode.ID,
+			ToNodeID:   postReqNode.ID,
+		}); err != nil {
+			return errors.Wrap(err, "can't save postreq edge")
+		}
+	}
 	return nil
 }
