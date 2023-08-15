@@ -109,8 +109,12 @@ const RHS = (props: RHSProps) => {
         }
     }
 
+    const isActiveNodeStatus = (status: string) => {
+        return status === NodeStatusFinished || status === NodeStatusNext || status === NodeStatusStarted || status === NodeStatusWatched
+    }
+
     const navigateToResources = () => {
-        if (node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
+        if (isActiveNodeStatus(node.status)) {
             navigate(`/nodes/${nodeWithResources.id}`);
         }
     }
@@ -214,7 +218,7 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    {(node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) &&
+                    {isActiveNodeStatus(node.status) &&
                         <IKnowThisButton
                             isNodeFinished={node.status === NodeStatusFinished}
                             loading={loading}
