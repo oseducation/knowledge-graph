@@ -15,8 +15,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const listenerPort = ":9081"
-
 // Server type defines application global state
 type Server struct {
 	App    *app.App
@@ -62,9 +60,9 @@ func (a *Server) Start() error {
 		return errors.Wrap(err, "can't init api")
 	}
 
-	a.Log.Info("Server is listening on", log.String("port", listenerPort))
+	a.Log.Info("Server is listening on", log.String("port", a.Config.ServerSettings.ListenAddress))
 	a.srv = &http.Server{
-		Addr:    listenerPort,
+		Addr:    a.Config.ServerSettings.ListenAddress,
 		Handler: a.Router,
 	}
 

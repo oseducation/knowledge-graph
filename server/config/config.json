@@ -1,7 +1,7 @@
 {
     "ServerSettings": {
         "SiteURL": "http://localhost:9091",
-        "ListenAddress": ":9091",
+        "ListenAddress": ":9081",
         "SessionIdleTimeoutInMinutes": 4320,
         "SessionLengthInMinutes": 7200,
         "ExtendSessionLengthWithActivity": true,

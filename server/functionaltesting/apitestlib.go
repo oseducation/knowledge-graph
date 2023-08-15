@@ -27,6 +27,7 @@ type TestHelper struct {
 
 func getTestConfig() *config.Config {
 	cfg := &config.Config{}
+	cfg.ServerSettings.ListenAddress = ":9082"
 	cfg.DBSettings.DriverName = "sqlite3"
 	cfg.DBSettings.DataSource = "../sqlite-test.db"
 	cfg.EmailSettings.RequireEmailVerification = true
@@ -62,9 +63,9 @@ func Setup(tb testing.TB) *TestHelper {
 	th := &TestHelper{
 		Server:      newServer,
 		config:      cfg,
-		Client:      NewClient("http://localhost:9081/"),
-		UserClient:  NewClient("http://localhost:9081/"),
-		AdminClient: NewClient("http://localhost:9081/"),
+		Client:      NewClient("http://localhost:9082/"),
+		UserClient:  NewClient("http://localhost:9082/"),
+		AdminClient: NewClient("http://localhost:9082/"),
 	}
 	th.Init()
 	return th
