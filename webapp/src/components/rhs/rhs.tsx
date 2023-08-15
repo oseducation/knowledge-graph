@@ -21,7 +21,7 @@ import {useNavigate} from "react-router-dom";
 import {useTranslation} from 'react-i18next';
 
 import {GraphNodeHoverContext} from '../main';
-import {getVideoLength, NodeStatusFinished, NodeStatusNext, NodeWithResources} from '../../types/graph';
+import {getVideoLength, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeWithResources} from '../../types/graph';
 import {Client} from '../../client/client';
 import {User} from '../../types/users';
 import IKnowThisButton from "../I_konw_this_button";
@@ -110,7 +110,7 @@ const RHS = (props: RHSProps) => {
     }
 
     const navigateToResources = () => {
-        if (nodeWithResources.status === NodeStatusFinished || nodeWithResources.status === NodeStatusNext || nodeWithResources.status === '') {
+        if (node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
             navigate(`/nodes/${nodeWithResources.id}`);
         }
     }
@@ -214,7 +214,7 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    {(nodeWithResources.status === NodeStatusFinished || nodeWithResources.status === NodeStatusNext || nodeWithResources.status === '') &&
+                    {(node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) &&
                         <IKnowThisButton
                             isNodeFinished={node.status === NodeStatusFinished}
                             loading={loading}
