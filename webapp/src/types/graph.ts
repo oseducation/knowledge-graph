@@ -61,6 +61,7 @@ export type QuestionChoice = {
 
 export type Question = {
     id: string;
+    name: string;
     question: string;
     question_type: string;
     node_id: string;

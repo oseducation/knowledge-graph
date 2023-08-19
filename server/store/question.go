@@ -25,6 +25,7 @@ func NewQuestionStore(db *SQLStore) QuestionStore {
 	questionSelect := db.builder.
 		Select(
 			"q.id",
+			"q.name",
 			"q.question",
 			"q.question_type",
 			"q.node_id",
@@ -51,6 +52,7 @@ func (qs *SQLQuestionStore) Save(question *model.Question) (*model.Question, err
 		Insert("questions").
 		SetMap(map[string]interface{}{
 			"id":            question.ID,
+			"name":          question.Name,
 			"question":      question.Question,
 			"question_type": question.QuestionType,
 			"node_id":       question.NodeID,
