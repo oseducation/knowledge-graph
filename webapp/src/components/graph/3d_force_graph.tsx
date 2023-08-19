@@ -119,6 +119,41 @@ const D3ForceGraph = (props: Props) => {
         updateHighlight();
     };
 
+    function drawStar(
+        ctx: CanvasRenderingContext2D,
+        cx: number,
+        cy: number,
+        spikes: number,
+        outerRadius: number,
+        innerRadius: number,
+        color: string
+    ) {
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        let rotation = (Math.PI / 2) * 3; // Start from the top
+        let step = Math.PI / spikes; // Angle between spikes
+        let x = cx;
+        let y = cy;
+
+        ctx.moveTo(x, y - outerRadius); // Starting point at the top of the star
+
+        for (let i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rotation) * outerRadius; // Outer point of spike
+            y = cy + Math.sin(rotation) * outerRadius;
+            ctx.lineTo(x, y);
+            rotation += step;
+
+            x = cx + Math.cos(rotation) * innerRadius; // Inner point between spikes
+            y = cy + Math.sin(rotation) * innerRadius;
+            ctx.lineTo(x, y);
+            rotation += step;
+        }
+
+        ctx.lineTo(cx, cy - outerRadius); // Closing the path to the starting point
+        ctx.closePath();
+        ctx.fill();
+    }
+
     return (
         <ForceGraph2D
             ref={fgRef}
@@ -150,9 +185,11 @@ const D3ForceGraph = (props: Props) => {
                     ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
                     ctx.fillStyle = getNodeColor(currentNode);
                     ctx.fill();
-                } else {
+                } else if (currentNode.node_type === 'example') {
                     ctx.fillStyle = getNodeColor(currentNode);
                     ctx.fillRect(x-nodeRadius, y-nodeRadius, 2*nodeRadius, 2*nodeRadius);
+                } else if (currentNode.node_type === 'assignment') {
+                    drawStar(ctx, x, y, 5, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
                 }
 
                 ctx.textAlign = 'center';
