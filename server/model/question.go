@@ -13,6 +13,7 @@ type Question struct {
 	CreatedAt    int64            `json:"created_at,omitempty" db:"created_at"`
 	UpdatedAt    int64            `json:"updated_at,omitempty" db:"updated_at"`
 	DeletedAt    int64            `json:"deleted_at" db:"deleted_at"`
+	Name         string           `json:"name" db:"name"`
 	Question     string           `json:"question" db:"question"`
 	QuestionType string           `json:"question_type" db:"question_type"`
 	NodeID       string           `json:"node_id" db:"node_id"`
@@ -65,6 +66,15 @@ func QuestionFromJSON(data io.Reader) (*Question, error) {
 		return nil, errors.Wrap(err, "can't decode text")
 	}
 	return question, nil
+}
+
+// QuestionsFromJSON will decode the input and return a Question
+func QuestionsFromJSON(data io.Reader) ([]Question, error) {
+	var questions []Question
+	if err := json.NewDecoder(data).Decode(&questions); err != nil {
+		return nil, errors.Wrap(err, "can't decode text")
+	}
+	return questions, nil
 }
 
 func invalidQuestionError(questionID, fieldName string, fieldValue any) error {
