@@ -13,8 +13,9 @@ const (
 	NodeNameMinRunes        = 3
 	NodeDescriptionMaxRunes = 2048
 
-	NodeTypeLecture = "lecture"
-	NodeTypeExample = "example"
+	NodeTypeLecture    = "lecture"
+	NodeTypeExample    = "example"
+	NodeTypeAssignment = "assignment"
 
 	NodeStatusStarted  = "started"
 	NodeStatusWatched  = "watched"
@@ -74,7 +75,7 @@ func (n *Node) IsValid() error {
 		return invalidNodeError(n.ID, "description", n.Description)
 	}
 
-	if n.NodeType != NodeTypeExample && n.NodeType != NodeTypeLecture {
+	if n.NodeType != NodeTypeExample && n.NodeType != NodeTypeLecture && n.NodeType != NodeTypeAssignment {
 		return invalidNodeError(n.ID, "node_type", n.NodeType)
 	}
 
