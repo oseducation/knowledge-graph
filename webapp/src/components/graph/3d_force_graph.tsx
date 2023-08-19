@@ -131,7 +131,7 @@ const D3ForceGraph = (props: Props) => {
         ctx.beginPath();
         ctx.fillStyle = color;
         let rotation = (Math.PI / 2) * 3; // Start from the top
-        let step = Math.PI / spikes; // Angle between spikes
+        const step = Math.PI / spikes; // Angle between spikes
         let x = cx;
         let y = cy;
 
