@@ -42,6 +42,27 @@ const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup
     return graphData;
 }
 
+const nodeCmpFn = (a: Node, b:Node) => {
+    if (a.node_type === b.node_type) {
+        const name1 = a.name.toUpperCase();
+        const name2 = b.name.toUpperCase();
+        if (name1 > name2) {
+            return 1;
+        } else if (name1 < name2) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+    const nodeTypeMap = new Map();
+
+    nodeTypeMap
+        .set('lecture', 3)
+        .set('example', 2)
+        .set('assignment', 1);
+    return nodeTypeMap.get(a.node_type) - nodeTypeMap.get(b.node_type);
+}
+
 const Main = () => {
     const [node, setNode] = useState<Node>({} as Node);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
@@ -93,6 +114,8 @@ const Main = () => {
                 node.status = NodeStatusNext;
             }
         }
+        nextNodes.sort(nodeCmpFn);
+        inProgressNodes.sort(nodeCmpFn);
 
         const inProgressItems = inProgressNodes.map((node) => {
             return {
