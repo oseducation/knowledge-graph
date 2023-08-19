@@ -4,6 +4,9 @@ import ForceGraph3D from 'react-force-graph-3d';
 import ForceGraph2D, {ForceGraphMethods, LinkObject, NodeObject} from 'react-force-graph-2d';
 import {forceCollide} from 'd3';
 import {useTheme} from '@mui/material/styles';
+import {Alert, Collapse, IconButton} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import {useTranslation} from 'react-i18next';
 
 import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext} from '../../types/graph';
 import useAuth from '../../hooks/useAuth';
@@ -27,10 +30,14 @@ const D3ForceGraph = (props: Props) => {
     const {preferences} = useAuth();
     const [highlightNodes, setHighlightNodes] = useState(new Set());
     const [highlightLinks, setHighlightLinks] = useState(new Set());
+    const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(true);
+    const {t} = useTranslation();
 
     const onNodeClick = ({id, status} : Node) => {
         if (status === NodeStatusFinished || status === NodeStatusNext || status === NodeStatusStarted || status === NodeStatusWatched) {
             navigate(`/nodes/${id}`);
+        } else {
+            setOpenGreyNodeAlert(true);
         }
     };
 
@@ -155,70 +162,94 @@ const D3ForceGraph = (props: Props) => {
     }
 
     return (
-        <ForceGraph2D
-            ref={fgRef}
-            graphData={props.graph}
-            nodeLabel="description"
-            width={props.width}
-            height={props.height}
-            linkDirectionalParticleWidth={4}
-            linkDirectionalParticles={link => highlightLinks.has(link) ? 2 : 0}
-            linkWidth={link => highlightLinks.has(link) ? 5 : 2}
-            onNodeClick={onNodeClick}
-            dagMode={preferences?.graph_direction || "lr"}
-            nodeVal={20}
-            nodeCanvasObject={(currentNode, ctx) => {
-                if (currentNode.id === node?.id) {
-                    paintRing(currentNode, ctx, 'red');
-                } else if (highlightNodes.has(currentNode.id)){
-                    paintRing(currentNode, ctx, 'orange');
-                }
+        <>
+            <Collapse in={openGreyNodeAlert}>
+                <Alert
+                    severity="info"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => {
+                                setOpenGreyNodeAlert(false);
+                            }}
+                        >
+                            <CloseIcon fontSize="inherit"/>
+                        </IconButton>
+                    }
+                    sx={{mb: 2}}
+                >
+                    {t("please learn all the prerequisite topics first")}
+                </Alert>
+            </Collapse>
 
-                const label = currentNode.name;
-                const fontSize = 5;
-                ctx.font = `${fontSize}px Sans-Serif`;
+            <ForceGraph2D
+                ref={fgRef}
+                graphData={props.graph}
+                nodeLabel="description"
+                width={props.width}
+                height={props.height}
+                linkDirectionalParticleWidth={4}
+                linkDirectionalParticles={link => highlightLinks.has(link) ? 2 : 0}
+                linkWidth={link => highlightLinks.has(link) ? 5 : 2}
+                onNodeClick={onNodeClick}
+                dagMode={preferences?.graph_direction || "lr"}
+                nodeVal={20}
+                nodeCanvasObject={(currentNode, ctx) => {
+                    if (currentNode.id === node?.id) {
+                        paintRing(currentNode, ctx, 'red');
+                    } else if (highlightNodes.has(currentNode.id)){
+                        paintRing(currentNode, ctx, 'orange');
+                    }
 
-                const x = currentNode.x || 0
-                const y = currentNode.y || 0
-                if (currentNode.node_type === 'lecture') {
+                    const label = currentNode.name;
+                    const fontSize = 5;
+                    ctx.font = `${fontSize}px Sans-Serif`;
+
+                    const x = currentNode.x || 0
+                    const y = currentNode.y || 0
+                    if (currentNode.node_type === 'lecture') {
+                        ctx.beginPath();
+                        ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
+                        ctx.fillStyle = getNodeColor(currentNode);
+                        ctx.fill();
+                    } else if (currentNode.node_type === 'example') {
+                        ctx.fillStyle = getNodeColor(currentNode);
+                        ctx.fillRect(x-nodeRadius, y-nodeRadius, 2*nodeRadius, 2*nodeRadius);
+                    } else if (currentNode.node_type === 'assignment') {
+                        drawStar(ctx, x, y, 5, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
+                    }
+
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = 'black';
+                    ctx.fillText(label, x, y);
+                }}
+                nodePointerAreaPaint={(node, color, ctx) => {
+                    ctx.fillStyle = color;
                     ctx.beginPath();
-                    ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = getNodeColor(currentNode);
+                    ctx.arc(node.x || 0, node.y || 0, nodeRadius, 0, 2 * Math.PI, false);
                     ctx.fill();
-                } else if (currentNode.node_type === 'example') {
-                    ctx.fillStyle = getNodeColor(currentNode);
-                    ctx.fillRect(x-nodeRadius, y-nodeRadius, 2*nodeRadius, 2*nodeRadius);
-                } else if (currentNode.node_type === 'assignment') {
-                    drawStar(ctx, x, y, 5, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
-                }
-
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'black';
-                ctx.fillText(label, x, y);
-            }}
-            nodePointerAreaPaint={(node, color, ctx) => {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(node.x || 0, node.y || 0, nodeRadius, 0, 2 * Math.PI, false);
-                ctx.fill();
-            }}
-            nodeAutoColorBy={"status"}
-            nodeRelSize={1}
-            dagLevelDistance={50}
-            d3VelocityDecay={0.3}
-            linkDirectionalArrowLength={6}
-            linkDirectionalArrowRelPos={0.5}
-            onNodeHover={(node: Node | null) => {
-                if (node) {
-                    setNode(node);
-                    handleNodeHover(node);
-                }
-            }}
-            cooldownTicks={100}
-            warmupTicks={200}
-            onEngineStop={() => fgRef.current!.zoomToFit(1000)}
-        />
+                }}
+                nodeAutoColorBy={"status"}
+                nodeRelSize={1}
+                dagLevelDistance={50}
+                d3VelocityDecay={0.3}
+                linkDirectionalArrowLength={6}
+                linkDirectionalArrowRelPos={0.5}
+                onNodeHover={(node: Node | null) => {
+                    if (node) {
+                        setNode(node);
+                        handleNodeHover(node);
+                        setOpenGreyNodeAlert(false);
+                    }
+                }}
+                cooldownTicks={100}
+                warmupTicks={200}
+                onEngineStop={() => fgRef.current!.zoomToFit(1000)}
+            />
+        </>
     )
 }
 

@@ -383,13 +383,15 @@ func (a *App) importNodeQuestions(nodes map[string]NodeWithKey, url string) erro
 		if strings.Contains(jsonContent, "404: Not Found") {
 			continue
 		}
-		question, err := model.QuestionFromJSON(strings.NewReader(jsonContent))
+		questions, err := model.QuestionsFromJSON(strings.NewReader(jsonContent))
 		if err != nil {
-			return errors.Wrapf(err, "can't convert jsonContent to question - %s", jsonContent)
+			return errors.Wrapf(err, "can't convert jsonContent to questions - %s", jsonContent)
 		}
-		question.NodeID = node.ID
-		if _, err := a.Store.Question().Save(question); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
-			return errors.Wrap(err, "can't save question")
+		for _, question := range questions {
+			question.NodeID = node.ID
+			if _, err := a.Store.Question().Save(&question); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+				return errors.Wrap(err, "can't save question")
+			}
 		}
 	}
 	return nil

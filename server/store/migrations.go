@@ -234,10 +234,11 @@ var migrations = []Migration{
 			if _, err := e.Exec(`
 				CREATE TABLE IF NOT EXISTS questions (
 					id VARCHAR(26) PRIMARY KEY,
+					name VARCHAR(128),
 					question VARCHAR(8192),
 					question_type VARCHAR(32),
 					node_id VARCHAR(26),
-					UNIQUE (question)
+					UNIQUE (name)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table question")
