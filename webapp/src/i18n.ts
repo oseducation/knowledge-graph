@@ -82,7 +82,8 @@ const resources = {
             "Choose wisely": "Choose wisely",
             "You got it!": "You got it!",
             "Sorry, wrong answer!": "Sorry, wrong answer!",
-            "Check Answer": "Check Answer"
+            "Check Answer": "Check Answer",
+            "please learn all the prerequisite topics first": "please learn all the prerequisite topics first"
         }
     },
     ge: {
@@ -162,7 +163,8 @@ const resources = {
             "Choose wisely": "აბა კარგად დაფიქრდი",
             "You got it!": "ეგაა!",
             "Sorry, wrong answer!": "აუ, არასწორია! :(",
-            "Check Answer": "შეამოწმე"
+            "Check Answer": "შეამოწმე",
+            "please learn all the prerequisite topics first": "ჯერ პრერეკვიზიტები ისწავლე"
         }
     }
 };
