@@ -91,8 +91,8 @@ const Node = (props: Props) => {
 
         const questionItems = node.questions ? node.questions.map((question, index) => {
             return {
-                areaLabel: t("question") + " " + (index+1),
-                display_name: t("question") + " " + (index+1),
+                areaLabel: question.name || t("question") + " " + (index+1),
+                display_name: question.name || t("question") + " " + (index+1),
                 id: question.id,
                 link: node.id,
                 icon: <QuizIcon/>,
