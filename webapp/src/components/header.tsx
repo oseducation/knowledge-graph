@@ -5,6 +5,7 @@ import {useTheme} from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import {useTranslation} from 'react-i18next';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import useAuth from "../hooks/useAuth";
 import useDrawer from '../hooks/useDrawer';
@@ -23,8 +24,13 @@ function Header() {
     const {t} = useTranslation();
 
     let hasIconButton = true;
-    if (location.pathname == '/carousel') {
+    if (location.pathname === '/carousel') {
         hasIconButton = false
+    }
+
+    let hasBackButton = false;
+    if (location.pathname.startsWith('/nodes/')) {
+        hasBackButton = true;
     }
 
     function getTitle() {
@@ -68,7 +74,7 @@ function Header() {
             onClick={handleBoxClick}
             sx={{cursor: 'pointer'}}
         >
-            {getLogo()}
+            {hasBackButton? <ArrowBackIcon/> : getLogo()}
             {!isLoggedInOnThePhone && getTitle()}
         </Stack>;
     }
