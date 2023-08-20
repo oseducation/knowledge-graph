@@ -59,14 +59,17 @@ const QuestionComponent = (props: Props) => {
                     value={value}
                     onChange={handleRadioChange}
                 >
-                    {props.question.choices.map(choice =>
-                        <FormControlLabel
-                            key={choice.id}
-                            value={choice.choice}
-                            control={<Radio/>}
-                            label={<Markdown text={choice.choice}/>}
-                        />
-                    )}
+                    {props.question.choices.map(value => ({value, sort: Math.random()}))
+                        .sort((a, b) => a.sort - b.sort)
+                        .map(({value}) =>
+                            <FormControlLabel
+                                key={value.id}
+                                value={value.choice}
+                                control={<Radio/>}
+                                label={<Markdown text={value.choice}/>}
+                            />
+                        )
+                    }
                 </RadioGroup>
                 <FormHelperText>{helperText}</FormHelperText>
                 <Button sx={{mt: 1, mr: 1}} type="submit" variant="outlined">
