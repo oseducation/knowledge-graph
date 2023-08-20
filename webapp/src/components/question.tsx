@@ -10,6 +10,7 @@ import Radio from '@mui/material/Radio';
 import {useTranslation} from 'react-i18next';
 
 import {Question} from '../types/graph';
+import Markdown from './markdown';
 
 
 interface Props {
@@ -49,7 +50,9 @@ const QuestionComponent = (props: Props) => {
     return (
         <form onSubmit={handleSubmit}>
             <FormControl sx={{m: 3}} error={error} variant="standard">
-                <FormLabel id="question-text">{props.question.question}</FormLabel>
+                <FormLabel id="question-text">
+                    <Markdown text={props.question.question}/>
+                </FormLabel>
                 <RadioGroup
                     aria-labelledby="question-radios"
                     name="question"
@@ -61,7 +64,7 @@ const QuestionComponent = (props: Props) => {
                             key={choice.id}
                             value={choice.choice}
                             control={<Radio/>}
-                            label={choice.choice}
+                            label={<Markdown text={choice.choice}/>}
                         />
                     )}
                 </RadioGroup>
