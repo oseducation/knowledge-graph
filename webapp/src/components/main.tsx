@@ -24,7 +24,7 @@ export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextTy
     }
 });
 
-const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup[]) => {
+const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup[], language?: string) => {
     type GraphDataType = {
         graph: Graph;
         groups: SidebarGroup[];
@@ -37,7 +37,7 @@ const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup
             setGraphData({graph: data, groups: computeGroups(data)})
         });
 
-    }, [reload]);
+    }, [reload, language]);
 
     return graphData;
 }
@@ -67,7 +67,7 @@ const Main = () => {
     const [node, setNode] = useState<Node>({} as Node);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
     const [reload, setReload] = useState<boolean>(false);
-    const {user} = useAuth();
+    const {user, preferences} = useAuth();
     const {open, setOpen} = useDrawer();
     const {t} = useTranslation();
 
@@ -172,7 +172,7 @@ const Main = () => {
         return [inProgressGroup, nextGroup];
     }
 
-    const {graph, groups} = useGraph(reload, computeGroups);
+    const {graph, groups} = useGraph(reload, computeGroups, preferences?.language);
 
     // https://github.com/mui/material-ui/issues/10739#issuecomment-1365008174
     const staticHeight = `calc(100vh - (${toolbar?.minHeight}px + ${8}px))`;
@@ -223,7 +223,7 @@ const Main = () => {
                             focusNodeID={focusedNodeID}
                         />
                         :
-                        <div>Graph</div>
+                        <div>Loading Graph...</div>
                     }
                 </Grid2>
                 <Grid2 xs={3} sx={{
