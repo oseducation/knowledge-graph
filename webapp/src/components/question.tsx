@@ -6,10 +6,11 @@ import FormLabel from '@mui/material/FormLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import Button from '@mui/material/Button';
 import Radio from '@mui/material/Radio';
-
 import {useTranslation} from 'react-i18next';
 
 import {Question} from '../types/graph';
+
+import Markdown from './markdown';
 
 
 interface Props {
@@ -49,21 +50,26 @@ const QuestionComponent = (props: Props) => {
     return (
         <form onSubmit={handleSubmit}>
             <FormControl sx={{m: 3}} error={error} variant="standard">
-                <FormLabel id="question-text">{props.question.question}</FormLabel>
+                <FormLabel id="question-text">
+                    <Markdown text={props.question.question}/>
+                </FormLabel>
                 <RadioGroup
                     aria-labelledby="question-radios"
                     name="question"
                     value={value}
                     onChange={handleRadioChange}
                 >
-                    {props.question.choices.map(choice =>
-                        <FormControlLabel
-                            key={choice.id}
-                            value={choice.choice}
-                            control={<Radio/>}
-                            label={choice.choice}
-                        />
-                    )}
+                    {props.question.choices.map(value => ({value, sort: Math.random()}))
+                        .sort((a, b) => a.sort - b.sort)
+                        .map(({value}) =>
+                            <FormControlLabel
+                                key={value.id}
+                                value={value.choice}
+                                control={<Radio/>}
+                                label={<Markdown text={value.choice}/>}
+                            />
+                        )
+                    }
                 </RadioGroup>
                 <FormHelperText>{helperText}</FormHelperText>
                 <Button sx={{mt: 1, mr: 1}} type="submit" variant="outlined">
