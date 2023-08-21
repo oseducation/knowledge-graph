@@ -30,7 +30,7 @@ const D3ForceGraph = (props: Props) => {
     const {preferences} = useAuth();
     const [highlightNodes, setHighlightNodes] = useState(new Set());
     const [highlightLinks, setHighlightLinks] = useState(new Set());
-    const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(true);
+    const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
     const {t} = useTranslation();
 
     const onNodeClick = ({id, status} : Node) => {
