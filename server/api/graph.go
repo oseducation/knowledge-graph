@@ -10,10 +10,10 @@ import (
 func (apiObj *API) initGraph() {
 	apiObj.Nodes = apiObj.APIRoot.Group("/graph")
 
-	apiObj.Nodes.GET("/", splitAuthMiddleware(graphForUser, graphWithoutSession))
+	apiObj.Nodes.GET("/", splitAuthMiddleware(getMyGraph, getGraph))
 }
 
-func graphForUser(c *gin.Context) {
+func getMyGraph(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
@@ -26,32 +26,16 @@ func graphForUser(c *gin.Context) {
 		return
 	}
 
-	statuses, err := a.GetStatusesForUser(session.UserID)
-	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	statusMap := map[string]*model.NodeStatusForUser{}
-	for _, status := range statuses {
-		statusMap[status.NodeID] = status
-	}
-
-	user, err := a.Store.User().Get(session.UserID)
+	gr, err := a.GetGraphForUser(session.UserID)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	gr := a.GetFrontEndGraph(user.Lang)
-	for i, node := range gr.Nodes {
-		if status, ok := statusMap[node.ID]; ok {
-			gr.Nodes[i].Status = status.Status
-		}
-	}
 	responseFormat(c, http.StatusOK, gr)
 }
 
-func graphWithoutSession(c *gin.Context) {
+func getGraph(c *gin.Context) {
 	a, err := getApp(c)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())

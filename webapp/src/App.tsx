@@ -17,6 +17,8 @@ import ContactUs from './pages/ContactUsPage';
 import Terms from './pages/TermsPage';
 import PrivacyPolicy from './pages/PrivacyPage';
 import AboutUs from './pages/AboutUs';
+import AdminPage from './pages/AdminPage';
+import GraphPage from './pages/GraphPage';
 
 function App() {
     return (
@@ -30,11 +32,15 @@ function App() {
             <Route path="/terms" element={<Terms/>}/>
             <Route path="/privacy" element={<PrivacyPolicy/>}/>
             <Route path="/about" element={<AboutUs/>}/>
-            <Route element={<RequireAuth allowedRoles={[ROLES.User]}/>}>
+            <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]}/>}>
                 <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                 <Route path="/welcome" element={<WelcomePage/>}/>
                 <Route path="/profile" element={<ProfilePage/>}/>
                 <Route path="/carousel" element={<CarouselPage/>}/>
+            </Route>
+            <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
+                <Route path="/admin" element={<AdminPage/>}/>
+                <Route path="/graph/:userID" element={<GraphPage/>}/>
             </Route>
         </Routes>
     );

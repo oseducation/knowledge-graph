@@ -48,12 +48,12 @@ export const AuthProvider = (props: Props) => {
                     }
                 }
                 setPreferences(prefs);
+                setLoading(false);
             });
         }).catch((err) => {
             console.log('error while getting me', err);
             setUser(null);
         });
-        setLoading(false);
     }
 
     useEffect(() => {
