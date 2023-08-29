@@ -36,6 +36,7 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
 	apiObj.Users.PUT("/", authMiddleware(), requireUserPermissions(), updateUser)
 	apiObj.Users.DELETE("/", authMiddleware(), requireUserPermissions(), deleteUser)
+	apiObj.Users.GET("/graph", authMiddleware(), requireUserPermissions(), getUserGraph)
 }
 
 func patchCurrentUser(c *gin.Context) {
@@ -324,6 +325,23 @@ func deleteUser(c *gin.Context) {
 	}
 
 	responseFormat(c, http.StatusOK, "User deleted")
+}
+
+func getUserGraph(c *gin.Context) {
+	userID := c.DefaultQuery("user_id", "")
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	gr, err := a.GetGraphForUser(userID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	responseFormat(c, http.StatusOK, gr)
 }
 
 func verifyUserEmail(c *gin.Context) {

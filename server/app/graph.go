@@ -73,6 +73,31 @@ func (a *App) GetNextNodes(userID string) ([]model.Node, []model.Node, error) {
 	return inProgressNodes, nextNodes, nil
 }
 
+func (a *App) GetGraphForUser(userID string) (*model.FrontendGraph, error) {
+	statuses, err := a.GetStatusesForUser(userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't get statuses for user")
+	}
+	statusMap := map[string]*model.NodeStatusForUser{}
+	for _, status := range statuses {
+		statusMap[status.NodeID] = status
+	}
+
+	user, err := a.Store.User().Get(userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't get user")
+	}
+
+	gr := a.GetFrontEndGraph(user.Lang)
+	for i, node := range gr.Nodes {
+		if status, ok := statusMap[node.ID]; ok {
+			gr.Nodes[i].Status = status.Status
+		}
+	}
+
+	return gr, nil
+}
+
 func (a *App) hasNodeFinishedAllPrerequisites(nodeID string, statuses map[string]*model.NodeStatusForUser) bool {
 	prereqs, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
