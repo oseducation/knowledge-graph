@@ -39,12 +39,15 @@ export const newEngine = () => {
     }
 }
 
-export const compile = (world: World, code: string): Engine => {
+export const compile = (world: World, code: string) => {
     engine.virtualWorld = deepCopyWorld(world);
     engine.actionBuffer = [];
     engine.actionIndex = 0;
     eval(code);
-    return engine
+}
+
+export const getEngine = (): Engine => {
+    return engine;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

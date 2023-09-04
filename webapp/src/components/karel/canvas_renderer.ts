@@ -1,4 +1,4 @@
-import {BORDER_SIZE, CanvasModel, World} from "./types";
+import {BORDER_SIZE, CanvasModel, World, setKarelDimensions} from "./types";
 
 const KAREL_TINY_SIZE = 19;
 const KAREL_SMALL_SIZE = 30;
@@ -13,11 +13,20 @@ const CROSS_FRACTION = 0.25;
 const MIN_CROSS_SIZE = 5;
 const WALL_THICKNESS_FRACTION = 0.1;
 
-export const draw = (c: CanvasModel, w: World, ctx: CanvasRenderingContext2D) => {
+
+export const draw = (w: World, ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const c = createCanvasModel(w, width, height)
     drawBackground(c, w, ctx);
     drawKarel(c, w, ctx);
     drawWalls(c, w, ctx);
 }
+
+const createCanvasModel = (w: World, width: number, height: number): CanvasModel => {
+    const c = {canvasWidth: width, canvasHeight: height} as CanvasModel;
+    setKarelDimensions(c, w.rows, w.columns);
+    return c;
+}
+
 
 const getCornerX = (c: CanvasModel, col: number) => {
     return c.worldLeft + col * c.cornerSize;

@@ -105,7 +105,8 @@ export const frontIsClear = (world: World): boolean => {
     case 'north': newRow = newRow - 1; break;
     case 'south': newRow = newRow + 1; break;
     }
-    return isMoveValid(world, world.karelRow, world.karelCol, newRow, newCol);
+    const valid = isMoveValid(world, world.karelRow, world.karelCol, newRow, newCol);
+    return valid;
 }
 
 export const rightIsClear = (world: World): boolean => {
@@ -375,15 +376,15 @@ const extractCoord = (coordString: string): number[] => {
     return [row, col];
 }
 
-const isMoveValid = (world: World, startX: number, startY: number, endX: number, endY: number): boolean => {
-    if (endX < 0 || endX >= world.columns) return false;
-    if (endY < 0 || endY >= world.rows) return false;
+const isMoveValid = (world: World, startR: number, startC: number, endR: number, endC: number): boolean => {
+    if (endC < 0 || endC >= world.columns) return false;
+    if (endR < 0 || endR >= world.rows) return false;
 
-    if (startX + 1 == endX && world.rightWalls[startY][startX] !== 0) return false;
-    if (startX - 1 == endX && world.rightWalls[endY][endX] !== 0) return false;
+    if (startC + 1 == endC && world.rightWalls[startR][startC] !== 0) return false;
+    if (startC - 1 == endC && world.rightWalls[startR][endC] !== 0) return false;
 
-    if (startY + 1 == endY && world.topWalls[endY][endX] !== 0) return false;
-    if (startY - 1 == endY && world.topWalls[startY][endX] !== 0) return false;
+    if (startR + 1 == endR && world.topWalls[endR][endC] !== 0) return false;
+    if (startR - 1 == endR && world.topWalls[startR][endC] !== 0) return false;
 
     return true;
 }
