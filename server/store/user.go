@@ -16,7 +16,7 @@ type UserStore interface {
 	UpdateLanguage(userID string, newLanguage string) error
 	Get(id string) (*model.User, error)
 	GetAll() ([]*model.User, error)
-	GetUsers(options *model.UserGetOptions) ([]*model.User, error)
+	GetUsers(options *model.UserGetOptions) ([]*model.UserWithNodeCount, error)
 	GetByEmail(email string) (*model.User, error)
 	Delete(user *model.User) error
 	ActiveUsers(nodeID string) ([]*model.User, error)
@@ -138,9 +138,30 @@ func (us *SQLUserStore) GetAll() ([]*model.User, error) {
 }
 
 // GetUsers returns all users from database with provided options
-func (us *SQLUserStore) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
-	var users []*model.User
+func (us *SQLUserStore) GetUsers(options *model.UserGetOptions) ([]*model.UserWithNodeCount, error) {
+	var users []*model.UserWithNodeCount
 	query := us.userSelect
+	if options.WithNodeCount {
+		query = us.sqlStore.builder.
+			Select(
+				"u.id",
+				"u.created_at",
+				"u.updated_at",
+				"u.deleted_at",
+				"u.username",
+				"u.password",
+				"u.first_name",
+				"u.last_name",
+				"u.email",
+				"u.email_verified",
+				"u.last_password_update",
+				"u.role",
+				"u.lang",
+				"(Select COUNT(*) from user_nodes where user_nodes.user_id=u.id and user_nodes.status='finished') AS finished_node_count",
+				"(Select COUNT(*) from user_nodes where user_nodes.user_id=u.id and (user_nodes.status='started' or user_nodes.status='watched')) AS in_progress_node_count",
+			).
+			From("users u")
+	}
 	if options.Term != "" {
 		query = query.Where(sq.Like{"u.username": fmt.Sprintf("%%\"%s\"%%", options.Term)})
 	}

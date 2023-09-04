@@ -34,12 +34,12 @@ func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
 }
 
 // GetUsers gets users, filters usernames with 'term'
-func (a *App) GetUsers(options *model.UserGetOptions) ([]*model.User, error) {
+func (a *App) GetUsers(options *model.UserGetOptions) ([]*model.UserWithNodeCount, error) {
 	users, err := a.Store.User().GetUsers(options)
 	if err != nil {
 		return nil, errors.Wrapf(err, "options = %v", options)
 	}
-	return a.sanitizeUsers(users), nil
+	return a.sanitizeUsersWithNodeCounts(users), nil
 }
 
 // GetUser gets user with id
@@ -81,6 +81,13 @@ func (a *App) DeleteUser(user *model.User) error {
 }
 
 func (a *App) sanitizeUsers(users []*model.User) []*model.User {
+	for _, u := range users {
+		u.Sanitize()
+	}
+	return users
+}
+
+func (a *App) sanitizeUsersWithNodeCounts(users []*model.UserWithNodeCount) []*model.UserWithNodeCount {
 	for _, u := range users {
 		u.Sanitize()
 	}

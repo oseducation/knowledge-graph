@@ -231,7 +231,7 @@ func getUsers(c *gin.Context) {
 	}
 
 	options := &model.UserGetOptions{}
-	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage))(options)
+	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage), model.WithNodeCount())(options)
 	users, err := a.GetUsers(options)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())

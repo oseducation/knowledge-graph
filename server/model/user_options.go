@@ -12,6 +12,8 @@ type UserGetOptions struct {
 	Role RoleType
 	// Include deleted
 	IncludeDeleted bool
+	// Include node count for in_progress and finished nodes
+	WithNodeCount bool
 }
 
 type UserGetOption func(*UserGetOptions)
@@ -45,5 +47,11 @@ func UserPerPage(perPage int) UserGetOption {
 func UserDeleted(deleted bool) UserGetOption {
 	return func(args *UserGetOptions) {
 		args.IncludeDeleted = deleted
+	}
+}
+
+func WithNodeCount() UserGetOption {
+	return func(args *UserGetOptions) {
+		args.WithNodeCount = true
 	}
 }

@@ -1,5 +1,5 @@
 import { Graph } from "../types/graph";
-import {Preference, User} from "../types/users";
+import {Preference, User, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -102,8 +102,8 @@ export class UserClient {
         return data;
     }
 
-    getUsers = async () => {
-        const {data} = await this.rest.doFetchWithResponse<User[]>(
+    getUsersWithNodeCount = async () => {
+        const {data} = await this.rest.doFetchWithResponse<UserWithNodeCount[]>(
             `${this.getUsersRoute()}`,
             {method: 'get'},
         );
