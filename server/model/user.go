@@ -47,6 +47,12 @@ type UserLogin struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
+type UserWithNodeCount struct {
+	User
+	FinishedNodeCount   int64 `json:"finished_node_count" db:"finished_node_count"`
+	InProgressNodeCount int64 `json:"in_progress_node_count" db:"in_progress_node_count"`
+}
+
 // UserFromJSON will decode the input and return a User
 func UserFromJSON(data io.Reader) (*User, error) {
 	var user *User
