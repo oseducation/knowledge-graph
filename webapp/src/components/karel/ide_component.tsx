@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import {World, deepCopyWorld} from './types';
 import {draw} from './canvas_renderer';
-import {Engine, compile, executeStep, getEngine} from './engine';
+import {Engine, executeStep, getEngine} from './engine';
 import IDEActions from './ide_actions';
 
 
@@ -20,6 +20,7 @@ const HEART_BEAT_MAX = 1000;
 interface Props {
     initialWorld: World;
     initialCode: string;
+    compileFunc: (w:World, code:string) => void;
 }
 
 const IDEComponent = (props: Props) => {
@@ -75,7 +76,7 @@ const IDEComponent = (props: Props) => {
 
     const runKarel = () => {
         try{
-            compile(world, code);
+            props.compileFunc(world, code);
         } catch(e) {
             const err = e as Error;
             console.log(err.message);

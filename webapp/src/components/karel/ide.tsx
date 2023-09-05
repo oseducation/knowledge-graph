@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 
 import { World, createWorld, loadImages, setImages} from './types';
 import IDEComponent from './ide_component';
+import {compile, compileJava} from './engine';
 
 interface Props {
     nodeName: string;
+    lang: string;
 }
 
 const IDE = (props: Props) => {
@@ -12,7 +14,10 @@ const IDE = (props: Props) => {
     const [code, setCode] = useState<string>('code is loading...');
 
     useEffect(() => {
-        const codeURL = `../karel/code/${props.nodeName}.js`;
+        let codeURL = `../karel/code/${props.nodeName}.js`;
+        if (props.lang === 'java') {
+            codeURL = `../karel/code/${props.nodeName}.java`
+        }
         const worldURL = `../karel/code/${props.nodeName}.w`;
         loadImages().then(returnedImages => {
             fetchFile(worldURL).then(returnedWorld => {
@@ -42,8 +47,13 @@ const IDE = (props: Props) => {
         return <div>loading...</div>
     }
 
+    let compileFunc = compile;
+    if (props.lang === 'java') {
+        compileFunc = compileJava;
+    }
+
     return (
-        <IDEComponent initialWorld={world} initialCode={code}/>
+        <IDEComponent initialWorld={world} initialCode={code} compileFunc={compileFunc}/>
     )
 
 }

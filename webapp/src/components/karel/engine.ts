@@ -46,9 +46,39 @@ export const compile = (world: World, code: string) => {
     eval(code);
 }
 
+export const compileJava = (world: World, javaCode: string) => {
+    const jsCode = translateJavaToJS(javaCode)
+    engine.virtualWorld = deepCopyWorld(world);
+    engine.actionBuffer = [];
+    engine.actionIndex = 0;
+    eval(jsCode);
+}
+
+
 export const getEngine = (): Engine => {
     return engine;
 }
+
+const translateJavaToJS= (javaCode: string): string => {
+    let jsCode = javaCode;
+
+    // Convert System.out.println to console.log
+    jsCode = jsCode.replace(/System\.out\.println/g, "console.log");
+
+    // Remove data types for variable declarations
+    jsCode = jsCode.replace(/(int|float|double|String|char|long|boolean)\s+/g, "let ");
+
+    // Replace 'public static void main' with a simple function name
+    jsCode = jsCode.replace(/public void run[^{]*{/, "function main() {");
+
+    jsCode = jsCode.replace(/public class [\s\S]*? {/, "");
+    jsCode = jsCode.replace(/(.*)(\})([^}]*$)/, "$1$3");
+
+    jsCode += "\nmain();\n";
+
+    return jsCode;
+}
+
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const turnRight = () => {
