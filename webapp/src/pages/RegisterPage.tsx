@@ -13,7 +13,7 @@ declare const gtag: Gtag.Gtag;
 
 const RegisterPage = () => {
     const navigate = useNavigate();
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
 
     type FormData = {
         first_name: string;
@@ -26,6 +26,8 @@ const RegisterPage = () => {
     const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
 
     const onSubmit = (data: FormData) => {
+        const user = data as User;
+        user.lang = i18n.language;
         Client.User().register(data as User).then(() => {
             gtag('event', 'sign_up', {
                 method: 'email'

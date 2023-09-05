@@ -11,6 +11,7 @@ export type User = {
     role: string;
     last_password_update: number;
     props: Record<string, string>;
+    lang: string;
 };
 
 export type UserWithNodeCount = {

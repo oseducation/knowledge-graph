@@ -22,6 +22,7 @@ func TestUserLogin(t *testing.T) {
 		user := model.User{
 			Email:    "bla@gmail.com",
 			Password: "hello1",
+			Lang:     "en",
 		}
 		_, resp, err := th.Client.RegisterUser(&user)
 		require.Error(t, err)
@@ -34,6 +35,7 @@ func TestUserLogin(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			Lang:          "en",
 		}
 		registeredUser, resp, err := th.Client.RegisterUser(&user)
 		require.NoError(t, err)
@@ -48,6 +50,7 @@ func TestUserLogin(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user3",
+			Lang:          "en",
 		}
 		registeredUser, resp, err := th.Client.RegisterUser(&user)
 		require.NoError(t, err)
@@ -247,6 +250,7 @@ func TestGetUsers(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user3",
+			Lang:          "en",
 		}
 		registeredUser, _, err := th.Client.RegisterUser(&user)
 		require.NoError(t, err)
@@ -464,6 +468,7 @@ func TestVerifyUserEmail(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user4",
+			Lang:          "en",
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
 		require.NoError(t, err)
