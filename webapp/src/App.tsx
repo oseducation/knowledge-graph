@@ -19,6 +19,8 @@ import PrivacyPolicy from './pages/PrivacyPage';
 import AboutUs from './pages/AboutUs';
 import AdminPage from './pages/AdminPage';
 import GraphPage from './pages/GraphPage';
+import KarelJSPage from './pages/KarelJSPage';
+import KarelJavaPage from './pages/KarelJavaPage';
 
 function App() {
     return (
@@ -37,6 +39,8 @@ function App() {
                 <Route path="/welcome" element={<WelcomePage/>}/>
                 <Route path="/profile" element={<ProfilePage/>}/>
                 <Route path="/carousel" element={<CarouselPage/>}/>
+                <Route path="/karel_js/:nodeName" element={<KarelJSPage/>}/>
+                <Route path="/karel_java/:nodeName" element={<KarelJavaPage/>}/>
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                 <Route path="/admin" element={<AdminPage/>}/>
