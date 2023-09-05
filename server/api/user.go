@@ -185,7 +185,6 @@ func registerUser(c *gin.Context) {
 		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
 		return
 	}
-	user.Lang = model.LanguageGeorgian
 
 	a, err := getApp(c)
 	if err != nil {

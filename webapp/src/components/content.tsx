@@ -6,10 +6,9 @@ import {useTranslation} from 'react-i18next';
 
 import VideoPlayer from './player';
 
-
 const Content = () => {
     const navigate = useNavigate();
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
 
     type Testimonial = {
         name: string;
@@ -44,6 +43,11 @@ const Content = () => {
             image: ""
         }
     ] as Testimonial[];
+
+    let videoKey = 'qshiBUx-0rQ';
+    if (i18n.language === 'ge') {
+        videoKey = 'hvBEDC4dtzM'
+    }
 
     return (
         <Grid2 container spacing={2} disableEqualOverflow m={0}>
@@ -174,10 +178,10 @@ const Content = () => {
                 bgcolor={'white'}
             >
                 <VideoPlayer
-                    videoKey={'hvBEDC4dtzM'}
+                    videoKey={videoKey}
                     width={'100%'}
                     height={'600px'}
-                    autoplay={true}
+                    autoplay={false}
                     loop={false}
                     onVideoEnded={()=>{}}
                     onVideoStarted={()=>{}}
