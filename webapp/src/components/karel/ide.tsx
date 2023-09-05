@@ -43,7 +43,7 @@ const IDE = (props: Props) => {
     }
 
     return (
-        <IDEComponent world={world} initialCode={code}/>
+        <IDEComponent initialWorld={world} initialCode={code}/>
     )
 
 }

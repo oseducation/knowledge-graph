@@ -1,14 +1,20 @@
 import React from 'react';
-import {Box, IconButton} from '@mui/material';
+import {Box, IconButton, Slider, Typography} from '@mui/material';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import ReplayIcon from '@mui/icons-material/Replay';
 
 interface Props {
     onRun: () => void;
-    onStop: () => void;
+    onSpeedChange: (value: number) => void;
+    onResetWorld: () => void;
 }
 
 const IDEActions = (props: Props) => {
+
+    const handleChange = (event: Event, value: number | number[]) => {
+        props.onSpeedChange(value as number);
+    };
+
     return (
         <Box
             id='groups'
@@ -22,11 +28,20 @@ const IDEActions = (props: Props) => {
             display={'flex'}
 
         >
-            <IconButton onClick={props.onRun} aria-label="run" color="secondary" size="large" sx={{backgroundColor:'white'}}>
+            <IconButton onClick={props.onRun} aria-label="run"  size="large" sx={{color:'white'}}>
                 <DirectionsRunIcon/>
             </IconButton>
-            <IconButton onClick={props.onStop} aria-label="open" color="secondary" size="large" sx={{backgroundColor:'white'}}>
-                <FolderOpenIcon/>
+            <Box display={'flex'} flexDirection={'column'} alignContent={'center'} alignItems={'center'}>
+                <Typography sx={{color:'white'}}>Speed</Typography>
+                <Slider
+                    onChange={handleChange}
+                    orientation="vertical"
+                    defaultValue={30}
+                    sx={{color:'white', height: 100, m: 1}}
+                />
+            </Box>
+            <IconButton onClick={props.onResetWorld} aria-label="run"  size="large" sx={{color:'white'}}>
+                <ReplayIcon/>
             </IconButton>
         </Box>
     )

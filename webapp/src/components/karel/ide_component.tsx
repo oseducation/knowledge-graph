@@ -1,22 +1,24 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {useTheme} from '@mui/material';
+import {useTheme, Alert, Collapse, IconButton} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import AceEditor from "react-ace";
 import "ace-builds";
-import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/theme-textmate";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-javascript";
+import CloseIcon from '@mui/icons-material/Close';
 
-import {World} from './types';
+import {World, deepCopyWorld} from './types';
 import {draw} from './canvas_renderer';
 import {Engine, compile, executeStep, getEngine} from './engine';
 import IDEActions from './ide_actions';
 
 
-const HEART_BEAT = 300;
+const HEART_BEAT_MIN = 0;
+const HEART_BEAT_MAX = 1000;
 
 interface Props {
-    world: World;
+    initialWorld: World;
     initialCode: string;
 }
 
@@ -25,8 +27,12 @@ const IDEComponent = (props: Props) => {
         mixins: {toolbar},
     } = useTheme();
 
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [code, setCode] = useState(props.initialCode);
+    const [world, setWorld] = useState(deepCopyWorld(props.initialWorld));
+    const [compilationAlert, setCompilationAlert] = useState('');
+    const [speed, setSpeed] = useState(370)
 
     // Function to update the canvas size
     const updateCanvasSize = () => {
@@ -55,23 +61,24 @@ const IDEComponent = (props: Props) => {
 
     useEffect(() => {
         drawCanvas()
-    }, [props.world]);
+    }, [world]);
 
     const drawCanvas = () => {
         const canvas = canvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
-                draw(props.world, ctx, canvas.width, canvas.height);
+                draw(world, ctx, canvas.width, canvas.height);
             }
         }
     }
 
     const runKarel = () => {
         try{
-            compile(props.world, code);
+            compile(world, code);
         } catch(e) {
-            console.log(e);
+            const err = e as Error;
+            console.log(err.message);
         }
         const engine = getEngine();
         engine.actionIndex = 0;
@@ -80,18 +87,19 @@ const IDEComponent = (props: Props) => {
                 clearInterval(interval);
             }
             heartbeat(engine);
-        }, HEART_BEAT);
+        }, speed);
     }
 
-    const stopKarel = () => {
-        console.log('stopKarel')
+    const speedChange = (value: number) => {
+        setSpeed((HEART_BEAT_MIN - HEART_BEAT_MAX) * value / 100 + HEART_BEAT_MAX);
     }
 
     const heartbeat = (engine: Engine) => {
         try {
-            executeStep(engine, props.world);
+            executeStep(engine, world);
         } catch (e) {
-            alert(e);
+            const err = e as Error;
+            setCompilationAlert(err.message);
         }
         drawCanvas();
     }
@@ -105,7 +113,11 @@ const IDEComponent = (props: Props) => {
                 maxWidth: '64px',
                 display: {xs: 'none', sm: 'none', md: 'block', lg: 'block'}
             }}>
-                <IDEActions onRun={runKarel} onStop={stopKarel}/>
+                <IDEActions
+                    onRun={runKarel}
+                    onSpeedChange={speedChange}
+                    onResetWorld={() => setWorld(deepCopyWorld(props.initialWorld))}
+                />
             </Grid2>
             <Grid2 xs={5} sx={{
                 height: staticHeight,
@@ -113,9 +125,29 @@ const IDEComponent = (props: Props) => {
                 border: 2,
                 borderColor: 'primary.main',
             }}>
+                <Collapse in={compilationAlert !== ''}>
+                    <Alert
+                        severity="error"
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                size="small"
+                                onClick={() => {
+                                    setCompilationAlert('');
+                                }}
+                            >
+                                <CloseIcon fontSize="inherit"/>
+                            </IconButton>
+                        }
+                        sx={{mb: 2}}
+                    >
+                        <div>{compilationAlert}</div>
+                    </Alert>
+                </Collapse>
                 <AceEditor
                     mode="javascript"
-                    theme="github"
+                    theme="textmate"
                     name="javascript_editor"
                     setOptions={{
                         enableBasicAutocompletion: false,

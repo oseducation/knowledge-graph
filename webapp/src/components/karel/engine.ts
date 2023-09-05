@@ -68,7 +68,7 @@ const move = () => {
     try {
         karelMove(engine.virtualWorld);
     } catch(err){
-        alert('Karel is blocked');
+        throw new Error('Karel is blocked');
     }
 }
 
@@ -148,7 +148,7 @@ export const executeStep = (e: Engine, world: World): boolean => {
 
 const addToActionBuffer = (e: Engine, action: string) => {
     if (e.actionBuffer.length > MAX_ACTIONS) {
-        throw("infinite loop");
+        throw new Error("infinite loop");
     }
     e.actionBuffer.push(action);
 }

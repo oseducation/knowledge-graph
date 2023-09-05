@@ -43,7 +43,7 @@ export const move = (world: World) => {
         world.karelRow = newRow;
         world.karelCol = newCol;
     } else {
-        throw('Front Is Blocked');
+        throw new Error('Front Is Blocked');
     }
 }
 
@@ -73,7 +73,7 @@ export const pickBeeper = (world: World) => {
     if (world.beepers[world.karelRow][world.karelCol] !== 0) {
         world.beepers[world.karelRow][world.karelCol]--;
     } else {
-        throw('No Beepers Present');
+        throw new Error('No Beepers Present');
     }
 }
 
@@ -362,7 +362,7 @@ const loadDimensionLine = (world: World, line: string) => {
 
 const assert = (exp: boolean, message: string) => {
     if (!exp) {
-        throw ('AssertException: ' + message);
+        throw new Error('AssertException: ' + message);
     }
 }
 
