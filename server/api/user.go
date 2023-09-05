@@ -185,7 +185,6 @@ func registerUser(c *gin.Context) {
 		responseFormat(c, http.StatusBadRequest, "Invalid or missing `user` in the request body")
 		return
 	}
-	user.Lang = model.LanguageGeorgian
 
 	a, err := getApp(c)
 	if err != nil {
@@ -231,7 +230,7 @@ func getUsers(c *gin.Context) {
 	}
 
 	options := &model.UserGetOptions{}
-	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage))(options)
+	model.ComposeUserOptions(model.Term(term), model.UserPage(page), model.UserPerPage(perPage), model.WithNodeCount())(options)
 	users, err := a.GetUsers(options)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())

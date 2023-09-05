@@ -11,6 +11,7 @@ import useAuth from "../hooks/useAuth";
 import useDrawer from '../hooks/useDrawer';
 
 import ProfileDropdown from "./ProfileDropdown";
+import LanguagePicker from './language_picker';
 
 
 function Header() {
@@ -131,6 +132,7 @@ function Header() {
 
                                 {isPhone? t("Sign Up") : t("Sign Up For Free")}
                             </Button>
+                            <LanguagePicker/>
                         </>
                         :
                         <>

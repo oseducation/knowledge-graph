@@ -16,7 +16,7 @@ const LoginPage = () => {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/";
     const {setUser} = useAuth();
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
 
 
     type FormData = {
@@ -32,6 +32,7 @@ const LoginPage = () => {
             .then((user) => {
                 setUser?.(user);
                 Client.rest.setMe(user);
+                i18n.changeLanguage(user.lang);
                 gtag('event', 'login', {
                     method: 'email'
                 });

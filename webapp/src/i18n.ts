@@ -45,7 +45,7 @@ const resources = {
             "Log in": "Log in",
             "Create your account": "Create your account",
             "Create account": "Create account",
-            "Chat coming soon": "Chat coming soon",
+            "Chat coming soon": "Chat coming soon. Meanwhile if you have any questions regarding this topic, please feel free to call or text our CEO directly +995555476500",
             "Videos": "Videos",
             "Texts": "Texts",
             "Tests": "Tests",
@@ -126,7 +126,7 @@ const resources = {
             "Log in": "შესვლა",
             "Create your account": "შექმენი შენი ანგარიში",
             "Create account": "ანგარიშის შექმნა",
-            "Chat coming soon": "ჩატი მალე დაემატება",
+            "Chat coming soon": "ჩატი მალე დაემატება, მანამდე ამ თემასთან დაკავშირებულ ნებისმიერ კითხვაზე დაურეკეთ ან მისწერეთ შოთას, ნომერზე 555476500",
             "Videos": "ვიდეოები",
             "Texts": "ტექსტები",
             "Tests": "ტესტები",
@@ -173,7 +173,7 @@ i18n
     .use(initReactI18next) // passes i18n down to react-i18next
     .init({
         resources,
-        lng: "ge", // language to use, more information here: https://www.i18next.com/overview/configuration-options#languages-namespaces-resources
+        lng: "en", // language to use, more information here: https://www.i18next.com/overview/configuration-options#languages-namespaces-resources
         // you can use the i18n.changeLanguage function to change the language manually: https://www.i18next.com/overview/api#changelanguage
         // if you're using a language detector, do not define the lng option
 
