@@ -87,6 +87,7 @@ func (th *TestHelper) Init() {
 		FirstName: "f_" + id,
 		LastName:  "l_" + id,
 		Password:  "Pa$$word11",
+		Lang:      "en",
 	}
 
 	admin, _, err := th.Client.RegisterUser(admin)
@@ -113,6 +114,7 @@ func (th *TestHelper) Init() {
 		FirstName: "f_" + id,
 		LastName:  "l_" + id,
 		Password:  "Pa$$word11",
+		Lang:      "en",
 	}
 	user, _, err = th.Client.RegisterUser(user)
 	if err != nil {
