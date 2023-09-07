@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 
+import {Client} from '../../client/client';
+
 import { World, createEmptyWorld, createWorld, loadImages, setImages} from './types';
 import IDEComponent from './ide_component';
 import {compile, compileJava} from './engine';
-
-import {Client} from '../../client/client';
 
 interface Props {
     nodeName: string;

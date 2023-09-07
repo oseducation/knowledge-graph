@@ -8,13 +8,12 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-javascript";
 import CloseIcon from '@mui/icons-material/Close';
 
+import {Client} from '../../client/client';
+
 import {World, deepCopyWorld} from './types';
 import {draw} from './canvas_renderer';
 import {Engine, executeStep, getEngine} from './engine';
 import IDEActions from './ide_actions';
-
-import {Client} from '../../client/client';
-
 
 const HEART_BEAT_MIN = 0;
 const HEART_BEAT_MAX = 1000;
