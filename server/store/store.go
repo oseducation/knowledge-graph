@@ -34,6 +34,7 @@ type Store interface {
 	Session() SessionStore
 	System() SystemStore
 	Preferences() PreferencesStore
+	UserCode() UserCodeStore
 }
 
 // SQLStore struct represents a DB
@@ -51,6 +52,7 @@ type SQLStore struct {
 	sessionStore     SessionStore
 	systemStore      SystemStore
 	preferencesStore PreferencesStore
+	userCodeStore    UserCodeStore
 	config           *config.DBSettings
 	logger           *log.Logger
 }
@@ -118,6 +120,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.sessionStore = NewSessionStore(sqlStore)
 	sqlStore.systemStore = NewSystemStore(sqlStore)
 	sqlStore.preferencesStore = NewPreferencesStore(sqlStore)
+	sqlStore.userCodeStore = NewUserCodeStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -331,4 +334,9 @@ func (sqlDB *SQLStore) System() SystemStore {
 // Preferences returns an interface to manage preferences in the DB
 func (sqlDB *SQLStore) Preferences() PreferencesStore {
 	return sqlDB.preferencesStore
+}
+
+// Preferences returns an interface to manage preferences in the DB
+func (sqlDB *SQLStore) UserCode() UserCodeStore {
+	return sqlDB.userCodeStore
 }

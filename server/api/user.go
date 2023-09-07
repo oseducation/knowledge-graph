@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,6 +38,10 @@ func (apiObj *API) initUser() {
 	apiObj.Users.PUT("/", authMiddleware(), requireUserPermissions(), updateUser)
 	apiObj.Users.DELETE("/", authMiddleware(), requireUserPermissions(), deleteUser)
 	apiObj.Users.GET("/graph", authMiddleware(), requireUserPermissions(), getUserGraph)
+
+	apiObj.Users.GET("/code", authMiddleware(), getMyCodes)
+	apiObj.Users.PUT("/code", authMiddleware(), updateMyCode)
+	apiObj.Users.POST("/code", authMiddleware(), saveMyCode)
 }
 
 func patchCurrentUser(c *gin.Context) {
@@ -364,4 +369,104 @@ func verifyUserEmail(c *gin.Context) {
 
 func sendVerificationEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, "sendVerificationEmail")
+}
+
+func getMyCodes(c *gin.Context) {
+	nodeID := c.DefaultQuery("node_id", "")
+	if nodeID == "" {
+		responseFormat(c, http.StatusInternalServerError, errors.New("must specify node_id"))
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	userCodes, err := a.GetUserCodesForNode(session.UserID, nodeID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, userCodes)
+}
+
+func saveMyCode(c *gin.Context) {
+	userCode, err := model.UserCodeFromJSON(c.Request.Body)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `userCode` in the request body")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if session.UserID != userCode.UserID {
+		responseFormat(c, http.StatusInternalServerError, errors.New("mismatched user_id"))
+		return
+	}
+
+	err = a.SaveUserCode(userCode)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, "user code saved")
+}
+
+func updateMyCode(c *gin.Context) {
+	userCode, err := model.UserCodeFromJSON(c.Request.Body)
+	if err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `userCode` in the request body")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if session.UserID != userCode.UserID {
+		responseFormat(c, http.StatusInternalServerError, errors.New("mismatched user_id"))
+		return
+	}
+
+	oldUserCode, err := a.GetUserCodeForNode(userCode.UserID, userCode.NodeID, userCode.CodeName)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if oldUserCode.Code != userCode.Code {
+		err = a.UpdateUserCode(userCode)
+		if err != nil {
+			responseFormat(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
+	responseFormat(c, http.StatusOK, "user code updated")
 }

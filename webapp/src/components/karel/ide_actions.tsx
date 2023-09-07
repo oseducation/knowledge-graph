@@ -2,11 +2,13 @@ import React from 'react';
 import {Box, IconButton, Slider, Typography} from '@mui/material';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import ReplayIcon from '@mui/icons-material/Replay';
+import RestorePageIcon from '@mui/icons-material/RestorePage';
 
 interface Props {
     onRun: () => void;
     onSpeedChange: (value: number) => void;
     onResetWorld: () => void;
+    onResetCode: () => void;
 }
 
 const IDEActions = (props: Props) => {
@@ -42,6 +44,9 @@ const IDEActions = (props: Props) => {
             </Box>
             <IconButton onClick={props.onResetWorld} aria-label="run"  size="large" sx={{color:'white'}}>
                 <ReplayIcon/>
+            </IconButton>
+            <IconButton onClick={props.onResetCode} aria-label="run"  size="large" sx={{color:'white'}}>
+                <RestorePageIcon/>
             </IconButton>
         </Box>
     )

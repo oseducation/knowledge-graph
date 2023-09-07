@@ -13,6 +13,8 @@ import {draw} from './canvas_renderer';
 import {Engine, executeStep, getEngine} from './engine';
 import IDEActions from './ide_actions';
 
+import {Client} from '../../client/client';
+
 
 const HEART_BEAT_MIN = 0;
 const HEART_BEAT_MAX = 1000;
@@ -20,6 +22,8 @@ const HEART_BEAT_MAX = 1000;
 interface Props {
     initialWorld: World;
     initialCode: string;
+    userCode: string;
+    nodeID: string;
     compileFunc: (w:World, code:string) => void;
 }
 
@@ -30,10 +34,11 @@ const IDEComponent = (props: Props) => {
 
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [code, setCode] = useState(props.initialCode);
+    const [code, setCode] = useState(props.userCode || props.initialCode);
     const [world, setWorld] = useState(deepCopyWorld(props.initialWorld));
     const [compilationAlert, setCompilationAlert] = useState('');
     const [speed, setSpeed] = useState(370)
+    const codeRef = useRef(code);
 
     // Function to update the canvas size
     const updateCanvasSize = () => {
@@ -57,6 +62,10 @@ const IDEComponent = (props: Props) => {
         // Clean up the event listener on component unmount
         return () => {
             window.removeEventListener('resize', updateCanvasSize);
+
+            if (codeRef.current !== '' && codeRef.current !== props.initialCode){
+                Client.User().updateMyCode(props.nodeID, "code_name_1", codeRef.current);
+            }
         };
     }, []);
 
@@ -118,6 +127,10 @@ const IDEComponent = (props: Props) => {
                     onRun={runKarel}
                     onSpeedChange={speedChange}
                     onResetWorld={() => setWorld(deepCopyWorld(props.initialWorld))}
+                    onResetCode={() => {
+                        codeRef.current = props.initialCode;
+                        setCode(props.initialCode);
+                    }}
                 />
             </Grid2>
             <Grid2 xs={5} sx={{
@@ -159,6 +172,7 @@ const IDEComponent = (props: Props) => {
                         useWorker: false,
                     }}
                     onChange={(value) => {
+                        codeRef.current = value;
                         setCode(value);
                     }}
                     fontSize={20}

@@ -268,6 +268,31 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.4.0"),
+		toVersion:   semver.MustParse("0.5.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if _, err := e.Exec(`
+				CREATE TABLE IF NOT EXISTS user_node_codes (
+					user_id VARCHAR(26),
+					node_id VARCHAR(26),
+					code_name VARCHAR(64),
+					code VARCHAR(8192),
+					UNIQUE (user_id, node_id, code_name)
+				);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating table user_node_codes")
+			}
+
+			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS user_node_codes_index ON user_node_codes (user_id, node_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating index on user_nodes table")
+			}
+
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {
