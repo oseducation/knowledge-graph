@@ -149,6 +149,29 @@ export const facingWest = (world: World): boolean => {
     return world.karelDir == 'west';
 }
 
+export const createEmptyWorld = (width: number, height: number): World => {
+    const world = {} as World;
+    world.beepers = [];
+    world.topWalls = [];
+    world.rightWalls = [];
+    world.rows = height;
+    world.columns = width;
+    world.karelDir = 'east';
+    world.karelCol = 0;
+    world.karelRow = world.rows - 1;
+    for (let i = 0; i < world.rows; i++) {
+        world.beepers[i] = [];
+        world.topWalls[i] = [];
+        world.rightWalls[i] = [];
+        for (let j = 0; j < world.columns; j++) {
+            world.beepers[i][j] = 0;
+            world.topWalls[i][j] = 0;
+            world.rightWalls[i][j] = 0;
+        }
+    }
+    return world;
+}
+
 export const createWorld = (worldText: string): World => {
     const world = {} as World;
     const lines = worldText.split("\n");

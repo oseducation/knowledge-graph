@@ -55,3 +55,10 @@ export type Preference = {
     key: string;
     value: string;
 }
+
+export type UserCode = {
+    user_id: string;
+    node_id: string;
+    code_name: string;
+    code: string;
+}

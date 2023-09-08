@@ -1,5 +1,5 @@
 import { Graph } from "../types/graph";
-import {Preference, User, UserWithNodeCount} from "../types/users";
+import {Preference, User, UserCode, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -115,6 +115,43 @@ export class UserClient {
         const {data} = await this.rest.doFetchWithResponse<Graph>(
             `${this.getUsersRoute()}/graph?user_id=${userID}`,
             {method: 'get'},
+        );
+
+        return data;
+    };
+
+    getMyCodes = async (nodeID: string) => {
+        const {data} = await this.rest.doFetchWithResponse<UserCode[]>(
+            `${this.getUsersRoute()}/code?node_id=${nodeID}`,
+            {method: 'get'},
+        );
+
+        return data;
+    };
+
+    saveMyCode = async (nodeID: string, name: string, code: string) => {
+        const {data} = await this.rest.doFetchWithResponse(
+            `${this.getUsersRoute()}/code?node_id=${nodeID}`,
+            {method: 'post', body: JSON.stringify({
+                user_id: this.rest.me.id,
+                node_id: nodeID,
+                code_name: name,
+                code: code
+            } as UserCode)},
+        );
+
+        return data;
+    };
+
+    updateMyCode = async (nodeID: string, name: string, code: string) => {
+        const {data} = await this.rest.doFetchWithResponse(
+            `${this.getUsersRoute()}/code?node_id=${nodeID}`,
+            {method: 'put', body: JSON.stringify({
+                user_id: this.rest.me.id,
+                node_id: nodeID,
+                code_name: name,
+                code: code
+            } as UserCode)},
         );
 
         return data;
