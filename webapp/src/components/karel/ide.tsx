@@ -36,7 +36,11 @@ const IDE = (props: Props) => {
             });
         });
         fetchFile(codeURL).then(returnedCode => setInitialCode(returnedCode));
-        Client.User().getMyCodes(props.nodeID).then(codes => setUserCode(codes[0].code))
+        Client.User().getMyCodes(props.nodeID).then(codes => {
+            if (codes && codes.length > 0) {
+                setUserCode(codes[0].code);
+            }
+        })
     }, []);
 
     const fetchFile = async (url: string): Promise<string> => {
