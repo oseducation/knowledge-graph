@@ -71,6 +71,8 @@ const translateJavaToJS= (javaCode: string): string => {
     // Replace 'public static void main' with a simple function name
     jsCode = jsCode.replace(/public void run[^{]*{/, "function main() {");
 
+    jsCode = jsCode.replace(/private void/g, "function");
+
     jsCode = jsCode.replace(/public class [\s\S]*? {/, "");
     jsCode = jsCode.replace(/(.*)(\})([^}]*$)/, "$1$3");
 
