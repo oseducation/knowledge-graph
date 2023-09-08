@@ -73,6 +73,8 @@ const translateJavaToJS= (javaCode: string): string => {
 
     jsCode = jsCode.replace(/private void/g, "function");
 
+    jsCode = jsCode.replace(/import stanford.karel.*;/g, "");
+
     jsCode = jsCode.replace(/public class [\s\S]*? {/, "");
     jsCode = jsCode.replace(/(.*)(\})([^}]*$)/, "$1$3");
 
