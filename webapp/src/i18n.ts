@@ -83,7 +83,9 @@ const resources = {
             "You got it!": "You got it!",
             "Sorry, wrong answer!": "Sorry, wrong answer!",
             "Check Answer": "Check Answer",
-            "please learn all the prerequisite topics first": "please learn all the prerequisite topics first"
+            "please learn all the prerequisite topics first": "please learn all the prerequisite topics first",
+            "Try out karel here": "Try out karel here",
+            "Karel Environment": "Karel Environment"
         }
     },
     ge: {
@@ -164,7 +166,9 @@ const resources = {
             "You got it!": "ეგაა!",
             "Sorry, wrong answer!": "აუ, არასწორია! :(",
             "Check Answer": "შეამოწმე",
-            "please learn all the prerequisite topics first": "ჯერ პრერეკვიზიტები ისწავლე"
+            "please learn all the prerequisite topics first": "ჯერ პრერეკვიზიტები ისწავლე",
+            "Try out karel here": "კარელი შეგიძლია აქ ნახო",
+            "Karel Environment": "კარელის გარემო"
         }
     }
 };

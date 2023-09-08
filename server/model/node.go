@@ -17,6 +17,9 @@ const (
 	NodeTypeExample    = "example"
 	NodeTypeAssignment = "assignment"
 
+	EnvironmentTypeKarelJS   = "karel_js"
+	EnvironmentTypeKarelJava = "karel_java"
+
 	NodeStatusStarted  = "started"
 	NodeStatusWatched  = "watched"
 	NodeStatusFinished = "finished"
@@ -36,6 +39,7 @@ type Node struct {
 	Description string `json:"description,omitempty" db:"description"`
 	NodeType    string `json:"node_type" db:"node_type"`
 	Lang        string `json:"lang" db:"lang"`
+	Environment string `json:"environment" db:"environment"`
 }
 
 type NodeWithResources struct {
@@ -83,6 +87,10 @@ func (n *Node) IsValid() error {
 		return invalidNodeError(n.ID, "lang", n.Lang)
 	}
 
+	if n.Environment != EnvironmentTypeKarelJS && n.Environment != EnvironmentTypeKarelJava {
+		return invalidNodeError(n.ID, "environment", n.Environment)
+	}
+
 	return nil
 }
 
@@ -117,6 +125,7 @@ func (n *Node) Clone() *Node {
 	newNode.DeletedAt = n.DeletedAt
 	newNode.Description = n.Description
 	newNode.Lang = n.Lang
+	newNode.Environment = n.Environment
 	return &newNode
 }
 

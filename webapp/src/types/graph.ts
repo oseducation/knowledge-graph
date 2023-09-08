@@ -73,6 +73,7 @@ export type NodeWithResources = {
     name: string;
     description: string;
     status: string;
+    environment: string;
     videos: Video[];
     active_users: User[];
     texts: Text[];

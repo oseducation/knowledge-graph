@@ -18,6 +18,7 @@ import VideoInput from './video_input';
 import NodeTitleSection from "./node_title_section";
 import QuestionComponent from './question';
 import Markdown from './markdown';
+import EnvironmentTeaser from './environment';
 interface Props {
     nodeID: string;
 }
@@ -285,6 +286,13 @@ const Node = (props: Props) => {
                                 ))}
                             </Grid2>
                             <VideoInput nodeID={props.nodeID}/>
+                            {node.environment &&
+                                <EnvironmentTeaser
+                                    environmentType={node.environment}
+                                    nodeID={node.id}
+                                    nodeName={node.name}
+                                />
+                            }
                         </Box>
                     }
                 </Grid2>
