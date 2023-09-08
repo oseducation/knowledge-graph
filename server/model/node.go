@@ -87,7 +87,7 @@ func (n *Node) IsValid() error {
 		return invalidNodeError(n.ID, "lang", n.Lang)
 	}
 
-	if n.Environment != EnvironmentTypeKarelJS && n.Environment != EnvironmentTypeKarelJava {
+	if n.Environment != EnvironmentTypeKarelJS && n.Environment != EnvironmentTypeKarelJava && n.Environment != "" {
 		return invalidNodeError(n.ID, "environment", n.Environment)
 	}
 
