@@ -141,6 +141,7 @@ func (a *App) importAssignments(nodes map[string]NodeWithKey, url, lang, userID 
 
 	type AssignmentNode struct {
 		Name        string
+		Environment string
 		Description string
 		TextMD      string
 	}
@@ -156,6 +157,7 @@ func (a *App) importAssignments(nodes map[string]NodeWithKey, url, lang, userID 
 			Description: aNode.Description,
 			NodeType:    model.NodeTypeAssignment,
 			Lang:        lang,
+			Environment: aNode.Environment,
 		}
 
 		updatedNode, err := a.importNode(&node)
@@ -209,6 +211,7 @@ func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID str
 
 	type ExampleNode struct {
 		Name         string
+		Environment  string
 		ProblemMD    string
 		SolutionMD   string
 		SolutionCode string
@@ -229,6 +232,7 @@ func (a *App) importExamples(nodes map[string]NodeWithKey, url, lang, userID str
 			Description: description,
 			NodeType:    model.NodeTypeExample,
 			Lang:        lang,
+			Environment: eNode.Environment,
 		}
 
 		updatedNode, err := a.importNode(&node)
