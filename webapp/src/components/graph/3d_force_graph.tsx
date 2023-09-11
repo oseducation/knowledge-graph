@@ -10,6 +10,7 @@ import {useTranslation} from 'react-i18next';
 
 import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext} from '../../types/graph';
 import useAuth from '../../hooks/useAuth';
+import {Analytics} from '../../analytics';
 
 import {GraphNodeHoverContext} from './../main';
 
@@ -31,9 +32,17 @@ const D3ForceGraph = (props: Props) => {
     const [highlightNodes, setHighlightNodes] = useState(new Set());
     const [highlightLinks, setHighlightLinks] = useState(new Set());
     const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
 
     const onNodeClick = ({id, status} : Node) => {
+        Analytics.clickOnTopic({
+            'node_id': node.id,
+            'Node Name': node.name,
+            'Language': i18n.language,
+            'Node Type': node.node_type,
+            'Status': node.status,
+            'Entry Point': 'Graph'
+        });
         if (status === NodeStatusFinished || status === NodeStatusNext || status === NodeStatusStarted || status === NodeStatusWatched) {
             navigate(`/nodes/${id}`);
         } else {

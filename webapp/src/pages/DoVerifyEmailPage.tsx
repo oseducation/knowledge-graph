@@ -4,6 +4,7 @@ import {Box, Button, Typography} from '@mui/material';
 import {CheckCircle, Error,} from '@mui/icons-material';
 
 import {Client} from '../client/client';
+import {Analytics} from '../analytics';
 
 enum VerifyEmailStatus {
     PENDING,
@@ -27,6 +28,7 @@ const VerifyEmailPage = () => {
         verifyEmail()
             .then(() => {
                 if (!ignore) {
+                    Analytics.emailVerified()
                     setIsVerified(VerifyEmailStatus.SUCCESS);
                 }
             })

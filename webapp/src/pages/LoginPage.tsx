@@ -8,6 +8,7 @@ import {useTranslation} from 'react-i18next';
 import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
 import useAuth from '../hooks/useAuth';
+import {Analytics} from '../analytics';
 
 declare const gtag: Gtag.Gtag;
 
@@ -36,6 +37,8 @@ const LoginPage = () => {
                 gtag('event', 'login', {
                     method: 'email'
                 });
+                Analytics.identify(user.id);
+                Analytics.loginCompleted();
                 return navigate(from, {replace: true});
             }).catch((err: ClientError) => {
                 setError('root', {type: 'server', message: err.message});

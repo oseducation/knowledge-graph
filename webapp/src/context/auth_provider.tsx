@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 
 import {DagMode, User, UserPreferences} from '../types/users';
 import {Client} from "../client/client";
+import {Analytics} from '../analytics';
 
 interface UserContextState {
     user: User | null;
@@ -34,6 +35,8 @@ export const AuthProvider = (props: Props) => {
         setLoading(true);
         Client.User().getMe().then((data) => {
             setUser(data);
+            Analytics.identify(data.id);
+            Analytics.getMe();
 
             Client.User().getMyPreferences().then((data) => {
                 const prefs = {} as UserPreferences

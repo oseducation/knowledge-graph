@@ -8,6 +8,7 @@ import {useTranslation} from 'react-i18next';
 import {User} from '../types/users';
 import {Client} from '../client/client';
 import {ClientError} from '../client/rest';
+import {Analytics} from '../analytics';
 
 declare const gtag: Gtag.Gtag;
 
@@ -28,10 +29,20 @@ const RegisterPage = () => {
     const onSubmit = (data: FormData) => {
         const user = data as User;
         user.lang = i18n.language;
-        Client.User().register(data as User).then(() => {
+        Client.User().register(data as User).then((user) => {
             gtag('event', 'sign_up', {
                 method: 'email'
             });
+            Analytics.identify(user.id);
+            Analytics.setUserPropsOnce({
+                'Email': user.email,
+                'Registration Date': new Date(user.created_at).toISOString().split('.')[0],
+                'Username': user.username,
+                "First Name": user.first_name,
+                "Last Name": user.last_name,
+                "Language": user.lang,
+            })
+            Analytics.signUpCompleted();
             navigate('/verify', {
                 state: {
                     email: data.email,

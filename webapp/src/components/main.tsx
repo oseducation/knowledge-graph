@@ -8,6 +8,7 @@ import useAuth from '../hooks/useAuth';
 import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
 import useDrawer from '../hooks/useDrawer';
+import {Analytics} from '../analytics';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
@@ -130,6 +131,14 @@ const Main = () => {
                         onReload={handleReload}
                     />,
                 onClick: () => {
+                    Analytics.clickOnTopic({
+                        'node_id': node.id,
+                        'Node Name': node.name,
+                        'Language': user?.lang,
+                        'Node Type': node.node_type,
+                        'Status': node.status,
+                        'Entry Point': "In Progress Nodes"
+                    });
                     setNode(node);
                     setFocusedNodeID(node.id);
                 }
@@ -156,6 +165,14 @@ const Main = () => {
                         onReload={handleReload}
                     />,
                 onClick: () => {
+                    Analytics.clickOnTopic({
+                        'node_id': node.id,
+                        'Node Name': node.name,
+                        'Language': user?.lang,
+                        'Node Type': node.node_type,
+                        'Status': node.status,
+                        'Entry Point': 'Next Nodes'
+                    });
                     setNode(node);
                     setFocusedNodeID(node.id);
                 }

@@ -11,6 +11,7 @@ import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
 import useDrawer from '../hooks/useDrawer';
+import {Analytics} from '../analytics';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
@@ -38,6 +39,16 @@ const Node = (props: Props) => {
     function loadNode() {
         Client.Node().get(props.nodeID).then((data) => {
             setNode(data);
+            Analytics.viewTopicPage({
+                'Node Name': data.name,
+                'Language': user?.lang,
+                'Number Of Videos': data.videos.length,
+                'Number Of Active Users': data.active_users.length,
+                'Number Of Texts': data.texts.length,
+                'Number Of Quizzes': data.questions.length,
+                'Status': data.status,
+                'Environment': data.environment,
+            });
             setLoading(false)
         }).catch(() => {
             setLoading(false)
