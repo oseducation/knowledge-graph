@@ -4,6 +4,8 @@ import {Button, Stack, Typography, Box, Avatar} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 import {useTranslation} from 'react-i18next';
 
+import {Analytics} from '../analytics';
+
 import VideoPlayer from './player';
 
 const Content = () => {
@@ -86,7 +88,17 @@ const Content = () => {
                     display={'flex'}
                     alignItems={'center'}>
                     <Box mr={1}>
-                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>{t("Sign Up For Free")}</Button>
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='large'
+                            onClick={() => {
+                                Analytics.signUpStarted("hero");
+                                navigate('/register');
+                            }}
+                        >
+                            {t("Sign Up For Free")}
+                        </Button>
                     </Box>
                 </Grid2>
                 <Grid2
@@ -269,7 +281,17 @@ const Content = () => {
                     display={'flex'}
                     alignItems={'center'}>
                     <Box mr={1}>
-                        <Button variant='contained' color='secondary' size='large' onClick={() => navigate('/register')}>{t("Sign Up For Free")}</Button>
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='large'
+                            onClick={() => {
+                                Analytics.signUpStarted("bottom");
+                                navigate('/register');
+                            }}
+                        >
+                            {t("Sign Up For Free")}
+                        </Button>
                     </Box>
                 </Grid2>
             </Grid2>

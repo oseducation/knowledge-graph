@@ -9,6 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import useAuth from "../hooks/useAuth";
 import useDrawer from '../hooks/useDrawer';
+import {Analytics} from '../analytics';
 
 import ProfileDropdown from "./ProfileDropdown";
 import LanguagePicker from './language_picker';
@@ -123,7 +124,10 @@ function Header() {
                             <Button
                                 variant='outlined'
                                 color='inherit'
-                                onClick={() => navigate('/register')}
+                                onClick={() => {
+                                    Analytics.signUpStarted("header");
+                                    navigate('/register');
+                                }}
                                 sx={{
                                     m: 2,
                                     minWidth: {xs: 'min-content', sm: 'max-content'},

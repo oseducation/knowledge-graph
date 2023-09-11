@@ -1,4 +1,4 @@
-import {VideoStatusFinished, VideoStatusStarted} from "../types/graph";
+import {VideoStatusAbandoned, VideoStatusFinished, VideoStatusStarted} from "../types/graph";
 
 import {Rest} from "./rest";
 

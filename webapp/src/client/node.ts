@@ -1,3 +1,4 @@
+import {Analytics} from "../analytics";
 import {NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeWithResources} from "../types/graph";
 
 import {Rest} from "./rest";
@@ -29,6 +30,9 @@ export class NodeClient{
             status: 'know',
             node: nodeID
         });
+        Analytics.learnTopic({
+            'node_id': nodeID
+        })
         return this.changeStatus(nodeID, userID, NodeStatusFinished);
     }
 
@@ -37,6 +41,9 @@ export class NodeClient{
             status: 'started',
             node: nodeID
         });
+        Analytics.startTopic({
+            'node_id': nodeID
+        })
         return this.changeStatus(nodeID, userID, NodeStatusStarted);
     }
 
@@ -45,6 +52,9 @@ export class NodeClient{
             status: 'watched',
             node: nodeID
         });
+        Analytics.watchTopic({
+            'node_id': nodeID
+        })
         return this.changeStatus(nodeID, userID, NodeStatusWatched);
     }
 
