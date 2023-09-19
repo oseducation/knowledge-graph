@@ -28,7 +28,11 @@ export default function AppLayout() {
                 >
                     <Header/>
                     <CssBaseline/>
-                    <Container component="main" maxWidth={false} disableGutters>
+                    <Container
+                        component="main"
+                        maxWidth={false}
+                        disableGutters
+                    >
                         <App/>
                     </Container>
                     <FooterContainer/>

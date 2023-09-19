@@ -10,7 +10,7 @@ const ContactUs = () => {
     return (
         <Stack justifyContent="center" display={'flex'} flexDirection={'column'} alignItems={'center'} style={{minHeight: '100vh', background: theme.palette.background.paper}}>
             <Typography variant='h1' fontWeight={'bold'} align='center' m={'40px'}>
-                VITSI.AI
+                Vitsi AI
             </Typography>
             <Card style={{
                 background: theme.palette.primary.main,

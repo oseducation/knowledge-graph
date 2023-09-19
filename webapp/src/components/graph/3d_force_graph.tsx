@@ -11,6 +11,7 @@ import {useTranslation} from 'react-i18next';
 import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext} from '../../types/graph';
 import useAuth from '../../hooks/useAuth';
 import {Analytics} from '../../analytics';
+import {DagMode} from '../../types/users';
 
 import {GraphNodeHoverContext} from './../main';
 
@@ -20,13 +21,17 @@ interface Props {
     height?: number;
     dimension3: boolean;
     focusNodeID?: string;
+    noClick?: boolean;
+    dir?: DagMode;
+    textColor?: string;
+    isLarge?: boolean;
 }
 
 const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
     const fgRef = useRef<ForceGraphMethods<Node, Link>>();
     const {node, setNode} = React.useContext(GraphNodeHoverContext);
-    const nodeRadius = 20;
+    const nodeRadius = props.isLarge ? 30 : 20;
     const theme = useTheme();
     const {preferences} = useAuth();
     const [highlightNodes, setHighlightNodes] = useState(new Set());
@@ -35,6 +40,9 @@ const D3ForceGraph = (props: Props) => {
     const {t, i18n} = useTranslation();
 
     const onNodeClick = ({id, status} : Node) => {
+        if (props.noClick){
+            return;
+        }
         Analytics.clickOnTopic({
             'node_id': node.id,
             'Node Name': node.name,
@@ -170,6 +178,8 @@ const D3ForceGraph = (props: Props) => {
         ctx.fill();
     }
 
+    const dagMode = props.dir || preferences?.graph_direction || "lr"
+
     return (
         <>
             <Collapse in={openGreyNodeAlert}>
@@ -201,9 +211,15 @@ const D3ForceGraph = (props: Props) => {
                 height={props.height}
                 linkDirectionalParticleWidth={4}
                 linkDirectionalParticles={link => highlightLinks.has(link) ? 2 : 0}
-                linkWidth={link => highlightLinks.has(link) ? 5 : 2}
+                linkWidth={link => {
+                    if (props.isLarge) {
+                        return highlightLinks.has(link) ? 8 : 5
+                    }
+                    return highlightLinks.has(link) ? 5 : 2
+                }}
+                linkColor={() => props.textColor || 'black'}
                 onNodeClick={onNodeClick}
-                dagMode={preferences?.graph_direction || "lr"}
+                dagMode={dagMode}
                 nodeVal={20}
                 nodeCanvasObject={(currentNode, ctx) => {
                     if (currentNode.id === node?.id) {
@@ -215,6 +231,9 @@ const D3ForceGraph = (props: Props) => {
                     const label = currentNode.name;
                     const fontSize = 5;
                     ctx.font = `${fontSize}px Sans-Serif`;
+                    if (props.isLarge) {
+                        ctx.font = 'bold 10px Sans-Serif';
+                    }
 
                     const x = currentNode.x || 0
                     const y = currentNode.y || 0
@@ -232,7 +251,7 @@ const D3ForceGraph = (props: Props) => {
 
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = 'black';
+                    ctx.fillStyle = props.textColor || 'black';
                     ctx.fillText(label, x, y);
                 }}
                 nodePointerAreaPaint={(node, color, ctx) => {
@@ -243,11 +262,14 @@ const D3ForceGraph = (props: Props) => {
                 }}
                 nodeAutoColorBy={"status"}
                 nodeRelSize={1}
-                dagLevelDistance={50}
+                dagLevelDistance={props.isLarge? 60: 50}
                 d3VelocityDecay={0.3}
-                linkDirectionalArrowLength={6}
+                linkDirectionalArrowLength={props.isLarge? 15 : 6}
                 linkDirectionalArrowRelPos={0.5}
                 onNodeHover={(node: Node | null) => {
+                    if (props.noClick){
+                        return;
+                    }
                     if (node) {
                         setNode(node);
                         handleNodeHover(node);
@@ -256,7 +278,13 @@ const D3ForceGraph = (props: Props) => {
                 }}
                 cooldownTicks={100}
                 warmupTicks={200}
-                onEngineStop={() => fgRef.current!.zoomToFit(1000)}
+                onEngineStop={() => {
+                    if (props.isLarge) {
+                        fgRef.current!.zoomToFit(1000, 60);
+                    } else {
+                        fgRef.current!.zoomToFit(1000);
+                    }
+                }}
             />
         </>
     )
