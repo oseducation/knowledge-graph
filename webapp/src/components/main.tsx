@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {Box, Drawer} from '@mui/material';
 import {useTranslation} from 'react-i18next';
+import {useNavigate} from 'react-router-dom';
 
 import {Client} from '../client/client';
 import useAuth from '../hooks/useAuth';
@@ -72,6 +73,7 @@ const Main = () => {
     const {user, preferences} = useAuth();
     const {open, setOpen} = useDrawer();
     const {t} = useTranslation();
+    const navigate = useNavigate();
 
     const handleReload = () => {
         setReload(prev => !prev);
@@ -187,6 +189,12 @@ const Main = () => {
     }
 
     const {graph, groups} = useGraph(reload, computeGroups, preferences?.language);
+    if (groups && groups.length > 1 &&
+        groups[1].items && groups[1].items.length === 1 &&
+        (groups[1].items[0].display_name === 'Vitsi AI მიმოხილვა' ||
+        groups[1].items[0].display_name === 'Vitsi AI')) {
+        navigate(`/nodes/${groups[1].items[0].id}`);
+    }
 
     const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
     return (

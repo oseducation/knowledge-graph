@@ -217,7 +217,7 @@ const D3ForceGraph = (props: Props) => {
                     }
                     return highlightLinks.has(link) ? 5 : 2
                 }}
-                linkColor={() => props.textColor || 'black'}
+                linkColor={() => props.textColor || ''}
                 onNodeClick={onNodeClick}
                 dagMode={dagMode}
                 nodeVal={20}
