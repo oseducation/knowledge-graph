@@ -33,15 +33,7 @@ const RegisterPage = () => {
             gtag('event', 'sign_up', {
                 method: 'email'
             });
-            Analytics.identify(user.id);
-            Analytics.setUserPropsOnce({
-                'Email': user.email,
-                'Registration Date': new Date(user.created_at).toISOString().split('.')[0],
-                'Username': user.username,
-                "First Name": user.first_name,
-                "Last Name": user.last_name,
-                "Language": user.lang,
-            })
+            Analytics.identify(user);
             Analytics.signUpCompleted();
             navigate('/verify', {
                 state: {

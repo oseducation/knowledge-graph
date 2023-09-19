@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {useTheme, Alert, Collapse, IconButton} from '@mui/material';
+import {Alert, Collapse, IconButton} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import AceEditor from "react-ace";
 import "ace-builds";
@@ -9,6 +9,8 @@ import "ace-builds/src-noconflict/mode-javascript";
 import CloseIcon from '@mui/icons-material/Close';
 
 import {Client} from '../../client/client';
+import useAppBarHeight from '../../hooks/use_app_bar_height';
+import {Analytics} from '../../analytics';
 
 import {World, deepCopyWorld} from './types';
 import {draw} from './canvas_renderer';
@@ -27,11 +29,6 @@ interface Props {
 }
 
 const IDEComponent = (props: Props) => {
-    const {
-        mixins: {toolbar},
-    } = useTheme();
-
-
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [code, setCode] = useState(props.userCode || props.initialCode);
     const [world, setWorld] = useState(deepCopyWorld(props.initialWorld));
@@ -83,11 +80,18 @@ const IDEComponent = (props: Props) => {
     }
 
     const runKarel = () => {
+        Analytics.runCode({
+            "Code": code,
+        })
         try{
             props.compileFunc(world, code);
         } catch(e) {
             const err = e as Error;
             console.log(err.message);
+            Analytics.codeError({
+                "Code": code,
+                "Error": err.message,
+            })
         }
         const engine = getEngine();
         engine.actionIndex = 0;
@@ -113,7 +117,7 @@ const IDEComponent = (props: Props) => {
         drawCanvas();
     }
 
-    const staticHeight = `calc(100vh - (${toolbar?.minHeight}px + ${8}px))`;
+    const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
     return (
         <Grid2 container disableEqualOverflow>
             <Grid2 xs={1} sx={{
