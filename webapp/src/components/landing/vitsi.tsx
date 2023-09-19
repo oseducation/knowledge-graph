@@ -20,7 +20,7 @@ const Vitsi = (props: Props) => {
             graph={props.graph}
             color={props.color}
             height={props.height}
-            // graphTextColor='white'
+            graphTextColor='black'
         >
             <Typography
                 fontSize={30}
