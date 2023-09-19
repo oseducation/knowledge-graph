@@ -3,18 +3,26 @@ import {Box} from '@mui/material';
 
 import {Graph} from '../../types/graph';
 import useWindowDimensions from '../../hooks/use_window_dimensions';
+import {DagMode} from '../../types/users';
+import useAppbarHeight from '../../hooks/use_app_bar_height';
 
-import ForceGraph from './3d_force_graph';
+import D3ForceGraph from './3d_force_graph';
 
 interface GraphComponentProps {
     graph: Graph;
     focusNodeID?: string;
+    noHeader?: boolean;
+    noClick?: boolean;
+    dir?: DagMode;
+    textColor?: string;
+    isLarge?: boolean;
 }
 
 const GraphComponent = (props: GraphComponentProps) => {
     const myRef = useRef<HTMLDivElement>(null);
     const {windowHeight} = useWindowDimensions();
     const [width, setWidth] = useState(0);
+    const appBarHeight = useAppbarHeight();
 
     useEffect(() => {
         if (myRef.current) {
@@ -24,12 +32,16 @@ const GraphComponent = (props: GraphComponentProps) => {
 
     return (
         <Box ref={myRef}>
-            <ForceGraph
+            <D3ForceGraph
                 graph={props.graph}
                 width={width}
-                height={windowHeight-64}
+                height={props.noHeader? windowHeight: windowHeight-appBarHeight}
                 dimension3={false}
                 focusNodeID={props.focusNodeID}
+                noClick={props.noClick}
+                dir={props.dir}
+                textColor={props.textColor}
+                isLarge={props.isLarge}
             />
         </Box>
     );

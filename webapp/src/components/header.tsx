@@ -61,7 +61,7 @@ function Header() {
             sx={{
                 height: 52,
             }}
-            alt="vitsi.ai"
+            alt="Vitsi AI"
             src="/logo.png"
             mr="4px"
         />;

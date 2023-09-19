@@ -14,8 +14,8 @@ import (
 )
 
 func (a *App) sendWelcomeEmail(userID string, email string, verified bool, siteURL string) error {
-	subject := "Welcome to vitsi.ai"
-	body := "You've joined vitsi.ai\n"
+	subject := "Welcome to Vitsi AI"
+	body := "You've joined Vitsi AI\n"
 
 	if !verified && a.Config.EmailSettings.RequireEmailVerification {
 		body += "Please verify your email address by clicking below.\n"

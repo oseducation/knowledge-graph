@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Content from '../components/content';
 import Main from '../components/main';
 import useAuth from '../hooks/useAuth';
+import Landing from '../components/landing/landing';
 
 const HomePage = () => {
     const {user} = useAuth()
@@ -13,7 +13,7 @@ const HomePage = () => {
         )
     }
     return (
-        <Content/>
+        <Landing/>
     )
 }
 

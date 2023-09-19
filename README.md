@@ -1,5 +1,5 @@
-# vitsi.ai
-Vitsi is an educational startup that is built on the concept of representing knowledge as a graph, where nodes represent concepts or topics, and edges represent relationships between them. The platform aims to provide a personalized learning experience to learners of all ages, from kindergarten to adulthood.
+# Vitsi AI
+Vitsi AI is an educational startup that is built on the concept of representing knowledge as a graph, where nodes represent concepts or topics, and edges represent relationships between them. The platform aims to provide a personalized learning experience to learners of all ages, from kindergarten to adulthood.
 
 ## Problems with current education system
 

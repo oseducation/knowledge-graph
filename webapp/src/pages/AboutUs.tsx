@@ -10,7 +10,7 @@ const AboutUs = () => {
                 </Typography>
 
                 <Typography variant="body1" paragraph>
-                    <b>Vitsi.ai</b> aims to revolutionize the way people approach lifelong learning by providing a personalized roadmap for acquiring knowledge. We present information as an acyclic graph where each node represents bite-sized knowledge or concept, and edges represent prerequisites. By mastering all the prerequisite nodes users can move onto the next one. Any knowledge in the world can be represented like this.
+                    <b>Vitsi AI</b> aims to revolutionize the way people approach lifelong learning by providing a personalized roadmap for acquiring knowledge. We present information as an acyclic graph where each node represents bite-sized knowledge or concept, and edges represent prerequisites. By mastering all the prerequisite nodes users can move onto the next one. Any knowledge in the world can be represented like this.
                 </Typography>
 
                 <Typography variant="h4" component="h2" gutterBottom>
@@ -40,7 +40,7 @@ const AboutUs = () => {
                 </Typography>
 
                 <Typography variant="body1" paragraph>
-                    At <b>Vitsi.ai</b>, our mission is to revolutionize the learning process by transforming the way knowledge is accessed, understood, and assimilated. We strive to create a world where learning is personalized, interconnected, and boundless. Through our innovative Knowledge Graph, we aim to empower learners of all ages to explore the vast landscapes of knowledge, break free from linear learning models, and chart their unique educational journeys.
+                    At <b>Vitsi AI</b>, our mission is to revolutionize the learning process by transforming the way knowledge is accessed, understood, and assimilated. We strive to create a world where learning is personalized, interconnected, and boundless. Through our innovative Knowledge Graph, we aim to empower learners of all ages to explore the vast landscapes of knowledge, break free from linear learning models, and chart their unique educational journeys.
                     <br/>
                     Guided by our commitment to making education accessible and dynamic, we are dedicated to building a platform where learners can not only consume knowledge but also contribute, fostering a collaborative and ever-evolving repository of human wisdom.
                     <br/>

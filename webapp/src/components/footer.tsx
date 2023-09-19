@@ -8,7 +8,7 @@ const Footer = () => {
             <Grid container spacing={4} margin={'10px 20px'}>
                 <Grid item xs={12} sm={6}>
                     <Typography variant='h5' gutterBottom>
-                        VITSI.AI
+                        Vitsi AI
                     </Typography>
                     <ul>
                         <li>

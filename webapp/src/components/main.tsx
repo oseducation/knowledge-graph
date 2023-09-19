@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import {Box, Drawer, useTheme} from '@mui/material';
+import {Box, Drawer} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 
 import {Client} from '../client/client';
@@ -9,6 +9,7 @@ import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, Node
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
 import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
+import useAppBarHeight from '../hooks/use_app_bar_height';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
@@ -71,10 +72,6 @@ const Main = () => {
     const {user, preferences} = useAuth();
     const {open, setOpen} = useDrawer();
     const {t} = useTranslation();
-
-    const {
-        mixins: {toolbar},
-    } = useTheme();
 
     const handleReload = () => {
         setReload(prev => !prev);
@@ -191,8 +188,7 @@ const Main = () => {
 
     const {graph, groups} = useGraph(reload, computeGroups, preferences?.language);
 
-    // https://github.com/mui/material-ui/issues/10739#issuecomment-1365008174
-    const staticHeight = `calc(100vh - (${toolbar?.minHeight}px + ${8}px))`;
+    const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
     return (
         <GraphNodeHoverContext.Provider value={{node, setNode}}>
             {user && <Box

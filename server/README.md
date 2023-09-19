@@ -1,4 +1,4 @@
-# Server for vitsi.ai
+# Server for Vitsi AI
 
 ## Import programming methodology content to the DB using
 1. Get the youtube api key, the one with public access will work just fine. See the details [here](https://developers.google.com/youtube/v3/getting-started)
