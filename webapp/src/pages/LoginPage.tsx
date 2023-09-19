@@ -37,7 +37,7 @@ const LoginPage = () => {
                 gtag('event', 'login', {
                     method: 'email'
                 });
-                Analytics.identify(user.id);
+                Analytics.identify(user);
                 Analytics.loginCompleted();
                 return navigate(from, {replace: true});
             }).catch((err: ClientError) => {

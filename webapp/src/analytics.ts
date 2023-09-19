@@ -1,5 +1,7 @@
 import mixpanel, {Callback, Dict, RequestOptions} from 'mixpanel-browser';
 
+import {User} from './types/users';
+
 const mixpanelToken = 'd766d089e6f459dbaba1ab3c53b6e4ae'
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -67,8 +69,16 @@ class Analytics {
         Mixpanel.track("Login Completed")
     }
 
-    identify(id: string) {
-        Mixpanel.identify(id);
+    identify(user: User) {
+        Mixpanel.identify(user.id);
+        Mixpanel.setUserProperty({
+            'Email': user.email,
+            'Registration Date': new Date(user.created_at).toISOString().split('.')[0],
+            'Username': user.username,
+            "First Name": user.first_name,
+            "Last Name": user.last_name,
+            "Language": user.lang,
+        });
     }
 
     setUserProps(props: Dict) {
@@ -97,6 +107,18 @@ class Analytics {
 
     viewTopicPage(props: Dict) {
         Mixpanel.track('View Topic Page', props);
+    }
+
+    viewKarelPage(props: Dict) {
+        Mixpanel.track('View Karel Page', props);
+    }
+
+    runCode(props: Dict) {
+        Mixpanel.track('Run Code', props);
+    }
+
+    codeError(props: Dict) {
+        Mixpanel.track('Error In Code', props);
     }
 
     getMe() {

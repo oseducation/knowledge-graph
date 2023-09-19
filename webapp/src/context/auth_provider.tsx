@@ -35,7 +35,7 @@ export const AuthProvider = (props: Props) => {
         setLoading(true);
         Client.User().getMe().then((data) => {
             setUser(data);
-            Analytics.identify(data.id);
+            Analytics.identify(data);
             Analytics.getMe();
 
             Client.User().getMyPreferences().then((data) => {
