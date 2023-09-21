@@ -15,7 +15,7 @@ const Hero = () => {
             m={0}
             xs={12}
             id='hero-section'
-            height={400}
+            minHeight={400}
             bgcolor={'#03045E'}
             padding={0}
             sx={{scrollSnapAlign: 'start'}}
@@ -26,10 +26,10 @@ const Hero = () => {
                 display={'flex'}
                 alignItems={'center'}
                 justifyContent={'center'}
+                pl='12px'
             >
                 <Stack>
-                    <Typography
-                        fontSize={32}
+                    <Typography variant='h4'
                         fontWeight={'bold'}
                         color={'white'}
                         p={'30px 0'}
@@ -37,7 +37,7 @@ const Hero = () => {
                         {t("Become a Software Engineer Learning Two Minute Topics Daily")}
                     </Typography>
                     <Typography
-                        fontSize={26}
+                        variant='h5'
                         fontWeight={'bold'}
                         color={'white'}
                     >

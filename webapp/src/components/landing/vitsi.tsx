@@ -23,15 +23,14 @@ const Vitsi = (props: Props) => {
             graphTextColor='black'
         >
             <Typography
-                fontSize={30}
+                variant='h4'
                 fontWeight={'bold'}
             >
                 {t("Solution: Vitsi AI")}
             </Typography>
             <Typography
-                fontSize={26}
+                variant='h6'
                 fontWeight={'bold'}
-                ml={10}
             >
                 {t("A Map Of Two Minute Topics, Linked With Prerequisites")}
             </Typography>

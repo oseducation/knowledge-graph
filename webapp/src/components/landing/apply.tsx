@@ -23,15 +23,14 @@ const Apply = (props: Props) => {
             graphTextColor='black'
         >
             <Typography
-                fontSize={30}
+                variant='h4'
                 fontWeight={'bold'}
             >
                 {t("Vitsi AI: Apply To Jobs")}
             </Typography>
             <Typography
-                fontSize={26}
+                variant='h6'
                 fontWeight={'bold'}
-                ml={10}
             >
                 {t("You've Already Learned Topics Needed For A Job? We Will Apply For You")}
             </Typography>
