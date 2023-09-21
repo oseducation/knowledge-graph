@@ -13,7 +13,7 @@ const LanguagePicker = () => {
     };
 
     return (
-        <FormControl variant="outlined" sx={{m: 1, minWidth: 80, border: 'none'}}>
+        <FormControl variant="outlined" sx={{minWidth: 74, border: 'none'}}>
             <Select
                 labelId="language-picker-label"
                 id="language-picker"

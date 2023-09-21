@@ -23,15 +23,14 @@ const Explore = (props: Props) => {
             graphTextColor='black'
         >
             <Typography
-                fontSize={30}
+                variant='h4'
                 fontWeight={'bold'}
             >
                 {t("Vitsi AI: Explore")}
             </Typography>
             <Typography
-                fontSize={26}
+                variant='h6'
                 fontWeight={'bold'}
-                ml={10}
             >
                 {t("Explore Any Knowledge In The World, Also Your Own Knowledge")}
             </Typography>

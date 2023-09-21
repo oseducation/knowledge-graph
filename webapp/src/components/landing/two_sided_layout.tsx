@@ -20,7 +20,7 @@ const TwoSidedLayout = (props: Props) =>  {
             id='TwoSidedLayout'
             bgcolor={props.color}
             sx={{
-                height: props.height,
+                minHeight: props.height,
                 width:'100%',
                 display: 'flex',
                 alignItems: 'center',
@@ -39,7 +39,6 @@ const TwoSidedLayout = (props: Props) =>  {
                         flexDirection: 'column',
                         gap: '1rem',
                         flexShrink: 999,
-                        minWidth: 420,
                         alignItems: 'flex-start',
                         textAlign: 'initial',
                     }}

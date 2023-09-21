@@ -23,22 +23,20 @@ const Learn = (props: Props) => {
             graphTextColor='black'
         >
             <Typography
-                fontSize={30}
+                variant='h4'
                 fontWeight={'bold'}
             >
                 {t("Vitsi AI: Learn")}
             </Typography>
             <Typography
-                fontSize={26}
+                variant='h6'
                 fontWeight={'bold'}
-                ml={10}
             >
                 {t("Know the prerequisites? Learn new topics!")}
             </Typography>
             <Typography
-                fontSize={26}
+                variant='h6'
                 fontWeight={'bold'}
-                ml={10}
             >
                 {t("Like Playing A Game")}
             </Typography>

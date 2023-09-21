@@ -23,16 +23,15 @@ const DropOut = (props: Props) => {
             graphTextColor='white'
         >
             <Typography
-                fontSize={30}
+                variant='h4'
                 fontWeight={'bold'}
                 color={'white'}
             >
                 {t("Problems With Online Courses:")}
             </Typography>
             <Typography
-                fontSize={26}
+                variant='h6'
                 fontWeight={'bold'}
-                ml={10}
                 color={'white'}
             >
                 {t("90% Of Learners Drop Out!")}

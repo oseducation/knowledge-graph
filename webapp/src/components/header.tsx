@@ -26,7 +26,7 @@ function Header() {
     const {t} = useTranslation();
 
     let hasIconButton = true;
-    if (location.pathname === '/carousel') {
+    if (location.pathname === '/carousel' || !user) {
         hasIconButton = false
     }
 
@@ -89,7 +89,8 @@ function Header() {
             id="login-button"
             sx={{
                 minWidth: {xs: 'min-content', sm: 'max-content'},
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                m: '4px'
             }}
         >
             {t("Sign in")}
@@ -129,7 +130,7 @@ function Header() {
                                     navigate('/register');
                                 }}
                                 sx={{
-                                    m: 2,
+                                    m: {xs: 1, sm: 1, md: 2},
                                     minWidth: {xs: 'min-content', sm: 'max-content'},
                                     whiteSpace: 'nowrap'
                                 }}>
