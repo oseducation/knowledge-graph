@@ -21,6 +21,8 @@ const Landing = () => {
     const navigate = useNavigate();
     const {t} = useTranslation();
 
+    Analytics.landing();
+
     type Testimonial = {
         name: string;
         message: string;

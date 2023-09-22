@@ -18,11 +18,12 @@ const IDE = (props: Props) => {
     const [userCode, setUserCode] = useState<string>('');
 
     useEffect(() => {
-        let codeURL = `../karel/code/${props.nodeName}.js`;
+        let codeURL = `../karel/code/${props.nodeName.replaceAll(' ', '-')}.js`;
         if (props.lang === 'java') {
-            codeURL = `../karel/code/${props.nodeName}.java`
+            codeURL = `../karel/code/${props.nodeName.replaceAll(' ', '-')}.java`
         }
-        const worldURL = `../karel/code/${props.nodeName}.w`;
+
+        const worldURL = `../karel/code/${props.nodeName.replaceAll(' ', '-')}.w`;
         loadImages().then(returnedImages => {
             fetchFile(worldURL).then(returnedWorld => {
                 let w: World;

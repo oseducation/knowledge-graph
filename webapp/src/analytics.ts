@@ -124,6 +124,10 @@ class Analytics {
     getMe() {
         Mixpanel.track('Get Me');
     }
+
+    landing() {
+        Mixpanel.track('View Landing Page');
+    }
 }
 
 const AnalyticsObject = new Analytics();
