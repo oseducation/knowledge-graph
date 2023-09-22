@@ -18,96 +18,69 @@ type NodeWithKey struct {
 	Key string `json:"key"`
 }
 
-// ImportGraph reads graph.json, nodes.json and texts.md files, parses them and imports in the db
-func (a *App) ImportGraph(url string) (string, error) {
-	authorContent, err := getFileContent(fmt.Sprintf("%s/author.json", url))
-	if err != nil {
-		return "", errors.Wrap(err, "can't get author.json file")
-	}
-	var user model.User
-	if err2 := json.Unmarshal([]byte(authorContent), &user); err2 != nil {
-		return "", errors.Wrapf(err2, "can't unmarshal author.json file\n%s", authorContent)
-	}
+type ExtendedNode struct {
+	model.Node
+	VideoKeys         []string `json:"videos"`
+	TextFileNames     []string `json:"texts"`
+	QuestionFileNames []string `json:"questions"`
+}
 
-	password := model.NewRandomString(20)
-	user.Password = password
-
-	updatedUser, err := a.Store.User().Save(&user)
+// ImportAllContent reads graph.json, nodes.json and texts.md files, parses them and imports in the db
+func (a *App) ImportAllContent(url string) (string, error) {
+	user, password, err := a.importAuthor(url)
 	if err != nil {
-		if strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
-			var err2 error
-			updatedUser, err2 = a.Store.User().GetByEmail(user.Email)
-			if err2 != nil {
-				return "", errors.Wrap(err, "can't get same user from db")
-			}
-			password = "same as before"
-		} else {
-			return "", errors.Wrap(err, "can't save user")
-		}
-	}
-	if err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
-		return "", errors.Wrap(err, "can't save user")
-	}
-
-	graphContent, err := getFileContent(fmt.Sprintf("%s/graph.json", url))
-	if err != nil {
-		return "", errors.Wrapf(err, "can't get graph.json file\n%s", graphContent)
-	}
-	var graph map[string][]string
-	if err2 := json.Unmarshal([]byte(graphContent), &graph); err2 != nil {
-		return "", errors.Wrap(err2, "can't unmarshal graph.json file")
+		return "", errors.Wrap(err, "can't import author")
 	}
 
 	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
 	if err != nil {
 		return "", errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
 	}
-
-	var nodes map[string]NodeWithKey
+	var nodes map[string]ExtendedNode
 	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
 		return "", errors.Wrap(err, "can't unmarshal nodes.json file")
 	}
 
 	for id, node := range nodes {
-		node.NodeType = model.NodeTypeLecture
-		node.Lang = updatedUser.Lang
+		node.Lang = user.Lang
 		updatedNode, err := a.importNode(&node.Node)
 		if err != nil {
 			return "", errors.Wrap(err, "can't import node")
 		}
 
-		nodes[id] = NodeWithKey{
+		nodes[id] = ExtendedNode{
 			Node: *updatedNode,
 		}
-		if node.Key == "" {
-			continue
+
+		if err := a.importVideos(node.VideoKeys, updatedNode.ID, user.ID); err != nil {
+			return "", errors.Wrap(err, "can't import videos")
 		}
 
-		title, duration, err := a.GetYoutubeVideoInfo(node.Key)
-		if err != nil {
-			return "", errors.Wrapf(err, "can't get youtube video info %s", node.Key)
+		nodeURL := fmt.Sprintf("%s/nodes/%s", url, id)
+		if err := a.importTexts(nodeURL, node.TextFileNames, updatedNode.ID, user.ID); err != nil {
+			return "", errors.Wrap(err, "can't import texts")
 		}
 
-		video := model.Video{
-			Name:      title,
-			VideoType: model.YouTubeVideoType,
-			Key:       node.Key,
-			NodeID:    updatedNode.ID,
-			Length:    duration,
-			AuthorID:  updatedUser.ID,
-		}
-
-		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
-			return "", errors.Wrap(err, "can't save video")
+		if err := a.importQuestions(nodeURL, node.QuestionFileNames, updatedNode.ID); err != nil {
+			return "", errors.Wrap(err, "can't import questions")
 		}
 	}
 
-	if err := a.importExamples(nodes, url, updatedUser.Lang, updatedUser.ID); err != nil {
-		return "", errors.Wrap(err, "can't import examples")
+	if err := a.importGraph(url, nodes); err != nil {
+		return "", errors.Wrap(err, "can't import graph")
 	}
 
-	if err := a.importAssignments(nodes, url, updatedUser.Lang, updatedUser.ID); err != nil {
-		return "", errors.Wrap(err, "can't import assignments")
+	return password, nil
+}
+
+func (a *App) importGraph(url string, nodes map[string]ExtendedNode) error {
+	graphContent, err := getFileContent(fmt.Sprintf("%s/graph.json", url))
+	if err != nil {
+		return errors.Wrapf(err, "can't get graph.json file\n%s", graphContent)
+	}
+	var graph map[string][]string
+	if err2 := json.Unmarshal([]byte(graphContent), &graph); err2 != nil {
+		return errors.Wrap(err2, "can't unmarshal graph.json file")
 	}
 
 	for node, prereqs := range graph {
@@ -117,20 +90,121 @@ func (a *App) ImportGraph(url string) (string, error) {
 				ToNodeID:   nodes[node].ID,
 			}
 			if err := a.Store.Graph().Save(&edge); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
-				return "", errors.Wrap(err, "can't save edge")
+				return errors.Wrap(err, "can't save edge")
 			}
 		}
 	}
 
-	if err := a.importNodeTexts(nodes, updatedUser.ID, url); err != nil {
-		return "", errors.Wrap(err, "can't import texts for nodes")
+	return nil
+}
+
+func (a *App) importQuestions(nodeURL string, questionFileNames []string, nodeID string) error {
+	for _, questionFileName := range questionFileNames {
+		fullURL := fmt.Sprintf("%s/%s", nodeURL, questionFileName)
+		fullURL = strings.ReplaceAll(fullURL, " ", "%20")
+
+		content, err := getFileContent(fullURL)
+		if err != nil {
+			return errors.Wrapf(err, "can't get file content %s", fullURL)
+		}
+		if strings.Contains(content, "404: Not Found") {
+			return errors.Errorf("File Not Found: %s", fullURL)
+		}
+
+		questions, err := model.QuestionsFromJSON(strings.NewReader(content))
+		if err != nil {
+			return errors.Wrapf(err, "can't convert jsonContent to questions - %s", content)
+		}
+
+		for _, question := range questions {
+			question.NodeID = nodeID
+			if _, err := a.Store.Question().Save(&question); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+				return errors.Wrap(err, "can't save question")
+			}
+		}
+	}
+	return nil
+}
+
+func (a *App) importTexts(nodeURL string, textFileNames []string, nodeID, userID string) error {
+	for _, textFileName := range textFileNames {
+		fullURL := fmt.Sprintf("%s/%s", nodeURL, textFileName)
+		fullURL = strings.ReplaceAll(fullURL, " ", "%20")
+		content, err := getFileContent(fullURL)
+		if err != nil {
+			return errors.Wrapf(err, "can't get file content %s", fullURL)
+		}
+		if strings.Contains(content, "404: Not Found") {
+			return errors.Errorf("File Not Found: %s", fullURL)
+		}
+
+		if strings.HasSuffix(textFileName, ".java") {
+			content = fmt.Sprintf("```java\n%s```", content)
+		} else if strings.HasSuffix(textFileName, ".js") {
+			content = fmt.Sprintf("```js\n%s```", content)
+		}
+
+		if _, err := a.Store.Text().Save(&model.Text{
+			Name:     textFileName,
+			Text:     content,
+			NodeID:   nodeID,
+			AuthorID: userID,
+		}); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			return errors.Wrap(err, "can't save problem text")
+		}
+	}
+	return nil
+}
+
+func (a *App) importVideos(videoKeys []string, nodeID, userID string) error {
+	for _, key := range videoKeys {
+		title, duration, err := a.GetYoutubeVideoInfo(key)
+		if err != nil {
+			return errors.Wrapf(err, "can't get youtube video info %s", key)
+		}
+		video := model.Video{
+			Name:      title,
+			VideoType: model.YouTubeVideoType,
+			Key:       key,
+			NodeID:    nodeID,
+			Length:    duration,
+			AuthorID:  userID,
+		}
+		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			return errors.Wrap(err, "can't save video")
+		}
 	}
 
-	if err := a.importNodeQuestions(nodes, url); err != nil {
-		return "", errors.Wrap(err, "can't import questions for nodes")
+	return nil
+}
+
+func (a *App) importAuthor(url string) (*model.User, string, error) {
+	authorContent, err := getFileContent(fmt.Sprintf("%s/author.json", url))
+	if err != nil {
+		return nil, "", errors.Wrap(err, "can't get author.json file")
+	}
+	var user model.User
+	if err2 := json.Unmarshal([]byte(authorContent), &user); err2 != nil {
+		return nil, "", errors.Wrapf(err2, "can't unmarshal author.json file\n%s", authorContent)
 	}
 
-	return password, nil
+	password := model.NewRandomString(20)
+	user.Password = password
+
+	updatedUser, err := a.Store.User().Save(&user)
+	if err != nil {
+		if !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			return nil, "", errors.Wrap(err, "can't save user")
+		}
+		var err2 error
+		updatedUser, err2 = a.Store.User().GetByEmail(user.Email)
+		if err2 != nil {
+			return nil, "", errors.Wrap(err, "can't get same user from db")
+		}
+		password = "same as before"
+	}
+	updatedUser.Lang = user.Lang
+	return updatedUser, password, nil
 }
 
 func (a *App) importAssignments(nodes map[string]NodeWithKey, url, lang, userID string) error {
@@ -422,6 +496,121 @@ func (a *App) importNodeTexts(nodes map[string]NodeWithKey, userID, url string) 
 		}
 	}
 	return nil
+}
+
+// ImportGraphOld reads graph.json, nodes.json and texts.md files, parses them and imports in the db
+func (a *App) ImportGraphOld(url string) (string, error) {
+	authorContent, err := getFileContent(fmt.Sprintf("%s/author.json", url))
+	if err != nil {
+		return "", errors.Wrap(err, "can't get author.json file")
+	}
+	var user model.User
+	if err2 := json.Unmarshal([]byte(authorContent), &user); err2 != nil {
+		return "", errors.Wrapf(err2, "can't unmarshal author.json file\n%s", authorContent)
+	}
+
+	password := model.NewRandomString(20)
+	user.Password = password
+
+	updatedUser, err := a.Store.User().Save(&user)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			var err2 error
+			updatedUser, err2 = a.Store.User().GetByEmail(user.Email)
+			if err2 != nil {
+				return "", errors.Wrap(err, "can't get same user from db")
+			}
+			password = "same as before"
+		} else {
+			return "", errors.Wrap(err, "can't save user")
+		}
+	}
+	if err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+		return "", errors.Wrap(err, "can't save user")
+	}
+
+	graphContent, err := getFileContent(fmt.Sprintf("%s/graph.json", url))
+	if err != nil {
+		return "", errors.Wrapf(err, "can't get graph.json file\n%s", graphContent)
+	}
+	var graph map[string][]string
+	if err2 := json.Unmarshal([]byte(graphContent), &graph); err2 != nil {
+		return "", errors.Wrap(err2, "can't unmarshal graph.json file")
+	}
+
+	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
+	if err != nil {
+		return "", errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
+	}
+
+	var nodes map[string]NodeWithKey
+	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
+		return "", errors.Wrap(err, "can't unmarshal nodes.json file")
+	}
+
+	for id, node := range nodes {
+		node.NodeType = model.NodeTypeLecture
+		node.Lang = updatedUser.Lang
+		updatedNode, err := a.importNode(&node.Node)
+		if err != nil {
+			return "", errors.Wrap(err, "can't import node")
+		}
+
+		nodes[id] = NodeWithKey{
+			Node: *updatedNode,
+		}
+		if node.Key == "" {
+			continue
+		}
+
+		title, duration, err := a.GetYoutubeVideoInfo(node.Key)
+		if err != nil {
+			return "", errors.Wrapf(err, "can't get youtube video info %s", node.Key)
+		}
+
+		video := model.Video{
+			Name:      title,
+			VideoType: model.YouTubeVideoType,
+			Key:       node.Key,
+			NodeID:    updatedNode.ID,
+			Length:    duration,
+			AuthorID:  updatedUser.ID,
+		}
+
+		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			return "", errors.Wrap(err, "can't save video")
+		}
+	}
+
+	if err := a.importExamples(nodes, url, updatedUser.Lang, updatedUser.ID); err != nil {
+		return "", errors.Wrap(err, "can't import examples")
+	}
+
+	if err := a.importAssignments(nodes, url, updatedUser.Lang, updatedUser.ID); err != nil {
+		return "", errors.Wrap(err, "can't import assignments")
+	}
+
+	for node, prereqs := range graph {
+		for _, prereq := range prereqs {
+			edge := model.Edge{
+				FromNodeID: nodes[prereq].ID,
+				ToNodeID:   nodes[node].ID,
+			}
+			if err := a.Store.Graph().Save(&edge); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+				return "", errors.Wrap(err, "can't save edge")
+			}
+		}
+	}
+
+	if err := a.importNodeTexts(nodes, updatedUser.ID, url); err != nil {
+		return "", errors.Wrap(err, "can't import texts for nodes")
+	}
+
+	if err := a.importNodeQuestions(nodes, url); err != nil {
+		return "", errors.Wrap(err, "can't import questions for nodes")
+	}
+
+	return password, nil
 }
 
 func getFileContent(url string) (string, error) {

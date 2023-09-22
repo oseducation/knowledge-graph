@@ -27,11 +27,19 @@ var dbCreateAdmin = &cobra.Command{
 }
 
 var dbImportGraph = &cobra.Command{
-	Use:     "import",
+	Use:     "import-old",
 	Short:   "Import graph",
 	Long:    `Import Knowledge Graph from files: graph.json, nodes.json, texts.md.`,
-	Example: `  db import --url URL-to-folder`,
+	Example: `  db import-old --url URL-to-folder`,
 	RunE:    importGraphCmdF,
+}
+
+var dbImportContent = &cobra.Command{
+	Use:     "import-content",
+	Short:   "Import content",
+	Long:    `Import Knowledge Graph Content from files: graph.json, nodes.json, texts.md.`,
+	Example: `  db import-content --url URL-to-folder`,
+	RunE:    importAllContentCmdF,
 }
 
 var dbAddNode = &cobra.Command{
@@ -57,6 +65,9 @@ func init() {
 
 	dbImportGraph.Flags().String("url", "", "URL to folder with graph.json file")
 	dbCmd.AddCommand(dbImportGraph)
+
+	dbImportContent.Flags().String("url", "", "URL to folder with graph.json file")
+	dbCmd.AddCommand(dbImportContent)
 
 	dbAddNode.Flags().String("node", "", "a string in json format with node data")
 	dbAddNode.Flags().String("pre", "", "a list in json format with prerequisite node names")
@@ -121,9 +132,27 @@ func importGraphCmdF(command *cobra.Command, _ []string) error {
 		return errors.New("can't run server")
 	}
 	defer srv.Shutdown()
-	password, err := srv.App.ImportGraph(url)
+	password, err := srv.App.ImportGraphOld(url)
 	if err != nil {
 		return errors.Wrap(err, "can't import graph")
+	}
+	println("password", password)
+	return nil
+}
+
+func importAllContentCmdF(command *cobra.Command, _ []string) error {
+	url, err := command.Flags().GetString("url")
+	if err != nil || url == "" {
+		return errors.New("url is required")
+	}
+	srv, err := runServer()
+	if err != nil {
+		return errors.New("can't run server")
+	}
+	defer srv.Shutdown()
+	password, err := srv.App.ImportAllContent(url)
+	if err != nil {
+		return errors.Wrap(err, "can't import all the content")
 	}
 	println("password", password)
 	return nil
