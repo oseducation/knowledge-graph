@@ -4,7 +4,11 @@ import Main from '../components/main';
 import useAuth from '../hooks/useAuth';
 import Landing from '../components/landing/landing';
 
-const HomePage = () => {
+interface Props {
+    language?: string;
+}
+
+const HomePage = (props: Props) => {
     const {user} = useAuth()
 
     if (user) {
@@ -13,7 +17,7 @@ const HomePage = () => {
         )
     }
     return (
-        <Landing/>
+        <Landing language={props.language}/>
     )
 }
 

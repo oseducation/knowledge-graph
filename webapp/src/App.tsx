@@ -25,6 +25,8 @@ function App() {
     return (
         <Routes>
             <Route path="/" element={<HomePage/>}/>
+            <Route path="/en" element={<HomePage language='en'/>}/>
+            <Route path="/ge" element={<HomePage language='ge'/>}/>
             <Route path="/login" element={<LoginPage/>}/>
             <Route path="/register" element={<RegisterPage/>}/>
             <Route path="/verify" element={<VerifyPage/>}/>
