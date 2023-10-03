@@ -17,9 +17,17 @@ import Learn from './learn';
 import Apply from './apply';
 import DropOut from './drop_out';
 
-const Landing = () => {
+interface Props {
+    language?: string;
+}
+
+const Landing = (props: Props) => {
     const navigate = useNavigate();
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
+
+    if (props.language && props.language !== i18n.language) {
+        i18n.changeLanguage(props.language);
+    }
 
     Analytics.landing();
 
