@@ -87,12 +87,18 @@ func (a *App) GetNode(nodeID string) (*model.NodeWithResources, error) {
 		return nil, errors.Wrapf(err, "question options = %v", questionOptions)
 	}
 
+	prerequisites, err := a.Store.Node().GetPrerequisites(nodeID)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't get prerequisites")
+	}
+
 	return &model.NodeWithResources{
-		Node:        *node,
-		Videos:      videos,
-		ActiveUsers: a.sanitizeUsers(users),
-		Texts:       texts,
-		Questions:   questions,
+		Node:          *node,
+		Videos:        videos,
+		ActiveUsers:   a.sanitizeUsers(users),
+		Texts:         texts,
+		Questions:     questions,
+		Prerequisites: prerequisites,
 	}, nil
 }
 

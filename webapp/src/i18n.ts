@@ -106,7 +106,8 @@ const resources = {
             "Check Answer": "Check Answer",
             "please learn all the prerequisite topics first": "please learn all the prerequisite topics first",
             "Try out karel here": "Try out karel here",
-            "Karel Environment": "Karel Environment"
+            "Karel Environment": "Karel Environment",
+            "Prerequisite Topics": "Prerequisite Topics",
         }
     },
     ge: {
@@ -209,7 +210,8 @@ const resources = {
             "Check Answer": "შეამოწმე",
             "please learn all the prerequisite topics first": "ჯერ პრერეკვიზიტები ისწავლე",
             "Try out karel here": "კარელი შეგიძლია აქ ნახო",
-            "Karel Environment": "კარელის გარემო"
+            "Karel Environment": "კარელის გარემო",
+            "Prerequisite Topics": "თემის წინარეკვიზიტები"
         }
     }
 };

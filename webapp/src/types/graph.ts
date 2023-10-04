@@ -78,6 +78,7 @@ export type NodeWithResources = {
     active_users: User[];
     texts: Text[];
     questions: Question[];
+    prerequisites: Node[];
 }
 
 export const getVideoLength = (length: number) => {
