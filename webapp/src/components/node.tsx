@@ -271,6 +271,7 @@ const Node = (props: Props) => {
                                 nodeDescription={node.description}
                                 nodeFinished={node.status === NodeStatusFinished}
                                 loading={loading}
+                                prerequisites={node.prerequisites}
                                 onMarkAsKnown={markAsKnown}
                                 onMarkAsStarted={markAsStarted}
                             />

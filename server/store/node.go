@@ -19,6 +19,7 @@ type NodeStore interface {
 	Delete(node *model.Node) error
 	GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error)
 	UpdateStatus(status *model.NodeStatusForUser) error
+	GetPrerequisites(id string) ([]*model.Node, error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -229,4 +230,15 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 		}
 	}
 	return nil
+}
+
+func (ns *SQLNodeStore) GetPrerequisites(id string) ([]*model.Node, error) {
+	var nodes []*model.Node
+	query := ns.nodeSelect.
+		Join("edges e on n.id = e.from_node_id").
+		Where(sq.Eq{"e.to_node_id": id})
+	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &nodes, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get prerequisite nodes for %s", id)
+	}
+	return nodes, nil
 }
