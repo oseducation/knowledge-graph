@@ -9,7 +9,7 @@ interface Props {
 }
 
 const HomePage = (props: Props) => {
-    const {user} = useAuth()
+    const {user} = useAuth();
 
     if (user) {
         return (

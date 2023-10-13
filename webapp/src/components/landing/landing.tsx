@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 
 import {Analytics} from '../../analytics';
 import useAppBarHeight from '../../hooks/use_app_bar_height';
-import {Graph} from '../../types/graph';
+import {Graph, cloneGraph} from '../../types/graph';
 
 import Hero from './hero';
 import Problem1 from './problem1';
@@ -131,13 +131,6 @@ const Landing = (props: Props) => {
     }
 
     const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
-
-    const cloneGraph = (graph: Graph): Graph => {
-        return {
-            nodes: structuredClone(graph.nodes),
-            links: structuredClone(graph.links)
-        }
-    }
 
     const p1 = cloneGraph(graph);
     p1.nodes[0].status = 'started';

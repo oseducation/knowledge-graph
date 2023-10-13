@@ -1,6 +1,7 @@
-import {Box, Link, List, ListItem, Paper} from "@mui/material";
+import {Box, Button, Link, List, ListItem, Paper} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import React from "react";
+import {useNavigate} from "react-router-dom";
 
 import IKnowThisButton from "./I_konw_this_button";
 
@@ -15,10 +16,13 @@ interface Props {
     prerequisites: Node[];
     onMarkAsKnown: () => void;
     onMarkAsStarted: () => void;
+    nextNodeID?: string;
 }
 
 const NodeTitleSection = (props: Props) => {
     const {t} = useTranslation();
+    const navigate = useNavigate();
+
     return (
         <Paper sx={{
             p: 2,
@@ -49,6 +53,21 @@ const NodeTitleSection = (props: Props) => {
                     onMarkAsKnown={props.onMarkAsKnown}
                     onMarkAsStarted={props.onMarkAsStarted}
                 />
+
+                {props.nodeFinished && props.nextNodeID &&
+                    <Button
+                        onClick={() => {
+                            navigate(`/nodes/${props.nextNodeID}`);
+                        }}
+                        variant="contained"
+                        sx={{
+                            alignSelf: "center",
+                            ml: '4px',
+                        }}
+                    >
+                        {t("Next Topic")}
+                    </Button>
+                }
             </Box>
         </Paper>
     );

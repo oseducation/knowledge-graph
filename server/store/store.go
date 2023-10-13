@@ -35,6 +35,7 @@ type Store interface {
 	System() SystemStore
 	Preferences() PreferencesStore
 	UserCode() UserCodeStore
+	Goal() GoalStore
 }
 
 // SQLStore struct represents a DB
@@ -53,6 +54,7 @@ type SQLStore struct {
 	systemStore      SystemStore
 	preferencesStore PreferencesStore
 	userCodeStore    UserCodeStore
+	goalStore        GoalStore
 	config           *config.DBSettings
 	logger           *log.Logger
 }
@@ -121,6 +123,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.systemStore = NewSystemStore(sqlStore)
 	sqlStore.preferencesStore = NewPreferencesStore(sqlStore)
 	sqlStore.userCodeStore = NewUserCodeStore(sqlStore)
+	sqlStore.goalStore = NewGoalStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -171,6 +174,10 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not user_nodes")
 	}
 
+	if _, err := tx.Exec("DROP TABLE IF EXISTS user_goals"); err != nil {
+		return errors.Wrap(err, "could not user_goals")
+	}
+
 	if err := tx.Commit(); err != nil {
 		return errors.Wrap(err, "could not commit")
 	}
@@ -214,6 +221,9 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM videos"); err != nil {
 			sqlDB.logger.Fatal("can't delete from videos", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM user_goals"); err != nil {
+			sqlDB.logger.Fatal("can't delete from user_goals", log.Err(err))
 		}
 	}
 }
@@ -336,7 +346,12 @@ func (sqlDB *SQLStore) Preferences() PreferencesStore {
 	return sqlDB.preferencesStore
 }
 
-// Preferences returns an interface to manage preferences in the DB
+// UserCode returns an interface to manage user codes in the DB
 func (sqlDB *SQLStore) UserCode() UserCodeStore {
 	return sqlDB.userCodeStore
+}
+
+// Goal returns an interface to manage user goals in the DB
+func (sqlDB *SQLStore) Goal() GoalStore {
+	return sqlDB.goalStore
 }

@@ -8,10 +8,11 @@ import {Alert, Collapse, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {useTranslation} from 'react-i18next';
 
-import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext} from '../../types/graph';
+import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment} from '../../types/graph';
 import useAuth from '../../hooks/useAuth';
 import {Analytics} from '../../analytics';
 import {DagMode} from '../../types/users';
+import useGraph from '../../hooks/useGraph';
 
 import {GraphNodeHoverContext} from './../main';
 
@@ -38,6 +39,7 @@ const D3ForceGraph = (props: Props) => {
     const [highlightLinks, setHighlightLinks] = useState(new Set());
     const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
     const {t, i18n} = useTranslation();
+    const {pathToGoal, goal} = useGraph();
 
     const onNodeClick = ({id, status} : Node) => {
         if (props.noClick){
@@ -226,6 +228,8 @@ const D3ForceGraph = (props: Props) => {
                         paintRing(currentNode, ctx, 'red');
                     } else if (highlightNodes.has(currentNode.id)){
                         paintRing(currentNode, ctx, 'orange');
+                    } else if (pathToGoal?.has(currentNode.id) && currentNode.status !== NodeStatusFinished){
+                        paintRing(currentNode, ctx, 'purple');
                     }
 
                     const label = currentNode.name;
@@ -237,15 +241,18 @@ const D3ForceGraph = (props: Props) => {
 
                     const x = currentNode.x || 0
                     const y = currentNode.y || 0
-                    if (currentNode.node_type === 'lecture') {
+                    if (currentNode.id === goal) {
+                        paintRing(currentNode, ctx, 'purple');
+                        drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
+                    } else if (currentNode.node_type === NodeTypeLecture) {
                         ctx.beginPath();
                         ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
                         ctx.fillStyle = getNodeColor(currentNode);
                         ctx.fill();
-                    } else if (currentNode.node_type === 'example') {
+                    } else if (currentNode.node_type === NodeTypeExample) {
                         ctx.fillStyle = getNodeColor(currentNode);
                         ctx.fillRect(x-nodeRadius, y-nodeRadius, 2*nodeRadius, 2*nodeRadius);
-                    } else if (currentNode.node_type === 'assignment') {
+                    } else if (currentNode.node_type === NodeTypeAssignment) {
                         drawStar(ctx, x, y, 5, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
                     }
 

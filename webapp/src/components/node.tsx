@@ -12,6 +12,7 @@ import {GroupItem, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
 import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
+import useGraph from '../hooks/useGraph';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import VideoPlayer from './player';
@@ -35,6 +36,9 @@ const Node = (props: Props) => {
     const {
         mixins: {toolbar},
     } = useTheme();
+    const {pathToGoal} = useGraph();
+
+    const nextNodeID = pathToGoal?.get(props.nodeID)
 
     function loadNode() {
         Client.Node().get(props.nodeID).then((data) => {
@@ -274,6 +278,7 @@ const Node = (props: Props) => {
                                 prerequisites={node.prerequisites}
                                 onMarkAsKnown={markAsKnown}
                                 onMarkAsStarted={markAsStarted}
+                                nextNodeID={nextNodeID}
                             />
                             <Grid2 xs={10}>
                                 {node.videos && node.videos.map((video) => (

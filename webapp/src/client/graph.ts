@@ -13,8 +13,28 @@ export class GraphClient{
         return `${this.rest.getBaseRoute()}/graph`;
     }
 
+    getGoalsRoute() {
+        return `${this.rest.getBaseRoute()}/goals`;
+    }
+
+    getGoalsForUserRoute(userID: string) {
+        return `${this.getGoalsRoute()}/${userID}`;
+    }
+
     get = async () => {
+        if (!this.rest.me || !this.rest.me.id){
+            return null;
+        }
         const data = this.rest.doFetch<Graph>(`${this.getGraphRoute()}`, {method: 'get'});
         return data;
     };
+
+    getGoal = async() => {
+        if (!this.rest.me || !this.rest.me.id){
+            return '';
+        }
+        const url = `${this.getGoalsForUserRoute(this.rest.me.id)}`;
+        const data = this.rest.doFetch<string>(url, {method: 'get'});
+        return data;
+    }
 }

@@ -10,6 +10,7 @@ import App from "./App";
 import {AppTheme} from "./ThemeOptions";
 import Header from "./components/header";
 import {DrawerProvider} from './context/drawer_provider';
+import {GraphProvider} from './context/graph_provider';
 
 const theme = createTheme(AppTheme);
 
@@ -17,26 +18,28 @@ export default function AppLayout() {
     return (
         <ThemeProvider theme={theme}>
             <DrawerProvider>
-                <Box
-                    sx={{
-                        direction: 'column',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minHeight: '100vh',
-                        maxWidth: 'false',
-                    }}
-                >
-                    <Header/>
-                    <CssBaseline/>
-                    <Container
-                        component="main"
-                        maxWidth={false}
-                        disableGutters
+                <GraphProvider>
+                    <Box
+                        sx={{
+                            direction: 'column',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            minHeight: '100vh',
+                            maxWidth: 'false',
+                        }}
                     >
-                        <App/>
-                    </Container>
-                    <FooterContainer/>
-                </Box>
+                        <Header/>
+                        <CssBaseline/>
+                        <Container
+                            component="main"
+                            maxWidth={false}
+                            disableGutters
+                        >
+                            <App/>
+                        </Container>
+                        <FooterContainer/>
+                    </Box>
+                </GraphProvider>
             </DrawerProvider>
         </ThemeProvider>
     );
