@@ -112,8 +112,15 @@ func (a *App) importGoals(url string, nodes map[string]ExtendedNode) error {
 		return errors.Wrap(err2, "can't unmarshal goals.json file")
 	}
 
-	for i, goal := range goals {
-		if err := a.Store.Goal().SaveDefaultGoal(goal, int64(i)); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+	for i, goalName := range goals {
+		goalID := ""
+		for _, node := range nodes {
+			if node.Name == goalName {
+				goalID = node.ID
+				break
+			}
+		}
+		if err := a.Store.Goal().SaveDefaultGoal(goalID, int64(i)); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 			return errors.Wrapf(err, "can't save goal")
 		}
 	}
