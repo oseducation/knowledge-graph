@@ -150,7 +150,7 @@ const leftIsClear = () => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const leftISBlocked = () => {
+const leftIsBlocked = () => {
     return !karelLeftIsClear(engine.virtualWorld);
 }
 
