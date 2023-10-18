@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {Box, Drawer} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {useNavigate} from 'react-router-dom';
 
-import {Client} from '../client/client';
 import useAuth from '../hooks/useAuth';
-import {Graph, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched} from '../types/graph';
+import {Graph, Node, computeGroupContent} from '../types/graph';
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
 import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
 import useAppBarHeight from '../hooks/use_app_bar_height';
+import useGraph from '../hooks/useGraph';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
@@ -27,95 +27,21 @@ export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextTy
     }
 });
 
-const useGraph = (reload: boolean, computeGroups: (graph: Graph) => SidebarGroup[], language?: string) => {
-    type GraphDataType = {
-        graph: Graph;
-        groups: SidebarGroup[];
-    }
-
-    const [graphData, setGraphData] = useState<GraphDataType>({} as GraphDataType);
-
-    useEffect(() => {
-        Client.Graph().get().then((data: Graph) => {
-            setGraphData({graph: data, groups: computeGroups(data)})
-        });
-
-    }, [reload, language]);
-
-    return graphData;
-}
-
-const nodeCmpFn = (a: Node, b:Node) => {
-    if (a.node_type === b.node_type) {
-        const name1 = a.name.toUpperCase();
-        const name2 = b.name.toUpperCase();
-        if (name1 > name2) {
-            return 1;
-        } else if (name1 < name2) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
-    const nodeTypeMap = new Map();
-
-    nodeTypeMap
-        .set('lecture', 3)
-        .set('example', 2)
-        .set('assignment', 1);
-    return nodeTypeMap.get(a.node_type) - nodeTypeMap.get(b.node_type);
-}
-
 const Main = () => {
     const [node, setNode] = useState<Node>({} as Node);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
-    const [reload, setReload] = useState<boolean>(false);
-    const {user, preferences} = useAuth();
+    const {user} = useAuth();
     const {open, setOpen} = useDrawer();
     const {t} = useTranslation();
     const navigate = useNavigate();
-
-    const handleReload = () => {
-        setReload(prev => !prev);
-    };
+    const {graph, onReload} = useGraph();
 
     const handleDrawerToggle = () => {
         setOpen?.(!open);
     };
 
     const computeGroups = (graph: Graph) => {
-        const nodesMap = new Map<string, Node>();
-        graph.nodes.forEach((node) => {
-            nodesMap.set(node.id, node)
-        })
-
-        const prereqMap = new Map<string, Node>();
-        for (let i = 0; i < graph.links.length; i++) {
-            const link = graph.links[i];
-            const tar = nodesMap.get(link.target);
-            if (tar === undefined || tar.status === NodeStatusFinished) {
-                continue
-            }
-            const sou = nodesMap.get(link.source);
-            if (sou === undefined || sou.status === NodeStatusFinished) {
-                continue
-            }
-            prereqMap.set(tar.id, tar);
-        }
-
-        const inProgressNodes = [];
-        const nextNodes = [];
-        for (let i = 0; i < graph.nodes.length; i++) {
-            const node = graph.nodes[i];
-            if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
-                inProgressNodes.push(node);
-            } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
-                nextNodes.push(node);
-                node.status = NodeStatusNext;
-            }
-        }
-        nextNodes.sort(nodeCmpFn);
-        inProgressNodes.sort(nodeCmpFn);
+        const [inProgressNodes, nextNodes] = computeGroupContent(graph)
 
         const inProgressItems = inProgressNodes.map((node) => {
             return {
@@ -127,7 +53,7 @@ const Main = () => {
                     <NodeDropDownMenu
                         nodeID={node.id}
                         userID={user!.id}
-                        onReload={handleReload}
+                        onReload={onReload}
                     />,
                 onClick: () => {
                     Analytics.clickOnTopic({
@@ -161,7 +87,7 @@ const Main = () => {
                     <NodeDropDownMenu
                         nodeID={node.id}
                         userID={user!.id}
-                        onReload={handleReload}
+                        onReload={onReload}
                     />,
                 onClick: () => {
                     Analytics.clickOnTopic({
@@ -188,7 +114,7 @@ const Main = () => {
         return [inProgressGroup, nextGroup];
     }
 
-    const {graph, groups} = useGraph(reload, computeGroups, preferences?.language);
+    const groups = computeGroups(graph || {nodes: [], links: []})
     if (groups && groups.length > 1 &&
         groups[1].items && groups[1].items.length === 1 &&
         (groups[1].items[0].display_name === 'Vitsi AI მიმოხილვა' ||
@@ -255,7 +181,7 @@ const Main = () => {
                 }}>
                     <RHS
                         userID={user?.id || ''}
-                        onReload={handleReload}
+                        onReload={onReload}
                     />
                 </Grid2>
             </Grid2>
