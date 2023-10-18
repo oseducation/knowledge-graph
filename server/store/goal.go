@@ -15,6 +15,7 @@ type GoalStore interface {
 	Finish(userID, nodeID string) error
 	Delete(userID, nodeID string) error
 	Get(userID string) ([]*model.Goal, error)
+	SaveDefaultGoal(nodeID string, num int64) error
 	NextDefaultGoalForUser(userID string) (string, error)
 }
 
@@ -115,6 +116,19 @@ func (gs *SQLGoalStore) Get(userID string) ([]*model.Goal, error) {
 		return nil, errors.Wrapf(err, "can't get goals for user: %s", userID)
 	}
 	return goals, nil
+}
+
+func (gs *SQLGoalStore) SaveDefaultGoal(nodeID string, num int64) error {
+	_, err := gs.sqlStore.execBuilder(gs.sqlStore.db, gs.sqlStore.builder.
+		Insert("default_goals").
+		SetMap(map[string]interface{}{
+			"node_id": nodeID,
+			"num":     num,
+		}))
+	if err != nil {
+		return errors.Wrapf(err, "can't save default goal nodeID :%s", nodeID)
+	}
+	return nil
 }
 
 // NextDefaultGoalForUser returns next default goal for a specific user
