@@ -44,8 +44,11 @@ docker-container-rm: docker-stop
 docker-nuke:
 	docker exec kg-server /knowledge-graph-server/kg-server db nuke
 
+import-old:
+	cd server && go run cmd/main.go db import-old --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+
 import:
-	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+	cd server && go run cmd/main.go db import-content --url https://raw.githubusercontent.com/oseducation/content-ge/main/intro-to-programming-js-en/
 
 import-khan:
 	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/khan-math-en/

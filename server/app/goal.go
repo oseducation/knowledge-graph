@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
@@ -47,7 +45,6 @@ func (a *App) GetGoals(userID string) ([]*model.Goal, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "can't get default goals")
 	}
-	println(fmt.Sprintf("def %v", defaultGoal))
 	if defaultGoal == "" {
 		return []*model.Goal{}, nil
 	}
