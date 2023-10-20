@@ -26,6 +26,7 @@ type API struct {
 	Questions   *gin.RouterGroup // 'api/v1/questions'
 	Preferences *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}/preferences'
 	Goals       *gin.RouterGroup // 'api/v1/goals/{user_id:[A-Za-z0-9]+}/nodes/{node_id:[A-Za-z0-9]+}'
+	Posts       *gin.RouterGroup // 'api/v1/posts'
 }
 
 // Init initializes api
@@ -47,6 +48,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initQuestion()
 	apiObj.initPreferences()
 	apiObj.initGoal()
+	apiObj.initPost()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")
