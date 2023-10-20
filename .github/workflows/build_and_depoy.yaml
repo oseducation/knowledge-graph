@@ -37,5 +37,6 @@ jobs:
           script: |
             cd knowledge-graph/
             git pull
+            sudo docker builder prune -f
             sudo -E make docker-stop
             sudo -E make docker-start
