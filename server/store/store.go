@@ -36,6 +36,7 @@ type Store interface {
 	Preferences() PreferencesStore
 	UserCode() UserCodeStore
 	Goal() GoalStore
+	Post() PostStore
 }
 
 // SQLStore struct represents a DB
@@ -55,6 +56,7 @@ type SQLStore struct {
 	preferencesStore PreferencesStore
 	userCodeStore    UserCodeStore
 	goalStore        GoalStore
+	postStore        PostStore
 	config           *config.DBSettings
 	logger           *log.Logger
 }
@@ -124,6 +126,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.preferencesStore = NewPreferencesStore(sqlStore)
 	sqlStore.userCodeStore = NewUserCodeStore(sqlStore)
 	sqlStore.goalStore = NewGoalStore(sqlStore)
+	sqlStore.postStore = NewPostStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -354,4 +357,9 @@ func (sqlDB *SQLStore) UserCode() UserCodeStore {
 // Goal returns an interface to manage user goals in the DB
 func (sqlDB *SQLStore) Goal() GoalStore {
 	return sqlDB.goalStore
+}
+
+// Post returns an interface to manage user posts in the DB
+func (sqlDB *SQLStore) Post() PostStore {
+	return sqlDB.postStore
 }
