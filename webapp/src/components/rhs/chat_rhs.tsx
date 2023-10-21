@@ -9,6 +9,7 @@ import useAuth from '../../hooks/useAuth';
 import Markdown from '../markdown';
 
 import PostInput from './post_input';
+import { Analytics } from '../../analytics';
 
 
 interface Props {
@@ -45,6 +46,7 @@ const ChatRHS = (props: Props) => {
                 message: post.message,
                 user: user!
             }]);
+            Analytics.messagePosted({location_id: props.locationID, user_id: user!.id});
         });
     }
 
