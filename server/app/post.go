@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
@@ -11,6 +12,13 @@ func (a *App) CreatePost(post *model.Post) (*model.Post, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save post")
 	}
+
+	go func() {
+		if err := a.SendPostToNodeNotificationEmail(post); err != nil {
+			a.Log.Error("can't send email notification for post to node", log.Err(err))
+		}
+	}()
+
 	return rpost, nil
 }
 
@@ -19,6 +27,14 @@ func (a *App) GetPosts(options *model.PostGetOptions) ([]*model.Post, error) {
 	posts, err := a.Store.Post().GetPosts(options)
 	if err != nil {
 		return nil, errors.Wrapf(err, "options = %v", options)
+	}
+	return posts, nil
+}
+
+func (a *App) GetPostsWithUserData(locationID string) ([]*model.PostWithUser, error) {
+	posts, err := a.Store.Post().GetPostsWithUser(locationID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "locationID = %v", locationID)
 	}
 	return posts, nil
 }

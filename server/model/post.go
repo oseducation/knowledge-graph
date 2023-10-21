@@ -22,6 +22,11 @@ type Post struct {
 	Message    string `json:"message" db:"message"`
 }
 
+type PostWithUser struct {
+	Post
+	User *User `json:"user" db:"_"`
+}
+
 // IsValid validates the post and returns an error if it isn't configured correctly.
 func (p *Post) IsValid() error {
 	if !IsValidID(p.ID) {
@@ -36,7 +41,7 @@ func (p *Post) IsValid() error {
 		return invalidPostError(p.ID, "updated_at", p.UpdatedAt)
 	}
 
-	if !IsValidID(p.LocationID) || len(p.LocationID) != len(PostDirectMessageLocationExample) {
+	if !IsValidID(p.LocationID) && len(p.LocationID) != len(PostDirectMessageLocationExample) {
 		return invalidPostError(p.ID, "location_id", p.ID)
 	}
 

@@ -14,6 +14,7 @@ type PostStore interface {
 	Update(new *model.Post) error
 	Get(id string) (*model.Post, error)
 	GetPosts(options *model.PostGetOptions) ([]*model.Post, error)
+	GetPostsWithUser(locationID string) ([]*model.PostWithUser, error)
 	Delete(post *model.Post) error
 }
 
@@ -113,7 +114,7 @@ func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, 
 		query = query.Where(sq.Like{"p.message": fmt.Sprint("%", options.TermInMessage, "%")})
 	}
 	if !options.IncludeDeleted {
-		query = query.Where("n.deleted_at = 0")
+		query = query.Where("p.deleted_at = 0")
 	}
 	if options.UserID != "" {
 		query = query.Where(sq.Eq{"p.user_id": options.UserID})
@@ -130,6 +131,54 @@ func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, 
 
 	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &posts, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get posts with options %v", options)
+	}
+	return posts, nil
+}
+
+// GetPosts gets posts with options
+func (ps *SQLPostStore) GetPostsWithUser(locationID string) ([]*model.PostWithUser, error) {
+	type PostWUser struct {
+		ID        string `json:"id" db:"id"`
+		Message   string `json:"message" db:"message"`
+		UserName  string `json:"username" db:"username"`
+		FirstName string `json:"first_name" db:"first_name"`
+		LastName  string `json:"last_name" db:"last_name"`
+		UserID    string `json:"user_id" db:"user_id"`
+	}
+	var postWUser []PostWUser
+	query := ps.sqlStore.builder.
+		Select(
+			"p.id",
+			"p.message",
+			"u.username",
+			"u.first_name",
+			"u.last_name",
+			"u.id as user_id",
+		).
+		From("posts p").
+		Join("users u ON u.id = p.user_id").
+		Where(sq.Eq{"p.location_id": locationID}).
+		OrderBy("p.created_at ASC").
+		Limit(100). //TODO: make it configurable
+		Offset(0)
+
+	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &postWUser, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get posts from location %v", locationID)
+	}
+	posts := make([]*model.PostWithUser, 0, len(postWUser))
+	for _, p := range postWUser {
+		posts = append(posts, &model.PostWithUser{
+			Post: model.Post{
+				ID:      p.ID,
+				Message: p.Message,
+			},
+			User: &model.User{
+				Username:  p.UserName,
+				FirstName: p.FirstName,
+				LastName:  p.LastName,
+				ID:        p.UserID,
+			},
+		})
 	}
 	return posts, nil
 }

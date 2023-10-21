@@ -46,7 +46,7 @@ const stringToColor = (st: string) => {
     return color;
 }
 
-const stringAvatar = (user: User) => {
+export const stringAvatar = (user: User) => {
     const name = user.first_name + ' ' + user.last_name
     return {
         sx: {

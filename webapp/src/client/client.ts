@@ -3,7 +3,8 @@ import {UserClient} from "./user";
 import {GraphClient} from "./graph";
 import {NodeClient} from "./node";
 import {SidebarClient} from "./sidebar";
-import { VideoClient } from "./video";
+import {VideoClient} from "./video";
+import {PostClient} from "./post";
 
 
 class Client {
@@ -13,6 +14,7 @@ class Client {
     node: NodeClient;
     video: VideoClient;
     sidebar: SidebarClient;
+    post: PostClient;
 
     constructor(){
         this.rest = new Rest();
@@ -21,6 +23,7 @@ class Client {
         this.node = new NodeClient(this.rest);
         this.video = new VideoClient(this.rest)
         this.sidebar = new SidebarClient(this.rest);
+        this.post = new PostClient(this.rest);
     }
 
     User(){
@@ -41,6 +44,10 @@ class Client {
 
     Sidebar(){
         return this.sidebar;
+    }
+
+    Post(){
+        return this.post
     }
 }
 
