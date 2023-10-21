@@ -14,6 +14,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - kg-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   kg-server:
     build:
@@ -34,10 +39,15 @@ services:
       - kg-db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9081/healthcheck"]
-      interval: 5s
-      timeout: 5s
-      start_period: 5s
+      interval: 15s
+      timeout: 15s
+      start_period: 15s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   kg-webapp:
     build:
@@ -53,6 +63,11 @@ services:
     tty: true
     networks:
       - kg-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
 networks:
   kg-network:
