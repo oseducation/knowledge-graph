@@ -6,9 +6,9 @@ import {Post} from '../../types/posts';
 import {stringAvatar} from '../rhs/rhs';
 import { Client } from '../../client/client';
 import useAuth from '../../hooks/useAuth';
+import Markdown from '../markdown';
 
 import PostInput from './post_input';
-import Markdown from '../markdown';
 
 
 interface Props {
