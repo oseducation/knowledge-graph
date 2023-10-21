@@ -7,9 +7,9 @@ import {stringAvatar} from '../rhs/rhs';
 import { Client } from '../../client/client';
 import useAuth from '../../hooks/useAuth';
 import Markdown from '../markdown';
+import {Analytics} from '../../analytics';
 
 import PostInput from './post_input';
-import { Analytics } from '../../analytics';
 
 
 interface Props {
