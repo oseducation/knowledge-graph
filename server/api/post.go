@@ -45,6 +45,7 @@ func getPosts(c *gin.Context) {
 	term := c.DefaultQuery("term", "")
 	userID := c.DefaultQuery("user_id", "")
 	locationID := c.DefaultQuery("location_id", "")
+	withUsers := c.DefaultQuery("with_users", "")
 	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultNodePage)))
 	if err != nil {
 		page = defaultUserPage
@@ -76,6 +77,15 @@ func getPosts(c *gin.Context) {
 		return
 	}
 
+	if withUsers == "true" {
+		posts, err2 := a.GetPostsWithUserData(locationID)
+		if err2 != nil {
+			responseFormat(c, http.StatusInternalServerError, err2.Error())
+			return
+		}
+		responseFormat(c, http.StatusOK, posts)
+		return
+	}
 	options := &model.PostGetOptions{}
 	model.ComposePostOptions(
 		model.TermInMessage(term),

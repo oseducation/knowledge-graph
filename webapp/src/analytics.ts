@@ -128,6 +128,10 @@ class Analytics {
     landing() {
         Mixpanel.track('View Landing Page');
     }
+
+    messagePosted(props: Dict) {
+        Mixpanel.track('Message Posted', props);
+    }
 }
 
 const AnalyticsObject = new Analytics();

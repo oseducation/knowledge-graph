@@ -45,7 +45,6 @@ const resources = {
             "Log in": "Log in",
             "Create your account": "Create your account",
             "Create account": "Create account",
-            "Chat coming soon": "Chat coming soon. Meanwhile if you have any questions regarding this topic, please feel free to call or text our CEO directly +995555476500",
             "Videos": "Videos",
             "Texts": "Texts",
             "Tests": "Tests",
@@ -53,7 +52,7 @@ const resources = {
             "Please insert youtube video url": "Please insert youtube video url",
             "Do you know the better way to explain this topic? Please upload the YouTube video here:": "Do you know the better way to explain this topic? Please upload the YouTube video here:",
             "Upload Video": "Upload Video",
-
+            "Topic Chat": "Topic Chat",
 
             "Knowledge Gaps": "Knowledge Gaps",
             "Learners have knowledge gaps": "Learners have knowledge gaps",
@@ -150,7 +149,6 @@ const resources = {
             "Log in": "შესვლა",
             "Create your account": "შექმენი შენი ანგარიში",
             "Create account": "ანგარიშის შექმნა",
-            "Chat coming soon": "ჩატი მალე დაემატება, მანამდე ამ თემასთან დაკავშირებულ ნებისმიერ კითხვაზე დაურეკეთ ან მისწერეთ შოთას, ნომერზე 555476500",
             "Videos": "ვიდეოები",
             "Texts": "ტექსტები",
             "Tests": "ტესტები",
@@ -158,6 +156,7 @@ const resources = {
             "Please insert youtube video url": "გთხოვთ შეიყვანოთ იუტუბის ვიდეოს ბმული",
             "Do you know the better way to explain this topic? Please upload the YouTube video here:": "ამ საკითხის ასახსნელად უკეთესი გზა ხომ არ იცი? მაშინ ატვირთე იუტუბის ვიდეო აქ:",
             "Upload Video": "ვიდეოს ატვირთვა",
+            "Topic Chat": "ჩატი ამ თემის შესახებ",
 
 
             "Knowledge Gaps": "ხარვეზები ცოდნაში",

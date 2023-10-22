@@ -21,6 +21,8 @@ import NodeTitleSection from "./node_title_section";
 import QuestionComponent from './question';
 import Markdown from './markdown';
 import EnvironmentTeaser from './environment';
+import ChatRHS from './rhs/chat_rhs';
+
 interface Props {
     nodeID: string;
 }
@@ -322,9 +324,8 @@ const Node = (props: Props) => {
                         display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
                     }}
                     textAlign={'center'}
-                    bgcolor={'gray'}
                 >
-                    {t("Chat coming soon")}
+                    <ChatRHS locationID={props.nodeID}/>
                 </Grid2>
             </Grid2>
         </>

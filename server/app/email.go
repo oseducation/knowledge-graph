@@ -13,7 +13,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-func (a *App) sendWelcomeEmail(userID string, email string, verified bool, siteURL string) error {
+func (a *App) sendWelcomeEmail(userID string, email string, verified bool) error {
 	subject := "Welcome to Vitsi AI"
 	body := "You've joined Vitsi AI\n"
 
@@ -23,10 +23,40 @@ func (a *App) sendWelcomeEmail(userID string, email string, verified bool, siteU
 		if err != nil {
 			return err
 		}
-		link := fmt.Sprintf("%s/do_verify_email?token=%s&email=%s", siteURL, token.Token, url.QueryEscape(email))
+		link := fmt.Sprintf("%s/do_verify_email?token=%s&email=%s", a.GetSiteURL(), token.Token, url.QueryEscape(email))
 		body += "<a href=\"" + link + "\">Verify Email</a>\n"
 	}
 
+	if err := a.sendMail(email, subject, body); err != nil {
+		return errors.Wrapf(err, "can't send email to %s", email)
+	}
+	return nil
+}
+
+func (a *App) SendPostToNodeNotificationEmail(post *model.Post) error {
+	node, err := a.Store.Node().Get(post.LocationID)
+	if err != nil {
+		return errors.Wrapf(err, "can't get node")
+	}
+	user, err := a.Store.User().Get(post.UserID)
+	if err != nil {
+		return errors.Wrapf(err, "can't get user")
+	}
+	if err := a.sendNotificationEmail(node.Name, post.Message, user.Username, node.ID); err != nil {
+		return errors.Wrapf(err, "can't send notification email")
+	}
+	return nil
+}
+
+func (a *App) sendNotificationEmail(nodeName, message, userName, nodeID string) error {
+	subject := fmt.Sprintf("New message in %s", nodeName)
+	body := fmt.Sprintf("New sent by %s\n <br/>", userName)
+	url := a.GetSiteURL()
+	body += fmt.Sprintf("Click here: %s/nodes/%s\n <br/>", url, nodeID)
+	email := "win"
+	body += message
+	email += "eson"
+	email += "@gmail.com"
 	if err := a.sendMail(email, subject, body); err != nil {
 		return errors.Wrapf(err, "can't send email to %s", email)
 	}

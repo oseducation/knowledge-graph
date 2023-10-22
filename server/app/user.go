@@ -27,7 +27,7 @@ func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "useremail = %s", user.Email)
 	}
-	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified, a.GetSiteURL()); err != nil {
+	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified); err != nil {
 		a.Log.Error("Failed to send welcome email on create user from signup", log.Err(err))
 	}
 	return user, nil
@@ -58,7 +58,7 @@ func (a *App) CreateUser(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "userID = %s", user.ID)
 	}
-	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified, a.GetSiteURL()); err != nil {
+	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified); err != nil {
 		a.Log.Error("Failed to send welcome email on create user", log.Err(err))
 	}
 	return ruser, nil

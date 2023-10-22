@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/oseducation/knowledge-graph/config"
@@ -47,7 +48,11 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 
 // GetSiteURL returns site url from config
 func (a *App) GetSiteURL() string {
-	return a.Config.ServerSettings.SiteURL
+	url := a.Config.ServerSettings.SiteURL
+	if strings.Contains(url, "localhost") {
+		url = "https://www.vitsi.ai"
+	}
+	return url
 }
 
 // PerformDBCheck checks if database is connectable
