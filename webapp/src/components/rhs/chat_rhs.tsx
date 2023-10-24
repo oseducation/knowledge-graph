@@ -72,6 +72,7 @@ const ChatRHS = (props: Props) => {
                             <ListItemText
                                 primary={post.user.username}
                                 secondary={<Markdown text={post.message}/>}
+                                disableTypography={true}
                             />
                         </ListItem>
                     );

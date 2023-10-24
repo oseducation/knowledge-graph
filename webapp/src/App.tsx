@@ -5,7 +5,6 @@ import {Routes, Route} from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import WelcomePage from './pages/WelcomePage';
-import HomePage from './pages/HomePage';
 import NodePage from './pages/NodePage';
 import RequireAuth from './components/require_auth';
 import {ROLES} from './types/users';
@@ -20,28 +19,37 @@ import AboutUs from './pages/AboutUs';
 import AdminPage from './pages/AdminPage';
 import GraphPage from './pages/GraphPage';
 import KarelPage from './pages/KarelPage';
+import GuestLayout from './GuestLayout';
+import Landing from './components/landing/landing';
+import Main from './components/main';
+import UserLayout from './UserLayout';
 
 function App() {
     return (
         <Routes>
-            <Route path="/" element={<HomePage/>}/>
-            <Route path="/en" element={<HomePage language='en'/>}/>
-            <Route path="/ge" element={<HomePage language='ge'/>}/>
-            <Route path="/login" element={<LoginPage/>}/>
-            <Route path="/register" element={<RegisterPage/>}/>
-            <Route path="/verify" element={<VerifyPage/>}/>
-            <Route path="/do_verify_email" element={<DoVerifyEmailPage/>}/>
-            <Route path="/contact" element={<ContactUs/>}/>
-            <Route path="/terms" element={<Terms/>}/>
-            <Route path="/privacy" element={<PrivacyPolicy/>}/>
-            <Route path="/about" element={<AboutUs/>}/>
             <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]}/>}>
-                <Route path="/nodes/:nodeID" element={<NodePage/>}/>
-                <Route path="/welcome" element={<WelcomePage/>}/>
-                <Route path="/profile" element={<ProfilePage/>}/>
-                <Route path="/carousel" element={<CarouselPage/>}/>
-                <Route path="/karel_js" element={<KarelPage lang='js'/>}/>
-                <Route path="/karel_java" element={<KarelPage lang='java'/>}/>
+                <Route path="" element={<UserLayout/>}>
+                    <Route path="/" element={<Main/>}/>
+                    <Route path="/nodes/:nodeID" element={<NodePage/>}/>
+                    <Route path="/welcome" element={<WelcomePage/>}/>
+                    <Route path="/profile" element={<ProfilePage/>}/>
+                    <Route path="/carousel" element={<CarouselPage/>}/>
+                    <Route path="/karel_js" element={<KarelPage lang='js'/>}/>
+                    <Route path="/karel_java" element={<KarelPage lang='java'/>}/>
+                </Route>
+            </Route>
+            <Route path="" element={<GuestLayout/>}>
+                <Route path="" element={<Landing/>}/>
+                <Route path="en" element={<Landing language='en'/>}/>
+                <Route path="ge" element={<Landing language='ge'/>}/>
+                <Route path="login" element={<LoginPage/>}/>
+                <Route path="register" element={<RegisterPage/>}/>
+                <Route path="verify" element={<VerifyPage/>}/>
+                <Route path="do_verify_email" element={<DoVerifyEmailPage/>}/>
+                <Route path="contact" element={<ContactUs/>}/>
+                <Route path="terms" element={<Terms/>}/>
+                <Route path="privacy" element={<PrivacyPolicy/>}/>
+                <Route path="about" element={<AboutUs/>}/>
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                 <Route path="/admin" element={<AdminPage/>}/>
