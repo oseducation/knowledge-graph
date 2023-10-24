@@ -5,7 +5,7 @@ import {createRoot} from 'react-dom/client';
 import './i18n';
 
 import {AuthProvider} from './context/auth_provider';
-import AppLayout from "./AppLayout";
+import App from './App';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -14,7 +14,7 @@ const element = (
     <React.StrictMode>
         <AuthProvider>
             <BrowserRouter>
-                <AppLayout/>
+                <App/>
             </BrowserRouter>
         </AuthProvider>
     </React.StrictMode>

@@ -7,6 +7,7 @@ import {useTranslation} from 'react-i18next';
 import {Analytics} from '../../analytics';
 import useAppBarHeight from '../../hooks/use_app_bar_height';
 import {Graph, cloneGraph} from '../../types/graph';
+import Footer from '../footer';
 
 import Hero from './hero';
 import Problem1 from './problem1';
@@ -304,6 +305,26 @@ const Landing = (props: Props) => {
                             </Button>
                         </Box>
                     </Grid2>
+                </Grid2>
+                <Grid2 container
+                    m={0}
+                    p={1}
+                    xs={12}
+                    id='action-section'
+                    height={staticHeight}
+                    bgcolor={'primary.dark'}
+                    sx={{
+                        scrollSnapAlign: 'start',
+                        py: 3,
+                        backgroundColor: (theme) =>
+                            theme.palette.mode === 'light'
+                                ? theme.palette.grey[200]
+                                : theme.palette.grey[800],
+                    }}
+                >
+                    <Box component="footer">
+                        <Footer/>
+                    </Box>
                 </Grid2>
             </Grid2>
         </Box>
