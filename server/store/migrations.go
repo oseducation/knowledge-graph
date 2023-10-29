@@ -400,7 +400,7 @@ var migrations = []Migration{
 					return errors.Wrapf(err, "failed adding column post_type to table posts")
 				}
 
-				if err := addColumnToPGTable(e, "posts", "props", "json DEFAULT ''"); err != nil {
+				if err := addColumnToPGTable(e, "posts", "props", "json"); err != nil {
 					return errors.Wrapf(err, "failed adding column post_type to table posts")
 				}
 			}
