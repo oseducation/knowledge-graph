@@ -5,6 +5,7 @@ import {NodeClient} from "./node";
 import {SidebarClient} from "./sidebar";
 import {VideoClient} from "./video";
 import {PostClient} from "./post";
+import {BotClient} from "./bot";
 
 
 class Client {
@@ -15,6 +16,7 @@ class Client {
     video: VideoClient;
     sidebar: SidebarClient;
     post: PostClient;
+    bot: BotClient;
 
     constructor(){
         this.rest = new Rest();
@@ -24,6 +26,7 @@ class Client {
         this.video = new VideoClient(this.rest)
         this.sidebar = new SidebarClient(this.rest);
         this.post = new PostClient(this.rest);
+        this.bot = new BotClient(this.rest);
     }
 
     User(){
@@ -47,7 +50,11 @@ class Client {
     }
 
     Post(){
-        return this.post
+        return this.post;
+    }
+
+    Bot(){
+        return this.bot;
     }
 }
 

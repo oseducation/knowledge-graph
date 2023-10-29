@@ -380,6 +380,33 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.8.0"),
+		toVersion:   semver.MustParse("0.9.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE posts ADD COLUMN post_type VARCHAR(32) DEFAULT '';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column post_type to table posts")
+				}
+				if _, err := e.Exec(`
+					ALTER TABLE posts ADD COLUMN props VARCHAR(4096) DEFAULT '';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column props to table posts")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "posts", "post_type", "VARCHAR(32) DEFAULT ''"); err != nil {
+					return errors.Wrapf(err, "failed adding column post_type to table posts")
+				}
+
+				if err := addColumnToPGTable(e, "posts", "props", "json DEFAULT ''"); err != nil {
+					return errors.Wrapf(err, "failed adding column post_type to table posts")
+				}
+			}
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {

@@ -11,3 +11,12 @@ export const AppTheme: ThemeOptions = {
         },
     },
 };
+
+export const DashboardColors = {
+    primary: '#6b57ea',
+    background: '#f6f4ff',
+    onSelect: '#f0eefc',
+    secondary: '#2e2565',
+    icons: '#8e8aad',
+    alert: '#ee4799',
+};

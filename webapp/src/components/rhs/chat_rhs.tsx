@@ -44,7 +44,10 @@ const ChatRHS = (props: Props) => {
             setPosts([...posts, {
                 id: post.id,
                 message: post.message,
-                user: user!
+                user: user!,
+                post_type: "",
+                props: {},
+                user_id: user!.id,
             }]);
             Analytics.messagePosted({location_id: props.locationID, user_id: user!.id});
         });

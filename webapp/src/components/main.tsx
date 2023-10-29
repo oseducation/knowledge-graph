@@ -5,12 +5,13 @@ import {useTranslation} from 'react-i18next';
 import {useNavigate} from 'react-router-dom';
 
 import useAuth from '../hooks/useAuth';
-import {Graph, Node, computeGroupContent} from '../types/graph';
+import {Graph, Node} from '../types/graph';
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
 import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
 import useAppBarHeight from '../hooks/use_app_bar_height';
 import useGraph from '../hooks/useGraph';
+import {computeNextNodes} from '../context/graph_provider';
 
 import LHSNavigation from './lhs/lhs_navigation';
 import GraphComponent from './graph/graph_component';
@@ -41,7 +42,7 @@ const Main = () => {
     };
 
     const computeGroups = (graph: Graph) => {
-        const [inProgressNodes, nextNodes] = computeGroupContent(graph)
+        const [inProgressNodes, nextNodes] = computeNextNodes(graph)
 
         const inProgressItems = inProgressNodes.map((node) => {
             return {

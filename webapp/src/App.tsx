@@ -23,6 +23,9 @@ import GuestLayout from './GuestLayout';
 import Landing from './components/landing/landing';
 import Main from './components/main';
 import UserLayout from './UserLayout';
+import DashboardLayout from './components/dashboard/dashboard_layout';
+import Chat from './components/dashboard/chat';
+import Overview from './components/dashboard/overview';
 
 function App() {
     return (
@@ -36,6 +39,11 @@ function App() {
                     <Route path="/carousel" element={<CarouselPage/>}/>
                     <Route path="/karel_js" element={<KarelPage lang='js'/>}/>
                     <Route path="/karel_java" element={<KarelPage lang='java'/>}/>
+                </Route>
+                <Route path="dashboard" element={<DashboardLayout/>}>
+                    <Route path="" element={<Overview/>}/>
+                    <Route path="chat" element={<Chat/>}/>
+                    <Route path="graph" element={<Chat/>}/>
                 </Route>
             </Route>
             <Route path="" element={<GuestLayout/>}>
