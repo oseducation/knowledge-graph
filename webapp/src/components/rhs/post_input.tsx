@@ -12,8 +12,8 @@ const PostInput = (props: Props) => {
 
     const handleSend = () => {
         if (inputValue.trim() !== '') {
-            setInputValue('');
             props.onInputSend(inputValue);
+            setInputValue('');
         }
     };
 

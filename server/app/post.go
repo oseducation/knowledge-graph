@@ -14,8 +14,10 @@ func (a *App) CreatePost(post *model.Post) (*model.Post, error) {
 	}
 
 	go func() {
-		if err := a.SendPostToNodeNotificationEmail(post); err != nil {
-			a.Log.Error("can't send email notification for post to node", log.Err(err))
+		if len(post.LocationID) == 26 {
+			if err := a.SendPostToNodeNotificationEmail(post); err != nil {
+				a.Log.Error("can't send email notification for post to node", log.Err(err))
+			}
 		}
 	}()
 
@@ -35,6 +37,9 @@ func (a *App) GetPostsWithUserData(locationID string) ([]*model.PostWithUser, er
 	posts, err := a.Store.Post().GetPostsWithUser(locationID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "locationID = %v", locationID)
+	}
+	for _, post := range posts {
+		post.User.Sanitize()
 	}
 	return posts, nil
 }

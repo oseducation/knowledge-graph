@@ -132,6 +132,10 @@ class Analytics {
     messagePosted(props: Dict) {
         Mixpanel.track('Message Posted', props);
     }
+
+    messageToAI(props: Dict) {
+        Mixpanel.track('Message To AI', props);
+    }
 }
 
 const AnalyticsObject = new Analytics();

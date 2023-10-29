@@ -169,7 +169,7 @@ function Header() {
     );
 }
 
-const Spacer = styled('div')(() => ({
+export const Spacer = styled('div')(() => ({
     position: 'relative',
     width: '100%'
 }));

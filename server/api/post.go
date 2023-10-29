@@ -35,6 +35,7 @@ func createPost(c *gin.Context) {
 	rpost, err := a.CreatePost(post)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, "Error while creating post")
+		a.Log.Error(err.Error())
 		return
 	}
 	responseFormat(c, http.StatusCreated, rpost)

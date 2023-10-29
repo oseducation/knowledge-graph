@@ -2,7 +2,7 @@
 import React, {createContext, useEffect, useState} from 'react';
 
 import {Client} from "../client/client";
-import {Graph, Link, Node, castToLink} from '../types/graph';
+import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink} from '../types/graph';
 import useAuth from '../hooks/useAuth';
 
 interface GraphContextState {
@@ -50,7 +50,7 @@ export const GraphProvider = (props: Props) => {
                 if (goal) {
                     const computedPathToGoal = compute(data, goal);
                     setPathToGoal(computedPathToGoal);
-                    setGoal(goal)
+                    setGoal(goal);
                 }
             });
         });
@@ -142,6 +142,118 @@ const compute = (graph: Graph, goalNodeID: string) => {
     }
 
     return pathToGoal;
+}
+
+export const computeNextNodeInProgress = (graph: Graph, pathToGoal: Map<string, string>) => {
+    const [inProgressNodes, ] = computeNextNodes(graph);
+    if (!inProgressNodes || inProgressNodes.length === 0) {
+        return null;
+    }
+
+    for (const node of inProgressNodes) {
+        if (pathToGoal.has(node.id)) {
+            return node;
+        }
+    }
+}
+
+export const computeNextNodeNew = (graph: Graph, pathToGoal: Map<string, string>) => {
+    const [, nextNodes] = computeNextNodes(graph);
+    if (!nextNodes || nextNodes.length === 0) {
+        return null;
+    }
+
+    for (const node of nextNodes) {
+        if (pathToGoal.has(node.id)) {
+            return node;
+        }
+    }
+}
+
+export const computeNextNode = (graph: Graph | null, pathToGoal: Map<string, string> | null, goal: string | null) => {
+    if (graph === null || pathToGoal === null || goal === null) {
+        return null;
+    }
+    const [inProgressNodes, nextNodes] = computeNextNodes(graph);
+
+    if (inProgressNodes && inProgressNodes.length !== 0) {
+        for (const node of inProgressNodes) {
+            if (pathToGoal.has(node.id)) {
+                return node;
+            } else if (node.id === goal) {
+                return node;
+            }
+        }
+    }
+    if (nextNodes && nextNodes.length !== 0) {
+        for (const node of nextNodes) {
+            if (pathToGoal.has(node.id)) {
+                return node;
+            } else if (node.id === goal) {
+                return node;
+            }
+        }
+    }
+
+    return null;
+}
+
+export const computeNextNodes = (graph: Graph) => {
+    const nodesMap = new Map<string, Node>();
+    graph.nodes.forEach((node) => {
+        nodesMap.set(node.id, node)
+    })
+
+    const prereqMap = new Map<string, Node>();
+    for (let i = 0; i < graph.links.length; i++) {
+        const link = castToLink(graph.links[i]);
+        const tar = nodesMap.get(link.target);
+        if (tar === undefined || tar.status === NodeStatusFinished) {
+            continue
+        }
+        const sou = nodesMap.get(link.source);
+        if (sou === undefined || sou.status === NodeStatusFinished) {
+            continue
+        }
+        prereqMap.set(tar.id, tar);
+    }
+
+    const inProgressNodes = [];
+    const nextNodes = [];
+    for (let i = 0; i < graph.nodes.length; i++) {
+        const node = graph.nodes[i];
+        if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
+            inProgressNodes.push(node);
+        } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
+            nextNodes.push(node);
+            node.status = NodeStatusNext;
+        }
+    }
+    nextNodes.sort(nodeCmpFn);
+    inProgressNodes.sort(nodeCmpFn);
+
+    return [inProgressNodes, nextNodes];
+}
+
+const nodeCmpFn = (a: Node, b: Node) => {
+    if (a.node_type === b.node_type) {
+        const name1 = a.name.toUpperCase();
+        const name2 = b.name.toUpperCase();
+        if (name1 > name2) {
+            return 1;
+        } else if (name1 < name2) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+    const nodeTypeMap = new Map();
+
+    nodeTypeMap
+        .set(NodeTypeLecture, 3)
+        .set(NodeTypeExample, 2)
+        .set(NodeTypeAssignment, 1);
+    return nodeTypeMap.get(a.node_type) - nodeTypeMap.get(b.node_type);
 }
 
 const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {

@@ -8,23 +8,43 @@ import (
 	"github.com/pkg/errors"
 )
 
+const PostTypeWithOptions = "with_options"
+
 const PostMessageMaxRunes = 65536
+const PropsMaxSize = 8096
 const PostDirectMessageLocationExample = "ql3jdjjdtq116d1tqd766ltthl_ql3jdjjdtq116d1tqd766ltthl"
+
+type PostActionType string
+
+const (
+	PostActionTypeLink      PostActionType = "link"
+	PostActionTypeNextTopic PostActionType = "next_topic"
+)
 
 // Post type defines user post object
 type Post struct {
-	ID         string `json:"id" db:"id"`
-	CreatedAt  int64  `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt  int64  `json:"updated_at,omitempty" db:"updated_at"`
-	DeletedAt  int64  `json:"deleted_at" db:"deleted_at"`
-	LocationID string `json:"location_id" db:"location_id"`
-	UserID     string `json:"user_id" db:"user_id"`
-	Message    string `json:"message" db:"message"`
+	ID         string                 `json:"id" db:"id"`
+	CreatedAt  int64                  `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt  int64                  `json:"updated_at,omitempty" db:"updated_at"`
+	DeletedAt  int64                  `json:"deleted_at" db:"deleted_at"`
+	LocationID string                 `json:"location_id" db:"location_id"`
+	UserID     string                 `json:"user_id" db:"user_id"`
+	Message    string                 `json:"message" db:"message"`
+	PostType   string                 `json:"post_type" db:"post_type"`
+	Props      map[string]interface{} `json:"props" db:"props"`
 }
 
 type PostWithUser struct {
 	Post
 	User *User `json:"user" db:"_"`
+}
+
+type Option struct {
+	ID                string         `json:"id" db:"id"`
+	TextOnButton      string         `json:"text_on_button" db:"text_on_button"`
+	MessageAfterClick string         `json:"message_after_click" db:"message_after_click"`
+	Action            PostActionType `json:"action" db:"action"`
+	Link              string         `json:"link" db:"link"`
 }
 
 // IsValid validates the post and returns an error if it isn't configured correctly.
@@ -42,17 +62,28 @@ func (p *Post) IsValid() error {
 	}
 
 	if !IsValidID(p.LocationID) && len(p.LocationID) != len(PostDirectMessageLocationExample) {
-		return invalidPostError(p.ID, "location_id", p.ID)
+		return invalidPostError(p.ID, "location_id", p.LocationID)
 	}
 
 	if !IsValidID(p.UserID) {
-		return invalidPostError(p.ID, "user_id", p.ID)
+		return invalidPostError(p.ID, "user_id", p.UserID)
 	}
 
 	if utf8.RuneCountInString(p.Message) > PostMessageMaxRunes {
 		return invalidPostError(p.ID, "message length", len(p.Message))
 	}
 
+	if p.PostType != "" && p.PostType != PostTypeWithOptions {
+		return invalidPostError(p.ID, "type", p.PostType)
+	}
+
+	propsJSON, err := json.Marshal(p.Props)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal props json: '%v'", p.Props)
+	}
+	if len(propsJSON) > PropsMaxSize {
+		return invalidPostError(p.ID, "props size", len(propsJSON))
+	}
 	return nil
 }
 

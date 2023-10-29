@@ -1,12 +1,18 @@
 package store
 
 import (
+	"encoding/json"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
+
+type sqlPost struct {
+	model.Post
+	PropsJSON string `db:"props"`
+}
 
 // PostStore is an interface to crud posts
 type PostStore interface {
@@ -35,6 +41,8 @@ func NewPostStore(db *SQLStore) PostStore {
 			"p.location_id",
 			"p.user_id",
 			"p.message",
+			"p.post_type",
+			"p.props",
 		).
 		From("posts p")
 
@@ -54,7 +62,12 @@ func (ps *SQLPostStore) Save(post *model.Post) (*model.Post, error) {
 		return nil, err
 	}
 
-	_, err := ps.sqlStore.execBuilder(ps.sqlStore.db, ps.sqlStore.builder.
+	propsJSON, err := json.Marshal(post.Props)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to marshal props json: '%v'", post.Props)
+	}
+
+	_, err = ps.sqlStore.execBuilder(ps.sqlStore.db, ps.sqlStore.builder.
 		Insert("posts").
 		SetMap(map[string]interface{}{
 			"id":          post.ID,
@@ -64,6 +77,8 @@ func (ps *SQLPostStore) Save(post *model.Post) (*model.Post, error) {
 			"user_id":     post.UserID,
 			"location_id": post.LocationID,
 			"message":     post.Message,
+			"post_type":   post.PostType,
+			"props":       propsJSON,
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save post:%s from: %s to location: %s", post.Message, post.UserID, post.LocationID)
@@ -79,7 +94,12 @@ func (ps *SQLPostStore) Update(new *model.Post) error {
 		return err
 	}
 
-	_, err := ps.sqlStore.execBuilder(ps.sqlStore.db, ps.sqlStore.builder.
+	propsJSON, err := json.Marshal(new.Props)
+	if err != nil {
+		return errors.Wrapf(err, "failed to marshal props json: '%v'", new.Props)
+	}
+
+	_, err = ps.sqlStore.execBuilder(ps.sqlStore.db, ps.sqlStore.builder.
 		Update("posts").
 		SetMap(map[string]interface{}{
 			"created_at":  new.CreatedAt,
@@ -88,6 +108,8 @@ func (ps *SQLPostStore) Update(new *model.Post) error {
 			"user_id":     new.UserID,
 			"location_id": new.LocationID,
 			"message":     new.Message,
+			"post_type":   new.PostType,
+			"props":       propsJSON,
 		}).
 		Where(sq.Eq{"ID": new.ID}))
 	if err != nil {
@@ -108,7 +130,7 @@ func (ps *SQLPostStore) Get(id string) (*model.Post, error) {
 
 // GetPosts gets posts with options
 func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, error) {
-	var posts []*model.Post
+	var sqlPosts []*sqlPost
 	query := ps.postSelect
 	if options.TermInMessage != "" {
 		query = query.Where(sq.Like{"p.message": fmt.Sprint("%", options.TermInMessage, "%")})
@@ -129,8 +151,15 @@ func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, 
 		query = query.Offset(uint64(options.Page * options.PerPage))
 	}
 
-	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &posts, query); err != nil {
+	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &sqlPosts, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get posts with options %v", options)
+	}
+	posts := make([]*model.Post, 0, len(sqlPosts))
+	for _, p := range sqlPosts {
+		if err := json.Unmarshal([]byte(p.PropsJSON), &p.Props); err != nil {
+			return nil, errors.Wrapf(err, "failed to unmarshal props json: '%s'", p.PropsJSON)
+		}
+		posts = append(posts, &p.Post)
 	}
 	return posts, nil
 }
