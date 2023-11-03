@@ -1,6 +1,7 @@
 
 import {NodeWithResources} from "../../types/graph";
-import {PostActionIKnowThis, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeTest, PostTypeText, PostTypeVideo, PostTypeWithActions, PostWithActions} from "../../types/posts";
+import {PostActionIKnowThis, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeTest, PostTypeText, PostTypeVideo, PostWithActions} from "../../types/posts";
+
 import {BOT_ID} from "./chat";
 
 export const theVeryFirstMessage = (username: string): PostWithActions => {
@@ -25,7 +26,7 @@ Feel free to ask any questions, and let's make your coding journey exciting and 
     };
 }
 
-const standard_actions = [{
+const standardActions = [{
     id: '2',
     text_on_button: "I know this!",
     message_after_click: "I know this topic, mark as done",
@@ -51,7 +52,7 @@ const standard_actions = [{
     link: '',
 }]
 
-export const nextVideoMessage = (node_id: string, video_index: number): PostWithActions => {
+export const nextVideoMessage = (nodeID: string, videoIndex: number): PostWithActions => {
     return {
         post: {
             id: '',
@@ -60,16 +61,16 @@ export const nextVideoMessage = (node_id: string, video_index: number): PostWith
             post_type: PostTypeVideo,
             user: null,
             props: {
-                node_id: node_id,
-                video_index: video_index,
+                node_id: nodeID,
+                video_index: videoIndex,
             },
         },
-        actions: standard_actions,
+        actions: standardActions,
     };
 }
 
 
-export const nextTextMessage = (node: NodeWithResources, text_index: number): PostWithActions=> {
+export const nextTextMessage = (node: NodeWithResources, textIndex: number): PostWithActions=> {
     return {
         post: {
             id: '',
@@ -79,14 +80,14 @@ export const nextTextMessage = (node: NodeWithResources, text_index: number): Po
             user: null,
             props: {
                 node_id: node.id,
-                text_id: node.texts[text_index].id,
+                text_id: node.texts[textIndex].id,
             },
         },
-        actions: standard_actions,
+        actions: standardActions,
     };
 }
 
-export const nextTestMessage = (node: NodeWithResources, test_index: number): PostWithActions => {
+export const nextTestMessage = (node: NodeWithResources, testIndex: number): PostWithActions => {
     return {
         post: {
             id: '',
@@ -96,10 +97,10 @@ export const nextTestMessage = (node: NodeWithResources, test_index: number): Po
             user: null,
             props: {
                 node_id: node.id,
-                text_id: node.questions[test_index].id,
+                text_id: node.questions[testIndex].id,
             },
         },
-        actions: standard_actions,
+        actions: standardActions,
     };
 }
 

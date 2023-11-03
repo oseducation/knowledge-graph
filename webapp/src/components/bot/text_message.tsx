@@ -8,6 +8,7 @@ import {Post} from '../../types/posts';
 import {NodeStatusStarted, NodeStatusUnseen, NodeWithResources} from '../../types/graph';
 import Markdown from '../markdown';
 import VideoPlayer from '../player';
+
 import Message from './message';
 
 const BOT_ID = 'aiTutorBotID01234567890123';

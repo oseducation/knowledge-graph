@@ -1,12 +1,12 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Paper, IconButton, List, ListItem, ListItemText, Typography, ListItemAvatar, Avatar, TextareaAutosize, Box, Button} from '@mui/material';
+import {Paper, IconButton, List, TextareaAutosize, Box, Button} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import {styled} from '@mui/system';
 
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, PostActionIKnowThis, PostActionNextTopicText} from '../../types/posts';
+import {Action, PostActionIKnowThis} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {computeNextNode} from '../../context/graph_provider';
@@ -58,8 +58,6 @@ const Chat = () => {
         if (action.action_type === PostActionIKnowThis && nextNodeID) {
             Client.Node().markAsKnown(nextNodeID, user!.id)
             setShouldCreateNewPost(prev => !prev);
-        } else if (action.action_type === PostActionNextTopicText) {
-
         }
     }
 
@@ -173,6 +171,7 @@ const MessageInput = styled(TextareaAutosize)({
     fontWeight: 400,
 });
 
+/*
 const TypingIndicator = styled('div')`
   height: 20px;
   width: 50px;
@@ -215,3 +214,4 @@ const TypingIndicator = styled('div')`
     }
   }
 `;
+*/

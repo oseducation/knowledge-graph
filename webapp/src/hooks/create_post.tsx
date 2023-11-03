@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from 'react'
+import {useState, useEffect} from 'react'
 
 import {Action, Post, PostWithActions} from '../types/posts';
 import {Client} from '../client/client';
@@ -11,7 +11,6 @@ import useAuth from './useAuth';
 export default function createPost(posts: Post[] | null, nextNodeID: string | null, shouldCreateNewPost: boolean) {
     const [post, setPost] = useState<Post | null>(null);
     const [actions, setActions] = useState<Action[]>([]);
-    const shouldCreatePost = useRef(true);
     const {user} = useAuth();
     console.log('createPost', posts, nextNodeID, shouldCreateNewPost)
 

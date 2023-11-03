@@ -1,7 +1,6 @@
 import React from 'react';
 import {ListItem, ListItemText, Typography, ListItemAvatar, Avatar, Box} from '@mui/material';
 
-
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {stringAvatar} from '../rhs/rhs';
@@ -19,12 +18,12 @@ const Message = (props: Props) => {
     return (
         <ListItem
             key={props.postID}
-                sx={{
-                    backgroundColor: props.isBot ? DashboardColors.background : 'white' ,
-                    pl: '40px',
-                    pr: '40px',
-                }}
-            >
+            sx={{
+                backgroundColor: props.isBot ? DashboardColors.background : 'white' ,
+                pl: '40px',
+                pr: '40px',
+            }}
+        >
             <Box display='flex' flexDirection='row' alignItems={'flex-start'}>
                 <Box display='flex' flexDirection='row' alignItems={'flex-start'}>
                     <ListItemAvatar>

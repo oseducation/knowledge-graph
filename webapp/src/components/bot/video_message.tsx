@@ -8,8 +8,8 @@ import {Post, PostTypeVideo} from '../../types/posts';
 import {NodeStatusStarted, NodeStatusUnseen, NodeWithResources} from '../../types/graph';
 import Markdown from '../markdown';
 import VideoPlayer from '../player';
-import {BOT_ID} from './chat';
 
+import {BOT_ID} from './chat';
 import Message from './message';
 
 interface Props {
@@ -58,7 +58,7 @@ const VideoMessage = (props: Props) => {
     }
 
     if (node && node.videos.length <= videoIndex) {
-        return <div>can't show this video...</div>
+        return <div>can&apos;t show this video...</div>
     }
 
     const onVideoStarted = (videoKey: string) => {

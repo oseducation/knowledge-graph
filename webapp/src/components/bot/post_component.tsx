@@ -1,9 +1,9 @@
 import React from 'react';
 
 import {Post, PostTypeVideo} from '../../types/posts';
+
 import VideoMessage from './video_message';
 import Message from './message';
-
 import {BOT_ID} from './chat';
 
 interface Props {
