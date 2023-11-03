@@ -98,7 +98,7 @@ You're on the right track, and I'm here to help you keep the momentum going. Whe
 		LocationID: fmt.Sprintf("%s_%s", userID, BotID),
 		UserID:     BotID,
 		Message:    message,
-		PostType:   model.PostTypeWithOptions,
+		PostType:   model.PostTypeWithActions,
 		Props: map[string]interface{}{
 			"options": options,
 		},

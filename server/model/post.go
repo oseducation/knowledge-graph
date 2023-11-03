@@ -8,7 +8,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-const PostTypeWithOptions = "with_options"
+const (
+	PostTypeWithActions = "with_actions"
+	PostTypeVideo       = "video"
+	PostTypeText        = "text"
+	PostTypeTest        = "test"
+)
 
 const PostMessageMaxRunes = 65536
 const PropsMaxSize = 8096
@@ -73,7 +78,11 @@ func (p *Post) IsValid() error {
 		return invalidPostError(p.ID, "message length", len(p.Message))
 	}
 
-	if p.PostType != "" && p.PostType != PostTypeWithOptions {
+	if p.PostType != "" &&
+		p.PostType != PostTypeWithActions &&
+		p.PostType != PostTypeVideo &&
+		p.PostType != PostTypeText &&
+		p.PostType != PostTypeTest {
 		return invalidPostError(p.ID, "type", p.PostType)
 	}
 

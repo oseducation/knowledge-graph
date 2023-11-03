@@ -179,23 +179,23 @@ export const computeNextNode = (graph: Graph | null, pathToGoal: Map<string, str
     if (inProgressNodes && inProgressNodes.length !== 0) {
         for (const node of inProgressNodes) {
             if (pathToGoal.has(node.id)) {
-                return node;
+                return node.id;
             } else if (node.id === goal) {
-                return node;
+                return node.id;
             }
         }
     }
     if (nextNodes && nextNodes.length !== 0) {
         for (const node of nextNodes) {
             if (pathToGoal.has(node.id)) {
-                return node;
+                return node.id;
             } else if (node.id === goal) {
-                return node;
+                return node.id;
             }
         }
     }
 
-    return null;
+    return "";
 }
 
 export const computeNextNodes = (graph: Graph) => {
