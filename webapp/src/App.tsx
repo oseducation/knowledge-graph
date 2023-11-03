@@ -24,7 +24,7 @@ import Landing from './components/landing/landing';
 import Main from './components/main';
 import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
-import Chat from './components/dashboard/chat';
+import Chat from './components/bot/chat';
 import Overview from './components/dashboard/overview';
 
 function App() {
