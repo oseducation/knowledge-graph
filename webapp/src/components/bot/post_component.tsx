@@ -1,15 +1,17 @@
 import React from 'react';
 
-import {Post, PostTypeVideo} from '../../types/posts';
+import {Post, PostTypeFilledInByAction, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 
 import VideoMessage from './video_message';
-import Message from './message';
 import {BOT_ID} from './chat';
+import TestMessage from './test_message';
+import PostContainer from './post_container';
+import TextMessage from './text_message';
 
 interface Props {
     post: Post;
     isLast: boolean;
-
+    scrollToBottom: () => void;
 }
 
 const PostComponent = (props: Props) => {
@@ -17,19 +19,38 @@ const PostComponent = (props: Props) => {
 
     if (props.post.post_type === PostTypeVideo) {
         component = (
-            <VideoMessage post={props.post} isLast={props.isLast}/>
+            <VideoMessage
+                post={props.post}
+                isLast={props.isLast}
+                scrollToBottom={props.scrollToBottom}
+            />
         );
-    } else if (props.post.post_type === '') {
+    } else if (props.post.post_type === '' ||
+        props.post.post_type === PostTypeTopic ||
+        props.post.post_type === PostTypeText ||
+        props.post.post_type === PostTypeFilledInByAction) {
         component = (
-            <Message
-                postID={props.post.id}
-                isBot={props.post.user_id === BOT_ID}
+            <TextMessage
+                shouldAnimate={props.isLast}
                 message={props.post.message}
+                scrollToBottom={props.scrollToBottom}
+            />
+        );
+    } else if (props.post.post_type === PostTypeTest) {
+        component = (
+            <TestMessage
+                post={props.post}
+                isLast={props.isLast}
+                scrollToBottom={props.scrollToBottom}
             />
         );
     }
 
-    return component;
+    return (
+        <PostContainer isBot={props.post.user_id === BOT_ID}>
+            {component}
+        </PostContainer>
+    );
 }
 
 export default PostComponent;

@@ -39,13 +39,14 @@ export class PostClient{
         return data;
     };
 
-    saveUserPost = async (message: string, locationID: string) => {
+    saveUserPost = async (message: string, locationID: string, postType?: string) => {
         const {data} = await this.rest.doFetchWithResponse<Post>(
             `${this.getPostsRoute()}`,
             {method: 'post', body: JSON.stringify({
                 user_id: this.rest.me.id,
                 location_id: locationID,
                 message: message,
+                post_type: postType || '',
             })},
         );
 

@@ -9,10 +9,12 @@ import (
 )
 
 const (
-	PostTypeWithActions = "with_actions"
-	PostTypeVideo       = "video"
-	PostTypeText        = "text"
-	PostTypeTest        = "test"
+	PostTypeWithActions      = "with_actions"
+	PostTypeVideo            = "video"
+	PostTypeTopic            = "topic"
+	PostTypeText             = "text"
+	PostTypeTest             = "test"
+	PostTypeFilledInByAction = "filled_in_by_action"
 )
 
 const PostMessageMaxRunes = 65536
@@ -82,7 +84,9 @@ func (p *Post) IsValid() error {
 		p.PostType != PostTypeWithActions &&
 		p.PostType != PostTypeVideo &&
 		p.PostType != PostTypeText &&
-		p.PostType != PostTypeTest {
+		p.PostType != PostTypeTest &&
+		p.PostType != PostTypeFilledInByAction &&
+		p.PostType != PostTypeTopic {
 		return invalidPostError(p.ID, "type", p.PostType)
 	}
 

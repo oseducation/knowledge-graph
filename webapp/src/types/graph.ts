@@ -85,6 +85,12 @@ export type NodeWithResources = {
     prerequisites: Node[];
 }
 
+export type NodeViewState = {
+    videoIndex: number;
+    textIndex: number;
+    testIndex: number;
+}
+
 export const cloneGraph = (graph: Graph): Graph => {
     return {
         nodes: structuredClone(graph.nodes),
