@@ -4,6 +4,13 @@ import {PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicTest, PostA
 
 import {BOT_ID} from "./chat";
 
+
+const letsStartMessage = "Great, Let's start with the next topic";
+const iKnowThisMessage = "I know this topic, mark as done";
+const anotherVideoMessage = "Show me another video on this topic, please";
+const anotherTextMessage = "Show me some text, please";
+const anotherTestMessage = "Test me on this topic";
+
 export const theVeryFirstMessage = (username: string): PostWithActions => {
     return {
         post: {
@@ -23,7 +30,7 @@ Feel free to ask any questions, and let's make your coding journey exciting and 
 export const letsStartAction = {
     id: '1',
     text_on_button: "Let's start!",
-    message_after_click: "Great, Let's start with the next topic",
+    message_after_click: letsStartMessage,
     action_type: PostActionNextTopic,
     link: '',
 };
@@ -31,7 +38,7 @@ export const letsStartAction = {
 const iKnowThisAction = {
     id: '2',
     text_on_button: "I know this!",
-    message_after_click: "I know this topic, mark as done",
+    message_after_click: iKnowThisMessage,
     action_type: PostActionIKnowThis,
     link: '',
 }
@@ -39,7 +46,7 @@ const iKnowThisAction = {
 const anotherVideoAction = {
     id: '3',
     text_on_button: "Maybe another video?",
-    message_after_click: "Show me another video on this topic, please",
+    message_after_click: anotherVideoMessage,
     action_type: PostActionNextTopicVideo,
     link: '',
 }
@@ -47,7 +54,7 @@ const anotherVideoAction = {
 const anotherTextAction = {
     id: '4',
     text_on_button: "I want text!",
-    message_after_click: "Show me some text, please",
+    message_after_click: anotherTextMessage,
     action_type: PostActionNextTopicText,
     link: '',
 }
@@ -55,7 +62,7 @@ const anotherTextAction = {
 const anotherTestAction = {
     id: '5',
     text_on_button: "Test me!",
-    message_after_click: "Test me on this topic",
+    message_after_click: anotherTestMessage,
     action_type: PostActionNextTopicTest,
     link: '',
 }
@@ -69,6 +76,22 @@ export const getActions = (state: NodeViewState, node: NodeWithResources) => {
         actions.push(anotherTextAction);
     }
     return actions;
+}
+
+export const getUserPostAction = (message: string) => {
+    if (message === letsStartMessage) {
+        return letsStartAction;
+    } else if (message === iKnowThisMessage) {
+        return iKnowThisAction;
+    } else if (message === anotherVideoMessage) {
+        return anotherVideoAction;
+    } else if (message === anotherTextMessage) {
+        return anotherTextAction;
+    } else if (message === anotherTestMessage) {
+        return anotherTestAction;
+    } else {
+        return letsStartAction;
+    }
 }
 
 // export const standardActions = [iKnowThisAction, anotherVideoAction, anotherTextAction, anotherTestAction]
@@ -112,7 +135,7 @@ export const nextVideoMessage = (node: NodeWithResources, state: NodeViewState):
     //     actions.push(anotherTestAction);
     // }
     let videoIndex = state.videoIndex + 1;
-    if (state.videoIndex + 1 >= node.videos.length) {
+    if (node.videos && state.videoIndex + 1 >= node.videos.length) {
         videoIndex = Math.floor(Math.random() * node.videos.length);
     }
     return {
