@@ -20,20 +20,22 @@ export default function useMessageReveal(finalMessage: string, reveal: boolean, 
     const revealBotMessage = (finalMessage: string) => {
         let index = 0;
         scrollToBottom();
-        const interval = setInterval(() => {
-            setMessage(finalMessage.slice(0, index + 1) + '⬤');
-            index += 1;
+        setTimeout(() => {
+            const interval = setInterval(() => {
+                setMessage(finalMessage.slice(0, index + 1) + '⬤');
+                index += 1;
 
-            if (finalMessage[index] === '\n') {
-                scrollToBottom();
-            }
+                if (finalMessage[index] === '\n' || index % 20 === 0) {
+                    scrollToBottom();
+                }
 
-            if (index === finalMessage.length) {
-                setMessage(finalMessage);
-                clearInterval(interval);
-                scrollToBottom();
-            }
-        }, 10); // Adjust the speed as needed
+                if (index === finalMessage.length) {
+                    setMessage(finalMessage);
+                    clearInterval(interval);
+                    scrollToBottom();
+                }
+            }, 10); // speed of typing
+        }, 1000); // timer to let scroll to bottom
     };
 
 

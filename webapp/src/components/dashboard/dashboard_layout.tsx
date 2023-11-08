@@ -11,7 +11,7 @@ import {GraphProvider} from '../../context/graph_provider';
 import DashboardHeader from './dashboard_header';
 import DashboardLHS from './dashboard_lhs';
 
-export default function GuestLayout() {
+export default function DashboardLayout() {
 
     const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
 

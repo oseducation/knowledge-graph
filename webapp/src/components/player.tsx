@@ -62,7 +62,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
 
     return (
         <YouTube
-            style={{height: props.width, width: props.height}}
+            style={{height: props.height, width: props.width}}
             videoId={props.videoKey}
             key={props.id}
             opts={opts}
