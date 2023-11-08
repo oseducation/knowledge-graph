@@ -6,14 +6,15 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, PostActionIKnowThis} from '../../types/posts';
+import {Action, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {computeNextNode} from '../../context/graph_provider';
 import usePosts from '../../hooks/use_posts';
-import createPost from '../../hooks/create_post';
+import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 
 import PostComponent from './post_component';
+import {constructBotPost, getBotPostActions} from './create_post';
 
 
 const staticHeight = `calc(100vh - (64px))`;
@@ -27,8 +28,8 @@ const Chat = () => {
     const locationID = `${user!.id}_${BOT_ID}`
     const {pathToGoal, goal, graph} = useGraph();
     const nextNodeID = computeNextNode(graph, pathToGoal, goal);
-    const [shouldCreateNewPost, setShouldCreateNewPost] = useState<boolean>(true);
-    const {post, actions, setPost, setActions} = createPost(posts, nextNodeID, shouldCreateNewPost);
+    const [node, setNode] = useState<NodeWithResources | null>(null);
+    const [actions, setActions] = useState<Action[]>([]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -42,6 +43,21 @@ const Chat = () => {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        if (nextNodeID) {
+            Client.Node().get(nextNodeID).then((node) => {
+                setNode(node);
+            });
+        }
+
+    }, [nextNodeID]);
+
+    useEffect(() => {
+        if (node && posts && posts.length > 0) {
+            setActions(getBotPostActions(posts, node));
+        }
+    }, [posts.length, posts, node]);
+
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             handleSend();
@@ -50,28 +66,52 @@ const Chat = () => {
     }
 
     const handleSend = () => {
-        savePostWithMessage(input);
+        savePostWithMessage(input, "");
     };
 
     const onButtonClick = (action: Action) => {
-        savePostWithMessage(action.message_after_click);
-        if (action.action_type === PostActionIKnowThis && nextNodeID) {
-            Client.Node().markAsKnown(nextNodeID, user!.id)
-            setShouldCreateNewPost(prev => !prev);
-        }
+        Client.Post().saveUserPost(action.message_after_click, locationID, PostTypeFilledInByAction).then((userPost) => {
+            let post;
+            if (action.action_type === PostActionIKnowThis && nextNodeID) {
+                Client.Node().markAsKnown(nextNodeID, user!.id).then(() => {
+                    post = constructBotPost([...posts!, userPost], node!, user!, PostTypeTopic);
+                    if (post) {
+                        const locationID = `${user!.id}_${BOT_ID}`
+                        Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
+                            setPosts([...posts!, userPost, updatedPost]);
+                        });
+                    }
+                    for (let i = 0; i < graph!.nodes.length; i++) {
+                        if (graph!.nodes[i].id == nextNodeID) {
+                            graph!.nodes[i].status = NodeStatusFinished;
+                            break;
+                        }
+                    }
+                    scrollToBottom();
+                });
+                return;
+            } else if (action.action_type === PostActionNextTopicVideo) {
+                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeVideo);
+            } else if (action.action_type === PostActionNextTopicText) {
+                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeText);
+            } else if (action.action_type === PostActionNextTopic) {
+                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeTopic);
+            }
+            if (post) {
+                const locationID = `${user!.id}_${BOT_ID}`
+                Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
+                    setPosts([...posts!, userPost, updatedPost]);
+                });
+            }
+            scrollToBottom();
+            Analytics.messageToAI({user_id: user!.id});
+        });
     }
 
-    const savePostWithMessage = (message: string) => {
-        Client.Post().saveUserPost(message, locationID).then((userPost) => {
-            if (post) {
-                setPosts([...posts!, post, userPost]);
-            } else {
-                setPosts([...posts!, userPost]);
-            }
-            setPost(null);
-            setActions([]);
+    const savePostWithMessage = (message: string, postType: string) => {
+        Client.Post().saveUserPost(message, locationID, postType).then((userPost) => {
+            setPosts([...posts!, userPost]);
             setInput('');
-            setShouldCreateNewPost(prev => !prev);
             scrollToBottom();
             Analytics.messageToAI({user_id: user!.id});
         });
@@ -80,8 +120,14 @@ const Chat = () => {
     return (
         <ChatContainer>
             <MessageList>
-                {posts && posts.map((post) => <PostComponent key={post.id} post={post} isLast={false}/>)}
-                {post && <PostComponent post={post} isLast={true}/>}
+                {posts && posts.map((post, index) =>
+                    <PostComponent
+                        key={post.id}
+                        post={post}
+                        isLast={index === posts.length - 1 && post.user_id === BOT_ID}
+                        scrollToBottom={scrollToBottom}
+                    />
+                )}
                 {actions &&
                     <Box>
                         {actions.map((action : Action) => (
@@ -92,7 +138,10 @@ const Chat = () => {
                                     ml: '40px',
                                     mt: '20px',
                                     color: DashboardColors.background,
-                                    bgcolor: DashboardColors.primary
+                                    bgcolor: DashboardColors.primary,
+                                    '&:hover': {
+                                        bgcolor: DashboardColors.primary,
+                                    }
                                 }}
                                 onClick={() => onButtonClick(action)}
                             >

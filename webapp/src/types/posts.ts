@@ -1,10 +1,12 @@
 import {User} from "./users";
 
-type PostType = "" | "with_actions" | "video" | "text" | "test";
+export type PostType = "" | "with_actions" | "video" | "text" | "test" | "topic" | "filled_in_by_action";
 export const PostTypeWithActions:PostType = "with_actions";
 export const PostTypeVideo:PostType = "video";
+export const PostTypeTopic:PostType = "topic";
 export const PostTypeText:PostType = "text";
 export const PostTypeTest:PostType = "test";
+export const PostTypeFilledInByAction:PostType = "filled_in_by_action";
 
 export type Post = {
     id: string;
@@ -43,9 +45,10 @@ export type Action = {
     link: string;
 }
 
+export const PostActionNextTopic:PostActionType = "next_topic";
 export const PostActionNextTopicVideo:PostActionType = "next_topic_video";
 export const PostActionNextTopicText:PostActionType = "next_topic_text";
 export const PostActionNextTopicTest:PostActionType = "next_topic_test";
 export const PostActionLink:PostActionType = "link";
 export const PostActionIKnowThis:PostActionType = "i_know_this";
-type PostActionType = "next_topic_video" | "link" | "i_know_this" | "next_topic_text" | "next_topic_test";
+type PostActionType = "next_topic_video" | "link" | "i_know_this" | "next_topic_text" | "next_topic_test" | "next_topic";

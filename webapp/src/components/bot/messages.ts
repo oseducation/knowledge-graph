@@ -1,6 +1,6 @@
 
-import {NodeWithResources} from "../../types/graph";
-import {PostActionIKnowThis, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeTest, PostTypeText, PostTypeVideo, PostWithActions} from "../../types/posts";
+import {NodeViewState, NodeWithResources} from "../../types/graph";
+import {PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo, PostWithActions} from "../../types/posts";
 
 import {BOT_ID} from "./chat";
 
@@ -12,95 +12,187 @@ export const theVeryFirstMessage = (username: string): PostWithActions => {
             message:`👋 Hello ${username}, and welcome to Vitsi AI! I'm your AI tutor, here to help you learn programming and navigate the world of code. 🚀
 You might know nothing about coding, but it's OK. You'll start coding in minutes. In fact, our first goal will be to write our first program.
 Feel free to ask any questions, and let's make your coding journey exciting and fruitful! 🎉`,
-            post_type: '',
+            post_type: PostTypeFilledInByAction,
             user: null,
             props: {},
         },
-        actions: [{
-            id: '1',
-            text_on_button: "Let's start!",
-            message_after_click: "Great, Let's start with the next topic",
-            action_type: PostActionNextTopicVideo,
-            link: '',
-        }],
+        actions: [letsStartAction],
     };
 }
 
-const standardActions = [{
+export const letsStartAction = {
+    id: '1',
+    text_on_button: "Let's start!",
+    message_after_click: "Great, Let's start with the next topic",
+    action_type: PostActionNextTopic,
+    link: '',
+};
+
+const iKnowThisAction = {
     id: '2',
     text_on_button: "I know this!",
     message_after_click: "I know this topic, mark as done",
     action_type: PostActionIKnowThis,
     link: '',
-}, {
+}
+
+const anotherVideoAction = {
     id: '3',
     text_on_button: "Maybe another video?",
-    message_after_click: "Shot me other video on this topic, please",
+    message_after_click: "Show me another video on this topic, please",
     action_type: PostActionNextTopicVideo,
     link: '',
-}, {
+}
+
+const anotherTextAction = {
     id: '4',
     text_on_button: "I want text!",
     message_after_click: "Show me some text, please",
     action_type: PostActionNextTopicText,
     link: '',
-}, {
+}
+
+const anotherTestAction = {
     id: '5',
     text_on_button: "Test me!",
     message_after_click: "Test me on this topic",
     action_type: PostActionNextTopicTest,
     link: '',
-}]
+}
 
-export const nextVideoMessage = (nodeID: string, videoIndex: number): PostWithActions => {
+export const getActions = (state: NodeViewState, node: NodeWithResources) => {
+    const actions = [iKnowThisAction];
+    if (node.videos && state.videoIndex + 1 < node.videos.length) {
+        actions.push(anotherVideoAction);
+    }
+    if (node.texts && state.textIndex + 1 < node.texts.length) {
+        actions.push(anotherTextAction);
+    }
+    return actions;
+}
+
+// export const standardActions = [iKnowThisAction, anotherVideoAction, anotherTextAction, anotherTestAction]
+export const standardActions = [iKnowThisAction, anotherVideoAction, anotherTextAction];
+
+export const nextTopicMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
+    const actions = [];
+    if (node.videos && state.videoIndex + 1 < node.videos.length) {
+        actions.push(anotherVideoAction);
+    }
+    if (node.texts && state.textIndex + 1 < node.texts.length) {
+        actions.push(anotherTextAction);
+    }
+    // if (state.testIndex + 1 < node.questions.length) {
+    //     actions.push(anotherTestAction);
+    // }
     return {
         post: {
             id: '',
             user_id: BOT_ID,
-            message: '',
+            message: `## Topic: ${node.name}\n\n ### Description: ${node.description}\n\n`,
+            post_type: PostTypeTopic,
+            user: null,
+            props: {
+                node_id: node.id,
+            },
+        },
+        actions: actions,
+    };
+}
+
+export const nextVideoMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
+    const actions = [iKnowThisAction];
+    if (node.videos && state.videoIndex + 2 < node.videos.length) {
+        actions.push(anotherVideoAction);
+    }
+    if (node.texts && state.textIndex + 1 < node.texts.length) {
+        actions.push(anotherTextAction);
+    }
+    // if (state.testIndex + 1 < node.questions.length) {
+    //     actions.push(anotherTestAction);
+    // }
+    let videoIndex = state.videoIndex + 1;
+    if (state.videoIndex + 1 >= node.videos.length) {
+        videoIndex = Math.floor(Math.random() * node.videos.length);
+    }
+    return {
+        post: {
+            id: '',
+            user_id: BOT_ID,
+            message: "Here's the video on the topic:\n\n",
             post_type: PostTypeVideo,
             user: null,
             props: {
-                node_id: nodeID,
+                node_id: node.id,
                 video_index: videoIndex,
+                video_key: node.videos[videoIndex].key,
             },
         },
-        actions: standardActions,
+        actions: actions,
     };
 }
 
 
-export const nextTextMessage = (node: NodeWithResources, textIndex: number): PostWithActions=> {
+export const nextTextMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
+    const actions = [iKnowThisAction];
+    if (node.videos && state.videoIndex + 1 < node.videos.length) {
+        actions.push(anotherVideoAction);
+    }
+    if (node.texts && state.textIndex + 2 < node.texts.length) {
+        actions.push(anotherTextAction);
+    }
+    // if (state.testIndex + 1 < node.questions.length) {
+    //     actions.push(anotherTestAction);
+    // }
+    let textIndex = state.textIndex + 1;
+    if (node.texts && state.textIndex + 1 >= node.texts.length) {
+        textIndex = Math.floor(Math.random() * node.texts.length);
+    }
     return {
         post: {
             id: '',
             user_id: BOT_ID,
-            message: '',
+            message: `Here's the text on the topic:\n\n ##${node.texts[textIndex].name}\n\n${node.texts[textIndex].text}`,
             post_type: PostTypeText,
             user: null,
             props: {
                 node_id: node.id,
-                text_id: node.texts[textIndex].id,
+                text_index: textIndex,
             },
         },
-        actions: standardActions,
+        actions: actions,
     };
 }
 
-export const nextTestMessage = (node: NodeWithResources, testIndex: number): PostWithActions => {
+export const nextTestMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
+    const actions = [iKnowThisAction];
+    if (state.videoIndex + 1 < node.videos.length) {
+        actions.push(anotherVideoAction);
+    }
+    if (state.textIndex + 1 < node.texts.length) {
+        actions.push(anotherTextAction);
+    }
+    if (state.testIndex + 2 < node.questions.length) {
+        actions.push(anotherTestAction);
+    }
+    let testIndex = state.testIndex + 1;
+    if (state.textIndex + 1 >= node.questions.length) {
+        testIndex = Math.floor(Math.random() * node.questions.length);
+    }
     return {
         post: {
             id: '',
             user_id: BOT_ID,
-            message: '',
+            message: `Here's the question on the topic:\n\n ## ${node.questions[testIndex].name}\n\n${node.questions[testIndex].question}`,
             post_type: PostTypeTest,
             user: null,
             props: {
                 node_id: node.id,
-                text_id: node.questions[testIndex].id,
+                test_index: testIndex,
+                test_choices: node.questions[testIndex].choices,
             },
         },
-        actions: standardActions,
+        actions: actions,
     };
 }
 
