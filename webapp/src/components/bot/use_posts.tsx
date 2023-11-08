@@ -1,11 +1,11 @@
 import {useState, useEffect, useRef} from 'react'
 
-import {Post} from '../types/posts';
-import {Client} from '../client/client';
-import {BOT_ID} from '../components/bot/chat';
-import {constructBotPost} from '../components/bot/create_post';
+import {Post} from '../../types/posts';
+import {Client} from '../../client/client';
+import useAuth from '../../hooks/useAuth';
 
-import useAuth from './useAuth';
+import {constructBotPost} from './create_post';
+import {BOT_ID} from './chat';
 
 export default function usePosts() {
     const [posts, setPosts] = useState<Post[]>([]);

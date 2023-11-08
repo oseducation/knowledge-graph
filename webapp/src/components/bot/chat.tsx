@@ -10,12 +10,12 @@ import {Action, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicTex
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {computeNextNode} from '../../context/graph_provider';
-import usePosts from '../../hooks/use_posts';
 import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 
 import PostComponent from './post_component';
 import {constructBotPost, getBotPostActions} from './create_post';
-
+import usePosts from './use_posts';
+import {getUserPostAction} from './messages';
 
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
@@ -27,7 +27,7 @@ const Chat = () => {
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
     const {pathToGoal, goal, graph} = useGraph();
-    const nextNodeID = computeNextNode(graph, pathToGoal, goal);
+    let nextNodeID = computeNextNode(graph, pathToGoal, goal);
     const [node, setNode] = useState<NodeWithResources | null>(null);
     const [actions, setActions] = useState<Action[]>([]);
 
@@ -55,6 +55,9 @@ const Chat = () => {
     useEffect(() => {
         if (node && posts && posts.length > 0) {
             setActions(getBotPostActions(posts, node));
+            if (posts.length > 0 && posts[posts.length-1].user_id !== BOT_ID) {
+                createPendingPost();
+            }
         }
     }, [posts.length, posts, node]);
 
@@ -69,24 +72,41 @@ const Chat = () => {
         savePostWithMessage(input, "");
     };
 
+    const createPendingPost = () => {
+        const action = getUserPostAction(posts[posts.length-1].message);
+        let post;
+        if (action.action_type === PostActionIKnowThis && nextNodeID) {
+            post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+        } else if (action.action_type === PostActionNextTopicVideo) {
+            post = constructBotPost([...posts!], node!, user!, PostTypeVideo);
+        } else if (action.action_type === PostActionNextTopicText) {
+            post = constructBotPost([...posts!], node!, user!, PostTypeText);
+        } else if (action.action_type === PostActionNextTopic) {
+            post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+        }
+        if (post) {
+            const locationID = `${user!.id}_${BOT_ID}`
+            Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
+                setPosts([...posts!, updatedPost]);
+            });
+        }
+        scrollToBottom();
+        Analytics.messageToAI({user_id: user!.id});
+    }
+
     const onButtonClick = (action: Action) => {
         Client.Post().saveUserPost(action.message_after_click, locationID, PostTypeFilledInByAction).then((userPost) => {
             let post;
             if (action.action_type === PostActionIKnowThis && nextNodeID) {
                 Client.Node().markAsKnown(nextNodeID, user!.id).then(() => {
-                    post = constructBotPost([...posts!, userPost], node!, user!, PostTypeTopic);
-                    if (post) {
-                        const locationID = `${user!.id}_${BOT_ID}`
-                        Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-                            setPosts([...posts!, userPost, updatedPost]);
-                        });
-                    }
                     for (let i = 0; i < graph!.nodes.length; i++) {
                         if (graph!.nodes[i].id == nextNodeID) {
                             graph!.nodes[i].status = NodeStatusFinished;
                             break;
                         }
                     }
+                    nextNodeID = computeNextNode(graph, pathToGoal, goal);
+                    setPosts([...posts!, userPost]);
                     scrollToBottom();
                 });
                 return;
