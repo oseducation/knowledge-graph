@@ -39,7 +39,7 @@ const DashboardHeader = () => {
             <Box component="form" sx={{
                 display: 'flex',
                 alignItems: 'center',
-                width: 400,
+                width: {xs: '200px', sm: '300px', md: '400px', lg: '500px'},
                 backgroundColor: DashboardColors.onSelect,
             }}>
                 <IconButton

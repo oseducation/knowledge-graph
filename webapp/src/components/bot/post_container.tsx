@@ -17,8 +17,8 @@ const PostContainer = (props: Props) => {
         <ListItem
             sx={{
                 backgroundColor: props.isBot ? DashboardColors.background : 'white' ,
-                pl: '40px',
-                pr: '40px',
+                pl: {xs: '2px', sm: '10px', md: '20px', lg: '40px'},
+                pr: {xs: '2px', sm: '10px', md: '20px', lg: '40px'},
             }}
         >
             <Box display='flex' flexDirection='row' alignItems={'flex-start'}>

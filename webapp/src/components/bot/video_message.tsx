@@ -43,14 +43,19 @@ const VideoMessage = (props: Props) => {
     return (
         <Box display={'flex'} flexDirection={'column'}>
             <Markdown text={message}/>
-            <VideoPlayer
-                videoKey={videoKey}
-                width={'100%'}
-                height={'600px'}
-                autoplay={false}
-                onVideoStarted={onVideoStarted}
-                onVideoEnded={onVideoEnded}
-            />
+            <Box sx={{
+                width: {xs: '280px', sm: '500px', md: '600px', lg: '800px'},
+                height: {xs: '200px', sm: '400px', md: '500px', lg: '600px'}
+            }}>
+                <VideoPlayer
+                    videoKey={videoKey}
+                    width={'100%'}
+                    height={'100%'}
+                    autoplay={false}
+                    onVideoStarted={onVideoStarted}
+                    onVideoEnded={onVideoEnded}
+                />
+            </Box>
         </Box>
     );
 }
