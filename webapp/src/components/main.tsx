@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {Box, Drawer} from '@mui/material';
 import {useTranslation} from 'react-i18next';
@@ -36,6 +36,18 @@ const Main = () => {
     const {t} = useTranslation();
     const navigate = useNavigate();
     const {graph, onReload} = useGraph();
+    const [groups, setGroups] = useState<SidebarGroup[]>([]);
+
+    useEffect(() => {
+        const groups = computeGroups(graph || {nodes: [], links: []})
+        setGroups(groups);
+        if (groups && groups.length > 1 &&
+            groups[1].items && groups[1].items.length === 1 &&
+            (groups[1].items[0].display_name === 'Vitsi AI მიმოხილვა' ||
+            groups[1].items[0].display_name === 'Vitsi AI')) {
+            navigate(`/nodes/${groups[1].items[0].id}`);
+        }
+    }, [graph]);
 
     const handleDrawerToggle = () => {
         setOpen?.(!open);
@@ -113,14 +125,6 @@ const Main = () => {
         } as SidebarGroup;
 
         return [inProgressGroup, nextGroup];
-    }
-
-    const groups = computeGroups(graph || {nodes: [], links: []})
-    if (groups && groups.length > 1 &&
-        groups[1].items && groups[1].items.length === 1 &&
-        (groups[1].items[0].display_name === 'Vitsi AI მიმოხილვა' ||
-        groups[1].items[0].display_name === 'Vitsi AI')) {
-        navigate(`/nodes/${groups[1].items[0].id}`);
     }
 
     const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;

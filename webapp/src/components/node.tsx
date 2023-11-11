@@ -38,7 +38,7 @@ const Node = (props: Props) => {
     const {
         mixins: {toolbar},
     } = useTheme();
-    const {pathToGoal} = useGraph();
+    const {pathToGoal, onReload} = useGraph();
 
     const nextNodeID = pathToGoal?.get(props.nodeID)
 
@@ -183,6 +183,7 @@ const Node = (props: Props) => {
             setLoading(true)
             Client.Node().markAsKnown(node.id, user.id)
                 .then(() => {
+                    onReload();
                     loadNode();
                 })
                 .catch(() => {
