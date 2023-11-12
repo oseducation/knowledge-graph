@@ -103,11 +103,11 @@ const D3ForceGraph = (props: Props) => {
         if (node.status === NodeStatusFinished) {
             return theme.palette.success.main;
         } else if (node.status === NodeStatusStarted || node.status === NodeStatusWatched){
-            return theme.palette.secondary.main;
+            return theme.palette.warning.light;
         } else if (node.status === NodeStatusNext) {
             return theme.palette.primary.main;
         } else {
-            return theme.palette.grey[400];
+            return theme.palette.grey[500];
         }
     }
 
@@ -225,35 +225,36 @@ const D3ForceGraph = (props: Props) => {
                 nodeVal={20}
                 nodeCanvasObject={(currentNode, ctx) => {
                     if (currentNode.id === node?.id) {
-                        paintRing(currentNode, ctx, 'red');
+                        paintRing(currentNode, ctx, theme.palette.error.main);
                     } else if (highlightNodes.has(currentNode.id)){
-                        paintRing(currentNode, ctx, 'orange');
+                        paintRing(currentNode, ctx, theme.palette.warning.main);
                     } else if (pathToGoal?.has(currentNode.id) && currentNode.status !== NodeStatusFinished){
-                        paintRing(currentNode, ctx, 'purple');
+                        paintRing(currentNode, ctx, theme.palette.info.main);
                     }
 
                     const label = currentNode.name;
                     const fontSize = 5;
-                    ctx.font = `${fontSize}px Sans-Serif`;
+                    ctx.font = `bold ${fontSize}px Sans-Serif`;
                     if (props.isLarge) {
                         ctx.font = 'bold 10px Sans-Serif';
                     }
 
-                    const x = currentNode.x || 0
-                    const y = currentNode.y || 0
+                    const x = currentNode.x || 0;
+                    const y = currentNode.y || 0;
+                    const nodeColor = getNodeColor(currentNode);
                     if (currentNode.id === goal) {
-                        paintRing(currentNode, ctx, 'purple');
-                        drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
+                        paintRing(currentNode, ctx, theme.palette.info.main);
+                        drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
                     } else if (currentNode.node_type === NodeTypeLecture) {
                         ctx.beginPath();
                         ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
-                        ctx.fillStyle = getNodeColor(currentNode);
+                        ctx.fillStyle = nodeColor;
                         ctx.fill();
                     } else if (currentNode.node_type === NodeTypeExample) {
-                        ctx.fillStyle = getNodeColor(currentNode);
+                        ctx.fillStyle = nodeColor;
                         ctx.fillRect(x-nodeRadius, y-nodeRadius, 2*nodeRadius, 2*nodeRadius);
                     } else if (currentNode.node_type === NodeTypeAssignment) {
-                        drawStar(ctx, x, y, 5, 3*nodeRadius/2, 2*nodeRadius/3, getNodeColor(currentNode))
+                        drawStar(ctx, x, y, 5, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
                     }
 
                     ctx.textAlign = 'center';

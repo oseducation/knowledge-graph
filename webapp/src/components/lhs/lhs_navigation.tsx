@@ -39,7 +39,7 @@ const LHSNavigation = (props: LHSProps) => {
                 flexDirection: 'column',
                 height: '100%',
                 direction: 'column',
-                bgcolor: 'primary.dark',
+                bgcolor: 'primary.main',
             }}
         >
             <Sidebar

@@ -4,10 +4,37 @@ export const AppTheme: ThemeOptions = {
     palette: {
         mode: 'light',
         primary: {
-            main: '#1976d2',
+            main: '#6b57ea',
         },
         secondary: {
-            main: '#9b27b0',
+            main: '#2e2565',
+        },
+        background: {
+            default: '#f6f4ff',
+        },
+        success: {
+            main: '#009974',
+            // main: '#44BEA4'
+        },
+        grey: {
+            "100": '#F4F4F6',
+            "200": '#DFDDE4',
+            "300": '#CAC6D2',
+            "400": '#BFBAC9',
+            "500": '#AEA8BA',
+            "600": '#A098AE',
+            "700": '#8A819C',
+            "800": '#766C89',
+            "900": '#625A72',
+        },
+        error: {
+            main: '#DE0925'
+        },
+        warning: {
+            main: '#FF8B67'
+        },
+        info: {
+            main: '#0092D7'
         },
     },
 };
