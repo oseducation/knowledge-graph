@@ -14,6 +14,7 @@ const (
 	PostTypeTopic            = "topic"
 	PostTypeText             = "text"
 	PostTypeTest             = "test"
+	PostTypeKarelJS          = "karel_js"
 	PostTypeFilledInByAction = "filled_in_by_action"
 )
 
@@ -86,7 +87,8 @@ func (p *Post) IsValid() error {
 		p.PostType != PostTypeText &&
 		p.PostType != PostTypeTest &&
 		p.PostType != PostTypeFilledInByAction &&
-		p.PostType != PostTypeTopic {
+		p.PostType != PostTypeTopic &&
+		p.PostType != PostTypeKarelJS {
 		return invalidPostError(p.ID, "type", p.PostType)
 	}
 

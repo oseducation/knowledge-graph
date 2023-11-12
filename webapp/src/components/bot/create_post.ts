@@ -1,9 +1,9 @@
-import {Post, PostType, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Post, PostType, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {NodeWithResources} from '../../types/graph';
 import {User} from '../../types/users';
 
 import {BOT_ID} from './chat';
-import {getActions, letsStartAction, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
+import {getActions, letsStartAction, nextKarelJSMessage, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
 
 
 const getNodeViewState = (posts: Post[], nodeID: string) => {
@@ -38,16 +38,16 @@ const getNodeViewState = (posts: Post[], nodeID: string) => {
     }
 }
 
-const getNextContent = (posts: Post[], node: NodeWithResources, contentType: string) => {
+const getNextContent = (posts: Post[], node: NodeWithResources, contentType: string):Post => {
     const nodeViewState = getNodeViewState(posts, node.id);
     if (contentType === PostTypeVideo) {
         return nextVideoMessage(node, nodeViewState);
     } else if (contentType === PostTypeText) {
         return nextTextMessage(node, nodeViewState);
-    // } else if (contentType === PostTypeTest) {
-    //     return nextTestMessage(node, nodeViewState);
     } else if (contentType === PostTypeTopic) {
-        return nextTopicMessage(node, nodeViewState);
+        return nextTopicMessage(node);
+    } else if (contentType === PostTypeKarelJS){
+        return nextKarelJSMessage(node);
     } else {
         return nextVideoMessage(node, nodeViewState);
     }
@@ -55,7 +55,7 @@ const getNextContent = (posts: Post[], node: NodeWithResources, contentType: str
 
 export const constructBotPost = (posts: Post[], node: NodeWithResources | null, user: User, postType: PostType): Post | null => {
     if (posts.length === 0) {
-        return theVeryFirstMessage(user!.username).post;
+        return theVeryFirstMessage(user!.username);
     }
     const lastPost = posts[posts.length - 1];
     if (lastPost.user_id === BOT_ID) {
@@ -63,9 +63,9 @@ export const constructBotPost = (posts: Post[], node: NodeWithResources | null, 
     }
 
     if (!node) {
-        return theVeryLastMessage(user!.username).post;
+        return theVeryLastMessage(user!.username);
     } else {
-        return getNextContent(posts, node, postType).post;
+        return getNextContent(posts, node, postType);
     }
 }
 

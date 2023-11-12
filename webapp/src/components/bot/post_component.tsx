@@ -1,6 +1,8 @@
 import React from 'react';
+import {Box} from '@mui/material';
 
-import {Post, PostTypeFilledInByAction, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Post, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import IDE from '../karel/ide';
 
 import VideoMessage from './video_message';
 import {BOT_ID} from './chat';
@@ -44,6 +46,19 @@ const PostComponent = (props: Props) => {
                 scrollToBottom={props.scrollToBottom}
             />
         );
+    } else if (props.post.post_type === PostTypeKarelJS) {
+        const nodeID = props.post.props.node_id;
+        const nodeName = props.post.props.node_name;
+        component = (
+            <Box sx={{height:'600px', width:{xs:'300px', sm:'400px', md:'700px', lg:'1000px'}}}>
+                <IDE
+                    nodeName={nodeName}
+                    nodeID={nodeID}
+                    lang={'js'}
+                    height='600px'
+                />
+            </Box>
+        )
     }
 
     return (

@@ -10,6 +10,7 @@ interface Props {
     nodeName: string;
     nodeID: string;
     lang: string;
+    height?: string;
 }
 
 const IDE = (props: Props) => {
@@ -74,6 +75,7 @@ const IDE = (props: Props) => {
             userCode={userCode}
             nodeID={props.nodeID}
             compileFunc={compileFunc}
+            height={props.height}
         />
     )
 
