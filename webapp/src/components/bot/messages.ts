@@ -1,6 +1,6 @@
 
 import {NodeViewState, NodeWithResources} from "../../types/graph";
-import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo, PostWithActions} from "../../types/posts";
+import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
 
 import {BOT_ID} from "./chat";
 
@@ -106,7 +106,6 @@ export const getUserPostAction = (message: string) => {
 }
 
 export const nextKarelJSMessage = (node: NodeWithResources): Post => {
-    const actions = [iKnowThisAction];
     return {
         id: '',
         user_id: BOT_ID,
@@ -120,7 +119,7 @@ export const nextKarelJSMessage = (node: NodeWithResources): Post => {
     };
 }
 
-export const nextTopicMessage = (node: NodeWithResources, state: NodeViewState): Post => {
+export const nextTopicMessage = (node: NodeWithResources): Post => {
     return {
         id: '',
         user_id: BOT_ID,

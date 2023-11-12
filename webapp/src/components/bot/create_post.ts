@@ -45,7 +45,7 @@ const getNextContent = (posts: Post[], node: NodeWithResources, contentType: str
     } else if (contentType === PostTypeText) {
         return nextTextMessage(node, nodeViewState);
     } else if (contentType === PostTypeTopic) {
-        return nextTopicMessage(node, nodeViewState);
+        return nextTopicMessage(node);
     } else if (contentType === PostTypeKarelJS){
         return nextKarelJSMessage(node);
     } else {
