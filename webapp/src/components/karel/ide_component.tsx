@@ -26,6 +26,7 @@ interface Props {
     userCode: string;
     nodeID: string;
     compileFunc: (w:World, code:string) => void;
+    height?: string;
 }
 
 const IDEComponent = (props: Props) => {
@@ -117,7 +118,7 @@ const IDEComponent = (props: Props) => {
         drawCanvas();
     }
 
-    const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
+    const staticHeight = props.height || `calc(100vh - (${useAppBarHeight()}px))`;
     return (
         <Grid2 container disableEqualOverflow>
             <Grid2 xs={1} sx={{

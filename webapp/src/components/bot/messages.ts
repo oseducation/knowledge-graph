@@ -1,6 +1,6 @@
 
 import {NodeViewState, NodeWithResources} from "../../types/graph";
-import {PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo, PostWithActions} from "../../types/posts";
+import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo, PostWithActions} from "../../types/posts";
 
 import {BOT_ID} from "./chat";
 
@@ -10,20 +10,18 @@ const iKnowThisMessage = "I know this topic, mark as done";
 const anotherVideoMessage = "Show me another video on this topic, please";
 const anotherTextMessage = "Show me some text, please";
 const anotherTestMessage = "Test me on this topic";
+const karelJSActionMessage = "Let me write some code";
 
-export const theVeryFirstMessage = (username: string): PostWithActions => {
+export const theVeryFirstMessage = (username: string): Post => {
     return {
-        post: {
-            id: '',
-            user_id: BOT_ID,
-            message:`👋 Hello ${username}, and welcome to Vitsi AI! I'm your AI tutor, here to help you learn programming and navigate the world of code. 🚀
+        id: '',
+        user_id: BOT_ID,
+        message:`👋 Hello ${username}, and welcome to Vitsi AI! I'm your AI tutor, here to help you learn programming and navigate the world of code. 🚀
 You might know nothing about coding, but it's OK. You'll start coding in minutes. In fact, our first goal will be to write our first program.
 Feel free to ask any questions, and let's make your coding journey exciting and fruitful! 🎉`,
-            post_type: PostTypeFilledInByAction,
-            user: null,
-            props: {},
-        },
-        actions: [letsStartAction],
+        post_type: PostTypeFilledInByAction,
+        user: null,
+        props: {},
     };
 }
 
@@ -67,6 +65,14 @@ const anotherTestAction = {
     link: '',
 }
 
+const karelJSAction = {
+    id: '5',
+    text_on_button: "Let me code!",
+    message_after_click: karelJSActionMessage,
+    action_type: PostActionNextTopicKarelJS,
+    link: '',
+}
+
 export const getActions = (state: NodeViewState, node: NodeWithResources) => {
     const actions = [iKnowThisAction];
     if (node.videos && state.videoIndex + 1 < node.videos.length) {
@@ -74,6 +80,9 @@ export const getActions = (state: NodeViewState, node: NodeWithResources) => {
     }
     if (node.texts && state.textIndex + 1 < node.texts.length) {
         actions.push(anotherTextAction);
+    }
+    if (node.environment === 'karel_js'){
+        actions.push(karelJSAction);
     }
     return actions;
 }
@@ -89,146 +98,105 @@ export const getUserPostAction = (message: string) => {
         return anotherTextAction;
     } else if (message === anotherTestMessage) {
         return anotherTestAction;
-    } else {
+    } else if (message === karelJSActionMessage) {
+        return karelJSAction;
+    }else {
         return letsStartAction;
     }
 }
 
-// export const standardActions = [iKnowThisAction, anotherVideoAction, anotherTextAction, anotherTestAction]
-export const standardActions = [iKnowThisAction, anotherVideoAction, anotherTextAction];
-
-export const nextTopicMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
-    const actions = [];
-    if (node.videos && state.videoIndex + 1 < node.videos.length) {
-        actions.push(anotherVideoAction);
-    }
-    if (node.texts && state.textIndex + 1 < node.texts.length) {
-        actions.push(anotherTextAction);
-    }
-    // if (state.testIndex + 1 < node.questions.length) {
-    //     actions.push(anotherTestAction);
-    // }
+export const nextKarelJSMessage = (node: NodeWithResources): Post => {
+    const actions = [iKnowThisAction];
     return {
-        post: {
-            id: '',
-            user_id: BOT_ID,
-            message: `## Topic: ${node.name}\n\n ### Description: ${node.description}\n\n`,
-            post_type: PostTypeTopic,
-            user: null,
-            props: {
-                node_id: node.id,
-            },
+        id: '',
+        user_id: BOT_ID,
+        message: '',
+        post_type: PostTypeKarelJS,
+        user: null,
+        props: {
+            node_id: node.id,
+            node_name: node.name,
         },
-        actions: actions,
     };
 }
 
-export const nextVideoMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
-    const actions = [iKnowThisAction];
-    if (node.videos && state.videoIndex + 2 < node.videos.length) {
-        actions.push(anotherVideoAction);
-    }
-    if (node.texts && state.textIndex + 1 < node.texts.length) {
-        actions.push(anotherTextAction);
-    }
-    // if (state.testIndex + 1 < node.questions.length) {
-    //     actions.push(anotherTestAction);
-    // }
+export const nextTopicMessage = (node: NodeWithResources, state: NodeViewState): Post => {
+    return {
+        id: '',
+        user_id: BOT_ID,
+        message: `## Topic: ${node.name}\n\n ### Description: ${node.description}\n\n`,
+        post_type: PostTypeTopic,
+        user: null,
+        props: {
+            node_id: node.id,
+        },
+    };
+}
+
+export const nextVideoMessage = (node: NodeWithResources, state: NodeViewState): Post => {
     let videoIndex = state.videoIndex + 1;
     if (node.videos && state.videoIndex + 1 >= node.videos.length) {
         videoIndex = Math.floor(Math.random() * node.videos.length);
     }
     return {
-        post: {
-            id: '',
-            user_id: BOT_ID,
-            message: "Here's the video on the topic:\n\n",
-            post_type: PostTypeVideo,
-            user: null,
-            props: {
-                node_id: node.id,
-                video_index: videoIndex,
-                video_key: node.videos[videoIndex].key,
-            },
+        id: '',
+        user_id: BOT_ID,
+        message: "Here's the video on the topic:\n\n",
+        post_type: PostTypeVideo,
+        user: null,
+        props: {
+            node_id: node.id,
+            video_index: videoIndex,
+            video_key: node.videos[videoIndex].key,
         },
-        actions: actions,
     };
 }
 
 
-export const nextTextMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
-    const actions = [iKnowThisAction];
-    if (node.videos && state.videoIndex + 1 < node.videos.length) {
-        actions.push(anotherVideoAction);
-    }
-    if (node.texts && state.textIndex + 2 < node.texts.length) {
-        actions.push(anotherTextAction);
-    }
-    // if (state.testIndex + 1 < node.questions.length) {
-    //     actions.push(anotherTestAction);
-    // }
+export const nextTextMessage = (node: NodeWithResources, state: NodeViewState): Post => {
     let textIndex = state.textIndex + 1;
     if (node.texts && state.textIndex + 1 >= node.texts.length) {
         textIndex = Math.floor(Math.random() * node.texts.length);
     }
     return {
-        post: {
-            id: '',
-            user_id: BOT_ID,
-            message: `Here's the text on the topic:\n\n ##${node.texts[textIndex].name}\n\n${node.texts[textIndex].text}`,
-            post_type: PostTypeText,
-            user: null,
-            props: {
-                node_id: node.id,
-                text_index: textIndex,
-            },
+        id: '',
+        user_id: BOT_ID,
+        message: `Here's the text on the topic:\n\n ##${node.texts[textIndex].name}\n\n${node.texts[textIndex].text}`,
+        post_type: PostTypeText,
+        user: null,
+        props: {
+            node_id: node.id,
+            text_index: textIndex,
         },
-        actions: actions,
     };
 }
 
-export const nextTestMessage = (node: NodeWithResources, state: NodeViewState): PostWithActions => {
-    const actions = [iKnowThisAction];
-    if (state.videoIndex + 1 < node.videos.length) {
-        actions.push(anotherVideoAction);
-    }
-    if (state.textIndex + 1 < node.texts.length) {
-        actions.push(anotherTextAction);
-    }
-    if (state.testIndex + 2 < node.questions.length) {
-        actions.push(anotherTestAction);
-    }
+export const nextTestMessage = (node: NodeWithResources, state: NodeViewState): Post => {
     let testIndex = state.testIndex + 1;
     if (state.textIndex + 1 >= node.questions.length) {
         testIndex = Math.floor(Math.random() * node.questions.length);
     }
     return {
-        post: {
-            id: '',
-            user_id: BOT_ID,
-            message: `Here's the question on the topic:\n\n ## ${node.questions[testIndex].name}\n\n${node.questions[testIndex].question}`,
-            post_type: PostTypeTest,
-            user: null,
-            props: {
-                node_id: node.id,
-                test_index: testIndex,
-                test_choices: node.questions[testIndex].choices,
-            },
+        id: '',
+        user_id: BOT_ID,
+        message: `Here's the question on the topic:\n\n ## ${node.questions[testIndex].name}\n\n${node.questions[testIndex].question}`,
+        post_type: PostTypeTest,
+        user: null,
+        props: {
+            node_id: node.id,
+            test_index: testIndex,
+            test_choices: node.questions[testIndex].choices,
         },
-        actions: actions,
     };
 }
 
-export const theVeryLastMessage = (username: string): PostWithActions => {
+export const theVeryLastMessage = (username: string): Post => {
     return {
-        post: {
-            id: '',
-            user_id: BOT_ID,
-            message:`Hey ${username}, this was the last topic I had for you. I hope you enjoyed it and learned something new. 🤓 I'm working hard on the next topics and will let you know when they are ready. 🚀 You can still ask me questions regarding previous topics.`,
-            post_type: '',
-            user: null,
-            props: {},
-        },
-        actions: [],
+        id: '',
+        user_id: BOT_ID,
+        message:`Hey ${username}, this was the last topic I had for you. I hope you enjoyed it and learned something new. 🤓 I'm working hard on the next topics and will let you know when they are ready. 🚀 You can still ask me questions regarding previous topics.`,
+        post_type: '',
+        user: null,
+        props: {},
     };
 }

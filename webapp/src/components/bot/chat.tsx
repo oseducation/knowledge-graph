@@ -6,7 +6,7 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Action, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {computeNextNode} from '../../context/graph_provider';
@@ -83,6 +83,8 @@ const Chat = () => {
             post = constructBotPost([...posts!], node!, user!, PostTypeText);
         } else if (action.action_type === PostActionNextTopic) {
             post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+        } else if (action.action_type === PostActionNextTopicKarelJS) {
+            post = constructBotPost([...posts!], node!, user!, PostTypeKarelJS);
         }
         if (post) {
             const locationID = `${user!.id}_${BOT_ID}`
@@ -116,6 +118,8 @@ const Chat = () => {
                 post = constructBotPost([...posts!, userPost], node!, user!, PostTypeText);
             } else if (action.action_type === PostActionNextTopic) {
                 post = constructBotPost([...posts!, userPost], node!, user!, PostTypeTopic);
+            } else if (action.action_type === PostActionNextTopicKarelJS) {
+                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeKarelJS);
             }
             if (post) {
                 const locationID = `${user!.id}_${BOT_ID}`
