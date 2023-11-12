@@ -22,7 +22,6 @@ const Sidebar = (props: SidebarProps) => {
                 flexDirection: 'column',
                 borderColor: 'primary.light',
                 borderRight: '1px solid rgba(0, 0, 0, 0.12)',
-                bgcolor: 'primary.dark',
             }}
         >
             {props.header}
