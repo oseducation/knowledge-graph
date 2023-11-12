@@ -55,18 +55,6 @@ function Header() {
         navigate('/')
     }
 
-    function getLogo() {
-        return <Box
-            component="img"
-            sx={{
-                height: 52,
-            }}
-            alt="Vitsi AI"
-            src="/logo.png"
-            mr="4px"
-        />;
-    }
-
     function logoAndTitle() {
         return <Stack
             direction="row"
@@ -173,5 +161,17 @@ export const Spacer = styled('div')(() => ({
     position: 'relative',
     width: '100%'
 }));
+
+export const getLogo = () => {
+    return <Box
+        component="img"
+        sx={{
+            height: 52,
+        }}
+        alt="Vitsi AI"
+        src="/logo.png"
+        mr="4px"
+    />;
+}
 
 export default Header;

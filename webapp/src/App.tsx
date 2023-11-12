@@ -26,6 +26,7 @@ import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import Chat from './components/bot/chat';
 import Overview from './components/dashboard/overview';
+import Graph from './components/dashboard/graph';
 
 function App() {
     return (
@@ -43,7 +44,7 @@ function App() {
                 <Route path="dashboard" element={<DashboardLayout/>}>
                     <Route path="" element={<Overview/>}/>
                     <Route path="chat" element={<Chat/>}/>
-                    <Route path="graph" element={<Chat/>}/>
+                    <Route path="graph" element={<Graph/>}/>
                 </Route>
             </Route>
             <Route path="" element={<GuestLayout/>}>

@@ -2,7 +2,6 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import {Divider, List, Typography} from "@mui/material";
 import {useNavigate} from 'react-router-dom';
-import GrainIcon from '@mui/icons-material/Grain';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
@@ -11,6 +10,7 @@ import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
 
 import {DashboardColors} from '../../ThemeOptions';
 import {GroupItem} from '../../types/sidebar';
+import {getLogo} from '../header';
 
 import Item from './item';
 
@@ -54,13 +54,8 @@ const DashboardLHS = () =>{
                 color={DashboardColors.background}
                 margin={'4px 16px'}
             >
-                <Box
-                    bgcolor={DashboardColors.background}
-                    sx={{borderRadius: '12px', padding: '4px'}}
-                    mr={'16px'}
-                    display={'flex'}
-                >
-                    <GrainIcon fontSize='large' sx={{color: DashboardColors.primary}}/>
+                <Box mr={'16px'}>
+                    {getLogo()}
                 </Box>
                 <Typography
                     width={'100%'}
