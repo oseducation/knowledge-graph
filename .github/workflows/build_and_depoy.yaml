@@ -29,11 +29,15 @@ jobs:
           aws s3 sync webapp/dist/ s3://vitsi-ai-bucket/
       - name: build and deploy server
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SITE_URL: "http://www.vitsi.ai"
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
+          envs: YOUTUBE_API_KEY,SITE_URL
           script: |
             cd knowledge-graph/
             git pull
