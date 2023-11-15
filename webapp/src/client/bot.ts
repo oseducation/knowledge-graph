@@ -18,4 +18,13 @@ export class BotClient{
         const data = this.rest.doFetch<Post[]>(`${this.getBotsRoute()}/first`, {method: 'post'});
         return data;
     }
+
+    askQuestion = async (post: Post) => {
+        const {data} = await this.rest.doFetchWithResponse<Post>(
+            `${this.getBotsRoute()}/ask`,
+            {method: 'post', body: JSON.stringify(post)},
+        );
+
+        return data;
+    }
 }

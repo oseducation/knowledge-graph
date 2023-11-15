@@ -1,10 +1,11 @@
-package app
+package services
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -12,12 +13,32 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (a *App) GetYoutubeVideoInfo(videoID string) (string, int64, error) {
-	apiKey, ok := a.Environment[YoutubeAPIKey]
-	if !ok {
-		return "", 0, errors.New("no youtube api key")
-	}
+const youtubeAPIKey = "YOUTUBE_API_KEY"
 
+type youtubeService struct {
+	apiKey string
+}
+
+type youtubeServiceDummy struct {
+	apiKey string
+}
+
+type YoutubeServiceInterface interface {
+	GetYoutubeVideoInfo(videoID string) (string, int64, error)
+}
+
+func NewYoutubeService() (YoutubeServiceInterface, error) {
+	youtubeAPIKey, ok := os.LookupEnv(youtubeAPIKey)
+	if !ok {
+		return nil, errors.New("youtube api key is not set")
+	}
+	if youtubeAPIKey == "" || youtubeAPIKey == "test" {
+		return &youtubeServiceDummy{apiKey: youtubeAPIKey}, nil
+	}
+	return &youtubeService{apiKey: youtubeAPIKey}, nil
+}
+
+func (ys *youtubeService) GetYoutubeVideoInfo(videoID string) (string, int64, error) {
 	type youtubeResponse struct {
 		Items []struct {
 			Snippet struct {
@@ -28,7 +49,7 @@ func (a *App) GetYoutubeVideoInfo(videoID string) (string, int64, error) {
 			} `json:"contentDetails"`
 		} `json:"items"`
 	}
-	req, _ := http.NewRequest("GET", fmt.Sprintf("https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=%s&key=%s", videoID, apiKey), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=%s&key=%s", videoID, ys.apiKey), nil)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -75,4 +96,8 @@ func parseTime(s, suffix string) int64 {
 		return int64(i)
 	}
 	return 0
+}
+
+func (ysd *youtubeServiceDummy) GetYoutubeVideoInfo(videoID string) (string, int64, error) {
+	return fmt.Sprintf("Dummy title of %s", videoID), 100, nil
 }

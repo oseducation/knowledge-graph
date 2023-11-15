@@ -109,3 +109,94 @@ You're on the right track, and I'm here to help you keep the momentum going. Whe
 
 	return post, nil
 }
+
+func (a *App) CheckLimit(userID string) bool {
+	monthAgo := time.Now().AddDate(0, -1, 0).UnixNano() / int64(time.Millisecond)
+	count, err := a.CountChatGPTPosts(userID, monthAgo)
+	if err != nil {
+		a.Log.Error(err.Error())
+		return false
+	}
+
+	return count < a.Config.ChatSettings.ChatGPTMonthlyLimit
+}
+
+func (a *App) CountChatGPTPosts(userID string, after int64) (int, error) {
+	locationID := fmt.Sprintf("%s_%s", userID, BotID)
+
+	options := &model.PostGetOptions{}
+	model.ComposePostOptions(
+		model.PostLocationID(locationID),
+		model.PostUserID(BotID),
+		model.PostType(model.PostTypeChatGPT),
+		model.PostAfter(after),
+		model.PostPage(-1),
+		model.PostPerPage(-1))(options)
+	count, err := a.Store.Post().CountPosts(options)
+	if err != nil {
+		return 0, errors.Wrapf(err, "can't count posts with options = %v", options)
+	}
+	return count, nil
+}
+
+func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post, error) {
+	prerequisites, ok := a.Graph.Prerequisites[nodeID]
+	if !ok {
+		return nil, errors.Errorf("nodeID = %v not in Graph.Prerequisites", nodeID)
+	}
+
+	nodes, err := a.Store.Node().GetNodesWithIDs(prerequisites)
+	if err != nil || len(nodes) != len(prerequisites) {
+		return nil, errors.Wrapf(err, "can't get nodes with ids = %v", prerequisites)
+	}
+
+	node, err := a.Store.Node().Get(nodeID) // TODO: include nodeID in prerequisites to reduce db fetch
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't get node with id = %v", nodeID)
+	}
+
+	topics := ""
+	for _, node := range nodes {
+		topics += fmt.Sprintf("Topic: %s\nDescription: %s\n", node.Name, node.Description)
+	}
+
+	textOptions := &model.TextGetOptions{}
+	model.ComposeTextOptions(
+		model.TextNodeID(nodeID),
+		model.TextPage(0),
+		model.TextPerPage(1),
+	)(textOptions)
+	texts, err := a.Store.Text().GetTexts(textOptions) // TODO: include in a single db fetch
+	if err != nil {
+		return nil, errors.Wrap(err, "can't get texts")
+	}
+
+	text := ""
+	if len(texts) > 0 {
+		text = texts[0].Text
+	}
+	content := fmt.Sprintf("Topic: %s\nDescription: %s\nContent: %s", node.Name, node.Description, text)
+
+	systemMessage := fmt.Sprintf(`Act as a best tutor in the world and answer the question using less than 1000 tokens. Assume that students knows all the topics listed in braces:
+{%s}
+The question might be related to this content:
+{%s}
+Answer to this question using less than 1000 tokens:
+{%s}
+`, topics, content, message)
+
+	answer, err := a.Services.ChatGPTService.Send(userID, systemMessage, []string{message})
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't send message to chatGPT")
+	}
+
+	post, err := a.Store.Post().Save(&model.Post{
+		LocationID: fmt.Sprintf("%s_%s", userID, BotID),
+		UserID:     BotID,
+		Message:    answer,
+		PostType:   model.PostTypeChatGPT,
+		Props:      map[string]interface{}{"node_id": nodeID},
+	})
+
+	return post, err
+}

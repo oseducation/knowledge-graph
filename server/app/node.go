@@ -114,7 +114,7 @@ func (a *App) UpdateStatus(status *model.NodeStatusForUser) error {
 }
 
 func (a *App) AddVideoToNode(nodeID, videoID, authorID string) (*model.Video, error) {
-	name, length, err := a.GetYoutubeVideoInfo(videoID)
+	name, length, err := a.Services.YoutubeService.GetYoutubeVideoInfo(videoID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "incorrect videoID %s", videoID)
 	}

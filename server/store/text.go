@@ -29,8 +29,8 @@ func NewTextStore(db *SQLStore) TextStore {
 			"t.deleted_at",
 			"t.name",
 			"t.text",
-			"v.node_id",
-			"v.author_id",
+			"t.node_id",
+			"t.author_id",
 		).
 		From("texts t")
 

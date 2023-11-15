@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
@@ -52,7 +51,7 @@ func Setup(tb testing.TB) *TestHelper {
 	newServer.Config = cfg
 
 	// TODO do the proper mocking of the youtube service
-	os.Setenv(app.YoutubeAPIKey, "YoutubeAPIKey")
+	os.Setenv("YOUTUBE_API_KEY", "YoutubeAPIKey")
 
 	err = newServer.Start()
 	if err != nil {

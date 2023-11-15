@@ -2,7 +2,6 @@ package app
 
 import (
 	"math/rand"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -10,20 +9,19 @@ import (
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
+	"github.com/oseducation/knowledge-graph/services"
 	"github.com/oseducation/knowledge-graph/store"
 	"github.com/pkg/errors"
 )
 
-const YoutubeAPIKey = "YOUTUBE_API_KEY"
-
 // App type defines application global state
 type App struct {
-	Log         *log.Logger
-	Store       store.Store
-	Config      *config.Config
-	Graph       *model.Graph
-	Environment map[string]string
-	Random      *rand.Rand
+	Log      *log.Logger
+	Store    store.Store
+	Config   *config.Config
+	Graph    *model.Graph
+	Services *services.Services
+	Random   *rand.Rand
 }
 
 // NewApp creates new App
@@ -34,16 +32,14 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 	}
 	logger.Info("graph constructed", log.String("nodes", strconv.Itoa(len(graph.Nodes))), log.String("prerequisites", strconv.Itoa(len(graph.Prerequisites))))
 
-	environment := make(map[string]string)
-	youtubeAPIKey, ok := os.LookupEnv(YoutubeAPIKey)
-	if !ok {
-		return nil, errors.New("youtube api key is not set")
+	services, err := services.NewServices()
+	if err != nil {
+		return nil, errors.Wrap(err, "can't create services")
 	}
-	environment[YoutubeAPIKey] = youtubeAPIKey
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	return &App{logger, store, config, graph, environment, r}, nil
+	return &App{logger, store, config, graph, services, r}, nil
 }
 
 // GetSiteURL returns site url from config

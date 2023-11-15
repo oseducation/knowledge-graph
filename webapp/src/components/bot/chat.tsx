@@ -6,7 +6,7 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {computeNextNode} from '../../context/graph_provider';
@@ -134,10 +134,31 @@ const Chat = () => {
 
     const savePostWithMessage = (message: string, postType: string) => {
         Client.Post().saveUserPost(message, locationID, postType).then((userPost) => {
-            setPosts([...posts!, userPost]);
-            setInput('');
-            scrollToBottom();
             Analytics.messageToAI({user_id: user!.id});
+            userPost.props = {'node_id': nextNodeID};
+            Client.Bot().askQuestion(userPost).then((gptPost) => {
+                console.log(gptPost);
+                setPosts([...posts!, userPost, gptPost]);
+                setInput('');
+                scrollToBottom();
+            }).catch((err) => {
+                console.log(err);
+                if (err.message === 'Monthly limit exceeded') {
+                    setPosts([...posts!, userPost, {
+                        message: 'Sorry, I have reached my monthly limit. Please try again later.',
+                        user_id: BOT_ID,
+                        post_type: "",
+                    } as Post]);
+                    setInput('');
+                } else {
+                    setPosts([...posts!, userPost, {
+                        message: 'Something went wrong. Please try again later',
+                        user_id: BOT_ID,
+                        post_type: "",
+                    } as Post]);
+                    setInput('');
+                }
+            });
         });
     }
 

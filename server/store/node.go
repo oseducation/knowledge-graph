@@ -20,6 +20,7 @@ type NodeStore interface {
 	GetNodesForUser(userID string) ([]*model.NodeStatusForUser, error)
 	UpdateStatus(status *model.NodeStatusForUser) error
 	GetPrerequisites(id string) ([]*model.Node, error)
+	GetNodesWithIDs(ids []string) ([]*model.Node, error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -239,6 +240,16 @@ func (ns *SQLNodeStore) GetPrerequisites(id string) ([]*model.Node, error) {
 		Where(sq.Eq{"e.to_node_id": id})
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &nodes, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get prerequisite nodes for %s", id)
+	}
+	return nodes, nil
+}
+
+func (ns *SQLNodeStore) GetNodesWithIDs(ids []string) ([]*model.Node, error) {
+	var nodes []*model.Node
+	query := ns.nodeSelect.
+		Where(sq.Eq{"n.id": ids})
+	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &nodes, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get nodes with ids %v", ids)
 	}
 	return nodes, nil
 }
