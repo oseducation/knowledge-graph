@@ -52,6 +52,8 @@ func Setup(tb testing.TB) *TestHelper {
 
 	// TODO do the proper mocking of the youtube service
 	os.Setenv("YOUTUBE_API_KEY", "YoutubeAPIKey")
+	os.Setenv("CHAT_GPT_API_KEY", "")
+	os.Setenv("CHAT_GPT_ORGANIZATION_ID", "")
 
 	err = newServer.Start()
 	if err != nil {
