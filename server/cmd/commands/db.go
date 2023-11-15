@@ -203,7 +203,7 @@ func addNodeCmdF(command *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "can't save node to db")
 	}
 
-	title, duration, err := srv.App.GetYoutubeVideoInfo(node.Key)
+	title, duration, err := srv.App.Services.YoutubeService.GetYoutubeVideoInfo(node.Key)
 	if err != nil {
 		return errors.Wrapf(err, "can't get youtube video info %s", node.Key)
 	}

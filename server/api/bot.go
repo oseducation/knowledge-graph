@@ -31,7 +31,29 @@ func askQuestion(c *gin.Context) {
 		return
 	}
 
-	answer, err := a.AskQuestion(post)
+	nodeID, ok := post.Props["node_id"]
+	if !ok {
+		responseFormat(c, http.StatusBadRequest, "Missing `node_id` in the request body")
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if session.UserID != post.UserID {
+		responseFormat(c, http.StatusBadRequest, "`user_id` mismatch")
+		return
+	}
+
+	if !a.CheckLimit(session.UserID) {
+		responseFormat(c, http.StatusBadRequest, "Monthly limit exceeded")
+		return
+	}
+
+	answer, err := a.AskQuestionToChatGPT(post.Message, fmt.Sprintf("%v", nodeID), post.UserID)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, "Error while asking a question")
 		a.Log.Error(err.Error())

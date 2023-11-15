@@ -20,6 +20,7 @@ type PostStore interface {
 	Update(new *model.Post) error
 	Get(id string) (*model.Post, error)
 	GetPosts(options *model.PostGetOptions) ([]*model.Post, error)
+	CountPosts(options *model.PostGetOptions) (int, error)
 	GetPostsWithUser(locationID string) ([]*model.PostWithUser, error)
 	Delete(post *model.Post) error
 }
@@ -128,10 +129,18 @@ func (ps *SQLPostStore) Get(id string) (*model.Post, error) {
 	return &post, nil
 }
 
-// GetPosts gets posts with options
-func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, error) {
-	var sqlPosts []*sqlPost
-	query := ps.postSelect
+func (ps *SQLPostStore) CountPosts(options *model.PostGetOptions) (int, error) {
+	query := ps.sqlStore.builder.Select("Count(*)").From("posts p")
+	query = filterPosts(options, query)
+
+	var count int
+	if err := ps.sqlStore.getBuilder(ps.sqlStore.db, &count, query); err != nil {
+		return 0, errors.Wrapf(err, "can't get posts with options %v", options)
+	}
+	return count, nil
+}
+
+func filterPosts(options *model.PostGetOptions, query sq.SelectBuilder) sq.SelectBuilder {
 	if options.TermInMessage != "" {
 		query = query.Where(sq.Like{"p.message": fmt.Sprint("%", options.TermInMessage, "%")})
 	}
@@ -144,12 +153,28 @@ func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, 
 	if options.LocationID != "" {
 		query = query.Where(sq.Eq{"p.location_id": options.LocationID})
 	}
+	if options.PostType != "" {
+		query = query.Where(sq.Eq{"p.post_type": options.PostType})
+	}
+	if options.After > 0 {
+		query = query.Where(sq.Gt{"p.created_at": options.After})
+	}
+	if options.Before > 0 {
+		query = query.Where(sq.Lt{"p.created_at": options.Before})
+	}
 	if options.PerPage > 0 {
 		query = query.Limit(uint64(options.PerPage))
 	}
 	if options.Page >= 0 {
 		query = query.Offset(uint64(options.Page * options.PerPage))
 	}
+	return query
+}
+
+// GetPosts gets posts with options
+func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, error) {
+	var sqlPosts []*sqlPost
+	query := filterPosts(options, ps.postSelect)
 
 	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &sqlPosts, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get posts with options %v", options)

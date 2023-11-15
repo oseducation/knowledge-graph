@@ -16,6 +16,7 @@ const (
 	PostTypeTest             = "test"
 	PostTypeKarelJS          = "karel_js"
 	PostTypeFilledInByAction = "filled_in_by_action"
+	PostTypeChatGPT          = "chat_gpt"
 )
 
 const PostMessageMaxRunes = 65536
@@ -88,7 +89,8 @@ func (p *Post) IsValid() error {
 		p.PostType != PostTypeTest &&
 		p.PostType != PostTypeFilledInByAction &&
 		p.PostType != PostTypeTopic &&
-		p.PostType != PostTypeKarelJS {
+		p.PostType != PostTypeKarelJS &&
+		p.PostType != PostTypeChatGPT {
 		return invalidPostError(p.ID, "type", p.PostType)
 	}
 
@@ -150,9 +152,12 @@ type PostGetOptions struct {
 	TermInMessage  string
 	UserID         string
 	LocationID     string
+	PostType       string
 	Page           int
 	PerPage        int
 	IncludeDeleted bool
+	After          int64
+	Before         int64
 }
 
 type PostGetOption func(*PostGetOptions)
@@ -198,5 +203,23 @@ func PostPerPage(perPage int) PostGetOption {
 func PostDeleted(deleted bool) PostGetOption {
 	return func(args *PostGetOptions) {
 		args.IncludeDeleted = deleted
+	}
+}
+
+func PostType(postType string) PostGetOption {
+	return func(args *PostGetOptions) {
+		args.PostType = postType
+	}
+}
+
+func PostAfter(after int64) PostGetOption {
+	return func(args *PostGetOptions) {
+		args.After = after
+	}
+}
+
+func PostBefore(before int64) PostGetOption {
+	return func(args *PostGetOptions) {
+		args.Before = before
 	}
 }

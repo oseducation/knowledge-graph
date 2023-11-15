@@ -48,11 +48,16 @@ type PasswordSettings struct {
 	Symbol        bool
 }
 
+type ChatSettings struct {
+	ChatGPTMonthlyLimit int
+}
+
 type Config struct {
 	ServerSettings   ServerSettings
 	DBSettings       DBSettings
 	EmailSettings    EmailSettings
 	PasswordSettings PasswordSettings
+	ChatSettings     ChatSettings
 }
 
 func ReadConfig() (*Config, error) {

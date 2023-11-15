@@ -187,7 +187,7 @@ func (a *App) importTexts(nodeURL string, textFileNames []string, nodeID, userID
 
 func (a *App) importVideos(videoKeys []string, nodeID, userID string) error {
 	for _, key := range videoKeys {
-		title, duration, err := a.GetYoutubeVideoInfo(key)
+		title, duration, err := a.Services.YoutubeService.GetYoutubeVideoInfo(key)
 		if err != nil {
 			return errors.Wrapf(err, "can't get youtube video info %s", key)
 		}
@@ -592,7 +592,7 @@ func (a *App) ImportGraphOld(url string) (string, error) {
 			continue
 		}
 
-		title, duration, err := a.GetYoutubeVideoInfo(node.Key)
+		title, duration, err := a.Services.YoutubeService.GetYoutubeVideoInfo(node.Key)
 		if err != nil {
 			return "", errors.Wrapf(err, "can't get youtube video info %s", node.Key)
 		}
