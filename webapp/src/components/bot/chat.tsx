@@ -6,7 +6,7 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {computeNextNode} from '../../context/graph_provider';
@@ -16,6 +16,7 @@ import PostComponent from './post_component';
 import {constructBotPost, getBotPostActions} from './create_post';
 import usePosts from './use_posts';
 import {getUserPostAction} from './messages';
+import BotStreamMessage from './bot_stream_message';
 
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
@@ -30,6 +31,8 @@ const Chat = () => {
     let nextNodeID = computeNextNode(graph, pathToGoal, goal);
     const [node, setNode] = useState<NodeWithResources | null>(null);
     const [actions, setActions] = useState<Action[]>([]);
+    const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
+    const [botMessage, setBotMessage] = useState<string>('');
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -55,11 +58,67 @@ const Chat = () => {
     useEffect(() => {
         if (node && posts && posts.length > 0) {
             setActions(getBotPostActions(posts, node));
-            if (posts.length > 0 && posts[posts.length-1].user_id !== BOT_ID) {
+            if (posts.length > 0 && posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
                 createPendingPost();
             }
         }
     }, [posts.length, posts, node]);
+
+    useEffect(() => {
+        if (!userPostToChat) {
+            return;
+        }
+
+        const fetchData = async () => {
+            const response = await fetch(`${Client.Bot().getBotsRoute()}/ask?stream=true`, {
+                method: 'POST',
+                headers: {},
+                body: JSON.stringify(userPostToChat)
+            })
+            if (response && response.body) {
+                const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+
+                let totalMessage = '';
+
+                // eslint-disable-next-line no-constant-condition
+                while (true) {
+                    const {value, done} = await reader.read();
+                    if (done) {
+                        saveGPTAnswer(totalMessage);
+                        setBotMessage('');
+                        setUserPostToChat(null);
+                        break;
+                    }
+                    const events = getData(value)
+                    for (const event of events) {
+                        if (event === '[DONE]') {
+                            break;
+                        }
+                        if (event.length > 0) {
+                            totalMessage += event;
+                            setBotMessage(totalMessage);
+                        }
+                    }
+                }
+
+            }
+        }
+        fetchData();
+    }, [userPostToChat]);
+
+    const saveGPTAnswer = (message: string) => {
+        const post = {
+            message: message,
+            post_type: PostTypeChatGPT,
+            props: {node_id: nextNodeID},
+            user_id: BOT_ID,
+            user: null,
+            id: '',
+        };
+        Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
+            setPosts([...posts!, updatedPost]);
+        });
+    }
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -93,7 +152,6 @@ const Chat = () => {
             });
         }
         scrollToBottom();
-        Analytics.messageToAI({user_id: user!.id});
     }
 
     const onButtonClick = (action: Action) => {
@@ -128,7 +186,6 @@ const Chat = () => {
                 });
             }
             scrollToBottom();
-            Analytics.messageToAI({user_id: user!.id});
         });
     }
 
@@ -136,29 +193,9 @@ const Chat = () => {
         Client.Post().saveUserPost(message, locationID, postType).then((userPost) => {
             Analytics.messageToAI({user_id: user!.id});
             userPost.props = {'node_id': nextNodeID};
-            Client.Bot().askQuestion(userPost).then((gptPost) => {
-                console.log(gptPost);
-                setPosts([...posts!, userPost, gptPost]);
-                setInput('');
-                scrollToBottom();
-            }).catch((err) => {
-                console.log(err);
-                if (err.message === 'Monthly limit exceeded') {
-                    setPosts([...posts!, userPost, {
-                        message: 'Sorry, I have reached my monthly limit. Please try again later.',
-                        user_id: BOT_ID,
-                        post_type: "",
-                    } as Post]);
-                    setInput('');
-                } else {
-                    setPosts([...posts!, userPost, {
-                        message: 'Something went wrong. Please try again later',
-                        user_id: BOT_ID,
-                        post_type: "",
-                    } as Post]);
-                    setInput('');
-                }
-            });
+            setUserPostToChat(userPost);
+            setPosts([...posts!, userPost]);
+            setInput('');
         });
     }
 
@@ -169,10 +206,11 @@ const Chat = () => {
                     <PostComponent
                         key={post.id}
                         post={post}
-                        isLast={index === posts.length - 1 && post.user_id === BOT_ID}
+                        isLast={index === posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
                         scrollToBottom={scrollToBottom}
                     />
                 )}
+                {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom}/>}
                 {actions &&
                     <Box>
                         {actions.map((action : Action) => (
@@ -265,47 +303,27 @@ const MessageInput = styled(TextareaAutosize)({
     fontWeight: 400,
 });
 
-/*
-const TypingIndicator = styled('div')`
-  height: 20px;
-  width: 50px;
-  border-radius: 10px;
-  background-color: #e0e0e0;
-  position: relative;
-  margin: 10px 0;
 
-  &::before,
-  &::after {
-    content: '';
-    display: block;
-    height: 10px;
-    width: 10px;
-    background-color: #9e9e9e;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    animation: bounce 0.5s ease infinite;
-  }
-
-  &::before {
-    left: 10px;
-    animation-delay: 0.1s;
-  }
-
-  &::after {
-    right: 10px;
-    animation-delay: 0.2s;
-  }
-
-  @keyframes bounce {
-    0%,
-    100% {
-      transform: translateY(-50%) scale(1);
+function getSubstrings(input: string, start: string, end: string): string[] {
+    const result = [];
+    let i = 0;
+    while (i < input.length - start.length - end.length) {
+        const potentialStart = input.substring(i, i + start.length);
+        if (potentialStart === start) {
+            const index = input.indexOf(end, i + start.length);
+            if (index === -1){
+                break
+            }
+            result.push(input.substring(i+start.length, index));
+            i = index + end.length;
+        } else {
+            i++;
+        }
     }
-    50% {
-      transform: translateY(-50%) scale(0.6);
-    }
-  }
-`;
-*/
+
+    return result;
+}
+
+function getData(input: string): string[] {
+    return getSubstrings(input, 'data: {', '}\n\n');
+}

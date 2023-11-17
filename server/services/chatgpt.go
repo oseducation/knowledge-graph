@@ -74,6 +74,10 @@ type ChatCompletionRequest struct {
 	// Up to 4 sequences where the API will stop generating further tokens.
 	Stop []string `json:"stop,omitempty"`
 
+	// (Optional - default: fasle)
+	// If set, partial message deltas will be sent, like in ChatGPT.
+	Stream bool `json:"stream,omitempty"`
+
 	// (Optional - default: 1)
 	// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
 	// We generally recommend altering this or top_p but not both.
@@ -143,6 +147,7 @@ const (
 
 type ChatGPTServiceInterface interface {
 	Send(userID, systemMessage string, messages []string) (string, error)
+	SendStream(userID, systemMessage string, messages []string) (ChatStream, error)
 }
 
 type ChatGPTService struct {
@@ -191,7 +196,25 @@ func NewCHhatGPTService() (ChatGPTServiceInterface, error) {
 	}, nil
 }
 
-func (c *ChatGPTService) Send(userID, systemMessage string, messages []string) (string, error) {
+func (c *ChatGPTService) SendStream(userID, systemMessage string, messages []string) (ChatStream, error) {
+	chatMessages := getChatMessages(systemMessage, messages)
+
+	req := &ChatCompletionRequest{
+		Model:    GPT35Turbo,
+		Messages: chatMessages,
+		User:     userID,
+		Stream:   true,
+	}
+
+	resp, err := c.sendStream(context.Background(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return CreateChatGPTStream(resp), nil
+}
+
+func getChatMessages(systemMessage string, messages []string) []ChatMessage {
 	chatMessages := make([]ChatMessage, len(messages)+1)
 	chatMessages[0] = ChatMessage{
 		Role:    ChatGPTModelRoleSystem,
@@ -210,6 +233,11 @@ func (c *ChatGPTService) Send(userID, systemMessage string, messages []string) (
 			}
 		}
 	}
+	return chatMessages
+}
+
+func (c *ChatGPTService) Send(userID, systemMessage string, messages []string) (string, error) {
+	chatMessages := getChatMessages(systemMessage, messages)
 
 	req := &ChatCompletionRequest{
 		Model:    GPT35Turbo,
@@ -225,6 +253,47 @@ func (c *ChatGPTService) Send(userID, systemMessage string, messages []string) (
 		return resp.Choices[0].Message.Content, nil
 	}
 	return "", errors.New("no response")
+}
+
+func (c *ChatGPTService) sendStream(ctx context.Context, req *ChatCompletionRequest) (*http.Response, error) {
+	if err := validate(req); err != nil {
+		return nil, err
+	}
+	if !req.Stream {
+		return nil, errors.New("stream must be true")
+	}
+
+	reqBytes, _ := json.Marshal(req)
+
+	endpoint := "/chat/completions"
+	httpReq, err := http.NewRequest("POST", c.config.BaseURL+endpoint, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return nil, err
+	}
+	httpReq = httpReq.WithContext(ctx)
+
+	res, err := c.sendRequestStream(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *ChatGPTService) sendRequestStream(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.config.APIKey))
+	if c.config.OrganizationID != "" {
+		req.Header.Set("OpenAI-Organization", c.config.OrganizationID)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Connection", "keep-alive")
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (c *ChatGPTService) send(ctx context.Context, req *ChatCompletionRequest) (*ChatResponse, error) {
@@ -324,4 +393,8 @@ func (c *ChatGPTService) sendRequest(req *http.Request) (*http.Response, error) 
 
 func (c *ChatGPTServiceDummy) Send(userID, systemMessage string, messages []string) (string, error) {
 	return fmt.Sprintf("Dummy answer for user `%s`'s message number %d, systemMessage: \n\n %s\n", userID, len(messages), systemMessage), nil
+}
+
+func (c *ChatGPTServiceDummy) SendStream(_, _ string, _ []string) (ChatStream, error) {
+	return nil, nil
 }

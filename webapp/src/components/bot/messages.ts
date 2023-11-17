@@ -66,7 +66,7 @@ const anotherTestAction = {
 }
 
 const karelJSAction = {
-    id: '5',
+    id: '6',
     text_on_button: "Let me code!",
     message_after_click: karelJSActionMessage,
     action_type: PostActionNextTopicKarelJS,
@@ -100,7 +100,7 @@ export const getUserPostAction = (message: string) => {
         return anotherTestAction;
     } else if (message === karelJSActionMessage) {
         return karelJSAction;
-    }else {
+    } else {
         return letsStartAction;
     }
 }

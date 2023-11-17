@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/oseducation/knowledge-graph/model"
+	"github.com/oseducation/knowledge-graph/services"
 	"github.com/pkg/errors"
 )
 
@@ -140,19 +141,40 @@ func (a *App) CountChatGPTPosts(userID string, after int64) (int, error) {
 }
 
 func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post, error) {
+	systemMessage, err := a.getSystemMessage(nodeID)
+	if err != nil {
+		return nil, err
+	}
+	answer, err := a.Services.ChatGPTService.Send(userID, systemMessage, []string{message})
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't send message to chatGPT")
+	}
+
+	post, err := a.Store.Post().Save(&model.Post{
+		LocationID: fmt.Sprintf("%s_%s", userID, BotID),
+		UserID:     BotID,
+		Message:    answer,
+		PostType:   model.PostTypeChatGPT,
+		Props:      map[string]interface{}{"node_id": nodeID},
+	})
+
+	return post, err
+}
+
+func (a *App) getSystemMessage(nodeID string) (string, error) {
 	prerequisites, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
-		return nil, errors.Errorf("nodeID = %v not in Graph.Prerequisites", nodeID)
+		return "", errors.Errorf("nodeID = %v not in Graph.Prerequisites", nodeID)
 	}
 
 	nodes, err := a.Store.Node().GetNodesWithIDs(prerequisites)
 	if err != nil || len(nodes) != len(prerequisites) {
-		return nil, errors.Wrapf(err, "can't get nodes with ids = %v", prerequisites)
+		return "", errors.Wrapf(err, "can't get nodes with ids = %v", prerequisites)
 	}
 
 	node, err := a.Store.Node().Get(nodeID) // TODO: include nodeID in prerequisites to reduce db fetch
 	if err != nil {
-		return nil, errors.Wrapf(err, "can't get node with id = %v", nodeID)
+		return "", errors.Wrapf(err, "can't get node with id = %v", nodeID)
 	}
 
 	topics := ""
@@ -168,7 +190,7 @@ func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post,
 	)(textOptions)
 	texts, err := a.Store.Text().GetTexts(textOptions) // TODO: include in a single db fetch
 	if err != nil {
-		return nil, errors.Wrap(err, "can't get texts")
+		return "", errors.Wrap(err, "can't get texts")
 	}
 
 	text := ""
@@ -181,22 +203,14 @@ func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post,
 {%s}
 The question might be related to this content:
 {%s}
-Answer to this question using less than 1000 tokens:
-{%s}
-`, topics, content, message)
+`, topics, content)
+	return systemMessage, nil
+}
 
-	answer, err := a.Services.ChatGPTService.Send(userID, systemMessage, []string{message})
+func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string) (services.ChatStream, error) {
+	systemMessage, err := a.getSystemMessage(nodeID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "can't send message to chatGPT")
+		return nil, err
 	}
-
-	post, err := a.Store.Post().Save(&model.Post{
-		LocationID: fmt.Sprintf("%s_%s", userID, BotID),
-		UserID:     BotID,
-		Message:    answer,
-		PostType:   model.PostTypeChatGPT,
-		Props:      map[string]interface{}{"node_id": nodeID},
-	})
-
-	return post, err
+	return a.Services.ChatGPTService.SendStream(userID, systemMessage, []string{message})
 }
