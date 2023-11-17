@@ -2,13 +2,13 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 
 
-const Overview = () => {
+const Goals = () => {
 
     return (
         <Box>
-            {"overview"}
+            goals
         </Box>
     );
 }
 
-export default Overview;
+export default Goals;
