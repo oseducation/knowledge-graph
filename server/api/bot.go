@@ -1,7 +1,9 @@
 package api
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -53,14 +55,51 @@ func askQuestion(c *gin.Context) {
 		return
 	}
 
-	answer, err := a.AskQuestionToChatGPT(post.Message, fmt.Sprintf("%v", nodeID), post.UserID)
+	isStream := c.DefaultQuery("stream", "")
+
+	if isStream != "true" {
+		answer, gptErr := a.AskQuestionToChatGPT(post.Message, fmt.Sprintf("%v", nodeID), post.UserID)
+		if gptErr != nil {
+			responseFormat(c, http.StatusInternalServerError, "Error while asking a question")
+			a.Log.Error(gptErr.Error())
+			return
+		}
+
+		responseFormat(c, http.StatusCreated, answer)
+		return
+	}
+
+	chatStream, err := a.AskQuestionToChatGPTSteam(post.Message, fmt.Sprintf("%v", nodeID), post.UserID)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, "Error while asking a question")
+		responseFormat(c, http.StatusInternalServerError, "Error while asking a stream question")
 		a.Log.Error(err.Error())
 		return
 	}
 
-	responseFormat(c, http.StatusCreated, answer)
+	defer chatStream.Close()
+
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Content-Encoding", "none")
+	c.Writer.WriteHeaderNow()
+
+	for {
+		resp, err := chatStream.Recv()
+		if errors.Is(err, io.EOF) {
+			fmt.Fprintf(c.Writer, "data: {%s}\n\n", "[DONE]")
+			c.Writer.Flush()
+			return // stream finished
+		}
+		if err != nil {
+			responseFormat(c, http.StatusInternalServerError, "Error while reading stream")
+			a.Log.Error(err.Error())
+			return
+		}
+		fmt.Fprintf(c.Writer, "data: {%s}\n\n", resp)
+		c.Writer.Flush()
+	}
 }
 
 type OldAndNewPosts struct {
