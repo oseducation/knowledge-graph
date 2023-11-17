@@ -25,7 +25,7 @@ import Main from './components/main';
 import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import Chat from './components/bot/chat';
-import Overview from './components/dashboard/overview';
+import Overview from './components/overview/overview';
 import Graph from './components/dashboard/graph';
 
 function App() {
