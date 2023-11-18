@@ -23,7 +23,8 @@ const DashboardWidget = (props: Props) => {
             sx={{
                 minWidth: 275,
                 borderRadius: '16px', // rounded corners
-                boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.2)', // subtle shadow
+                // boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.2)', // subtle shadow
+                boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
                 margin: '8px',
             }}
         >
