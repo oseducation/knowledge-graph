@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Card, CardContent, Typography, Button, LinearProgress, Box, Grid, Container, useTheme} from '@mui/material';
+import {Card, Typography, Button, LinearProgress, Box, useTheme, alpha} from '@mui/material';
 
 
 interface Props {
@@ -14,16 +14,17 @@ const GoalCard = (props: Props) => {
     return (
         <Card sx={{
             borderRadius: '16px',
-            // boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
-            margin: '10px',
-            height: '100%',
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+            margin: 1,
+            // height: '100%',
         }}>
-            <CardContent sx={{height: '100%'}}>
+            <Box sx={{height: '100%', m: 2}}>
                 <Box sx={{
                     borderRadius: '16px',
                     overflow: 'hidden',
-                    marginBottom: '20px',
-                    height:'50%'
+                    mb: 1,
+                    height:'50%',
+                    pb: 0,
                 }}>
                     <img src={props.imageURL} alt={props.title} width="100%" height="100%"/>
                 </Box>
@@ -34,17 +35,17 @@ const GoalCard = (props: Props) => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginTop: '20px'
+                    mt: 1
                 }}>
                     <LinearProgress
                         variant="determinate"
                         value={props.progress}
                         sx={{
-                            height: '10px',
+                            height: '6px',
                             width: '100%',
                             borderRadius: '5px',
                             mr:'8px',
-                            backgroundColor: theme.palette.grey[200],
+                            backgroundColor: alpha(theme.palette.success.light, 0.5),
                             '& .MuiLinearProgress-bar': {
                                 borderRadius: '5px',
                                 backgroundColor: theme.palette.success.main,
@@ -59,11 +60,11 @@ const GoalCard = (props: Props) => {
                 <Button
                     variant="contained"
                     fullWidth
-                    sx={{mt: '16px'}}
+                    sx={{mt: '16px', borderRadius: '8px'}}
                 >
                     Continue
                 </Button>
-            </CardContent>
+            </Box>
         </Card>
     );
 };
@@ -77,32 +78,36 @@ const Goals = () => {
     ];
 
     return (
-        <Container sx={{pt: '16px', pl:'0px', pr:'0px'}}>
+        <Box
+            display={'flex'}
+            flexDirection={'column'}
+            sx={{pt: '16px', pl:'0px', pr:'0px'}}
+        >
             <Box sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '12px'
+                ml: 4
             }}>
-                <Typography variant="h4" sx={{fontWeight: 'bold'}}>
+                <Typography variant="h5" sx={{fontWeight: 'bold'}}>
                     My Goals
                 </Typography>
                 <Button size="small" sx={{textTransform: 'none'}}>
                     See all
                 </Button>
             </Box>
-            <Grid container spacing={2}>
+            <Box display={'flex'} flexDirection={'row'}>
                 {goals.map((goal, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Box key={index}>
                         <GoalCard
                             title={goal.title}
                             imageURL={goal.imageUrl}
                             progress={goal.progress}
                         />
-                    </Grid>
+                    </Box>
                 ))}
-            </Grid>
-        </Container>
+            </Box>
+        </Box>
     );
 };
 
