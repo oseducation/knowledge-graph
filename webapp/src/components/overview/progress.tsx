@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {Box, Typography, useTheme, alpha} from '@mui/material';
+import {Box, Typography, useTheme, alpha, Card} from '@mui/material';
 import {Line} from 'react-chartjs-2';
 import {Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend} from 'chart.js';
 
@@ -61,11 +61,12 @@ const Progress = () => {
     };
 
     return (
-        <Box sx={{
+        <Card sx={{
             m: 1,
             mt: 2,
             bgcolor: 'background.paper',
             borderRadius: '16px',
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
         }}>
 
             <Typography variant="h5" sx={{fontWeight: 'bold', m:2}}>
@@ -74,7 +75,7 @@ const Progress = () => {
             <Box sx={{p:3, pt:0}}>
                 <Line data={data} options={options}/>
             </Box>
-        </Box>
+        </Card>
     );
 };
 
