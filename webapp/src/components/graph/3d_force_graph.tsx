@@ -14,14 +14,11 @@ import {Analytics} from '../../analytics';
 import {DagMode} from '../../types/users';
 import useGraph from '../../hooks/useGraph';
 
-import {GraphNodeHoverContext} from './../main';
-
 interface Props {
     graph: Graph;
     width?: number;
     height?: number;
     dimension3: boolean;
-    focusNodeID?: string;
     noClick?: boolean;
     dir?: DagMode;
     textColor?: string;
@@ -31,7 +28,6 @@ interface Props {
 const D3ForceGraph = (props: Props) => {
     const navigate = useNavigate();
     const fgRef = useRef<ForceGraphMethods<Node, Link>>();
-    const {node, setNode} = React.useContext(GraphNodeHoverContext);
     const nodeRadius = props.isLarge ? 30 : 20;
     const theme = useTheme();
     const {preferences} = useAuth();
@@ -39,9 +35,9 @@ const D3ForceGraph = (props: Props) => {
     const [highlightLinks, setHighlightLinks] = useState(new Set());
     const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
     const {t, i18n} = useTranslation();
-    const {pathToGoal, goal} = useGraph();
+    const {pathToGoal, goal, selectedNode, setSelectedNode, focusedNodeID} = useGraph();
 
-    const onNodeClick = ({id, status} : Node) => {
+    const onNodeClick = (node : Node) => {
         if (props.noClick){
             return;
         }
@@ -50,11 +46,11 @@ const D3ForceGraph = (props: Props) => {
             'Node Name': node.name,
             'Language': i18n.language,
             'Node Type': node.node_type,
-            'Status': node.status,
+            'Status': status,
             'Entry Point': 'Graph'
         });
-        if (status === NodeStatusFinished || status === NodeStatusNext || status === NodeStatusStarted || status === NodeStatusWatched) {
-            navigate(`/nodes/${id}`);
+        if (node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
+            navigate(`/nodes/${node.id}`);
         } else {
             setOpenGreyNodeAlert(true);
         }
@@ -65,11 +61,11 @@ const D3ForceGraph = (props: Props) => {
             return
         }
         fgRef.current!.d3Force('collide', forceCollide(50));
-        if (props.focusNodeID) {
+        if (focusedNodeID) {
             let focusNode = null;
             for (let i = 0; i < props.graph.nodes.length; i++) {
                 const node = props.graph.nodes[i];
-                if (node.id === props.focusNodeID) {
+                if (node.id === focusedNodeID) {
                     focusNode = node as NodeObject<Node>
                     break
                 }
@@ -79,7 +75,7 @@ const D3ForceGraph = (props: Props) => {
                 fgRef.current!.zoom(3, 2000);
             }
         }
-    },[props.focusNodeID]);
+    },[focusedNodeID]);
 
     if (props.dimension3) {
         return (
@@ -224,7 +220,7 @@ const D3ForceGraph = (props: Props) => {
                 dagMode={dagMode}
                 nodeVal={20}
                 nodeCanvasObject={(currentNode, ctx) => {
-                    if (currentNode.id === node?.id) {
+                    if (currentNode.id === selectedNode?.id) {
                         paintRing(currentNode, ctx, theme.palette.error.main);
                     } else if (highlightNodes.has(currentNode.id)){
                         paintRing(currentNode, ctx, theme.palette.warning.main);
@@ -279,7 +275,7 @@ const D3ForceGraph = (props: Props) => {
                         return;
                     }
                     if (node) {
-                        setNode(node);
+                        setSelectedNode(node);
                         handleNodeHover(node);
                         setOpenGreyNodeAlert(false);
                     }

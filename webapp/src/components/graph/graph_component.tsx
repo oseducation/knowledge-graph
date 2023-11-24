@@ -10,7 +10,6 @@ import D3ForceGraph from './3d_force_graph';
 
 interface GraphComponentProps {
     graph: Graph;
-    focusNodeID?: string;
     hightAdjust?: number;
     noClick?: boolean;
     dir?: DagMode;
@@ -37,7 +36,6 @@ const GraphComponent = (props: GraphComponentProps) => {
                 width={width}
                 height={props.hightAdjust? windowHeight - props.hightAdjust: windowHeight-appBarHeight}
                 dimension3={false}
-                focusNodeID={props.focusNodeID}
                 noClick={props.noClick}
                 dir={props.dir}
                 textColor={props.textColor}

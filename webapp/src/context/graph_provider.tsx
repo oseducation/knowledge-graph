@@ -10,6 +10,10 @@ interface GraphContextState {
     pathToGoal: Map<string, string> | null;
     goal: string | null;
     onReload: () => void;
+    selectedNode: Node | null;
+    setSelectedNode: React.Dispatch<React.SetStateAction<Node | null>>;
+    focusedNodeID: string;
+    setFocusedNodeID: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const GraphContext = createContext<GraphContextState>({
@@ -17,6 +21,10 @@ const GraphContext = createContext<GraphContextState>({
     pathToGoal: null,
     goal: null,
     onReload: () => {},
+    selectedNode: null,
+    setSelectedNode: () => {},
+    focusedNodeID: '',
+    setFocusedNodeID: () => {},
 });
 
 interface Props {
@@ -28,6 +36,8 @@ export const GraphProvider = (props: Props) => {
     const [pathToGoal, setPathToGoal] = useState<Map<string, string> | null>(null);
     const [goal, setGoal] = useState<string | null>(null);
     const [reload, setReload] = useState<boolean>(false);
+    const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+    const [focusedNodeID, setFocusedNodeID] = useState<string>('');
     const {preferences} = useAuth();
 
     const onReload = () => {
@@ -63,7 +73,7 @@ export const GraphProvider = (props: Props) => {
     }, [reload, preferences?.language])
 
     return (
-        <GraphContext.Provider value={{graph, pathToGoal, onReload, goal}}>
+        <GraphContext.Provider value={{graph, pathToGoal, onReload, goal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
             {props.children}
         </GraphContext.Provider>
     );
