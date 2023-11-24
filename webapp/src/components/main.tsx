@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {useNavigate} from 'react-router-dom';
 
 import useAuth from '../hooks/useAuth';
-import {Graph, Node} from '../types/graph';
+import {Graph} from '../types/graph';
 import {GroupItem, InProgressNodesCategoryName, NextNodesCategoryName, SidebarGroup} from '../types/sidebar';
 import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
@@ -19,23 +19,12 @@ import RHS from './rhs/rhs';
 import NodeDropDownMenu from './node_drop_down';
 
 
-type GraphNodeHoverContextType = {
-    node: Node;
-    setNode: React.Dispatch<React.SetStateAction<Node>>;
-}
-export const GraphNodeHoverContext = React.createContext<GraphNodeHoverContextType>({
-    node: {} as Node, setNode: () => {
-    }
-});
-
 const Main = () => {
-    const [node, setNode] = useState<Node>({} as Node);
-    const [focusedNodeID, setFocusedNodeID] = useState<string>('');
     const {user} = useAuth();
     const {open, setOpen} = useDrawer();
     const {t} = useTranslation();
     const navigate = useNavigate();
-    const {graph, onReload} = useGraph();
+    const {graph, onReload, setSelectedNode, setFocusedNodeID} = useGraph();
     const [groups, setGroups] = useState<SidebarGroup[]>([]);
 
     useEffect(() => {
@@ -77,7 +66,7 @@ const Main = () => {
                         'Status': node.status,
                         'Entry Point': "In Progress Nodes"
                     });
-                    setNode(node);
+                    setSelectedNode(node);
                     setFocusedNodeID(node.id);
                 }
             } as GroupItem;
@@ -111,7 +100,7 @@ const Main = () => {
                         'Status': node.status,
                         'Entry Point': 'Next Nodes'
                     });
-                    setNode(node);
+                    setSelectedNode(node);
                     setFocusedNodeID(node.id);
                 }
             } as GroupItem;
@@ -129,7 +118,7 @@ const Main = () => {
 
     const staticHeight = `calc(100vh - (${useAppBarHeight()}px))`;
     return (
-        <GraphNodeHoverContext.Provider value={{node, setNode}}>
+        <>
             {user && <Box
                 component="nav"
                 sx={{
@@ -170,10 +159,7 @@ const Main = () => {
                     overflowY: 'hidden',
                 }}>
                     {graph && graph.nodes?
-                        <GraphComponent
-                            graph={graph}
-                            focusNodeID={focusedNodeID}
-                        />
+                        <GraphComponent graph={graph}/>
                         :
                         <div>Loading Graph...</div>
                     }
@@ -190,7 +176,7 @@ const Main = () => {
                     />
                 </Grid2>
             </Grid2>
-        </GraphNodeHoverContext.Provider>
+        </>
     );
 }
 

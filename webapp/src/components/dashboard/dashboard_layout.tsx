@@ -32,17 +32,17 @@ export default function DashboardLayout() {
             }}>
                 <DashboardLHS/>
             </Grid2>
-            <Grid2 xs={true} sx={{height: staticHeight}} bgcolor={DashboardColors.background}>
-                <Box sx={{height: '64px'}}>
-                    <Toolbar disableGutters>
-                        <Spacer/>
-                        <DashboardHeader/>
-                    </Toolbar>
-                </Box>
-                <GraphProvider>
+            <GraphProvider>
+                <Grid2 xs={true} sx={{height: staticHeight}} bgcolor={DashboardColors.background}>
+                    <Box sx={{height: '64px'}}>
+                        <Toolbar disableGutters>
+                            <Spacer/>
+                            <DashboardHeader/>
+                        </Toolbar>
+                    </Box>
                     <Outlet/>
-                </GraphProvider>
-            </Grid2>
+                </Grid2>
+            </GraphProvider>
 
         </Grid2>
     );

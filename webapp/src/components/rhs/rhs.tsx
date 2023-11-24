@@ -20,11 +20,11 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useNavigate} from "react-router-dom";
 import {useTranslation} from 'react-i18next';
 
-import {GraphNodeHoverContext} from '../main';
 import {getVideoLength, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeWithResources} from '../../types/graph';
 import {Client} from '../../client/client';
 import {User} from '../../types/users';
 import IKnowThisButton from "../I_konw_this_button";
+import useGraph from '../../hooks/useGraph';
 
 const stringToColor = (st: string) => {
     let hash = 0;
@@ -62,7 +62,7 @@ type RHSProps = {
 }
 
 const RHS = (props: RHSProps) => {
-    const {node} = React.useContext(GraphNodeHoverContext);
+    const {selectedNode} = useGraph();
     const theme = useTheme()
     const {t} = useTranslation();
 
@@ -71,18 +71,18 @@ const RHS = (props: RHSProps) => {
     const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(() => {
-        if (node && node.id) {
-            Client.Node().get(node.id).then((data) => {
+        if (selectedNode && selectedNode.id) {
+            Client.Node().get(selectedNode.id).then((data) => {
                 setNodeWithResources(data);
             });
         }
-    }, [node.id]);
+    }, [selectedNode?.id]);
 
 
     function markAsKnown() {
-        if (props.userID && node.id) {
+        if (props.userID && selectedNode?.id) {
             setLoading(true)
-            Client.Node().markAsKnown(node.id, props.userID)
+            Client.Node().markAsKnown(selectedNode.id, props.userID)
                 .then(() => {
                     props.onReload();
                     setLoading(false)
@@ -95,9 +95,9 @@ const RHS = (props: RHSProps) => {
     }
 
     function markAsStarted() {
-        if (props.userID && node.id) {
+        if (props.userID && selectedNode?.id) {
             setLoading(true)
-            Client.Node().markAsStarted(node.id, props.userID)
+            Client.Node().markAsStarted(selectedNode.id, props.userID)
                 .then(() => {
                     props.onReload();
                     setLoading(false)
@@ -114,7 +114,7 @@ const RHS = (props: RHSProps) => {
     }
 
     const navigateToResources = () => {
-        if (isActiveNodeStatus(node.status)) {
+        if (isActiveNodeStatus(selectedNode?.status || '')) {
             navigate(`/nodes/${nodeWithResources.id}`);
         }
     }
@@ -148,11 +148,11 @@ const RHS = (props: RHSProps) => {
                         fontWeight={500}
                         sx={{p: '10px'}}
                     >
-                        {node.name}
+                        {selectedNode?.name}
                     </Typography>
                 </Stack>
 
-                <Box sx={{p: '10px'}}>{node.description}</Box>
+                <Box sx={{p: '10px'}}>{selectedNode?.description}</Box>
                 {nodeWithResources.active_users && nodeWithResources.active_users.length > 0 &&
                     <Stack direction='row' alignItems='center'>
                         <Typography
@@ -218,9 +218,9 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    {isActiveNodeStatus(node.status) &&
+                    {isActiveNodeStatus(selectedNode?.status || '') &&
                         <IKnowThisButton
-                            isNodeFinished={node.status === NodeStatusFinished}
+                            isNodeFinished={selectedNode?.status === NodeStatusFinished}
                             loading={loading}
                             onMarkAsKnown={markAsKnown}
                             onMarkAsStarted={markAsStarted}

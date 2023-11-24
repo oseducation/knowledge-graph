@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Avatar, Badge, BadgeProps, Box, IconButton, InputBase, ListItemIcon, Menu, MenuItem, styled} from '@mui/material';
+import {Avatar, Badge, BadgeProps, Box, IconButton, ListItemIcon, Menu, MenuItem, styled} from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ProgressIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -7,11 +7,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import {useTranslation} from 'react-i18next';
 import {useNavigate} from 'react-router-dom';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {stringAvatar} from '../rhs/rhs';
+
+import SearchBar from './search_bar';
 
 const DashboardHeader = () => {
     const {user} = useAuth();
@@ -36,25 +37,7 @@ const DashboardHeader = () => {
 
     return (
         <Box mr={'20px'} display={'flex'} flexDirection={'row'} alignItems={'center'} alignContent={'center'}>
-            <Box component="form" sx={{
-                display: 'flex',
-                alignItems: 'center',
-                width: {xs: '200px', sm: '300px', md: '400px', lg: '500px'},
-                backgroundColor: DashboardColors.onSelect,
-            }}>
-                <IconButton
-                    type="submit"
-                    aria-label="search"
-                    sx = {{padding: '10px'}}
-                >
-                    <SearchOutlinedIcon/>
-                </IconButton>
-                <InputBase
-                    placeholder="Search"
-                    inputProps={{'aria-label': 'search'}}
-                    sx ={{flex: 1, marginLeft: `10px`, borderRadius: '12px', backgroundColor: DashboardColors.onSelect}}
-                />
-            </Box>
+            <SearchBar/>
 
             <IconButton sx={{m: '20px'}}>
                 <StyledBadge badgeContent={5}>
