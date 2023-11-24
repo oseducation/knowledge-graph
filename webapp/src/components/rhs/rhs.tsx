@@ -4,6 +4,7 @@ import {
     AvatarGroup,
     Box,
     BoxProps,
+    Button,
     Divider,
     List,
     ListItemButton,
@@ -218,13 +219,27 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    {isActiveNodeStatus(selectedNode?.status || '') &&
+                    {isActiveNodeStatus(selectedNode?.status || '')?
                         <IKnowThisButton
                             isNodeFinished={selectedNode?.status === NodeStatusFinished}
                             loading={loading}
                             onMarkAsKnown={markAsKnown}
                             onMarkAsStarted={markAsStarted}
                         />
+                        :
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={() => {
+                                if (selectedNode?.id) {
+                                    Client.Graph().updateGoal(selectedNode?.id || '').then(() => {
+                                        props.onReload();
+                                    })
+                                }
+                            }}
+                        >
+                            {t("Set as Goal")}
+                        </Button>
                     }
                 </Box>
             </Stack>

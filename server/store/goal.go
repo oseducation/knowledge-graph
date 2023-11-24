@@ -57,11 +57,11 @@ func (gs *SQLGoalStore) Save(userID, nodeID string) error {
 	_, err := gs.sqlStore.execBuilder(gs.sqlStore.db, gs.sqlStore.builder.
 		Insert("user_goals").
 		SetMap(map[string]interface{}{
-			"user_id":    goal.UserID,
-			"node_id":    goal.NodeID,
-			"created_at": goal.CreatedAt,
-			"updated_at": goal.FinishedAt,
-			"deleted_at": goal.DeletedAt,
+			"user_id":     goal.UserID,
+			"node_id":     goal.NodeID,
+			"created_at":  goal.CreatedAt,
+			"finished_at": goal.FinishedAt,
+			"deleted_at":  goal.DeletedAt,
 		}))
 	if err != nil {
 		return errors.Wrapf(err, "can't save goal for user: %s node :%s", goal.UserID, goal.NodeID)
@@ -112,7 +112,14 @@ func (gs *SQLGoalStore) Finish(userID, nodeID string) error {
 // Get gets goals for user
 func (gs *SQLGoalStore) Get(userID string) ([]*model.Goal, error) {
 	var goals []*model.Goal
-	if err := gs.sqlStore.selectBuilder(gs.sqlStore.db, &goals, gs.goalSelect.Where(sq.Eq{"g.user_id": userID})); err != nil {
+	if err := gs.sqlStore.selectBuilder(gs.sqlStore.db, &goals,
+		gs.goalSelect.Where(
+			sq.And{
+				sq.Eq{"g.deleted_at": 0},
+				sq.Eq{"g.finished_at": 0},
+				sq.Eq{"g.user_id": userID},
+			},
+		)); err != nil {
 		return nil, errors.Wrapf(err, "can't get goals for user: %s", userID)
 	}
 	return goals, nil

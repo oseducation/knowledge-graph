@@ -21,7 +21,7 @@ func updateGoal(c *gin.Context) {
 		return
 	}
 
-	nodeID := c.Param("nodeiD")
+	nodeID := c.Param("nodeID")
 	if nodeID == "" {
 		responseFormat(c, http.StatusBadRequest, "missing node_id")
 		return

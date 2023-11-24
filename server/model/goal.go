@@ -30,7 +30,7 @@ func (g *Goal) IsValid() error {
 		return invalidGoalError("createdAt", g.CreatedAt)
 	}
 
-	if g.FinishedAt < g.CreatedAt {
+	if g.FinishedAt != 0 && g.FinishedAt < g.CreatedAt {
 		return invalidGoalError("finishedAt", g.FinishedAt)
 	}
 

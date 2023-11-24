@@ -46,7 +46,7 @@ const D3ForceGraph = (props: Props) => {
             'Node Name': node.name,
             'Language': i18n.language,
             'Node Type': node.node_type,
-            'Status': status,
+            'Status': node.status,
             'Entry Point': 'Graph'
         });
         if (node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) {

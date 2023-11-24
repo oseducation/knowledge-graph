@@ -20,10 +20,7 @@ const GraphPage = () => {
     return (
         <>
             {graph && graph.nodes?
-                <GraphComponent
-                    graph={graph}
-                    focusNodeID={''}
-                />
+                <GraphComponent graph={graph}/>
                 :
                 <div>Loading Graph...</div>
             }

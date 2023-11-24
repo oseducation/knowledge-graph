@@ -37,4 +37,13 @@ export class GraphClient{
         const data = this.rest.doFetch<string>(url, {method: 'get'});
         return data;
     }
+
+    updateGoal = async(nodeID: string) => {
+        if (!this.rest.me || !this.rest.me.id){
+            return '';
+        }
+        const url = `${this.getGoalsForUserRoute(this.rest.me.id)}/nodes/${nodeID}`;
+        const data = this.rest.doFetch<string>(url, {method: 'post'});
+        return data;
+    }
 }
