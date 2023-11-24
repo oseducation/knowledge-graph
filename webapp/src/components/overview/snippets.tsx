@@ -100,7 +100,7 @@ const Snippets = () => {
             <Grid2 xs={12} md={4}>
                 <DashboardWidget
                     title="Learning Steak"
-                    value="4"
+                    value="4 Days"
                     delta="8"
                     deltaType="positive"
                     secondaryText='Max Steak'
