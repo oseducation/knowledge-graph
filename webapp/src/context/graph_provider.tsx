@@ -48,10 +48,12 @@ export const GraphProvider = (props: Props) => {
 
     const fetchGraphData = async () => {
         Client.Graph().get().then((data: Graph | null) => {
-            setGraph(data);
             if (!data) {
                 return;
             }
+            computeNextNodes(data)
+            setGraph(data);
+
             if (pathToGoal) {
                 return;
             }
