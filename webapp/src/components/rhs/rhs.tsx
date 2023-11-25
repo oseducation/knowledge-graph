@@ -63,7 +63,7 @@ type RHSProps = {
 }
 
 const RHS = (props: RHSProps) => {
-    const {selectedNode} = useGraph();
+    const {selectedNode, resetGoal} = useGraph();
     const theme = useTheme()
     const {t} = useTranslation();
 
@@ -233,7 +233,7 @@ const RHS = (props: RHSProps) => {
                             onClick={() => {
                                 if (selectedNode?.id) {
                                     Client.Graph().updateGoal(selectedNode?.id || '').then(() => {
-                                        props.onReload();
+                                        resetGoal(selectedNode.id);
                                     })
                                 }
                             }}

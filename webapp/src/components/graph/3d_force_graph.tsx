@@ -8,7 +8,7 @@ import {Alert, Collapse, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {useTranslation} from 'react-i18next';
 
-import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment} from '../../types/graph';
+import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, NodeTypeParent} from '../../types/graph';
 import useAuth from '../../hooks/useAuth';
 import {Analytics} from '../../analytics';
 import {DagMode} from '../../types/users';
@@ -36,6 +36,8 @@ const D3ForceGraph = (props: Props) => {
     const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
     const {t, i18n} = useTranslation();
     const {pathToGoal, goal, selectedNode, setSelectedNode, focusedNodeID} = useGraph();
+
+    console.log('in D3ForceGraph', props.graph, goal, pathToGoal)
 
     const onNodeClick = (node : Node) => {
         if (props.noClick){
@@ -241,7 +243,7 @@ const D3ForceGraph = (props: Props) => {
                     if (currentNode.id === goal) {
                         paintRing(currentNode, ctx, theme.palette.info.main);
                         drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
-                    } else if (currentNode.node_type === NodeTypeLecture) {
+                    } else if (currentNode.node_type === NodeTypeLecture || currentNode.node_type === NodeTypeParent) {
                         ctx.beginPath();
                         ctx.arc(x, y, nodeRadius, 0, 2 * Math.PI, false);
                         ctx.fillStyle = nodeColor;
