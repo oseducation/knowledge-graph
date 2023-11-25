@@ -10,6 +10,7 @@ interface GraphContextState {
     pathToGoal: Map<string, string> | null;
     goal: string | null;
     onReload: () => void;
+    resetGoal: (goal: string) => void;
     selectedNode: Node | null;
     setSelectedNode: React.Dispatch<React.SetStateAction<Node | null>>;
     focusedNodeID: string;
@@ -21,6 +22,7 @@ const GraphContext = createContext<GraphContextState>({
     pathToGoal: null,
     goal: null,
     onReload: () => {},
+    resetGoal: () => {},
     selectedNode: null,
     setSelectedNode: () => {},
     focusedNodeID: '',
@@ -46,6 +48,15 @@ export const GraphProvider = (props: Props) => {
         setReload(prev => !prev);
     }
 
+    const resetGoal = (newGoal: string) => {
+        if (!graph) {
+            return;
+        }
+        const newPathToGoal = compute(graph, newGoal);
+        setPathToGoal(newPathToGoal);
+        setGoal(newGoal);
+    }
+
     const fetchGraphData = async () => {
         Client.Graph().get().then((data: Graph | null) => {
             if (!data) {
@@ -54,9 +65,6 @@ export const GraphProvider = (props: Props) => {
             computeNextNodes(data)
             setGraph(data);
 
-            if (pathToGoal) {
-                return;
-            }
             Client.Graph().getGoal().then((goal: string) => {
                 // assuming we have a single goal here
                 if (goal) {
@@ -75,7 +83,7 @@ export const GraphProvider = (props: Props) => {
     }, [reload, preferences?.language])
 
     return (
-        <GraphContext.Provider value={{graph, pathToGoal, onReload, goal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
+        <GraphContext.Provider value={{graph, pathToGoal, onReload, goal, resetGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
             {props.children}
         </GraphContext.Provider>
     );

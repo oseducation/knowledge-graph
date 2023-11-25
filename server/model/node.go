@@ -16,6 +16,7 @@ const (
 	NodeTypeLecture    = "lecture"
 	NodeTypeExample    = "example"
 	NodeTypeAssignment = "assignment"
+	NodeTypeParent     = "parent"
 
 	EnvironmentTypeKarelJS   = "karel_js"
 	EnvironmentTypeKarelJava = "karel_java"
@@ -80,7 +81,7 @@ func (n *Node) IsValid() error {
 		return invalidNodeError(n.ID, "description", n.Description)
 	}
 
-	if n.NodeType != NodeTypeExample && n.NodeType != NodeTypeLecture && n.NodeType != NodeTypeAssignment {
+	if n.NodeType != NodeTypeExample && n.NodeType != NodeTypeLecture && n.NodeType != NodeTypeAssignment && n.NodeType != NodeTypeParent {
 		return invalidNodeError(n.ID, "node_type", n.NodeType)
 	}
 
