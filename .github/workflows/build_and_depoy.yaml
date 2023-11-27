@@ -44,4 +44,4 @@ jobs:
             cd knowledge-graph/
             git pull
             sudo docker builder prune -f
-            sudo docker compose up -d --build kg-db kg-server
+            sudo -E docker compose up -d --build kg-db kg-server
