@@ -123,3 +123,7 @@ export const castToLink = (link: Link): Link => {
     }
 }
 
+
+export type Goal = {
+    node_id: string;
+}

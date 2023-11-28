@@ -9,7 +9,7 @@ import {Client} from '../../client/client';
 import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
-import {computeNextNode} from '../../context/graph_provider';
+import {nextNodeToGoal} from '../../context/graph_provider';
 import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 
 import PostComponent from './post_component';
@@ -27,8 +27,8 @@ const Chat = () => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {pathToGoal, goal, graph} = useGraph();
-    let nextNodeID = computeNextNode(graph, pathToGoal, goal);
+    const {pathToGoal, goals, graph} = useGraph();
+    let nextNodeID = nextNodeToGoal(graph, pathToGoal, goals);
     const [node, setNode] = useState<NodeWithResources | null>(null);
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
@@ -165,7 +165,7 @@ const Chat = () => {
                             break;
                         }
                     }
-                    nextNodeID = computeNextNode(graph, pathToGoal, goal);
+                    nextNodeID = nextNodeToGoal(graph, pathToGoal, goals);
                     setPosts([...posts!, userPost]);
                     scrollToBottom();
                 });
