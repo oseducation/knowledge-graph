@@ -10,11 +10,11 @@ func (apiObj *API) initGoal() {
 	apiObj.Goals = apiObj.APIRoot.Group("/goals")
 
 	apiObj.Goals.GET("/:userID", authMiddleware(), getGoals)
-	apiObj.Goals.POST("/:userID/nodes/:nodeID", authMiddleware(), updateGoal)
+	apiObj.Goals.POST("/:userID/nodes/:nodeID", authMiddleware(), addGoal)
 	apiObj.Goals.DELETE("/:userID/nodes/:nodeID", authMiddleware(), deleteGoal)
 }
 
-func updateGoal(c *gin.Context) {
+func addGoal(c *gin.Context) {
 	userID := c.Param("userID")
 	if userID == "" {
 		responseFormat(c, http.StatusBadRequest, "missing user_id")
@@ -33,7 +33,7 @@ func updateGoal(c *gin.Context) {
 		return
 	}
 
-	err = a.CreateSingleGoal(userID, nodeID)
+	err = a.CreateGoal(userID, nodeID)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
@@ -48,7 +48,7 @@ func deleteGoal(c *gin.Context) {
 		return
 	}
 
-	nodeID := c.Param("nodeiD")
+	nodeID := c.Param("nodeID")
 	if nodeID == "" {
 		responseFormat(c, http.StatusBadRequest, "missing node_id")
 		return
@@ -97,10 +97,6 @@ func getGoals(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	// returns single goal
-	goal := ""
-	if len(goals) > 0 {
-		goal = goals[0].NodeID
-	}
-	responseFormat(c, http.StatusOK, goal)
+
+	responseFormat(c, http.StatusOK, goals)
 }

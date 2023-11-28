@@ -63,7 +63,7 @@ type RHSProps = {
 }
 
 const RHS = (props: RHSProps) => {
-    const {selectedNode, resetGoal} = useGraph();
+    const {selectedNode, addGoal, removeGoal, goals} = useGraph();
     const theme = useTheme()
     const {t} = useTranslation();
 
@@ -119,6 +119,48 @@ const RHS = (props: RHSProps) => {
             navigate(`/nodes/${nodeWithResources.id}`);
         }
     }
+
+    let buttonComp = null;
+    if (isActiveNodeStatus(selectedNode?.status || '')) {
+        buttonComp =
+            <IKnowThisButton
+                isNodeFinished={selectedNode?.status === NodeStatusFinished}
+                loading={loading}
+                onMarkAsKnown={markAsKnown}
+                onMarkAsStarted={markAsStarted}
+            />
+    } else if (goals && goals.find(value => value.node_id === selectedNode?.id)) {
+        buttonComp =
+            <Button
+                variant='contained'
+                color='primary'
+                onClick={() => {
+                    if (selectedNode?.id) {
+                        Client.Graph().deleteGoal(selectedNode?.id || '').then(() => {
+                            removeGoal(selectedNode.id);
+                        })
+                    }
+                }}
+            >
+                {t("Remove Goal")}
+            </Button>
+    } else {
+        buttonComp =
+            <Button
+                variant='contained'
+                color='primary'
+                onClick={() => {
+                    if (selectedNode?.id) {
+                        Client.Graph().addGoal(selectedNode?.id || '').then(() => {
+                            addGoal(selectedNode.id);
+                        })
+                    }
+                }}
+            >
+                {t("Add a new Goal")}
+            </Button>
+    }
+
 
     return (
         <StyledBox height='100%'>
@@ -219,28 +261,7 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    {isActiveNodeStatus(selectedNode?.status || '')?
-                        <IKnowThisButton
-                            isNodeFinished={selectedNode?.status === NodeStatusFinished}
-                            loading={loading}
-                            onMarkAsKnown={markAsKnown}
-                            onMarkAsStarted={markAsStarted}
-                        />
-                        :
-                        <Button
-                            variant='contained'
-                            color='primary'
-                            onClick={() => {
-                                if (selectedNode?.id) {
-                                    Client.Graph().updateGoal(selectedNode?.id || '').then(() => {
-                                        resetGoal(selectedNode.id);
-                                    })
-                                }
-                            }}
-                        >
-                            {t("Set as Goal")}
-                        </Button>
-                    }
+                    {buttonComp}
                 </Box>
             </Stack>
         </StyledBox>

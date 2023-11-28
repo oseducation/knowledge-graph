@@ -12,9 +12,11 @@ import (
 // GoalStore is an interface to crud goals
 type GoalStore interface {
 	Save(userID, nodeID string) error
+	Reset(userID, nodeID string) error
 	Finish(userID, nodeID string) error
 	Delete(userID, nodeID string) error
-	Get(userID string) ([]*model.Goal, error)
+	GetAll(userID string) ([]*model.Goal, error)
+	Get(userID, nodeID string) (*model.Goal, error)
 	SaveDefaultGoal(nodeID string, num int64) error
 	NextDefaultGoalForUser(userID string) (string, error)
 }
@@ -69,6 +71,24 @@ func (gs *SQLGoalStore) Save(userID, nodeID string) error {
 	return nil
 }
 
+// Update updates goal in the DB
+func (gs *SQLGoalStore) Reset(userID, nodeID string) error {
+	_, err := gs.sqlStore.execBuilder(gs.sqlStore.db, gs.sqlStore.builder.
+		Update("user_goals").
+		SetMap(map[string]interface{}{
+			"deleted_at": 0,
+		}).
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"node_id": nodeID},
+			sq.Eq{"finished_at": 0},
+		}))
+	if err != nil {
+		return errors.Wrapf(err, "can't reset goal for user: %s node :%s", userID, nodeID)
+	}
+	return nil
+}
+
 // Delete removes goal
 func (gs *SQLGoalStore) Delete(userID, nodeID string) error {
 	curTime := model.GetMillis()
@@ -109,8 +129,22 @@ func (gs *SQLGoalStore) Finish(userID, nodeID string) error {
 	return nil
 }
 
-// Get gets goals for user
-func (gs *SQLGoalStore) Get(userID string) ([]*model.Goal, error) {
+func (gs *SQLGoalStore) Get(userID, nodeID string) (*model.Goal, error) {
+	var goal model.Goal
+	if err := gs.sqlStore.getBuilder(gs.sqlStore.db, &goal,
+		gs.goalSelect.Where(
+			sq.And{
+				sq.Eq{"g.user_id": userID},
+				sq.Eq{"g.node_id": nodeID},
+			},
+		)); err != nil {
+		return nil, errors.Wrapf(err, "can't get goal for user: %s", userID)
+	}
+	return &goal, nil
+}
+
+// GetAll gets goals for user
+func (gs *SQLGoalStore) GetAll(userID string) ([]*model.Goal, error) {
 	var goals []*model.Goal
 	if err := gs.sqlStore.selectBuilder(gs.sqlStore.db, &goals,
 		gs.goalSelect.Where(

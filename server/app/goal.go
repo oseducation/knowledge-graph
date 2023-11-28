@@ -1,13 +1,34 @@
 package app
 
 import (
+	"database/sql"
+
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
 )
 
 // CreateGoal creates new goal for a user
 func (a *App) CreateGoal(userID, nodeID string) error {
-	err := a.Store.Goal().Save(userID, nodeID)
+	goal, err := a.Store.Goal().Get(userID, nodeID)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return errors.Wrap(err, "can't get goal")
+	}
+	if goal != nil && goal.FinishedAt != 0 { // already finished
+		return nil
+	}
+	if goal != nil && goal.DeletedAt == 0 { // goal is already set
+		return nil
+	}
+
+	if goal != nil {
+		if err2 := a.Store.Goal().Reset(userID, nodeID); err != nil {
+			return errors.Wrap(err2, "can't reset goal")
+		}
+		return nil
+	}
+
+	// no goal is set, create new one
+	err = a.Store.Goal().Save(userID, nodeID)
 	if err != nil {
 		return errors.Wrapf(err, "userID = %s, nodeID = %s", userID, nodeID)
 	}
@@ -34,7 +55,7 @@ func (a *App) DeleteGoal(userID, nodeID string) error {
 
 // DeleteGoal deletes a goal for a user
 func (a *App) GetGoals(userID string) ([]*model.Goal, error) {
-	goals, err := a.Store.Goal().Get(userID)
+	goals, err := a.Store.Goal().GetAll(userID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "userID = %s", userID)
 	}
@@ -54,24 +75,4 @@ func (a *App) GetGoals(userID string) ([]*model.Goal, error) {
 		DeletedAt:  0,
 		FinishedAt: 0,
 	}}, nil
-}
-
-// CreateSingleGoal creates a goal for a user, if there already was a goal it is deleted
-func (a *App) CreateSingleGoal(userID, nodeID string) error {
-	goals, err := a.Store.Goal().Get(userID)
-	if err != nil {
-		return errors.Wrapf(err, "userID = %s", userID)
-	}
-
-	for _, goal := range goals {
-		if goal.DeletedAt != 0 {
-			continue
-		}
-		err := a.DeleteGoal(goal.UserID, goal.NodeID)
-		if err != nil {
-			return errors.Wrapf(err, "can't delete goal userID = %s, nodeID = %s", userID, nodeID)
-		}
-	}
-
-	return a.CreateGoal(userID, nodeID)
 }

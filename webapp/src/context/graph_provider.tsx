@@ -2,15 +2,16 @@
 import React, {createContext, useEffect, useState} from 'react';
 
 import {Client} from "../client/client";
-import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink} from '../types/graph';
+import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal} from '../types/graph';
 import useAuth from '../hooks/useAuth';
 
 interface GraphContextState {
     graph: Graph | null;
     pathToGoal: Map<string, string> | null;
-    goal: string | null;
+    goals: Goal[];
     onReload: () => void;
-    resetGoal: (goal: string) => void;
+    addGoal: (goal: string) => void;
+    removeGoal: (goal: string) => void;
     selectedNode: Node | null;
     setSelectedNode: React.Dispatch<React.SetStateAction<Node | null>>;
     focusedNodeID: string;
@@ -20,9 +21,10 @@ interface GraphContextState {
 const GraphContext = createContext<GraphContextState>({
     graph: null,
     pathToGoal: null,
-    goal: null,
+    goals: [],
     onReload: () => {},
-    resetGoal: () => {},
+    addGoal: () => {},
+    removeGoal: () => {},
     selectedNode: null,
     setSelectedNode: () => {},
     focusedNodeID: '',
@@ -36,7 +38,7 @@ interface Props {
 export const GraphProvider = (props: Props) => {
     const [graph, setGraph] = useState<Graph | null>(null);
     const [pathToGoal, setPathToGoal] = useState<Map<string, string> | null>(null);
-    const [goal, setGoal] = useState<string | null>(null);
+    const [goals, setGoals] = useState<Goal[]>([]);
     const [reload, setReload] = useState<boolean>(false);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
@@ -48,13 +50,29 @@ export const GraphProvider = (props: Props) => {
         setReload(prev => !prev);
     }
 
-    const resetGoal = (newGoal: string) => {
+    const addGoal = (newGoal: string) => {
         if (!graph) {
+            return;
+        }
+        if (goals && goals.find(value => value.node_id === newGoal)) {
             return;
         }
         const newPathToGoal = compute(graph, newGoal);
         setPathToGoal(newPathToGoal);
-        setGoal(newGoal);
+        setGoals([{node_id: newGoal}, ...goals]);
+    }
+
+    const removeGoal = (goal: string) => {
+        if (!graph) {
+            return;
+        }
+        const newGoals = goals.filter(value => value.node_id !== goal)
+        let newPathToGoal = new Map<string, string>();
+        if (newGoals.length > 0) {
+            newPathToGoal = compute(graph, newGoals[0].node_id);
+        }
+        setPathToGoal(newPathToGoal);
+        setGoals(newGoals);
     }
 
     const fetchGraphData = async () => {
@@ -65,12 +83,11 @@ export const GraphProvider = (props: Props) => {
             computeNextNodes(data)
             setGraph(data);
 
-            Client.Graph().getGoal().then((goal: string) => {
-                // assuming we have a single goal here
-                if (goal) {
-                    const computedPathToGoal = compute(data, goal);
+            Client.Graph().getGoals().then((goals: Goal[]) => {
+                if (goals && goals.length > 0) {
+                    const computedPathToGoal = compute(data, goals[0].node_id);
                     setPathToGoal(computedPathToGoal);
-                    setGoal(goal);
+                    setGoals(goals);
                 }
             });
         });
@@ -83,7 +100,7 @@ export const GraphProvider = (props: Props) => {
     }, [reload, preferences?.language])
 
     return (
-        <GraphContext.Provider value={{graph, pathToGoal, onReload, goal, resetGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
+        <GraphContext.Provider value={{graph, pathToGoal, onReload, goals, addGoal, removeGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
             {props.children}
         </GraphContext.Provider>
     );
@@ -190,17 +207,25 @@ export const computeNextNodeNew = (graph: Graph, pathToGoal: Map<string, string>
     }
 }
 
-export const computeNextNode = (graph: Graph | null, pathToGoal: Map<string, string> | null, goal: string | null) => {
-    if (graph === null || pathToGoal === null || goal === null) {
+export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, string> | null, goals: Goal[]) => {
+    if (graph === null || pathToGoal === null) {
         return null;
     }
     const [inProgressNodes, nextNodes] = computeNextNodes(graph);
+    if (goals.length === 0) {
+        if (inProgressNodes && inProgressNodes.length !== 0) {
+            return inProgressNodes[0].id;
+        } else if (nextNodes && nextNodes.length !== 0) {
+            return nextNodes[0].id;
+        }
+        return null;
+    }
 
     if (inProgressNodes && inProgressNodes.length !== 0) {
         for (const node of inProgressNodes) {
             if (pathToGoal.has(node.id)) {
                 return node.id;
-            } else if (node.id === goal) {
+            } else if (node.id === goals[0].node_id) {
                 return node.id;
             }
         }
@@ -209,7 +234,7 @@ export const computeNextNode = (graph: Graph | null, pathToGoal: Map<string, str
         for (const node of nextNodes) {
             if (pathToGoal.has(node.id)) {
                 return node.id;
-            } else if (node.id === goal) {
+            } else if (node.id === goals[0].node_id) {
                 return node.id;
             }
         }

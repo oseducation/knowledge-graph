@@ -35,9 +35,7 @@ const D3ForceGraph = (props: Props) => {
     const [highlightLinks, setHighlightLinks] = useState(new Set());
     const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
     const {t, i18n} = useTranslation();
-    const {pathToGoal, goal, selectedNode, setSelectedNode, focusedNodeID} = useGraph();
-
-    console.log('in D3ForceGraph', props.graph, goal, pathToGoal)
+    const {pathToGoal, goals, selectedNode, setSelectedNode, focusedNodeID} = useGraph();
 
     const onNodeClick = (node : Node) => {
         if (props.noClick){
@@ -240,7 +238,7 @@ const D3ForceGraph = (props: Props) => {
                     const x = currentNode.x || 0;
                     const y = currentNode.y || 0;
                     const nodeColor = getNodeColor(currentNode);
-                    if (currentNode.id === goal) {
+                    if (goals && goals.find(value => value.node_id === currentNode.id)) {
                         paintRing(currentNode, ctx, theme.palette.info.main);
                         drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
                     } else if (currentNode.node_type === NodeTypeLecture || currentNode.node_type === NodeTypeParent) {

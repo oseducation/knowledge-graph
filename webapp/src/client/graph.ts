@@ -1,4 +1,4 @@
-import {Graph} from "../types/graph";
+import {Goal, Graph} from "../types/graph";
 
 import {Rest} from "./rest";
 
@@ -29,21 +29,30 @@ export class GraphClient{
         return data;
     };
 
-    getGoal = async() => {
+    getGoals = async() => {
         if (!this.rest.me || !this.rest.me.id){
-            return '';
+            return [];
         }
         const url = `${this.getGoalsForUserRoute(this.rest.me.id)}`;
-        const data = this.rest.doFetch<string>(url, {method: 'get'});
+        const data = this.rest.doFetch<Goal[]>(url, {method: 'get'});
         return data;
     }
 
-    updateGoal = async(nodeID: string) => {
+    addGoal = async(nodeID: string) => {
         if (!this.rest.me || !this.rest.me.id){
             return '';
         }
         const url = `${this.getGoalsForUserRoute(this.rest.me.id)}/nodes/${nodeID}`;
         const data = this.rest.doFetch<string>(url, {method: 'post'});
+        return data;
+    }
+
+    deleteGoal = async(nodeID: string) => {
+        if (!this.rest.me || !this.rest.me.id){
+            return '';
+        }
+        const url = `${this.getGoalsForUserRoute(this.rest.me.id)}/nodes/${nodeID}`;
+        const data = this.rest.doFetch<string>(url, {method: 'delete'});
         return data;
     }
 }
