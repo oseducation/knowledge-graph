@@ -36,7 +36,7 @@ docker-stop:
 	docker compose down
 
 docker-import: docker-start
-	docker exec kg-server /knowledge-graph-server/kg-server db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+	docker exec kg-server /knowledge-graph-server/kg-server db import-content --url https://raw.githubusercontent.com/oseducation/content-ge/main/intro-to-programming-js-en/
 
 docker-container-rm: docker-stop
 	docker compose rm
