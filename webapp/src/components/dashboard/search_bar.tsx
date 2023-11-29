@@ -8,22 +8,20 @@ import {DashboardColors} from '../../ThemeOptions';
 
 const SearchBar = () => {
     const location = useLocation();
-    const {graph, setSelectedNode, setFocusedNodeID} = useGraph();
+    const {globalGraph, setSelectedNode, setFocusedNodeID, setParentID} = useGraph();
     const theme = useTheme();
 
-    if (!graph) {
+    if (!globalGraph) {
         return null;
     }
     if (!location.pathname.endsWith('graph')) {
         return null;
     }
 
-
-
     return (
         <Autocomplete
             id="search"
-            options={graph.nodes}
+            options={globalGraph.nodes}
             getOptionLabel={(option) => option.name}
             disablePortal
             color={'text.secondary'}
@@ -60,10 +58,15 @@ const SearchBar = () => {
                 )}
             }
             onInputChange={(_, newInputValue) => {
-                for (let i=0; i<graph.nodes.length || 0; i++) {
-                    if (graph.nodes[i].name === newInputValue) {
-                        setSelectedNode(graph.nodes[i]);
-                        setFocusedNodeID(graph.nodes[i].id);
+                for (const node of globalGraph.nodes) {
+                    if (node.name === newInputValue) {
+                        if (node.parent_id !== ''){
+                            setParentID(node.parent_id);
+                        } else {
+                            setParentID('');
+                        }
+                        setSelectedNode(node);
+                        setFocusedNodeID(node.id);
                         return;
                     }
                 }

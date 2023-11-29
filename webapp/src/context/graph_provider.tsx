@@ -2,15 +2,17 @@
 import React, {createContext, useEffect, useState} from 'react';
 
 import {Client} from "../client/client";
-import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal} from '../types/graph';
+import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal, cloneGraph} from '../types/graph';
 import useAuth from '../hooks/useAuth';
 
 interface GraphContextState {
+    globalGraph: Graph | null;
     graph: Graph | null;
+    setParentID: React.Dispatch<React.SetStateAction<string>>
     pathToGoal: Map<string, string> | null;
     goals: Goal[];
     onReload: () => void;
-    addGoal: (goal: string) => void;
+    addGoal: (goal: Goal) => void;
     removeGoal: (goal: string) => void;
     selectedNode: Node | null;
     setSelectedNode: React.Dispatch<React.SetStateAction<Node | null>>;
@@ -19,7 +21,9 @@ interface GraphContextState {
 }
 
 const GraphContext = createContext<GraphContextState>({
+    globalGraph: null,
     graph: null,
+    setParentID: () => {},
     pathToGoal: null,
     goals: [],
     onReload: () => {},
@@ -36,7 +40,9 @@ interface Props {
 }
 
 export const GraphProvider = (props: Props) => {
+    const [globalGraph, setGlobalGraph] = useState<Graph | null>(null);
     const [graph, setGraph] = useState<Graph | null>(null);
+    const [parentID, setParentID] = useState<string>("");
     const [pathToGoal, setPathToGoal] = useState<Map<string, string> | null>(null);
     const [goals, setGoals] = useState<Goal[]>([]);
     const [reload, setReload] = useState<boolean>(false);
@@ -47,29 +53,30 @@ export const GraphProvider = (props: Props) => {
     const onReload = () => {
         setPathToGoal(null);
         setGraph(null);
+        setGlobalGraph(null);
         setReload(prev => !prev);
     }
 
-    const addGoal = (newGoal: string) => {
-        if (!graph) {
+    const addGoal = (newGoal: Goal) => {
+        if (!globalGraph) {
             return;
         }
-        if (goals && goals.find(value => value.node_id === newGoal)) {
+        if (goals && goals.find(value => value.node_id === newGoal.node_id)) {
             return;
         }
-        const newPathToGoal = compute(graph, newGoal);
+        const newPathToGoal = compute(globalGraph, newGoal.node_id);
         setPathToGoal(newPathToGoal);
-        setGoals([{node_id: newGoal}, ...goals]);
+        setGoals([newGoal, ...goals]);
     }
 
     const removeGoal = (goal: string) => {
-        if (!graph) {
+        if (!globalGraph) {
             return;
         }
         const newGoals = goals.filter(value => value.node_id !== goal)
         let newPathToGoal = new Map<string, string>();
         if (newGoals.length > 0) {
-            newPathToGoal = compute(graph, newGoals[0].node_id);
+            newPathToGoal = compute(globalGraph, newGoals[0].node_id);
         }
         setPathToGoal(newPathToGoal);
         setGoals(newGoals);
@@ -81,7 +88,9 @@ export const GraphProvider = (props: Props) => {
                 return;
             }
             computeNextNodes(data)
-            setGraph(data);
+            setGlobalGraph(data);
+            const graph = getGraphForParent(data, "");
+            setGraph(graph);
 
             Client.Graph().getGoals().then((goals: Goal[]) => {
                 if (goals && goals.length > 0) {
@@ -94,13 +103,21 @@ export const GraphProvider = (props: Props) => {
     }
 
     useEffect(() => {
-        if (!graph || !pathToGoal) {
+        if (!globalGraph || !pathToGoal) {
             fetchGraphData();
         }
     }, [reload, preferences?.language])
 
+    useEffect(() => {
+        if (!globalGraph) {
+            return;
+        }
+        const graph = getGraphForParent(globalGraph, parentID);
+        setGraph(graph);
+    }, [parentID])
+
     return (
-        <GraphContext.Provider value={{graph, pathToGoal, onReload, goals, addGoal, removeGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
+        <GraphContext.Provider value={{globalGraph, graph, setParentID, pathToGoal, onReload, goals, addGoal, removeGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
             {props.children}
         </GraphContext.Provider>
     );
@@ -108,6 +125,17 @@ export const GraphProvider = (props: Props) => {
 
 export default GraphContext;
 
+
+const getGraphForParent = (graph: Graph, parentID: string) => {
+    const nodes = graph.nodes.filter(node => node.parent_id === parentID);
+    const links = [];
+    for (const link of graph.links) {
+        if (nodes.find(node => node.id === link.source) && nodes.find(node => node.id === link.target)) {
+            links.push(link);
+        }
+    }
+    return cloneGraph({nodes, links});
+}
 
 function topologicalSort(neighbors: Map<string, string[]>, start: string): string[] {
     const stack: string[] = [];
@@ -243,10 +271,26 @@ export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, stri
     return "";
 }
 
+const computeParentMap = (graph: Graph) => {
+    const parentMap = new Map<string, Node[]>();
+    for (const node of graph.nodes) {
+        if (!parentMap.has(node.id)) {
+            parentMap.set(node.id, []);
+        }
+        if (!parentMap.has(node.parent_id)) {
+            parentMap.set(node.parent_id, []);
+        }
+        parentMap.get(node.parent_id)!.push(node);
+    }
+    return parentMap;
+}
+
 export const computeNextNodes = (graph: Graph) => {
     const nodesMap = new Map<string, Node>();
     graph.nodes.forEach((node) => {
-        nodesMap.set(node.id, node)
+        if (node.parent_id !== "") {
+            nodesMap.set(node.id, node)
+        }
     })
 
     const prereqMap = new Map<string, Node>();
@@ -265,15 +309,56 @@ export const computeNextNodes = (graph: Graph) => {
 
     const inProgressNodes = [];
     const nextNodes = [];
-    for (let i = 0; i < graph.nodes.length; i++) {
-        const node = graph.nodes[i];
-        if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
-            inProgressNodes.push(node);
-        } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
-            nextNodes.push(node);
-            node.status = NodeStatusNext;
+    for (const node of graph.nodes) {
+        if(node.parent_id !== "") {
+            if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
+                inProgressNodes.push(node);
+            } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
+                nextNodes.push(node);
+                node.status = NodeStatusNext;
+            }
         }
     }
+
+    const parentMap = computeParentMap(graph);
+    for (const node of graph.nodes) {
+        if (node.parent_id === "") {
+            let allChildrenFinished = true;
+            const children = parentMap.get(node.id) || []
+            if (children.length === 0) {
+                continue
+            }
+            for (const child of children) {
+                if (child.status !== NodeStatusFinished) {
+                    allChildrenFinished = false;
+                    break
+                }
+            }
+            if (allChildrenFinished){
+                node.status = NodeStatusFinished;
+                continue
+            }
+            let nodeStarted = false;
+            for (const child of children) {
+                if (child.status === NodeStatusStarted || child.status === NodeStatusWatched) {
+                    nodeStarted = true;
+                    break
+                }
+            }
+            if (nodeStarted) {
+                node.status = NodeStatusStarted;
+                continue
+            }
+            for (const child of children) {
+                if (child.status === NodeStatusNext) {
+                    node.status = NodeStatusNext;
+                    break
+                }
+            }
+
+        }
+    }
+
     nextNodes.sort(nodeCmpFn);
     inProgressNodes.sort(nodeCmpFn);
 

@@ -21,6 +21,7 @@ export type Node = {
     description: string;
     node_type: string;
     status: string;
+    parent_id: string;
 }
 
 export type Link = {

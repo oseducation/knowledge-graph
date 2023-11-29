@@ -19,6 +19,7 @@ func (a *App) GetFrontEndGraph(language string) *model.FrontendGraph {
 			Description: node.Description,
 			NodeType:    node.NodeType,
 			Status:      model.NodeStatusUnseen,
+			ParentID:    node.ParentID,
 		})
 		nodesMap[node.ID] = struct{}{}
 	}
