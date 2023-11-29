@@ -16,6 +16,13 @@ type Goal struct {
 	DeletedAt  int64  `json:"deleted_at" db:"deleted_at"`
 }
 
+// Goal type defines Knowledge Graph goal
+type GoalWithData struct {
+	NodeID               string `json:"node_id" db:"node_id"`
+	Name                 string `json:"name" db:"name"`
+	ThumbnailRelativeURL string `json:"thumbnail_relative_url" db:"thumbnail_relative_url"`
+}
+
 // IsValid validates the node and returns an error if it isn't configured correctly.
 func (g *Goal) IsValid() error {
 	if !IsValidID(g.UserID) {

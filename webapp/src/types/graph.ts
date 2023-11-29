@@ -126,4 +126,6 @@ export const castToLink = (link: Link): Link => {
 
 export type Goal = {
     node_id: string;
+    name: string;
+    thumbnail_relative_url: string;
 }

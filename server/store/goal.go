@@ -16,6 +16,7 @@ type GoalStore interface {
 	Finish(userID, nodeID string) error
 	Delete(userID, nodeID string) error
 	GetAll(userID string) ([]*model.Goal, error)
+	GetAllWithData(userID string) ([]*model.GoalWithData, error)
 	Get(userID, nodeID string) (*model.Goal, error)
 	SaveDefaultGoal(nodeID string, num int64) error
 	NextDefaultGoalForUser(userID string) (string, error)
@@ -154,6 +155,29 @@ func (gs *SQLGoalStore) GetAll(userID string) ([]*model.Goal, error) {
 				sq.Eq{"g.user_id": userID},
 			},
 		)); err != nil {
+		return nil, errors.Wrapf(err, "can't get goals for user: %s", userID)
+	}
+	return goals, nil
+}
+
+// GetAllWithData gets goals for user with additional data
+func (gs *SQLGoalStore) GetAllWithData(userID string) ([]*model.GoalWithData, error) {
+	var goals []*model.GoalWithData
+
+	query := gs.sqlStore.builder.
+		Select(
+			"n.id AS node_id",
+			"n.name",
+		).
+		From("user_goals g").
+		Join("nodes n ON n.id = g.node_id").
+		Where(sq.And{
+			sq.Eq{"g.deleted_at": 0},
+			sq.Eq{"g.finished_at": 0},
+			sq.Eq{"g.user_id": userID},
+		})
+
+	if err := gs.sqlStore.selectBuilder(gs.sqlStore.db, &goals, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get goals for user: %s", userID)
 	}
 	return goals, nil
