@@ -152,7 +152,11 @@ const RHS = (props: RHSProps) => {
                 onClick={() => {
                     if (selectedNode?.id) {
                         Client.Graph().addGoal(selectedNode?.id || '').then(() => {
-                            addGoal(selectedNode.id);
+                            addGoal({
+                                node_id: selectedNode.id,
+                                name: selectedNode.name,
+                                thumbnail_relative_url: `/images/nodes/${selectedNode.name.replaceAll(' ', '-')}.png`,
+                            });
                         })
                     }
                 }}
@@ -261,7 +265,7 @@ const RHS = (props: RHSProps) => {
                     </>
                 }
                 <Box bgcolor='background.paper' display='flex' justifyContent='center' paddingY={1}>
-                    {buttonComp}
+                    {selectedNode?.parent_id !== '' && buttonComp}
                 </Box>
             </Stack>
         </StyledBox>

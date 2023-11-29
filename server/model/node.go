@@ -41,6 +41,7 @@ type Node struct {
 	NodeType    string `json:"node_type" db:"node_type"`
 	Lang        string `json:"lang" db:"lang"`
 	Environment string `json:"environment" db:"environment"`
+	ParentID    string `json:"parent_id" db:"parent_id"`
 }
 
 type NodeWithResources struct {
@@ -91,6 +92,10 @@ func (n *Node) IsValid() error {
 
 	if n.Environment != EnvironmentTypeKarelJS && n.Environment != EnvironmentTypeKarelJava && n.Environment != "" {
 		return invalidNodeError(n.ID, "environment", n.Environment)
+	}
+
+	if n.ParentID != "" && !IsValidID(n.ParentID) {
+		return invalidNodeError(n.ID, "parent_id", n.ParentID)
 	}
 
 	return nil

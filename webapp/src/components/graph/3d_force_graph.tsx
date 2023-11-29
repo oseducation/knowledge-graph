@@ -35,7 +35,7 @@ const D3ForceGraph = (props: Props) => {
     const [highlightLinks, setHighlightLinks] = useState(new Set());
     const [openGreyNodeAlert, setOpenGreyNodeAlert] = useState(false);
     const {t, i18n} = useTranslation();
-    const {pathToGoal, goals, selectedNode, setSelectedNode, focusedNodeID} = useGraph();
+    const {pathToGoal, goals, selectedNode, setSelectedNode, focusedNodeID, setParentID} = useGraph();
 
     const onNodeClick = (node : Node) => {
         if (props.noClick){
@@ -49,6 +49,10 @@ const D3ForceGraph = (props: Props) => {
             'Status': node.status,
             'Entry Point': 'Graph'
         });
+        if (node.node_type === NodeTypeParent) {
+            setParentID(node.id);
+            return;
+        }
         if (node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
             navigate(`/nodes/${node.id}`);
         } else {
@@ -266,7 +270,7 @@ const D3ForceGraph = (props: Props) => {
                 }}
                 nodeAutoColorBy={"status"}
                 nodeRelSize={1}
-                dagLevelDistance={props.isLarge? 60: 50}
+                dagLevelDistance={props.isLarge? 60: 100}
                 d3VelocityDecay={0.3}
                 linkDirectionalArrowLength={props.isLarge? 15 : 6}
                 linkDirectionalArrowRelPos={0.5}

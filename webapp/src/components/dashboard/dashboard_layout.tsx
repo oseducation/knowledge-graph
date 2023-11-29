@@ -5,7 +5,6 @@ import {Box, CssBaseline, Toolbar} from '@mui/material';
 
 import useAppBarHeight from '../../hooks/use_app_bar_height';
 import {DashboardColors} from '../../ThemeOptions';
-import {Spacer} from '../header';
 import {GraphProvider} from '../../context/graph_provider';
 
 import DashboardHeader from './dashboard_header';
@@ -36,7 +35,6 @@ export default function DashboardLayout() {
                 <Grid2 xs={true} sx={{height: staticHeight}} bgcolor={DashboardColors.background}>
                     <Box sx={{height: '64px'}}>
                         <Toolbar disableGutters>
-                            <Spacer/>
                             <DashboardHeader/>
                         </Toolbar>
                     </Box>

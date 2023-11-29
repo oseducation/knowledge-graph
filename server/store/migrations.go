@@ -407,6 +407,24 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.9.0"),
+		toVersion:   semver.MustParse("0.10.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE nodes ADD COLUMN parent_id VARCHAR(26) DEFAULT '';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column post_type to table posts")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "nodes", "parent_id", "VARCHAR(26) DEFAULT ''"); err != nil {
+					return errors.Wrapf(err, "failed adding column post_type to table posts")
+				}
+			}
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {
