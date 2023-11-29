@@ -27,6 +27,6 @@ There is a short video mode of learning similar to youtube shorts, facebook reel
 Follow the commands [here](/server/README.md)
 
 ## Interested in contributing?
-Please see [CONTRIBUTING.md](/CONTRIBUTING.md). Also join the [Discord server](https://discord.gg/qGvkkd3eTM) to join discussions about contributions, development, and more.
+Please see [CONTRIBUTING.md](/CONTRIBUTING.md). Also join the [Discord server](https://discord.gg/Pn5YFK4Qzp) to join discussions about contributions, development, and more.
 
 
