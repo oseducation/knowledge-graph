@@ -7,7 +7,12 @@
 ```console
 export YOUTUBE_API_KEY='my_youtube_api_key'
 ```
-3. Run the import
+3. (Optional) If you want to have a chat with an AI tutor export the OpenAI API key
+```console
+export CHAT_GPT_API_KEY='my_gpt_api_key'
+```
+
+4. Run the import
 ```console
 make import
 ```

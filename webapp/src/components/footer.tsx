@@ -46,7 +46,7 @@ const Footer = () => {
                     </li>
                     <li>
                         <Link
-                            href='https://discord.gg/qGvkkd3eTM'
+                            href='https://discord.gg/Pn5YFK4Qzp'
                             underline='none' target="_blank"
                             rel='noopener noreferrer'>
                             Discord

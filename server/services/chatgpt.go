@@ -174,16 +174,12 @@ type Config struct {
 
 func NewCHhatGPTService() (ChatGPTServiceInterface, error) {
 	apiKey, ok := os.LookupEnv(chatGPTAPIKey)
-	if !ok {
-		return nil, ErrAPIKeyRequired
+	if !ok || apiKey == "" || apiKey == "test" {
+		return &ChatGPTServiceDummy{}, nil
 	}
 	orgID, ok := os.LookupEnv(chatGPTOrganizationID)
 	if !ok {
 		orgID = ""
-	}
-
-	if apiKey == "" || apiKey == "test" {
-		return &ChatGPTServiceDummy{}, nil
 	}
 
 	return &ChatGPTService{
