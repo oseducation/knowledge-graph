@@ -2,6 +2,8 @@ package app
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
@@ -54,10 +56,13 @@ func (a *App) DeleteGoal(userID, nodeID string) error {
 }
 
 // DeleteGoal deletes a goal for a user
-func (a *App) GetGoals(userID string) ([]*model.Goal, error) {
-	goals, err := a.Store.Goal().GetAll(userID)
+func (a *App) GetGoals(userID string) ([]*model.GoalWithData, error) {
+	goals, err := a.Store.Goal().GetAllWithData(userID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "userID = %s", userID)
+	}
+	for _, goal := range goals {
+		goal.ThumbnailRelativeURL = getNodeThumbnailRelativeURL(goal.Name)
 	}
 	if len(goals) > 0 {
 		return goals, nil
@@ -67,12 +72,20 @@ func (a *App) GetGoals(userID string) ([]*model.Goal, error) {
 		return nil, errors.Wrap(err, "can't get default goals")
 	}
 	if defaultGoal == "" {
-		return []*model.Goal{}, nil
+		return []*model.GoalWithData{}, nil
 	}
-	return []*model.Goal{{
-		UserID:     userID,
-		NodeID:     defaultGoal,
-		DeletedAt:  0,
-		FinishedAt: 0,
+	node, err := a.Store.Node().Get(defaultGoal)
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't get node = %s", defaultGoal)
+	}
+
+	return []*model.GoalWithData{{
+		NodeID:               defaultGoal,
+		Name:                 node.Name,
+		ThumbnailRelativeURL: getNodeThumbnailRelativeURL(node.Name),
 	}}, nil
+}
+
+func getNodeThumbnailRelativeURL(name string) string {
+	return fmt.Sprintf("/images/nodes/%s.png", strings.ReplaceAll(name, " ", "-"))
 }
