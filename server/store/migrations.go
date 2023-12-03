@@ -425,6 +425,27 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.10.0"),
+		toVersion:   semver.MustParse("0.11.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if _, err := e.Exec(`
+					CREATE TABLE IF NOT EXISTS user_interactions (
+						id VARCHAR(26) PRIMARY KEY,
+						user_id VARCHAR(26),
+						start_date bigint,
+						end_date bigint,
+						url VARCHAR(256),
+						ui_component_name VARCHAR(32),
+						tag VARCHAR(32)
+					);
+				`); err != nil {
+				return errors.Wrapf(err, "failed creating table user_times")
+			}
+
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {
