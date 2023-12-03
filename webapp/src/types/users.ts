@@ -62,3 +62,13 @@ export type UserCode = {
     code_name: string;
     code: string;
 }
+
+export type UserInteraction = {
+    id: string;
+    user_id: string;
+    start_date: number;
+    end_date: number;
+    url: string;
+    ui_component_name: string;
+    tag: string;
+}

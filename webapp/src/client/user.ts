@@ -1,5 +1,5 @@
-import { Graph } from "../types/graph";
-import {Preference, User, UserCode, UserWithNodeCount} from "../types/users";
+import {Graph} from "../types/graph";
+import {Preference, User, UserCode, UserInteraction, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -156,4 +156,11 @@ export class UserClient {
 
         return data;
     };
+
+    saveInteraction = async (interaction: UserInteraction) => {
+        return this.rest.doFetch<string>(
+            `${this.rest.getBaseRoute()}/interactions`,
+            {method: 'post', body: JSON.stringify(interaction)},
+        );
+    }
 }

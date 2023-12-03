@@ -14,20 +14,21 @@ const APIURLSuffix = "/api/v1"
 const HealthCheckPath = "/healthcheck"
 
 type API struct {
-	Logger      *log.Logger
-	Root        *gin.Engine
-	APIRoot     *gin.RouterGroup // 'api/v1'
-	Users       *gin.RouterGroup // 'api/v1/users'
-	User        *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
-	Nodes       *gin.RouterGroup // 'api/v1/nodes'
-	Node        *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
-	Videos      *gin.RouterGroup // 'api/v1/videos'
-	Texts       *gin.RouterGroup // 'api/v1/texts'
-	Questions   *gin.RouterGroup // 'api/v1/questions'
-	Preferences *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}/preferences'
-	Goals       *gin.RouterGroup // 'api/v1/goals/{user_id:[A-Za-z0-9]+}/nodes/{node_id:[A-Za-z0-9]+}'
-	Posts       *gin.RouterGroup // 'api/v1/posts'
-	Bots        *gin.RouterGroup // 'api/v1/bots/posts'
+	Logger       *log.Logger
+	Root         *gin.Engine
+	APIRoot      *gin.RouterGroup // 'api/v1'
+	Users        *gin.RouterGroup // 'api/v1/users'
+	User         *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}'
+	Nodes        *gin.RouterGroup // 'api/v1/nodes'
+	Node         *gin.RouterGroup // 'api/v1/nodes/{node_id:[A-Za-z0-9]+}'
+	Videos       *gin.RouterGroup // 'api/v1/videos'
+	Texts        *gin.RouterGroup // 'api/v1/texts'
+	Questions    *gin.RouterGroup // 'api/v1/questions'
+	Preferences  *gin.RouterGroup // 'api/v1/users/{user_id:[A-Za-z0-9]+}/preferences'
+	Goals        *gin.RouterGroup // 'api/v1/goals/{user_id:[A-Za-z0-9]+}/nodes/{node_id:[A-Za-z0-9]+}'
+	Posts        *gin.RouterGroup // 'api/v1/posts'
+	Bots         *gin.RouterGroup // 'api/v1/bots/posts'
+	Interactions *gin.RouterGroup // 'api/v1/interactions'
 }
 
 // Init initializes api
@@ -51,6 +52,7 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initGoal()
 	apiObj.initPost()
 	apiObj.initBot()
+	apiObj.InitUserInteractions()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")
