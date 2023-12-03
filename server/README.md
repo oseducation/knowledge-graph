@@ -34,7 +34,7 @@ make docker-stop
 ```
 * To import the graph data:
 ```console
-docker exec kg-server go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
+make docker-import
 ```
 
 

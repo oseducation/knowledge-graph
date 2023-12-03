@@ -37,6 +37,7 @@ type Store interface {
 	UserCode() UserCodeStore
 	Goal() GoalStore
 	Post() PostStore
+	UserInteraction() UserInteractionStore
 }
 
 // SQLStore struct represents a DB
@@ -44,21 +45,22 @@ type SQLStore struct {
 	db      *sqlx.DB
 	builder sq.StatementBuilderType
 
-	userStore        UserStore
-	tokenStore       TokenStore
-	nodeStore        NodeStore
-	videoStore       VideoStore
-	textStore        TextStore
-	questionStore    QuestionStore
-	graphStore       GraphStore
-	sessionStore     SessionStore
-	systemStore      SystemStore
-	preferencesStore PreferencesStore
-	userCodeStore    UserCodeStore
-	goalStore        GoalStore
-	postStore        PostStore
-	config           *config.DBSettings
-	logger           *log.Logger
+	userStore            UserStore
+	tokenStore           TokenStore
+	nodeStore            NodeStore
+	videoStore           VideoStore
+	textStore            TextStore
+	questionStore        QuestionStore
+	graphStore           GraphStore
+	sessionStore         SessionStore
+	systemStore          SystemStore
+	preferencesStore     PreferencesStore
+	userCodeStore        UserCodeStore
+	goalStore            GoalStore
+	postStore            PostStore
+	userInteractionStore UserInteractionStore
+	config               *config.DBSettings
+	logger               *log.Logger
 }
 
 // queryer is an interface describing a resource that can query.
@@ -127,6 +129,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.userCodeStore = NewUserCodeStore(sqlStore)
 	sqlStore.goalStore = NewGoalStore(sqlStore)
 	sqlStore.postStore = NewPostStore(sqlStore)
+	sqlStore.userInteractionStore = NewUserInteractionStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -181,6 +184,14 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not user_goals")
 	}
 
+	if _, err := tx.Exec("DROP TABLE IF EXISTS posts"); err != nil {
+		return errors.Wrap(err, "could not posts")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS user_interactions"); err != nil {
+		return errors.Wrap(err, "could not user_interactions")
+	}
+
 	if err := tx.Commit(); err != nil {
 		return errors.Wrap(err, "could not commit")
 	}
@@ -227,6 +238,12 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM user_goals"); err != nil {
 			sqlDB.logger.Fatal("can't delete from user_goals", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM posts"); err != nil {
+			sqlDB.logger.Fatal("can't delete from posts", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM user_interactions"); err != nil {
+			sqlDB.logger.Fatal("can't delete from user_interactions", log.Err(err))
 		}
 	}
 }
@@ -362,4 +379,9 @@ func (sqlDB *SQLStore) Goal() GoalStore {
 // Post returns an interface to manage user posts in the DB
 func (sqlDB *SQLStore) Post() PostStore {
 	return sqlDB.postStore
+}
+
+// UserInteraction returns an interface to manage user interactions in the DB
+func (sqlDB *SQLStore) UserInteraction() UserInteractionStore {
+	return sqlDB.userInteractionStore
 }
