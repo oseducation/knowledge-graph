@@ -23,7 +23,7 @@ type NodeStore interface {
 	GetPrerequisites(id string) ([]*model.Node, error)
 	GetNodesWithIDs(ids []string) ([]*model.Node, error)
 	GetNumberOfFinishedNodes(userID string) (int, error)
-	GetNumberOfFinishedNodesThisWeek(userID string) (int, error)
+	GetNumberOfNodesInDaysWithStatus(userID string, days int, status string) (int, error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -282,17 +282,17 @@ func (ns *SQLNodeStore) GetNumberOfFinishedNodes(userID string) (int, error) {
 	return count, nil
 }
 
-func (ns *SQLNodeStore) GetNumberOfFinishedNodesThisWeek(userID string) (int, error) {
+func (ns *SQLNodeStore) GetNumberOfNodesInDaysWithStatus(userID string, days int, status string) (int, error) {
 	var count int
-	weekAgo := time.Now().AddDate(0, 0, -7).UnixNano() / int64(time.Millisecond)
+	daysAgo := time.Now().AddDate(0, 0, -days).UnixNano() / int64(time.Millisecond)
 
 	query := ns.sqlStore.builder.
 		Select("COUNT(*)").
 		From("user_nodes").
 		Where(sq.And{
 			sq.Eq{"user_id": userID},
-			sq.Eq{"status": model.NodeStatusFinished},
-			sq.Gt{"updated_at": weekAgo},
+			sq.Eq{"status": status},
+			sq.Gt{"updated_at": daysAgo},
 		})
 
 	if err := ns.sqlStore.getBuilder(ns.sqlStore.db, &count, query); err != nil {
