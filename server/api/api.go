@@ -29,6 +29,7 @@ type API struct {
 	Posts        *gin.RouterGroup // 'api/v1/posts'
 	Bots         *gin.RouterGroup // 'api/v1/bots/posts'
 	Interactions *gin.RouterGroup // 'api/v1/interactions'
+	Dashboard    *gin.RouterGroup // 'api/v1/dashboard'
 }
 
 // Init initializes api
@@ -52,7 +53,8 @@ func Init(router *gin.Engine, application *app.App) error {
 	apiObj.initGoal()
 	apiObj.initPost()
 	apiObj.initBot()
-	apiObj.InitUserInteractions()
+	apiObj.initUserInteractions()
+	apiObj.initDashboard()
 
 	apiObj.Root.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, "Page not found")

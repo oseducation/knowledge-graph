@@ -7,7 +7,7 @@ import (
 	"github.com/oseducation/knowledge-graph/model"
 )
 
-func (apiObj *API) InitUserInteractions() {
+func (apiObj *API) initUserInteractions() {
 	apiObj.Interactions = apiObj.APIRoot.Group("/interactions")
 
 	apiObj.Interactions.POST("", authMiddleware(), saveInteraction)
