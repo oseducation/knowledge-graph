@@ -1,16 +1,30 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Card, Typography, useTheme} from '@mui/material';
 import {Doughnut} from 'react-chartjs-2';
 import 'chart.js/auto';
 
+import {ActivityToday} from '../../types/dashboard';
+import {Client} from '../../client/client';
+
 
 const Activity = () => {
     const theme = useTheme();
+    const [activity, setActivity] = useState<ActivityToday>({nodes_finished_today: 0, nodes_started_today: 0, nodes_watched_today: 0});
 
+    useEffect(() => {
+        Client.Dashboard().getTodaysActivity().then((response) => {
+            if (response && (response.nodes_finished_today || response.nodes_started_today || response.nodes_watched_today)){
+                setActivity(response);
+            }
+        });
+    }, []);
+
+
+    const sum = activity.nodes_finished_today + activity.nodes_started_today + activity.nodes_watched_today;
     const activities = [
-        { label: 'Video', value: 20, color: theme.palette.primary.main },
-        { label: 'Code', value: 40, color: '#ffa216' },
-        { label: 'Text', value: 40, color: '#ec1b80' }];
+        {label: 'Finished', value: Math.floor(activity.nodes_finished_today / sum *100), color: theme.palette.success.main},
+        {label: 'Started', value: Math.floor(activity.nodes_started_today / sum *100), color: theme.palette.warning.main},
+        {label: 'Watched', value: Math.floor(activity.nodes_watched_today / sum *100), color: theme.palette.primary.main}];
 
     const chartData = {
         datasets: [{
@@ -45,7 +59,6 @@ const Activity = () => {
         <Card
             sx={{
                 position: 'relative',
-                textAlign: 'center',
                 p: 2,
                 m:1,
                 borderRadius:'16px',
@@ -65,7 +78,7 @@ const Activity = () => {
                     transform: 'translate(-50%, -50%)',
                 }}>
                     <Typography variant="h4" component="div">
-                        {`${activities.reduce((acc, activity) => acc + activity.value, 0)}%`}
+                        {`${sum} Topics`}
                     </Typography>
                 </Box>
             </Box>
