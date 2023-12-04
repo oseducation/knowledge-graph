@@ -446,6 +446,24 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.11.0"),
+		toVersion:   semver.MustParse("0.12.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE user_nodes ADD COLUMN updated_at bigint DEFAULT 0;
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column updated_at to table user_nodes")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "user_nodes", "updated_at", "bigint DEFAULT 0"); err != nil {
+					return errors.Wrapf(err, "failed adding column updated_at to table user_nodes")
+				}
+			}
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {

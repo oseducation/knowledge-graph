@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/oseducation/knowledge-graph/model"
@@ -21,6 +22,8 @@ type NodeStore interface {
 	UpdateStatus(status *model.NodeStatusForUser) error
 	GetPrerequisites(id string) ([]*model.Node, error)
 	GetNodesWithIDs(ids []string) ([]*model.Node, error)
+	GetNumberOfFinishedNodes(userID string) (int, error)
+	GetNumberOfFinishedNodesThisWeek(userID string) (int, error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -179,6 +182,7 @@ func (ns *SQLNodeStore) GetNodesForUser(userID string) ([]*model.NodeStatusForUs
 			"un.node_id",
 			"un.user_id",
 			"un.status",
+			"un.updated_at",
 		).
 		From("user_nodes un").
 		Where(sq.Eq{"user_id": userID})
@@ -210,11 +214,13 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 		return nil
 	}
 
+	now := model.GetMillis()
 	if err == nil {
 		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 			Update("user_nodes").
 			SetMap(map[string]interface{}{
-				"status": status.Status,
+				"status":     status.Status,
+				"updated_at": now,
 			}).
 			Where(sq.And{
 				sq.Eq{"user_id": status.UserID},
@@ -226,9 +232,10 @@ func (ns *SQLNodeStore) UpdateStatus(status *model.NodeStatusForUser) error {
 		if _, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 			Insert("user_nodes").
 			SetMap(map[string]interface{}{
-				"status":  status.Status,
-				"user_id": status.UserID,
-				"node_id": status.NodeID,
+				"status":     status.Status,
+				"user_id":    status.UserID,
+				"node_id":    status.NodeID,
+				"updated_at": now,
 			})); err != nil {
 			return errors.Wrapf(err, "Can't insert status -%v", status)
 		}
@@ -255,4 +262,42 @@ func (ns *SQLNodeStore) GetNodesWithIDs(ids []string) ([]*model.Node, error) {
 		return nil, errors.Wrapf(err, "can't get nodes with ids %v", ids)
 	}
 	return nodes, nil
+}
+
+func (ns *SQLNodeStore) GetNumberOfFinishedNodes(userID string) (int, error) {
+	var count int
+	query := ns.sqlStore.builder.
+		Select("COUNT(*)").
+		From("user_nodes").
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"status": model.NodeStatusFinished},
+		})
+
+	if err := ns.sqlStore.getBuilder(ns.sqlStore.db, &count, query); err != nil {
+		return 0, errors.Wrapf(err, "can't get number of finished nodes for user %s", userID)
+	}
+	println("count", count)
+
+	return count, nil
+}
+
+func (ns *SQLNodeStore) GetNumberOfFinishedNodesThisWeek(userID string) (int, error) {
+	var count int
+	weekAgo := time.Now().AddDate(0, 0, -7).UnixNano() / int64(time.Millisecond)
+
+	query := ns.sqlStore.builder.
+		Select("COUNT(*)").
+		From("user_nodes").
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"status": model.NodeStatusFinished},
+			sq.Gt{"updated_at": weekAgo},
+		})
+
+	if err := ns.sqlStore.getBuilder(ns.sqlStore.db, &count, query); err != nil {
+		return 0, errors.Wrapf(err, "can't get number of finished nodes this week for user %s", userID)
+	}
+
+	return count, nil
 }

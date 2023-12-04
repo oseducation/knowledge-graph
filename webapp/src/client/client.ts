@@ -6,6 +6,7 @@ import {SidebarClient} from "./sidebar";
 import {VideoClient} from "./video";
 import {PostClient} from "./post";
 import {BotClient} from "./bot";
+import {DashboardClient} from "./dashboard";
 
 
 class Client {
@@ -17,6 +18,7 @@ class Client {
     sidebar: SidebarClient;
     post: PostClient;
     bot: BotClient;
+    dashboard: DashboardClient;
 
     constructor(){
         this.rest = new Rest();
@@ -27,6 +29,7 @@ class Client {
         this.sidebar = new SidebarClient(this.rest);
         this.post = new PostClient(this.rest);
         this.bot = new BotClient(this.rest);
+        this.dashboard = new DashboardClient(this.rest);
     }
 
     User(){
@@ -55,6 +58,10 @@ class Client {
 
     Bot(){
         return this.bot;
+    }
+
+    Dashboard(){
+        return this.dashboard;
     }
 }
 

@@ -1,9 +1,12 @@
-import * as React from 'react';
+import React, {useEffect, useState} from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import {Card, Typography, Box, useTheme} from '@mui/material';
-import PunchClockOutlinedIcon from '@mui/icons-material/PunchClockOutlined';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalFireDepartmentOutlinedIcon from '@mui/icons-material/LocalFireDepartmentOutlined';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
+
+import {FinishedNodes} from '../../types/dashboard';
+import {Client} from '../../client/client';
 
 interface Props {
     title: string;
@@ -81,19 +84,28 @@ const DashboardWidget = (props: Props) => {
 
 const Snippets = () => {
     const theme = useTheme();
+    const [finishedNodes, setFinishedNodes] = useState<FinishedNodes>({finished_nodes: 0, finished_nodes_this_week: 0});
+
+    useEffect(() => {
+        Client.Dashboard().getFinishedNodes().then((res) => {
+            if (res) {
+                setFinishedNodes(res);
+            }
+        });
+    }, []);
 
     return (
         <Grid2 container spacing={2} display={'flex'} >
             <Grid2 xs={12} md={4}>
                 <DashboardWidget
-                    title="Time Spend"
-                    value="15:30:45"
-                    delta="1.5%"
+                    title="Topics Finished"
+                    value={finishedNodes.finished_nodes.toString()}
+                    delta={finishedNodes.finished_nodes_this_week.toString()}
                     deltaType="positive"
                     secondaryText='This Week'
-                    iconBackground='#f0eefd'
+                    iconBackground={'#C2FFF0'}
                     icon={
-                        <PunchClockOutlinedIcon fontSize="large" sx={{color: theme.palette.primary.main}}/>
+                        <CheckCircleIcon fontSize="large" sx={{color: theme.palette.success.main}}/>
                     }
                 />
             </Grid2>
@@ -104,9 +116,9 @@ const Snippets = () => {
                     delta="8"
                     deltaType="positive"
                     secondaryText='Max Steak'
-                    iconBackground='#fff5e6'
+                    iconBackground={'#DFDBFB'}
                     icon={
-                        <LocalFireDepartmentOutlinedIcon fontSize="large" sx={{color: '#ffa216'}}/>
+                        <LocalFireDepartmentOutlinedIcon fontSize="large" sx={{color: theme.palette.primary.main}}/>
                     }
                 />
             </Grid2>
