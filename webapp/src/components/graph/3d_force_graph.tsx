@@ -207,6 +207,7 @@ const D3ForceGraph = (props: Props) => {
 
             <ForceGraph2D
                 ref={fgRef}
+                enableNodeDrag={false}
                 graphData={props.graph}
                 nodeLabel="description"
                 width={props.width}
