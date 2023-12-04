@@ -27,6 +27,7 @@ import DashboardLayout from './components/dashboard/dashboard_layout';
 import Chat from './components/bot/chat';
 import Overview from './components/overview/overview';
 import Graph from './components/dashboard/graph';
+import Preferences from './components/preferences';
 
 function App() {
     return (
@@ -40,6 +41,7 @@ function App() {
                     <Route path="/carousel" element={<CarouselPage/>}/>
                     <Route path="/karel_js" element={<KarelPage lang='js'/>}/>
                     <Route path="/karel_java" element={<KarelPage lang='java'/>}/>
+                    <Route path="/preferences" element={<Preferences onClose={() => {}} />} />
                 </Route>
                 <Route path="dashboard" element={<DashboardLayout/>}>
                     <Route path="" element={<Overview/>}/>
