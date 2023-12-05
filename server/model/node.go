@@ -55,9 +55,10 @@ type NodeWithResources struct {
 }
 
 type NodeStatusForUser struct {
-	NodeID string `json:"node_id" db:"node_id"`
-	Status string `json:"status" db:"status"`
-	UserID string `json:"user_id" db:"user_id"`
+	NodeID    string `json:"node_id" db:"node_id"`
+	Status    string `json:"status" db:"status"`
+	UserID    string `json:"user_id" db:"user_id"`
+	UpdatedAt int64  `json:"updated_at" db:"updated_at"`
 }
 
 // IsValid validates the node and returns an error if it isn't configured correctly.
