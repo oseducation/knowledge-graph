@@ -1,64 +1,29 @@
 
-import React from 'react';
-import {Box, Typography, useTheme, alpha, Card} from '@mui/material';
-import {Line} from 'react-chartjs-2';
-import {Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend} from 'chart.js';
+import React, {useEffect, useState} from 'react';
+import {Box, Typography, Card} from '@mui/material';
+import Calendar from 'react-github-contribution-calendar';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Filler,
-    Legend
-);
+import {Client} from '../../client/client';
+import {Progress} from '../../types/dashboard';
 
-const Progress = () => {
-    const theme = useTheme();
-    const currentData = [0, 10, 5, 2, 20, 30, 45, 40, 50, 30, 50, 20];
-    const previousData = [0, 5, 10, 15, 2, 25, 3, 35, 40, 12, 4, 27];
+const ProgressComp = () => {
+    const [progress, setProgress] = useState<Progress>({});
 
-    const data = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [
-            {
-                label: 'Current',
-                data: currentData,
-                fill: true,
-                backgroundColor: alpha(theme.palette.primary.light, 0.3),
-                borderColor: theme.palette.primary.main,
-                pointBackgroundColor: theme.palette.primary.main,
-                tension: 0.3,
-            },
-            {
-                label: 'Previous',
-                data: previousData,
-                fill: true,
-                backgroundColor: alpha(theme.palette.error.light, 0.5),
-                borderColor: theme.palette.error.main,
-                pointBackgroundColor: theme.palette.error.main,
-                tension: 0.3,
-            },
-        ],
-    };
-
-    const options = {
-        maintainAspectRatio: false,
-        scales: {
-            x: {
-                grid: {
-                    display: false
-                }
-            },
-            y: {
-                grid: {
-                    display: false
-                }
+    useEffect(() => {
+        Client.Dashboard().getProgress().then((res) => {
+            if (res) {
+                setProgress(res);
             }
-        }
-    };
+        });
+    }, []);
+
+    const panelColors = [
+        '#EEEEEE',
+        '#F78A23',
+        '#F87D09',
+        '#AC5808',
+        '#7B3F06'
+    ];
 
     return (
         <Card sx={{
@@ -70,15 +35,24 @@ const Progress = () => {
         }}>
 
             <Typography variant="h5" sx={{fontWeight: 'bold', m:2}}>
-                Monthly Progress
+                Topics finished in the last year
             </Typography>
             <Box sx={{p:3, pt:0}}>
-                <Line data={data} options={options}/>
+                <Calendar values={progress} until={getCurrentDateFormatted()} weekLabelAttributes={undefined} monthLabelAttributes={undefined} panelAttributes={undefined} panelColors={panelColors}/>
             </Box>
         </Card>
     );
 };
 
-export default Progress;
+const getCurrentDateFormatted = (): string => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = currentDate.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+
+export default ProgressComp;
 
 

@@ -24,6 +24,7 @@ type NodeStore interface {
 	GetNodesWithIDs(ids []string) ([]*model.Node, error)
 	GetNumberOfFinishedNodes(userID string) (int, error)
 	GetNumberOfNodesInDaysWithStatus(userID string, days int, status string) (int, error)
+	GetFinishedNodesProgress(userID string) (map[string]int, error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -277,7 +278,6 @@ func (ns *SQLNodeStore) GetNumberOfFinishedNodes(userID string) (int, error) {
 	if err := ns.sqlStore.getBuilder(ns.sqlStore.db, &count, query); err != nil {
 		return 0, errors.Wrapf(err, "can't get number of finished nodes for user %s", userID)
 	}
-	println("count", count)
 
 	return count, nil
 }
@@ -300,4 +300,35 @@ func (ns *SQLNodeStore) GetNumberOfNodesInDaysWithStatus(userID string, days int
 	}
 
 	return count, nil
+}
+
+func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int, error) {
+	type NodeProgress struct {
+		Date          *string `db:"date"`
+		FinishedCount *int    `db:"finished_count"`
+	}
+	var progress []*NodeProgress
+	daysAgo := time.Now().AddDate(-1, 0, 0).UnixNano() / int64(time.Millisecond)
+
+	query := ns.sqlStore.builder.Select(
+		"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+		"COUNT(node_id) AS finished_count",
+	).From("user_nodes").
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"status": model.NodeStatusFinished},
+			sq.NotEq{"updated_at": 0},
+			sq.Gt{"updated_at": daysAgo},
+		}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+
+	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &progress, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get finished nodes progress for user %s", userID)
+	}
+
+	m := make(map[string]int)
+	for _, node := range progress {
+		m[*node.Date] = *node.FinishedCount
+	}
+
+	return m, nil
 }

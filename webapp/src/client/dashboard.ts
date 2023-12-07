@@ -1,4 +1,4 @@
-import {ActivityToday, FinishedNodes} from "../types/dashboard";
+import {ActivityToday, FinishedNodes, Progress} from "../types/dashboard";
 
 import {Rest} from "./rest";
 
@@ -21,6 +21,10 @@ export class DashboardClient{
         return `${this.getDashboardRoute()}/todays_activity`;
     }
 
+    getProgressRoute() {
+        return `${this.getDashboardRoute()}/progress`;
+    }
+
     getFinishedNodes = async () => {
         if (!this.rest.me || !this.rest.me.id){
             return null;
@@ -34,6 +38,14 @@ export class DashboardClient{
             return null;
         }
         const data = this.rest.doFetch<ActivityToday>(`${this.getTodaysActivityRoute()}`, {method: 'get'});
+        return data;
+    };
+
+    getProgress = async () => {
+        if (!this.rest.me || !this.rest.me.id){
+            return null;
+        }
+        const data = this.rest.doFetch<Progress>(`${this.getProgressRoute()}`, {method: 'get'});
         return data;
     };
 }

@@ -8,3 +8,7 @@ export type ActivityToday = {
     nodes_started_today: number;
     nodes_watched_today: number;
 }
+
+export type Progress = {
+    [date: string]: number;
+}
