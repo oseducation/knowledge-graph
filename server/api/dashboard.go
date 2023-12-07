@@ -74,8 +74,6 @@ func activity(c *gin.Context) {
 		return
 	}
 
-	a.Store.Node().GetFinishedNodesProgress(session.UserID)
-
 	responseFormat(c, http.StatusOK, map[string]interface{}{
 		"nodes_finished_today": finishedNodesToday,
 		"nodes_started_today":  startedNodesToday,
