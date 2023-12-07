@@ -12,6 +12,7 @@ func (apiObj *API) initDashboard() {
 
 	apiObj.Dashboard.GET("/finished_nodes", authMiddleware(), topics)
 	apiObj.Dashboard.GET("/todays_activity", authMiddleware(), activity)
+	apiObj.Dashboard.GET("/progress", authMiddleware(), progress)
 }
 
 func topics(c *gin.Context) {
@@ -38,7 +39,7 @@ func topics(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	responseFormat(c, http.StatusCreated, map[string]interface{}{
+	responseFormat(c, http.StatusOK, map[string]interface{}{
 		"finished_nodes":           finishedNodes,
 		"finished_nodes_this_week": finishedNodesThisWeek,
 	})
@@ -72,9 +73,34 @@ func activity(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	responseFormat(c, http.StatusCreated, map[string]interface{}{
+
+	a.Store.Node().GetFinishedNodesProgress(session.UserID)
+
+	responseFormat(c, http.StatusOK, map[string]interface{}{
 		"nodes_finished_today": finishedNodesToday,
 		"nodes_started_today":  startedNodesToday,
 		"nodes_watched_today":  watchedNodesToday,
 	})
+}
+
+func progress(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	m, err := a.Store.Node().GetFinishedNodesProgress(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, m)
 }

@@ -22,9 +22,9 @@ const Activity = () => {
 
     const sum = activity.nodes_finished_today + activity.nodes_started_today + activity.nodes_watched_today;
     const activities = [
-        {label: 'Finished', value: Math.floor(activity.nodes_finished_today / sum *100), color: theme.palette.success.main},
-        {label: 'Started', value: Math.floor(activity.nodes_started_today / sum *100), color: theme.palette.warning.main},
-        {label: 'Watched', value: Math.floor(activity.nodes_watched_today / sum *100), color: theme.palette.primary.main}];
+        {label: 'Finished', value: sum > 0 ? Math.floor(activity.nodes_finished_today / sum *100): 0, color: theme.palette.success.main},
+        {label: 'Started', value: sum > 0 ? Math.floor(activity.nodes_started_today / sum *100) : 0, color: theme.palette.warning.main},
+        {label: 'Watched', value: sum > 0 ? Math.floor(activity.nodes_watched_today / sum *100) : 0, color: theme.palette.primary.main}];
 
     const chartData = {
         datasets: [{

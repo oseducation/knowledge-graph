@@ -24,6 +24,7 @@
     "react-dom": "^18.2.0",
     "react-force-graph-2d": "^1.25.0",
     "react-force-graph-3d": "^1.23.0",
+    "react-github-contribution-calendar": "^2.2.0",
     "react-hook-form": "^7.43.9",
     "react-i18next": "^13.0.3",
     "react-markdown": "^8.0.7",
