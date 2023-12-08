@@ -110,6 +110,11 @@ func (a *App) UpdateStatus(status *model.NodeStatusForUser) error {
 	if err := status.IsValid(); err != nil {
 		return errors.Wrap(err, "status not valid")
 	}
+	if status.Status == model.NodeStatusFinished {
+		if err := a.Store.Goal().Finish(status.UserID, status.NodeID); err != nil {
+			return errors.Wrapf(err, "can't finish goal for user %s, node %s", status.UserID, status.NodeID)
+		}
+	}
 	return a.Store.Node().UpdateStatus(status)
 }
 
