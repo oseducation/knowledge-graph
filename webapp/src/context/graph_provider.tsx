@@ -64,7 +64,7 @@ export const GraphProvider = (props: Props) => {
         if (goals && goals.find(value => value.node_id === newGoal.node_id)) {
             return;
         }
-        const newPathToGoal = compute(globalGraph, newGoal.node_id);
+        const newPathToGoal = computePathToGoal(globalGraph, newGoal.node_id);
         setPathToGoal(newPathToGoal);
         setGoals([newGoal, ...goals]);
     }
@@ -76,7 +76,7 @@ export const GraphProvider = (props: Props) => {
         const newGoals = goals.filter(value => value.node_id !== goal)
         let newPathToGoal = new Map<string, string>();
         if (newGoals.length > 0) {
-            newPathToGoal = compute(globalGraph, newGoals[0].node_id);
+            newPathToGoal = computePathToGoal(globalGraph, newGoals[0].node_id);
         }
         setPathToGoal(newPathToGoal);
         setGoals(newGoals);
@@ -94,7 +94,7 @@ export const GraphProvider = (props: Props) => {
 
             Client.Graph().getGoals().then((goals: Goal[]) => {
                 if (goals && goals.length > 0) {
-                    const computedPathToGoal = compute(data, goals[0].node_id);
+                    const computedPathToGoal = computePathToGoal(data, goals[0].node_id);
                     setPathToGoal(computedPathToGoal);
                     setGoals(goals);
                 }
@@ -178,7 +178,7 @@ const allPreviousNodes = (reverseNeighbors: Map<string, string[]>, goalNodeID: s
     return nodes;
 }
 
-const compute = (graph: Graph, goalNodeID: string) => {
+export const computePathToGoal = (graph: Graph, goalNodeID: string) => {
     const neighbors = generateGraph(graph.nodes, graph.links)
     const reverseNeighbors = generateReverseGraph(graph.nodes, graph.links)
 
