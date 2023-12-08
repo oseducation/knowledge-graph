@@ -27,12 +27,14 @@ const Chat = () => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {pathToGoal, goals, graph} = useGraph();
-    let nextNodeID = nextNodeToGoal(graph, pathToGoal, goals);
+    const {pathToGoal, goals, globalGraph} = useGraph();
     const [node, setNode] = useState<NodeWithResources | null>(null);
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
+
+    let nextNodeID = nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : '');
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -47,6 +49,7 @@ const Chat = () => {
     }, []);
 
     useEffect(() => {
+        console.log('useefect nextNodeID', nextNodeID)
         if (nextNodeID) {
             Client.Node().get(nextNodeID).then((node) => {
                 setNode(node);
@@ -159,13 +162,13 @@ const Chat = () => {
             let post;
             if (action.action_type === PostActionIKnowThis && nextNodeID) {
                 Client.Node().markAsKnown(nextNodeID, user!.id).then(() => {
-                    for (let i = 0; i < graph!.nodes.length; i++) {
-                        if (graph!.nodes[i].id == nextNodeID) {
-                            graph!.nodes[i].status = NodeStatusFinished;
+                    for (let i = 0; i < globalGraph!.nodes.length; i++) {
+                        if (globalGraph!.nodes[i].id == nextNodeID) {
+                            globalGraph!.nodes[i].status = NodeStatusFinished;
                             break;
                         }
                     }
-                    nextNodeID = nextNodeToGoal(graph, pathToGoal, goals);
+                    nextNodeID = nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : '');
                     setPosts([...posts!, userPost]);
                     scrollToBottom();
                 });

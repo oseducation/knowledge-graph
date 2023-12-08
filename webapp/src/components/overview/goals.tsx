@@ -122,7 +122,7 @@ const Goals = () => {
             <Box display={'flex'} flexDirection={'row'}>
                 {goals.slice(0,3).map((goal, index) => {
                     const path = computePathToGoal(globalGraph, goal.node_id);
-                    const nextNodeID = nextNodeToGoal(globalGraph, path, [goal])
+                    const nextNodeID = nextNodeToGoal(globalGraph, path, goal.node_id);
                     return (
                         <Box key={index}>
                             <GoalCard

@@ -235,12 +235,12 @@ export const computeNextNodeNew = (graph: Graph, pathToGoal: Map<string, string>
     }
 }
 
-export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, string> | null, goals: Goal[]) => {
+export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, string> | null, goalNodeID: string) => {
     if (graph === null || pathToGoal === null) {
         return null;
     }
     const [inProgressNodes, nextNodes] = computeNextNodes(graph);
-    if (goals.length === 0) {
+    if (goalNodeID === "") {
         if (inProgressNodes && inProgressNodes.length !== 0) {
             return inProgressNodes[0].id;
         } else if (nextNodes && nextNodes.length !== 0) {
@@ -253,7 +253,7 @@ export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, stri
         for (const node of inProgressNodes) {
             if (pathToGoal.has(node.id)) {
                 return node.id;
-            } else if (node.id === goals[0].node_id) {
+            } else if (node.id === goalNodeID) {
                 return node.id;
             }
         }
@@ -262,13 +262,13 @@ export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, stri
         for (const node of nextNodes) {
             if (pathToGoal.has(node.id)) {
                 return node.id;
-            } else if (node.id === goals[0].node_id) {
+            } else if (node.id === goalNodeID) {
                 return node.id;
             }
         }
     }
 
-    return "";
+    return null;
 }
 
 const computeParentMap = (graph: Graph) => {
