@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {Card, Typography, Button, LinearProgress, Box, useTheme, alpha} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
 
 import useGraph from '../../hooks/useGraph';
 import {Graph, Node, NodeStatusFinished} from '../../types/graph';
 import {computePathToGoal, nextNodeToGoal} from '../../context/graph_provider';
-import { useNavigate } from 'react-router-dom';
 
 
 interface Props {
