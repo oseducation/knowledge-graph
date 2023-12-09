@@ -72,3 +72,11 @@ export type UserInteraction = {
     ui_component_name: string;
     tag: string;
 }
+
+export type PerformerUser = {
+    id: string;
+    username: string;
+    first_name: string;
+    last_name: string;
+    finished_count: number;
+};

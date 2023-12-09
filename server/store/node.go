@@ -25,6 +25,7 @@ type NodeStore interface {
 	GetNumberOfFinishedNodes(userID string) (int, error)
 	GetNumberOfNodesInDaysWithStatus(userID string, days int, status string) (int, error)
 	GetFinishedNodesProgress(userID string) (map[string]int, error)
+	TopPerformers(days, n int) ([]model.PerformerUser, error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -317,7 +318,6 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 		Where(sq.And{
 			sq.Eq{"user_id": userID},
 			sq.Eq{"status": model.NodeStatusFinished},
-			sq.NotEq{"updated_at": 0},
 			sq.Gt{"updated_at": daysAgo},
 		}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
 
@@ -331,4 +331,29 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 	}
 
 	return m, nil
+}
+
+// TopPerformers returns top performers for the last days.
+// if days is 0 then it returns all time top performers
+func (ns *SQLNodeStore) TopPerformers(days, n int) ([]model.PerformerUser, error) {
+	daysAgo := time.Now().AddDate(0, -days, 0).UnixNano() / int64(time.Millisecond)
+
+	query := ns.sqlStore.builder.Select(
+		"u.id",
+		"u.first_name",
+		"u.last_name",
+		"u.username",
+		"COUNT(node_id) AS finished_count",
+	).From("user_nodes").
+		Where(sq.And{
+			sq.Eq{"status": model.NodeStatusFinished},
+			sq.Gt{"user_nodes.updated_at": daysAgo},
+		}).OrderBy("finished_count DESC").Limit(uint64(n)).
+		Join("users u on u.id = user_nodes.user_id")
+
+	var users []model.PerformerUser
+	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &users, query); err != nil {
+		return nil, errors.Wrap(err, "can't get top performers")
+	}
+	return users, nil
 }

@@ -1,4 +1,5 @@
 import {ActivityToday, FinishedNodes, Progress} from "../types/dashboard";
+import {PerformerUser} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -25,6 +26,10 @@ export class DashboardClient{
         return `${this.getDashboardRoute()}/progress`;
     }
 
+    getPerformersRoute(days: number, n: number) {
+        return `${this.getDashboardRoute()}/performers?days=${days}&n=${n}`;
+    }
+
     getFinishedNodes = async () => {
         if (!this.rest.me || !this.rest.me.id){
             return null;
@@ -46,6 +51,14 @@ export class DashboardClient{
             return null;
         }
         const data = this.rest.doFetch<Progress>(`${this.getProgressRoute()}`, {method: 'get'});
+        return data;
+    };
+
+    getPerformers = async (days: number, n: number) => {
+        if (!this.rest.me || !this.rest.me.id){
+            return null;
+        }
+        const data = this.rest.doFetch<PerformerUser[]>(`${this.getPerformersRoute(days, n)}`, {method: 'get'});
         return data;
     };
 }
