@@ -23,10 +23,10 @@ const DashboardLHS = () =>{
         icon: <DashboardOutlinedIcon fontSize='large'/>,
         onClick: () => navigate('/dashboard')
     }, {
-        id: 'chat',
-        display_name: 'Chat',
+        id: 'ai-tutor',
+        display_name: 'AI Tutor',
         icon: <ChatBubbleOutlineOutlinedIcon fontSize='large'/>,
-        onClick: () => navigate('/dashboard/chat')
+        onClick: () => navigate('/dashboard/ai-tutor')
     }, {
         id: 'graph',
         display_name: 'Topic Map',
