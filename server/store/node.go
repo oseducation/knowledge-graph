@@ -312,14 +312,26 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 	daysAgo := time.Now().AddDate(-1, 0, 0).UnixNano() / int64(time.Millisecond)
 
 	query := ns.sqlStore.builder.Select(
-		"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+		"TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD') AS date",
 		"COUNT(node_id) AS finished_count",
 	).From("user_nodes").
 		Where(sq.And{
 			sq.Eq{"user_id": userID},
 			sq.Eq{"status": model.NodeStatusFinished},
 			sq.Gt{"updated_at": daysAgo},
-		}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+		}).GroupBy("TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD')")
+
+	if ns.sqlStore.db.DriverName() == "sqlite3" {
+		query = ns.sqlStore.builder.Select(
+			"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+			"COUNT(node_id) AS finished_count",
+		).From("user_nodes").
+			Where(sq.And{
+				sq.Eq{"user_id": userID},
+				sq.Eq{"status": model.NodeStatusFinished},
+				sq.Gt{"updated_at": daysAgo},
+			}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+	}
 
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &progress, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get finished nodes progress for user %s", userID)
@@ -338,18 +350,32 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 func (ns *SQLNodeStore) TopPerformers(days, n int) ([]model.PerformerUser, error) {
 	daysAgo := time.Now().AddDate(0, -days, 0).UnixNano() / int64(time.Millisecond)
 
+	// query := ns.sqlStore.builder.Select(
+	// 	"u.id",
+	// 	"u.first_name",
+	// 	"u.last_name",
+	// 	"u.username",
+	// 	"COUNT(node_id) AS finished_count",
+	// ).From("user_nodes").
+	// 	Where(sq.And{
+	// 		sq.Eq{"status": model.NodeStatusFinished},
+	// 		sq.Gt{"user_nodes.updated_at": daysAgo},
+	// 	}).OrderBy("finished_count DESC").Limit(uint64(n)).
+	// 	Join("users u on u.id = user_nodes.user_id")
+
 	query := ns.sqlStore.builder.Select(
 		"u.id",
 		"u.first_name",
 		"u.last_name",
 		"u.username",
-		"COUNT(node_id) AS finished_count",
-	).From("user_nodes").
+		"COUNT(un.node_id) AS finished_count",
+	).From("users u").
+		Join("user_nodes un on un.user_id = u.id").
 		Where(sq.And{
-			sq.Eq{"status": model.NodeStatusFinished},
-			sq.Gt{"user_nodes.updated_at": daysAgo},
-		}).OrderBy("finished_count DESC").Limit(uint64(n)).
-		Join("users u on u.id = user_nodes.user_id")
+			sq.Eq{"un.status": model.NodeStatusFinished},
+			sq.Gt{"un.updated_at": daysAgo},
+		}).GroupBy("u.id").
+		OrderBy("finished_count DESC").Limit(uint64(n))
 
 	var users []model.PerformerUser
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &users, query); err != nil {
