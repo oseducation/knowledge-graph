@@ -211,3 +211,11 @@ func IsValidEmail(email string) bool {
 func invalidUserError(userID, fieldName string, fieldValue any) error {
 	return errors.Errorf("invalid user error. userID=%s %s=%v", userID, fieldName, fieldValue)
 }
+
+type PerformerUser struct {
+	ID            string `json:"id" db:"id"`
+	Username      string `json:"username" db:"username"`
+	FirstName     string `json:"first_name,omitempty" db:"first_name"`
+	LastName      string `json:"last_name,omitempty" db:"last_name"`
+	FinishedCount int    `json:"finished_count" db:"finished_count"`
+}

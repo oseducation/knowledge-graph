@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/model"
@@ -13,6 +14,7 @@ func (apiObj *API) initDashboard() {
 	apiObj.Dashboard.GET("/finished_nodes", authMiddleware(), topics)
 	apiObj.Dashboard.GET("/todays_activity", authMiddleware(), activity)
 	apiObj.Dashboard.GET("/progress", authMiddleware(), progress)
+	apiObj.Dashboard.GET("/performers", authMiddleware(), performers)
 }
 
 func topics(c *gin.Context) {
@@ -101,4 +103,39 @@ func progress(c *gin.Context) {
 	}
 
 	responseFormat(c, http.StatusOK, m)
+}
+
+func performers(c *gin.Context) {
+	nString := c.Query("n")
+	n := 3
+	var err error
+	if nString != "" {
+		n, err = strconv.Atoi(nString)
+		if err != nil {
+			responseFormat(c, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+	daysString := c.Query("days")
+	days := 3
+	if daysString != "" {
+		days, err = strconv.Atoi(daysString)
+		if err != nil {
+			responseFormat(c, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	users, err := a.Store.Node().TopPerformers(days, n)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, users)
 }
