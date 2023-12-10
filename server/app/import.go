@@ -25,8 +25,25 @@ type ExtendedNode struct {
 	QuestionFileNames []string `json:"questions"`
 }
 
-// ImportAllContent reads graph.json, nodes.json and texts.md files, parses them and imports in the db
+// ImportAllContent get the parent node repo url, reads graph.json, nodes.json files,
+// leaf node repos parses them and imports in the db.
 func (a *App) ImportAllContent(url string) (string, error) {
+	leafNodeURLs, parentNodes, err := a.importParentNodes(url)
+	if err != nil {
+		return "", errors.Wrap(err, "can't import parent nodes")
+	}
+	passwords := ""
+	for _, leafNodeURL := range leafNodeURLs {
+		pass, err := a.importLeafNodes(leafNodeURL, parentNodes)
+		if err != nil {
+			return "", err
+		}
+		passwords += fmt.Sprintf("[%s]", pass)
+	}
+	return passwords, nil
+}
+
+func (a *App) importLeafNodes(url string, parentNodes map[string]ExtendedNode) (string, error) {
 	user, password, err := a.importAuthor(url)
 	if err != nil {
 		return "", errors.Wrap(err, "can't import author")
@@ -43,6 +60,11 @@ func (a *App) ImportAllContent(url string) (string, error) {
 
 	for id, node := range nodes {
 		node.Lang = user.Lang
+		parentNode, ok := parentNodes[node.ParentID]
+		if !ok {
+			return "", errors.Errorf("no parent node with id %s", node.ParentID)
+		}
+		node.ParentID = parentNode.ID
 		updatedNode, err := a.importNode(&node.Node)
 		if err != nil {
 			return "", errors.Wrap(err, "can't import node")
@@ -75,6 +97,48 @@ func (a *App) ImportAllContent(url string) (string, error) {
 	}
 
 	return password, nil
+}
+
+func (a *App) importParentNodes(url string) ([]string, map[string]ExtendedNode, error) {
+	user, _, err := a.importAuthor(url)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "can't import author")
+	}
+
+	nodesContent, err := getFileContent(fmt.Sprintf("%s/nodes.json", url))
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "can't get nodes.json file\n%s", nodesContent)
+	}
+	var nodes map[string]ExtendedNode
+	if err2 := json.Unmarshal([]byte(nodesContent), &nodes); err2 != nil {
+		return nil, nil, errors.Wrap(err, "can't unmarshal nodes.json file")
+	}
+
+	for id, node := range nodes {
+		node.Lang = user.Lang
+		updatedNode, err := a.importNode(&node.Node)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "can't import node")
+		}
+
+		nodes[id] = ExtendedNode{
+			Node: *updatedNode,
+		}
+	}
+
+	if err := a.importGraph(url, nodes); err != nil {
+		return nil, nil, errors.Wrap(err, "can't import graph")
+	}
+
+	leafNodesContent, err := getFileContent(fmt.Sprintf("%s/leaves.json", url))
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "can't get leaves.json file\n%s", leafNodesContent)
+	}
+	var leafNodeURLs []string
+	if err2 := json.Unmarshal([]byte(leafNodesContent), &leafNodeURLs); err2 != nil {
+		return nil, nil, errors.Wrap(err, "can't unmarshal nodes.json file")
+	}
+	return leafNodeURLs, nodes, nil
 }
 
 func (a *App) importGraph(url string, nodes map[string]ExtendedNode) error {
