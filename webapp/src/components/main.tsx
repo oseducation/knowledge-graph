@@ -33,7 +33,7 @@ const Main = () => {
         if (groups && groups.length > 1 &&
             groups[1].items && groups[1].items.length === 1 &&
             (groups[1].items[0].display_name === 'Vitsi AI მიმოხილვა' ||
-            groups[1].items[0].display_name === 'Vitsi AI')) {
+            groups[1].items[0].display_name === 'Intro to Vitsi AI')) {
             navigate(`/nodes/${groups[1].items[0].id}`);
         }
     }, [graph]);
