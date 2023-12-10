@@ -116,8 +116,8 @@ func (a *App) importParentNodes(url string) ([]string, map[string]ExtendedNode, 
 
 	for id, node := range nodes {
 		node.Lang = user.Lang
-		updatedNode, err := a.importNode(&node.Node)
-		if err != nil {
+		updatedNode, err3 := a.importNode(&node.Node)
+		if err3 != nil {
 			return nil, nil, errors.Wrap(err, "can't import node")
 		}
 
@@ -126,8 +126,8 @@ func (a *App) importParentNodes(url string) ([]string, map[string]ExtendedNode, 
 		}
 	}
 
-	if err := a.importGraph(url, nodes); err != nil {
-		return nil, nil, errors.Wrap(err, "can't import graph")
+	if err4 := a.importGraph(url, nodes); err4 != nil {
+		return nil, nil, errors.Wrap(err4, "can't import graph")
 	}
 
 	leafNodesContent, err := getFileContent(fmt.Sprintf("%s/leaves.json", url))
