@@ -350,19 +350,6 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 func (ns *SQLNodeStore) TopPerformers(days, n int) ([]model.PerformerUser, error) {
 	daysAgo := time.Now().AddDate(0, -days, 0).UnixNano() / int64(time.Millisecond)
 
-	// query := ns.sqlStore.builder.Select(
-	// 	"u.id",
-	// 	"u.first_name",
-	// 	"u.last_name",
-	// 	"u.username",
-	// 	"COUNT(node_id) AS finished_count",
-	// ).From("user_nodes").
-	// 	Where(sq.And{
-	// 		sq.Eq{"status": model.NodeStatusFinished},
-	// 		sq.Gt{"user_nodes.updated_at": daysAgo},
-	// 	}).OrderBy("finished_count DESC").Limit(uint64(n)).
-	// 	Join("users u on u.id = user_nodes.user_id")
-
 	query := ns.sqlStore.builder.Select(
 		"u.id",
 		"u.first_name",
