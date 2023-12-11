@@ -54,6 +54,7 @@ export const GraphProvider = (props: Props) => {
         setPathToGoal(null);
         setGraph(null);
         setGlobalGraph(null);
+        setParentID("");
         setReload(prev => !prev);
     }
 
@@ -184,7 +185,7 @@ export const computePathToGoal = (graph: Graph, goalNodeID: string) => {
 
     let start = ''
     for (const node of graph.nodes) {
-        if (reverseNeighbors.get(node.id)?.length === 0) {
+        if (reverseNeighbors.get(node.id)?.length === 0 && node.parent_id !== "") {
             start = node.id;
             break;
         }
