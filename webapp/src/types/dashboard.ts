@@ -12,3 +12,9 @@ export type ActivityToday = {
 export type Progress = {
     [date: string]: number;
 }
+
+export type Steak = {
+    current_steak: number;
+    max_steak: number;
+    today: boolean
+}
