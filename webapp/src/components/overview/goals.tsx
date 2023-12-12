@@ -81,7 +81,7 @@ const computeGoalPercentage = (globalGraph: Graph, goalNodeID: string) => {
     const map = new Map<string, Node>()
     globalGraph.nodes.forEach(node => map.set(node.id, node))
     let numberOfFinishedNodes = 0;
-    path.forEach((nodeID) => {
+    path.forEach((_, nodeID) => {
         if (map.get(nodeID)?.status === NodeStatusFinished) {
             numberOfFinishedNodes++;
         }
