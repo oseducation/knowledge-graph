@@ -1,4 +1,4 @@
-import {ActivityToday, FinishedNodes, Progress} from "../types/dashboard";
+import {ActivityToday, FinishedNodes, Progress, Steak} from "../types/dashboard";
 import {PerformerUser} from "../types/users";
 
 import {Rest} from "./rest";
@@ -30,6 +30,10 @@ export class DashboardClient{
         return `${this.getDashboardRoute()}/performers?days=${days}&n=${n}`;
     }
 
+    getSteakRoute() {
+        return `${this.getDashboardRoute()}/steak`;
+    }
+
     getFinishedNodes = async () => {
         if (!this.rest.me || !this.rest.me.id){
             return null;
@@ -59,6 +63,14 @@ export class DashboardClient{
             return null;
         }
         const data = this.rest.doFetch<PerformerUser[]>(`${this.getPerformersRoute(days, n)}`, {method: 'get'});
+        return data;
+    };
+
+    getSteak = async () => {
+        if (!this.rest.me || !this.rest.me.id){
+            return null;
+        }
+        const data = this.rest.doFetch<Steak>(`${this.getSteakRoute()}`, {method: 'get'});
         return data;
     };
 }

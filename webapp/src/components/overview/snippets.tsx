@@ -5,7 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalFireDepartmentOutlinedIcon from '@mui/icons-material/LocalFireDepartmentOutlined';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 
-import {FinishedNodes} from '../../types/dashboard';
+import {FinishedNodes, Steak} from '../../types/dashboard';
 import {Client} from '../../client/client';
 
 interface Props {
@@ -85,11 +85,18 @@ const DashboardWidget = (props: Props) => {
 const Snippets = () => {
     const theme = useTheme();
     const [finishedNodes, setFinishedNodes] = useState<FinishedNodes>({finished_nodes: 0, finished_nodes_this_week: 0});
+    const [steak, setSteak] = useState<Steak>({current_steak: 0, max_steak: 0, today: false});
 
     useEffect(() => {
         Client.Dashboard().getFinishedNodes().then((res) => {
             if (res) {
                 setFinishedNodes(res);
+            }
+        });
+        Client.Dashboard().getSteak().then((res) => {
+            console.log('res', res)
+            if (res) {
+                setSteak(res);
             }
         });
     }, []);
@@ -112,13 +119,13 @@ const Snippets = () => {
             <Grid2 xs={12} md={4}>
                 <DashboardWidget
                     title="Learning Steak"
-                    value="4 Days"
-                    delta="8"
+                    value={`${steak.current_steak} Days`}
+                    delta={"" + steak.max_steak}
                     deltaType="positive"
                     secondaryText='Max Steak'
                     iconBackground={'#DFDBFB'}
                     icon={
-                        <LocalFireDepartmentOutlinedIcon fontSize="large" sx={{color: theme.palette.primary.main}}/>
+                        <LocalFireDepartmentOutlinedIcon fontSize="large" sx={{color: steak.today ? theme.palette.primary.main : theme.palette.grey[600]}}/>
                     }
                 />
             </Grid2>

@@ -26,6 +26,7 @@ type NodeStore interface {
 	GetNumberOfNodesInDaysWithStatus(userID string, days int, status string) (int, error)
 	GetFinishedNodesProgress(userID string) (map[string]int, error)
 	TopPerformers(days, n int) ([]model.PerformerUser, error)
+	LearningSteak(userID string) (currentSteak int, maxSteak int, finishedToday bool, err error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -369,4 +370,91 @@ func (ns *SQLNodeStore) TopPerformers(days, n int) ([]model.PerformerUser, error
 		return nil, errors.Wrap(err, "can't get top performers")
 	}
 	return users, nil
+}
+
+func (ns *SQLNodeStore) LearningSteak(userID string) (currentSteak int, maxSteak int, finishedToday bool, err error) {
+	type NodeProgress struct {
+		Date          *string `db:"date"`
+		FinishedCount *int    `db:"finished_count"`
+	}
+	var progress []*NodeProgress
+
+	query := ns.sqlStore.builder.Select(
+		"TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD') AS date",
+		"COUNT(node_id) AS finished_count",
+	).From("user_nodes").
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"status": model.NodeStatusFinished},
+		}).GroupBy("TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD')")
+
+	if ns.sqlStore.db.DriverName() == "sqlite3" {
+		query = ns.sqlStore.builder.Select(
+			"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+			"COUNT(node_id) AS finished_count",
+		).From("user_nodes").
+			Where(sq.And{
+				sq.Eq{"user_id": userID},
+				sq.Eq{"status": model.NodeStatusFinished},
+			}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+	}
+
+	if err2 := ns.sqlStore.selectBuilder(ns.sqlStore.db, &progress, query); err2 != nil {
+		return 0, 0, false, errors.Wrapf(err2, "can't get finished nodes for user %s", userID)
+	}
+
+	m := make(map[string]int)
+	for _, node := range progress {
+		m[*node.Date] = *node.FinishedCount
+	}
+
+	currentSteak = getCurrentSteak(m)
+	maxSteak = getMaxSteak(m)
+	finishedToday = getTodayProgress(m)
+	if finishedToday {
+		currentSteak++
+	}
+	err = nil
+	return
+}
+
+func getMaxSteak(progress map[string]int) int {
+	currentCount := 0
+	maxCount := 0
+	for day := 0; day < 366; day++ {
+		d := time.Now().AddDate(0, 0, -day).Format("2006-01-02")
+		if _, ok := progress[d]; !ok {
+			if maxCount < currentCount {
+				maxCount = currentCount
+				currentCount = 0
+			}
+		} else {
+			currentCount++
+		}
+	}
+	if maxCount < currentCount {
+		maxCount = currentCount
+	}
+	return maxCount
+}
+
+func getTodayProgress(progress map[string]int) bool {
+	day := time.Now().Format("2006-01-02")
+	if _, ok := progress[day]; !ok {
+		return false
+	}
+	return true
+}
+
+func getCurrentSteak(progress map[string]int) int {
+	counter := 0
+	for {
+		day := time.Now().AddDate(0, 0, -(counter + 1)).Format("2006-01-02")
+		if _, ok := progress[day]; !ok {
+			break
+		}
+		counter++
+	}
+
+	return counter
 }

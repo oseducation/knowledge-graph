@@ -15,6 +15,7 @@ func (apiObj *API) initDashboard() {
 	apiObj.Dashboard.GET("/todays_activity", authMiddleware(), activity)
 	apiObj.Dashboard.GET("/progress", authMiddleware(), progress)
 	apiObj.Dashboard.GET("/performers", authMiddleware(), performers)
+	apiObj.Dashboard.GET("/steak", authMiddleware(), steak)
 }
 
 func topics(c *gin.Context) {
@@ -138,4 +139,30 @@ func performers(c *gin.Context) {
 	}
 
 	responseFormat(c, http.StatusOK, users)
+}
+
+func steak(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	steak, maxSteak, today, err := a.Store.Node().LearningSteak(session.UserID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, map[string]interface{}{
+		"current_steak": steak,
+		"max_steak":     maxSteak,
+		"today":         today,
+	})
 }
