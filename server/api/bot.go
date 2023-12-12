@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/model"
 )
 
@@ -129,7 +128,7 @@ func getBotPosts(c *gin.Context) {
 		return
 	}
 
-	locationID := fmt.Sprintf("%s_%s", session.UserID, app.BotID)
+	locationID := fmt.Sprintf("%s_%s", session.UserID, model.BotID)
 
 	options := &model.PostGetOptions{}
 	model.ComposePostOptions(

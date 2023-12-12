@@ -18,3 +18,9 @@ export type Steak = {
     max_steak: number;
     today: boolean
 }
+
+export type AITutorNumberOfPosts = {
+    bot_posts_month: number;
+    bot_posts_week: number;
+    max_posts: number;
+}
