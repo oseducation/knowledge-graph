@@ -5,7 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalFireDepartmentOutlinedIcon from '@mui/icons-material/LocalFireDepartmentOutlined';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 
-import {FinishedNodes, Steak} from '../../types/dashboard';
+import {AITutorNumberOfPosts, FinishedNodes, Steak} from '../../types/dashboard';
 import {Client} from '../../client/client';
 
 interface Props {
@@ -86,6 +86,7 @@ const Snippets = () => {
     const theme = useTheme();
     const [finishedNodes, setFinishedNodes] = useState<FinishedNodes>({finished_nodes: 0, finished_nodes_this_week: 0});
     const [steak, setSteak] = useState<Steak>({current_steak: 0, max_steak: 0, today: false});
+    const [postsNum, setPostsNum] = useState<AITutorNumberOfPosts>({bot_posts_month: 0, bot_posts_week: 0, max_posts: 100});
 
     useEffect(() => {
         Client.Dashboard().getFinishedNodes().then((res) => {
@@ -94,9 +95,13 @@ const Snippets = () => {
             }
         });
         Client.Dashboard().getSteak().then((res) => {
-            console.log('res', res)
             if (res) {
                 setSteak(res);
+            }
+        });
+        Client.Dashboard().getAITutorPosts().then((res) => {
+            if (res) {
+                setPostsNum(res);
             }
         });
     }, []);
@@ -132,8 +137,8 @@ const Snippets = () => {
             <Grid2 xs={12} md={4}>
                 <DashboardWidget
                     title="AI Tutor Questions"
-                    value="17/100"
-                    delta="10"
+                    value={`${postsNum.bot_posts_month}/${postsNum.max_posts}`}
+                    delta={"" + postsNum.bot_posts_week}
                     deltaType="positive"
                     secondaryText='This Week'
                     iconBackground='#fde8f2'

@@ -1,4 +1,4 @@
-import {ActivityToday, FinishedNodes, Progress, Steak} from "../types/dashboard";
+import {AITutorNumberOfPosts, ActivityToday, FinishedNodes, Progress, Steak} from "../types/dashboard";
 import {PerformerUser} from "../types/users";
 
 import {Rest} from "./rest";
@@ -32,6 +32,10 @@ export class DashboardClient{
 
     getSteakRoute() {
         return `${this.getDashboardRoute()}/steak`;
+    }
+
+    getAITutorPostsRoute() {
+        return `${this.getDashboardRoute()}/number_of_bot_posts_monthly`;
     }
 
     getFinishedNodes = async () => {
@@ -71,6 +75,14 @@ export class DashboardClient{
             return null;
         }
         const data = this.rest.doFetch<Steak>(`${this.getSteakRoute()}`, {method: 'get'});
+        return data;
+    };
+
+    getAITutorPosts = async () => {
+        if (!this.rest.me || !this.rest.me.id){
+            return null;
+        }
+        const data = this.rest.doFetch<AITutorNumberOfPosts>(`${this.getAITutorPostsRoute()}`, {method: 'get'});
         return data;
     };
 }

@@ -23,6 +23,8 @@ const PostMessageMaxRunes = 65536
 const PropsMaxSize = 8096
 const PostDirectMessageLocationExample = "ql3jdjjdtq116d1tqd766ltthl_ql3jdjjdtq116d1tqd766ltthl"
 
+const BotID = "aiTutorBotID01234567890123"
+
 type PostActionType string
 
 const (

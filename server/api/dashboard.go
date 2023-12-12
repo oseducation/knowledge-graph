@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/model"
@@ -16,6 +17,7 @@ func (apiObj *API) initDashboard() {
 	apiObj.Dashboard.GET("/progress", authMiddleware(), progress)
 	apiObj.Dashboard.GET("/performers", authMiddleware(), performers)
 	apiObj.Dashboard.GET("/steak", authMiddleware(), steak)
+	apiObj.Dashboard.GET("/number_of_bot_posts_monthly", authMiddleware(), getNumberOfBotPostsForUser)
 }
 
 func topics(c *gin.Context) {
@@ -164,5 +166,40 @@ func steak(c *gin.Context) {
 		"current_steak": steak,
 		"max_steak":     maxSteak,
 		"today":         today,
+	})
+}
+
+func getNumberOfBotPostsForUser(c *gin.Context) {
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	now := time.Now()
+	beginningOfTheMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).UnixNano() / int64(time.Millisecond)
+	countThisMonth, err := a.CountChatGPTPosts(session.UserID, beginningOfTheMonth)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	weekAgo := time.Now().AddDate(0, -1, 0).UnixNano() / int64(time.Millisecond)
+	countThisWeek, err := a.CountChatGPTPosts(session.UserID, weekAgo)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, map[string]interface{}{
+		"bot_posts_month": countThisMonth,
+		"bot_posts_week":  countThisWeek,
+		"max_posts":       a.Config.ChatSettings.ChatGPTMonthlyLimit,
 	})
 }

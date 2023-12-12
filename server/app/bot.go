@@ -9,8 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const BotID = "aiTutorBotID01234567890123"
-
 func (a *App) AskQuestion(userPost *model.Post) (string, error) {
 	posts, err := a.Store.Post().GetPosts(&model.PostGetOptions{
 		UserID: userPost.UserID,
@@ -96,8 +94,8 @@ You're on the right track, and I'm here to help you keep the momentum going. Whe
 	}
 
 	post, err := a.CreatePost(&model.Post{
-		LocationID: fmt.Sprintf("%s_%s", userID, BotID),
-		UserID:     BotID,
+		LocationID: fmt.Sprintf("%s_%s", userID, model.BotID),
+		UserID:     model.BotID,
 		Message:    message,
 		PostType:   model.PostTypeWithActions,
 		Props: map[string]interface{}{
@@ -112,8 +110,9 @@ You're on the right track, and I'm here to help you keep the momentum going. Whe
 }
 
 func (a *App) CheckLimit(userID string) bool {
-	monthAgo := time.Now().AddDate(0, -1, 0).UnixNano() / int64(time.Millisecond)
-	count, err := a.CountChatGPTPosts(userID, monthAgo)
+	now := time.Now()
+	beginningOfTheMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).UnixNano() / int64(time.Millisecond)
+	count, err := a.CountChatGPTPosts(userID, beginningOfTheMonth)
 	if err != nil {
 		a.Log.Error(err.Error())
 		return false
@@ -123,12 +122,12 @@ func (a *App) CheckLimit(userID string) bool {
 }
 
 func (a *App) CountChatGPTPosts(userID string, after int64) (int, error) {
-	locationID := fmt.Sprintf("%s_%s", userID, BotID)
+	locationID := fmt.Sprintf("%s_%s", userID, model.BotID)
 
 	options := &model.PostGetOptions{}
 	model.ComposePostOptions(
 		model.PostLocationID(locationID),
-		model.PostUserID(BotID),
+		model.PostUserID(model.BotID),
 		model.PostType(model.PostTypeChatGPT),
 		model.PostAfter(after),
 		model.PostPage(-1),
@@ -151,8 +150,8 @@ func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post,
 	}
 
 	post, err := a.Store.Post().Save(&model.Post{
-		LocationID: fmt.Sprintf("%s_%s", userID, BotID),
-		UserID:     BotID,
+		LocationID: fmt.Sprintf("%s_%s", userID, model.BotID),
+		UserID:     model.BotID,
 		Message:    answer,
 		PostType:   model.PostTypeChatGPT,
 		Props:      map[string]interface{}{"node_id": nodeID},
