@@ -11,7 +11,7 @@ import useAuth from "../hooks/useAuth";
 import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
 
-import ProfileDropdown from "./ProfileDropdown";
+import ProfileDropdown from "./profile_dropdown";
 import LanguagePicker from './language_picker';
 
 
