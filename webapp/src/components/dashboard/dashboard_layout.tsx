@@ -4,7 +4,6 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import {Box, CssBaseline, Drawer, Toolbar} from '@mui/material';
 
 import {DashboardColors} from '../../ThemeOptions';
-import {GraphProvider} from '../../context/graph_provider';
 import useDrawer from '../../hooks/useDrawer';
 import {DrawerProvider} from '../../context/drawer_provider';
 
@@ -65,17 +64,14 @@ const DashboardLayoutComp = () => {
                 }}>
                     <DashboardLHS/>
                 </Grid2>
-                <GraphProvider>
-                    <Grid2 xs={true} sx={{height: '100vh'}} bgcolor={DashboardColors.background}>
-                        <Box sx={{height: '64px'}}>
-                            <Toolbar disableGutters>
-                                <DashboardHeader/>
-                            </Toolbar>
-                        </Box>
-                        <Outlet/>
-                    </Grid2>
-                </GraphProvider>
-
+                <Grid2 xs={true} sx={{height: '100vh'}} bgcolor={DashboardColors.background}>
+                    <Box sx={{height: '64px'}}>
+                        <Toolbar disableGutters>
+                            <DashboardHeader/>
+                        </Toolbar>
+                    </Box>
+                    <Outlet/>
+                </Grid2>
             </Grid2>
         </Box>
     );
