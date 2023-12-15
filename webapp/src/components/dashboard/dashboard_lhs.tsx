@@ -36,12 +36,12 @@ const DashboardLHS = () =>{
         id: 'goals',
         display_name: 'Goals',
         icon: <RocketLaunchOutlinedIcon fontSize='large'/>,
-        onClick: () => navigate('/dashboard/goals')
+        // onClick: () => navigate('/dashboard/goals')
     }, {
         id: 'badges',
         display_name: 'Badges',
         icon: <MilitaryTechOutlinedIcon fontSize='large'/>,
-        onClick: () => navigate('/dashboard/badges')
+        // onClick: () => navigate('/dashboard/badges')
     }]
 
     return (

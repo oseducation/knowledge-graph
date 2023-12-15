@@ -15,7 +15,6 @@ function withTimeTracking<T>(WrappedComponent: ComponentType<T>, tag: string) {
             const id = generateRandomString();
             setStartTime(Date.now());
 
-            console.log(`[TimeTracker] ${id} ${tag} started`);
             return () => {
                 const endDate = Date.now();
                 const timeSpent = endDate - startTime;
@@ -29,7 +28,6 @@ function withTimeTracking<T>(WrappedComponent: ComponentType<T>, tag: string) {
                     url: window.location.href,
                     tag,
                 } as UserInteraction;
-                console.log(`[TimeTracker] ${id} ${tag} time spent: ${timeSpent}ms. ${interaction}`);
                 if (user?.id && timeSpent > MINIMUM_TIME_SPENT) {
                     Client.User().saveInteraction(interaction);
                 }

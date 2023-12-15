@@ -52,7 +52,7 @@ function Header() {
     }
 
     const handleBoxClick = () => {
-        navigate('/')
+        navigate(-1);
     }
 
     function logoAndTitle() {

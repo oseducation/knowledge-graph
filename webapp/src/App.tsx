@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {Routes, Route} from 'react-router-dom';
+import {Routes, Route, Navigate} from 'react-router-dom';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -21,7 +21,6 @@ import GraphPage from './pages/GraphPage';
 import KarelPage from './pages/KarelPage';
 import GuestLayout from './GuestLayout';
 import Landing from './components/landing/landing';
-import Main from './components/main';
 import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import Chat from './components/bot/chat';
@@ -33,7 +32,7 @@ function App() {
         <Routes>
             <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]}/>}>
                 <Route path="" element={<UserLayout/>}>
-                    <Route path="/" element={<Main/>}/>
+                    <Route path="/" element={<Navigate to="/dashboard" replace />}/>
                     <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                     <Route path="/welcome" element={<WelcomePage/>}/>
                     <Route path="/profile" element={<ProfilePage/>}/>

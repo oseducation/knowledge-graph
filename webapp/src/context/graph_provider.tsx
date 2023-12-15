@@ -54,7 +54,6 @@ export const GraphProvider = (props: Props) => {
         setPathToGoal(null);
         setGraph(null);
         setGlobalGraph(null);
-        setParentID("");
         setReload(prev => !prev);
     }
 
@@ -90,7 +89,7 @@ export const GraphProvider = (props: Props) => {
             }
             computeNextNodes(data)
             setGlobalGraph(data);
-            const graph = getGraphForParent(data, "");
+            const graph = getGraphForParent(data, parentID);
             setGraph(graph);
 
             Client.Graph().getGoals().then((goals: Goal[]) => {
