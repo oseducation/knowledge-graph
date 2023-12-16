@@ -2,7 +2,7 @@
 import {NodeViewState, NodeWithResources} from "../../types/graph";
 import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
 
-import {BOT_ID} from "./chat";
+import {BOT_ID} from "./ai_tutor_chat";
 
 
 const letsStartMessage = "Great, Let's start with the next topic";

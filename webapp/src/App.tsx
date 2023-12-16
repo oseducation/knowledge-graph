@@ -23,7 +23,7 @@ import GuestLayout from './GuestLayout';
 import Landing from './components/landing/landing';
 import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
-import Chat from './components/bot/chat';
+import AITutorChat from './components/bot/ai_tutor_chat';
 import Overview from './components/overview/overview';
 import Graph from './components/dashboard/graph';
 
@@ -42,7 +42,7 @@ function App() {
                 </Route>
                 <Route path="dashboard" element={<DashboardLayout/>}>
                     <Route path="" element={<Overview/>}/>
-                    <Route path="chat" element={<Chat/>}/>
+                    <Route path="ai-tutor" element={<AITutorChat/>}/>
                     <Route path="graph" element={<Graph/>}/>
                 </Route>
             </Route>

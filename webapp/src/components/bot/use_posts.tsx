@@ -5,7 +5,7 @@ import {Client} from '../../client/client';
 import useAuth from '../../hooks/useAuth';
 
 import {constructBotPost} from './create_post';
-import {BOT_ID} from './chat';
+import {BOT_ID} from './ai_tutor_chat';
 
 export default function usePosts() {
     const [posts, setPosts] = useState<Post[]>([]);
