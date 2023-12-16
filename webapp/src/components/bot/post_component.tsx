@@ -5,7 +5,7 @@ import {Post, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTy
 import IDE from '../karel/ide';
 
 import VideoMessage from './video_message';
-import {BOT_ID} from './chat';
+import {BOT_ID} from './ai_tutor_chat';
 import TestMessage from './test_message';
 import PostContainer from './post_container';
 import TextMessage from './text_message';

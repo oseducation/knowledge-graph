@@ -2,7 +2,7 @@ import {Post, PostType, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTop
 import {NodeWithResources} from '../../types/graph';
 import {User} from '../../types/users';
 
-import {BOT_ID} from './chat';
+import {BOT_ID} from './ai_tutor_chat';
 import {getActions, letsStartAction, nextKarelJSMessage, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
 
 

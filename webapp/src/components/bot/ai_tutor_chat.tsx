@@ -21,7 +21,7 @@ import BotStreamMessage from './bot_stream_message';
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
 
-const Chat = () => {
+const AITutorChat = () => {
     const {posts, setPosts} = usePosts();
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -256,7 +256,7 @@ const Chat = () => {
     );
 }
 
-export default Chat;
+export default AITutorChat;
 
 const ChatContainer = styled(Box)({
     display: 'flex',
