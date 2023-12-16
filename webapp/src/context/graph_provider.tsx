@@ -89,7 +89,7 @@ export const GraphProvider = (props: Props) => {
             }
             computeNextNodes(data)
             setGlobalGraph(data);
-            const graph = getGraphForParent(data, "");
+            const graph = getGraphForParent(data, parentID);
             setGraph(graph);
 
             Client.Graph().getGoals().then((goals: Goal[]) => {
@@ -184,7 +184,7 @@ export const computePathToGoal = (graph: Graph, goalNodeID: string) => {
 
     let start = ''
     for (const node of graph.nodes) {
-        if (reverseNeighbors.get(node.id)?.length === 0) {
+        if (reverseNeighbors.get(node.id)?.length === 0 && node.parent_id !== "") {
             start = node.id;
             break;
         }

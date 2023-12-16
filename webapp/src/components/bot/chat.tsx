@@ -49,7 +49,6 @@ const Chat = () => {
     }, []);
 
     useEffect(() => {
-        console.log('useefect nextNodeID', nextNodeID)
         if (nextNodeID) {
             Client.Node().get(nextNodeID).then((node) => {
                 setNode(node);

@@ -12,3 +12,15 @@ export type ActivityToday = {
 export type Progress = {
     [date: string]: number;
 }
+
+export type Steak = {
+    current_steak: number;
+    max_steak: number;
+    today: boolean
+}
+
+export type AITutorNumberOfPosts = {
+    bot_posts_month: number;
+    bot_posts_week: number;
+    max_posts: number;
+}

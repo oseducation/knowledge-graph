@@ -1,33 +1,26 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ProgressIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
-import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
-import {Dialog, ListItemIcon, MenuItem, Stack, useMediaQuery} from "@mui/material";
+import {Avatar, Dialog, ListItemIcon, MenuItem, Stack} from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
-import {useTheme} from '@mui/material/styles';
 import {useTranslation} from 'react-i18next';
-
 import {useNavigate} from "react-router-dom";
-
-import {ArrowDropDown, Person2Outlined} from "@mui/icons-material";
 
 import {Client} from "../client/client";
 import useAuth from "../hooks/useAuth";
+import {DashboardColors} from '../ThemeOptions';
 
 import Preferences from "./preferences";
+import {stringAvatar} from './rhs/rhs';
 
 
 const ProfileDropdown = () => {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorElUser)
     const {user, setUser} = useAuth()
     const navigate = useNavigate();
     const [openPreferences, setOpenPreferences] = React.useState(false);
-    const theme = useTheme();
-    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
     const {t} = useTranslation();
 
     const profileDestinations = [
@@ -74,67 +67,73 @@ const ProfileDropdown = () => {
         }
     };
 
-    return <Stack direction="row" spacing={2}>
-
-        <Box sx={{flexGrow: 0}}>
-            <Button
-                aria-haspopup="true"
-                variant='outlined'
-                color='inherit'
+    return (
+        <Stack direction="row" spacing={2}>
+            <Avatar
+                alt={user!.username}
+                {...stringAvatar(user!)}
                 onClick={handleOpenUserMenu}
-                id="composition-button"
-                startIcon={<Person2Outlined/>}
-                endIcon={<ArrowDropDown/>}
-                sx={{
-                    textTransform: "none",
-                }}
-            >
-                {!isPhone && user?.username}
-            </Button>
+            />
             <Menu
-                sx={{mt: '45px'}}
-                id="menu-appbar"
                 anchorEl={anchorElUser}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                open={open}
+                open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
+                keepMounted
+                PaperProps={{
+                    elevation: 0,
+                    sx: {
+                        overflow: 'visible',
+                        bgcolor: DashboardColors.background,
+                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                        mt: 1.5,
+                        '& .MuiAvatar-root': {
+                            width: 32,
+                            height: 32,
+                            ml: -0.5,
+                            mr: 1,
+                        },
+                        '&:before': {
+                            content: '""',
+                            display: 'block',
+                            position: 'absolute',
+                            top: 0,
+                            right: 14,
+                            width: 10,
+                            height: 10,
+                            bgcolor: DashboardColors.background,
+                            transform: 'translateY(-50%) rotate(45deg)',
+                            zIndex: 0,
+                        },
+                    },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 {profileDestinations.map((destination) => (
                     <MenuItem
                         key={"profileMenu" + destination.displayName}
                         onClick={() => handleCloseUserMenu(destination.destination)}
+                        sx={{color: DashboardColors.primary}}
                     >
-                        <ListItemIcon>
+                        <ListItemIcon sx={{color: DashboardColors.primary}}>
                             {destination.icon}
                         </ListItemIcon>
                         {destination.displayName}
                     </MenuItem>
                 ))}
-
-
             </Menu>
-        </Box>
-
-        <Dialog
-            open={openPreferences}
-            onClose={() => {
-                setOpenPreferences(false)
-            }}
-        >
-            <Preferences onClose={() => {
-                setOpenPreferences(false)
-            }}/>
-        </Dialog>
-
-    </Stack>
+            <Dialog
+                open={openPreferences}
+                onClose={() => {
+                    setOpenPreferences(false)
+                }}
+            >
+                <Preferences onClose={() => {
+                    setOpenPreferences(false)
+                }}/>
+            </Dialog>
+        </Stack>
+    );
 }
 
 export default ProfileDropdown

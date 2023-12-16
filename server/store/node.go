@@ -26,6 +26,7 @@ type NodeStore interface {
 	GetNumberOfNodesInDaysWithStatus(userID string, days int, status string) (int, error)
 	GetFinishedNodesProgress(userID string) (map[string]int, error)
 	TopPerformers(days, n int) ([]model.PerformerUser, error)
+	LearningSteak(userID string) (currentSteak int, maxSteak int, finishedToday bool, err error)
 }
 
 // SQLNodeStore is a struct to store nodes
@@ -312,14 +313,26 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 	daysAgo := time.Now().AddDate(-1, 0, 0).UnixNano() / int64(time.Millisecond)
 
 	query := ns.sqlStore.builder.Select(
-		"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+		"TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD') AS date",
 		"COUNT(node_id) AS finished_count",
 	).From("user_nodes").
 		Where(sq.And{
 			sq.Eq{"user_id": userID},
 			sq.Eq{"status": model.NodeStatusFinished},
 			sq.Gt{"updated_at": daysAgo},
-		}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+		}).GroupBy("TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD')")
+
+	if ns.sqlStore.db.DriverName() == "sqlite3" {
+		query = ns.sqlStore.builder.Select(
+			"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+			"COUNT(node_id) AS finished_count",
+		).From("user_nodes").
+			Where(sq.And{
+				sq.Eq{"user_id": userID},
+				sq.Eq{"status": model.NodeStatusFinished},
+				sq.Gt{"updated_at": daysAgo},
+			}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+	}
 
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &progress, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get finished nodes progress for user %s", userID)
@@ -343,17 +356,105 @@ func (ns *SQLNodeStore) TopPerformers(days, n int) ([]model.PerformerUser, error
 		"u.first_name",
 		"u.last_name",
 		"u.username",
-		"COUNT(node_id) AS finished_count",
-	).From("user_nodes").
+		"COUNT(un.node_id) AS finished_count",
+	).From("users u").
+		Join("user_nodes un on un.user_id = u.id").
 		Where(sq.And{
-			sq.Eq{"status": model.NodeStatusFinished},
-			sq.Gt{"user_nodes.updated_at": daysAgo},
-		}).OrderBy("finished_count DESC").Limit(uint64(n)).
-		Join("users u on u.id = user_nodes.user_id")
+			sq.Eq{"un.status": model.NodeStatusFinished},
+			sq.Gt{"un.updated_at": daysAgo},
+		}).GroupBy("u.id").
+		OrderBy("finished_count DESC").Limit(uint64(n))
 
 	var users []model.PerformerUser
 	if err := ns.sqlStore.selectBuilder(ns.sqlStore.db, &users, query); err != nil {
 		return nil, errors.Wrap(err, "can't get top performers")
 	}
 	return users, nil
+}
+
+func (ns *SQLNodeStore) LearningSteak(userID string) (currentSteak int, maxSteak int, finishedToday bool, err error) {
+	type NodeProgress struct {
+		Date          *string `db:"date"`
+		FinishedCount *int    `db:"finished_count"`
+	}
+	var progress []*NodeProgress
+
+	query := ns.sqlStore.builder.Select(
+		"TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD') AS date",
+		"COUNT(node_id) AS finished_count",
+	).From("user_nodes").
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"status": model.NodeStatusFinished},
+		}).GroupBy("TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD')")
+
+	if ns.sqlStore.db.DriverName() == "sqlite3" {
+		query = ns.sqlStore.builder.Select(
+			"DATE(datetime(updated_at / 1000, 'unixepoch')) AS date",
+			"COUNT(node_id) AS finished_count",
+		).From("user_nodes").
+			Where(sq.And{
+				sq.Eq{"user_id": userID},
+				sq.Eq{"status": model.NodeStatusFinished},
+			}).GroupBy("DATE(datetime(updated_at / 1000, 'unixepoch'))")
+	}
+
+	if err2 := ns.sqlStore.selectBuilder(ns.sqlStore.db, &progress, query); err2 != nil {
+		return 0, 0, false, errors.Wrapf(err2, "can't get finished nodes for user %s", userID)
+	}
+
+	m := make(map[string]int)
+	for _, node := range progress {
+		m[*node.Date] = *node.FinishedCount
+	}
+
+	currentSteak = getCurrentSteak(m)
+	maxSteak = getMaxSteak(m)
+	finishedToday = getTodayProgress(m)
+	if finishedToday {
+		currentSteak++
+	}
+	err = nil
+	return
+}
+
+func getMaxSteak(progress map[string]int) int {
+	currentCount := 0
+	maxCount := 0
+	for day := 0; day < 366; day++ {
+		d := time.Now().AddDate(0, 0, -day).Format("2006-01-02")
+		if _, ok := progress[d]; !ok {
+			if maxCount < currentCount {
+				maxCount = currentCount
+				currentCount = 0
+			}
+		} else {
+			currentCount++
+		}
+	}
+	if maxCount < currentCount {
+		maxCount = currentCount
+	}
+	return maxCount
+}
+
+func getTodayProgress(progress map[string]int) bool {
+	day := time.Now().Format("2006-01-02")
+	if _, ok := progress[day]; !ok {
+		return false
+	}
+	return true
+}
+
+func getCurrentSteak(progress map[string]int) int {
+	counter := 0
+	for {
+		day := time.Now().AddDate(0, 0, -(counter + 1)).Format("2006-01-02")
+		if _, ok := progress[day]; !ok {
+			break
+		}
+		counter++
+	}
+
+	return counter
 }

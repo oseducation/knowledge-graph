@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {Card, Typography, Button, LinearProgress, Box, useTheme, alpha} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import useGraph from '../../hooks/useGraph';
 import {Graph, Node, NodeStatusFinished} from '../../types/graph';
 import {computePathToGoal, nextNodeToGoal} from '../../context/graph_provider';
-
 
 interface Props {
     imageURL: string;
@@ -31,8 +31,16 @@ const GoalCard = (props: Props) => {
                     mb: 1,
                     height:'50%',
                     pb: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+
                 }}>
-                    <img src={props.imageURL} alt={props.title} width={'240px'} height={'135px'}/>
+                    <img
+                        src={props.imageURL}
+                        alt={props.title}
+                        width={'100%'}
+                        height={'100%'}
+                    />
                 </Box>
                 <Typography variant="h6" component="div">
                     {props.title}
@@ -81,7 +89,7 @@ const computeGoalPercentage = (globalGraph: Graph, goalNodeID: string) => {
     const map = new Map<string, Node>()
     globalGraph.nodes.forEach(node => map.set(node.id, node))
     let numberOfFinishedNodes = 0;
-    path.forEach((nodeID) => {
+    path.forEach((_, nodeID) => {
         if (map.get(nodeID)?.status === NodeStatusFinished) {
             numberOfFinishedNodes++;
         }
@@ -95,7 +103,7 @@ const Goals = () => {
     const navigate = useNavigate();
 
     if (!globalGraph) {
-        return 'loading...';
+        return <div>loading...</div>;
     }
 
     return (
@@ -119,22 +127,22 @@ const Goals = () => {
                     </Button>
                 }
             </Box>
-            <Box display={'flex'} flexDirection={'row'}>
+            <Grid2 display={'flex'} flexDirection={{xs: 'column', sm: 'row'}}>
                 {goals.slice(0,3).map((goal, index) => {
                     const path = computePathToGoal(globalGraph, goal.node_id);
                     const nextNodeID = nextNodeToGoal(globalGraph, path, goal.node_id);
                     return (
-                        <Box key={index}>
+                        <Grid2 xs={12} sm={4} key={index}>
                             <GoalCard
                                 title={goal.name}
                                 imageURL={goal.thumbnail_relative_url}
                                 progress={globalGraph ? computeGoalPercentage(globalGraph, goal.node_id) : 0}
                                 onClick={() => navigate(`/nodes/${nextNodeID}`)}
                             />
-                        </Box>
+                        </Grid2>
                     );
                 })}
-            </Box>
+            </Grid2>
         </Box>
     );
 };

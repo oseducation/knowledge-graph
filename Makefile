@@ -36,7 +36,7 @@ docker-stop:
 	docker compose down
 
 docker-import: docker-start
-	docker exec kg-server /knowledge-graph-server/kg-server db import-content --url https://raw.githubusercontent.com/oseducation/content-ge/main/intro-to-programming-js-en/
+	docker exec kg-server /knowledge-graph-server/kg-server db import-content --url https://raw.githubusercontent.com/oseducation/content-ge/main/comp-science/
 
 docker-container-rm: docker-stop
 	docker compose rm
@@ -48,7 +48,7 @@ import-old:
 	cd server && go run cmd/main.go db import-old --url https://raw.githubusercontent.com/oseducation/content-ge/main/programming-methodology/
 
 import:
-	cd server && go run cmd/main.go db import-content --url https://raw.githubusercontent.com/oseducation/content-ge/main/intro-to-programming-js-en/
+	cd server && go run cmd/main.go db import-content --url https://raw.githubusercontent.com/oseducation/content-ge/main/comp-science/
 
 import-khan:
 	cd server && go run cmd/main.go db import --url https://raw.githubusercontent.com/oseducation/content-ge/main/khan-math-en/
