@@ -2,8 +2,6 @@ package app
 
 import (
 	"database/sql"
-	"fmt"
-	"strings"
 
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
@@ -61,9 +59,6 @@ func (a *App) GetGoals(userID string) ([]*model.GoalWithData, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "userID = %s", userID)
 	}
-	for _, goal := range goals {
-		goal.ThumbnailRelativeURL = getNodeThumbnailRelativeURL(goal.Name)
-	}
 	if len(goals) > 0 {
 		return goals, nil
 	}
@@ -82,10 +77,6 @@ func (a *App) GetGoals(userID string) ([]*model.GoalWithData, error) {
 	return []*model.GoalWithData{{
 		NodeID:               defaultGoal,
 		Name:                 node.Name,
-		ThumbnailRelativeURL: getNodeThumbnailRelativeURL(node.Name),
+		ThumbnailRelativeURL: node.ThumbnailURL,
 	}}, nil
-}
-
-func getNodeThumbnailRelativeURL(name string) string {
-	return fmt.Sprintf("/images/nodes/%s.png", strings.ReplaceAll(name, " ", "-"))
 }

@@ -168,6 +168,7 @@ func (gs *SQLGoalStore) GetAllWithData(userID string) ([]*model.GoalWithData, er
 		Select(
 			"n.id AS node_id",
 			"n.name",
+			"n.thumbnail_url as thumbnail_relative_url",
 		).
 		From("user_goals g").
 		Join("nodes n ON n.id = g.node_id").

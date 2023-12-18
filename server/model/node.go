@@ -32,16 +32,17 @@ const (
 
 // Node type defines Knowledge Graph node
 type Node struct {
-	ID          string `json:"id" db:"id"`
-	CreatedAt   int64  `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt   int64  `json:"updated_at,omitempty" db:"updated_at"`
-	DeletedAt   int64  `json:"deleted_at" db:"deleted_at"`
-	Name        string `json:"name" db:"name"`
-	Description string `json:"description,omitempty" db:"description"`
-	NodeType    string `json:"node_type" db:"node_type"`
-	Lang        string `json:"lang" db:"lang"`
-	Environment string `json:"environment" db:"environment"`
-	ParentID    string `json:"parent_id" db:"parent_id"`
+	ID           string `json:"id" db:"id"`
+	CreatedAt    int64  `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt    int64  `json:"updated_at,omitempty" db:"updated_at"`
+	DeletedAt    int64  `json:"deleted_at" db:"deleted_at"`
+	Name         string `json:"name" db:"name"`
+	Description  string `json:"description,omitempty" db:"description"`
+	NodeType     string `json:"node_type" db:"node_type"`
+	Lang         string `json:"lang" db:"lang"`
+	Environment  string `json:"environment" db:"environment"`
+	ParentID     string `json:"parent_id" db:"parent_id"`
+	ThumbnailURL string `json:"thumbnail_url" db:"thumbnail_url"`
 }
 
 type NodeWithResources struct {
