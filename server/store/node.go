@@ -49,6 +49,7 @@ func NewNodeStore(db *SQLStore) NodeStore {
 			"n.lang",
 			"n.environment",
 			"n.parent_id",
+			"n.thumbnail_url",
 		).
 		From("nodes n")
 
@@ -71,16 +72,17 @@ func (ns *SQLNodeStore) Save(node *model.Node) (*model.Node, error) {
 	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 		Insert("nodes").
 		SetMap(map[string]interface{}{
-			"id":          node.ID,
-			"created_at":  node.CreatedAt,
-			"updated_at":  node.UpdatedAt,
-			"deleted_at":  node.DeletedAt,
-			"name":        node.Name,
-			"description": node.Description,
-			"node_type":   node.NodeType,
-			"lang":        node.Lang,
-			"environment": node.Environment,
-			"parent_id":   node.ParentID,
+			"id":            node.ID,
+			"created_at":    node.CreatedAt,
+			"updated_at":    node.UpdatedAt,
+			"deleted_at":    node.DeletedAt,
+			"name":          node.Name,
+			"description":   node.Description,
+			"node_type":     node.NodeType,
+			"lang":          node.Lang,
+			"environment":   node.Environment,
+			"parent_id":     node.ParentID,
+			"thumbnail_url": node.ThumbnailURL,
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save node with name:%s", node.Name)
@@ -99,15 +101,16 @@ func (ns *SQLNodeStore) Update(new *model.Node) error {
 	_, err := ns.sqlStore.execBuilder(ns.sqlStore.db, ns.sqlStore.builder.
 		Update("nodes").
 		SetMap(map[string]interface{}{
-			"created_at":  new.CreatedAt,
-			"updated_at":  new.UpdatedAt,
-			"deleted_at":  new.DeletedAt,
-			"name":        new.Name,
-			"description": new.Description,
-			"node_type":   new.NodeType,
-			"lang":        new.Lang,
-			"environment": new.Environment,
-			"parent_id":   new.ParentID,
+			"created_at":    new.CreatedAt,
+			"updated_at":    new.UpdatedAt,
+			"deleted_at":    new.DeletedAt,
+			"name":          new.Name,
+			"description":   new.Description,
+			"node_type":     new.NodeType,
+			"lang":          new.Lang,
+			"environment":   new.Environment,
+			"parent_id":     new.ParentID,
+			"thumbnail_url": new.ThumbnailURL,
 		}).
 		Where(sq.Eq{"ID": new.ID}))
 	if err != nil {

@@ -415,11 +415,11 @@ var migrations = []Migration{
 				if _, err := e.Exec(`
 					ALTER TABLE nodes ADD COLUMN parent_id VARCHAR(26) DEFAULT '';
 				`); err != nil {
-					return errors.Wrapf(err, "failed adding column post_type to table posts")
+					return errors.Wrapf(err, "failed adding column parent_id to table posts")
 				}
 			} else {
 				if err := addColumnToPGTable(e, "nodes", "parent_id", "VARCHAR(26) DEFAULT ''"); err != nil {
-					return errors.Wrapf(err, "failed adding column post_type to table posts")
+					return errors.Wrapf(err, "failed adding column parent_id to table posts")
 				}
 			}
 			return nil
@@ -459,6 +459,24 @@ var migrations = []Migration{
 			} else {
 				if err := addColumnToPGTable(e, "user_nodes", "updated_at", "bigint DEFAULT 0"); err != nil {
 					return errors.Wrapf(err, "failed adding column updated_at to table user_nodes")
+				}
+			}
+			return nil
+		},
+	},
+	{
+		fromVersion: semver.MustParse("0.12.0"),
+		toVersion:   semver.MustParse("0.13.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE nodes ADD COLUMN thumbnail_url VARCHAR(256) DEFAULT '';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column thumbnail_url to table posts")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "nodes", "thumbnail_url", "VARCHAR(256) DEFAULT ''"); err != nil {
+					return errors.Wrapf(err, "failed adding column thumbnail_url to table posts")
 				}
 			}
 			return nil
