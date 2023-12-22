@@ -17,6 +17,7 @@ const (
 	NodeTypeExample    = "example"
 	NodeTypeAssignment = "assignment"
 	NodeTypeParent     = "parent"
+	NodeTypeGeneral    = "general"
 
 	EnvironmentTypeKarelJS   = "karel_js"
 	EnvironmentTypeKarelJava = "karel_java"
@@ -42,7 +43,7 @@ type Node struct {
 	Lang         string `json:"lang" db:"lang"`
 	Environment  string `json:"environment" db:"environment"`
 	ParentID     string `json:"parent_id" db:"parent_id"`
-	ThumbnailURL string `json:"thumbnail_url" db:"thumbnail_url"`
+	ThumbnailURL string `json:"thumbnail" db:"thumbnail_url"`
 }
 
 type NodeWithResources struct {
@@ -84,7 +85,11 @@ func (n *Node) IsValid() error {
 		return invalidNodeError(n.ID, "description", n.Description)
 	}
 
-	if n.NodeType != NodeTypeExample && n.NodeType != NodeTypeLecture && n.NodeType != NodeTypeAssignment && n.NodeType != NodeTypeParent {
+	if n.NodeType != NodeTypeExample &&
+		n.NodeType != NodeTypeLecture &&
+		n.NodeType != NodeTypeAssignment &&
+		n.NodeType != NodeTypeParent &&
+		n.NodeType != NodeTypeGeneral {
 		return invalidNodeError(n.ID, "node_type", n.NodeType)
 	}
 

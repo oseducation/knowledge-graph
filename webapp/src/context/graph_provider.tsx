@@ -48,7 +48,7 @@ export const GraphProvider = (props: Props) => {
     const [reload, setReload] = useState<boolean>(false);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
-    const {preferences} = useAuth();
+    const {user, preferences} = useAuth();
 
     const onReload = () => {
         setPathToGoal(null);
@@ -106,7 +106,7 @@ export const GraphProvider = (props: Props) => {
         if (!globalGraph || !pathToGoal) {
             fetchGraphData();
         }
-    }, [reload, preferences?.language])
+    }, [reload, preferences?.language, user])
 
     useEffect(() => {
         if (!globalGraph) {

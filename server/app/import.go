@@ -153,8 +153,19 @@ func (a *App) importGraph(url string, nodes map[string]ExtendedNode) error {
 
 	for node, prereqs := range graph {
 		for _, prereq := range prereqs {
+			var nodeID string
+			exNode, ok := nodes[prereq]
+			if !ok {
+				prereqNode, err := a.Store.Node().GetByName(prereq)
+				if err != nil {
+					return errors.Wrapf(err, "can't get prereq node by name %s", prereq)
+				}
+				nodeID = prereqNode.ID
+			} else {
+				nodeID = exNode.ID
+			}
 			edge := model.Edge{
-				FromNodeID: nodes[prereq].ID,
+				FromNodeID: nodeID,
 				ToNodeID:   nodes[node].ID,
 			}
 			if err := a.Store.Graph().Save(&edge); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
