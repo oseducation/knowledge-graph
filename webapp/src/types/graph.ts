@@ -14,6 +14,7 @@ export const NodeTypeLecture = 'lecture'
 export const NodeTypeExample = 'example'
 export const NodeTypeAssignment = 'assignment'
 export const NodeTypeParent = 'parent'
+export const NodeTypeGeneral = 'general'
 
 export type Node = {
     id: string;

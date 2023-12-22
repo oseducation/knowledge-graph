@@ -8,7 +8,7 @@ import {Alert, Collapse, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {useTranslation} from 'react-i18next';
 
-import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, NodeTypeParent} from '../../types/graph';
+import {Graph, Node, Link, NodeStatusFinished, NodeStatusStarted, NodeStatusWatched, NodeStatusNext, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, NodeTypeParent, NodeTypeGeneral} from '../../types/graph';
 import useAuth from '../../hooks/useAuth';
 import {Analytics} from '../../analytics';
 import {DagMode} from '../../types/users';
@@ -225,6 +225,9 @@ const D3ForceGraph = (props: Props) => {
                 dagMode={dagMode}
                 nodeVal={20}
                 nodeCanvasObject={(currentNode, ctx) => {
+                    if (currentNode.node_type === NodeTypeGeneral) {
+                        return;
+                    }
                     if (currentNode.id === selectedNode?.id) {
                         paintRing(currentNode, ctx, theme.palette.error.main);
                     } else if (highlightNodes.has(currentNode.id)){
