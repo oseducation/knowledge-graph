@@ -26,6 +26,8 @@ import DashboardLayout from './components/dashboard/dashboard_layout';
 import AITutorChat from './components/bot/ai_tutor_chat';
 import Overview from './components/overview/overview';
 import Graph from './components/dashboard/graph';
+import Calculus from './components/experiments/calculus';
+import Thanks from './components/experiments/thanks';
 
 function App() {
     return (
@@ -58,6 +60,10 @@ function App() {
                 <Route path="terms" element={<Terms/>}/>
                 <Route path="privacy" element={<PrivacyPolicy/>}/>
                 <Route path="about" element={<AboutUs/>}/>
+            </Route>
+            <Route path="experiments">
+                <Route path="thanks" element={<Thanks/>}/>
+                <Route path="calculus" element={<Calculus/>}/>
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                 <Route path="/admin" element={<AdminPage/>}/>
