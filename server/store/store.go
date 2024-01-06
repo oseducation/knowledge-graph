@@ -38,6 +38,7 @@ type Store interface {
 	Goal() GoalStore
 	Post() PostStore
 	UserInteraction() UserInteractionStore
+	Experiments() ExperimentsStore
 }
 
 // SQLStore struct represents a DB
@@ -59,6 +60,7 @@ type SQLStore struct {
 	goalStore            GoalStore
 	postStore            PostStore
 	userInteractionStore UserInteractionStore
+	experimentsStore     ExperimentsStore
 	config               *config.DBSettings
 	logger               *log.Logger
 }
@@ -130,6 +132,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.goalStore = NewGoalStore(sqlStore)
 	sqlStore.postStore = NewPostStore(sqlStore)
 	sqlStore.userInteractionStore = NewUserInteractionStore(sqlStore)
+	sqlStore.experimentsStore = NewExperimentsStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -192,6 +195,10 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not user_interactions")
 	}
 
+	if _, err := tx.Exec("DROP TABLE IF EXISTS experiment_users"); err != nil {
+		return errors.Wrap(err, "could not experiment_users")
+	}
+
 	if err := tx.Commit(); err != nil {
 		return errors.Wrap(err, "could not commit")
 	}
@@ -244,6 +251,9 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM user_interactions"); err != nil {
 			sqlDB.logger.Fatal("can't delete from user_interactions", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM experiment_users"); err != nil {
+			sqlDB.logger.Fatal("can't delete from experiment_users", log.Err(err))
 		}
 	}
 }
@@ -384,4 +394,9 @@ func (sqlDB *SQLStore) Post() PostStore {
 // UserInteraction returns an interface to manage user interactions in the DB
 func (sqlDB *SQLStore) UserInteraction() UserInteractionStore {
 	return sqlDB.userInteractionStore
+}
+
+// Experiments returns an interface to manage experiment users in the DB
+func (sqlDB *SQLStore) Experiments() ExperimentsStore {
+	return sqlDB.experimentsStore
 }
