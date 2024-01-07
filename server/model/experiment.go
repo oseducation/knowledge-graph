@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	CalculusExperimentID = "calculus"
+	CalculusExperimentID   = "calculus"
+	JavascriptExperimentID = "javascript"
 )
 
 // ExperimentUser type defines a potential user who was interested in the experiment
@@ -28,7 +29,7 @@ func (e *ExperimentUser) IsValid() error {
 		return invalidExperimentError(e.ID, "email", e.Email)
 	}
 
-	if e.Source != CalculusExperimentID {
+	if e.Source != CalculusExperimentID && e.Source != JavascriptExperimentID {
 		return invalidExperimentError(e.ID, "source", e.Source)
 	}
 
