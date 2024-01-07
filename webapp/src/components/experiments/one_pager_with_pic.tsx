@@ -3,12 +3,11 @@ import React, { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
-import {Client} from '../../client/client';
-
 interface Props {
     imageURL: string;
     name: string;
     description: string;
+    onSignUp: (email: string) => void;
 }
 
 const OnePagerWithPicture = (props: Props) => {
@@ -57,7 +56,7 @@ const OnePagerWithPicture = (props: Props) => {
                                 borderWidth: '2px',
                             }}
                             onClick={() => {
-                                Client.Experiments().addCalculus(email);
+                                props.onSignUp(email);
                                 navigate(`/experiments/thanks?name=${props.name}`);
                             }}>
                             Sign Up
