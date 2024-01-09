@@ -8,6 +8,7 @@ interface Props {
     name: string;
     description: string;
     onSignUp: (email: string) => void;
+    comingSoon?: boolean;
 }
 
 const OnePagerWithPicture = (props: Props) => {
@@ -37,6 +38,16 @@ const OnePagerWithPicture = (props: Props) => {
                     <Typography variant="h3" component="span" color={'black'}>
                         {props.description}
                     </Typography>
+
+                    {props.comingSoon &&
+                        <div>
+                            <br/>
+                            <br/>
+                            <Typography variant="h2" component="span" color={'black'}>
+                                Coming Soon
+                            </Typography>
+                        </div>
+                    }
                     <FormControl sx={{display:'flex', flexDirection:'row', mt:10}}>
                         <TextField
                             value={email}
