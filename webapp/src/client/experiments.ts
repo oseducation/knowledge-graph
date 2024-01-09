@@ -19,6 +19,10 @@ export class ExperimentsClient{
         return this.addExperiment(email, 'javascript');
     }
 
+    addEngineer = async (email: string) => {
+        return this.addExperiment(email, 'engineer');
+    }
+
     addExperiment = async (email: string, source: string) => {
         try {
             this.rest.doPost(`${this.getExperimentsRoute()}`, JSON.stringify({

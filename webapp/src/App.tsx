@@ -29,6 +29,7 @@ import Graph from './components/dashboard/graph';
 import Calculus from './components/experiments/calculus';
 import Thanks from './components/experiments/thanks';
 import Javascript from './components/experiments/javascript';
+import Engineer from './components/experiments/engineer';
 
 function App() {
     return (
@@ -66,6 +67,7 @@ function App() {
                 <Route path="thanks" element={<Thanks/>}/>
                 <Route path="calculus" element={<Calculus/>}/>
                 <Route path="javascript" element={<Javascript/>}/>
+                <Route path="engineer" element={<Engineer/>}/>
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                 <Route path="/admin" element={<AdminPage/>}/>
