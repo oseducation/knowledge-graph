@@ -30,6 +30,7 @@ import Calculus from './components/experiments/calculus';
 import Thanks from './components/experiments/thanks';
 import Javascript from './components/experiments/javascript';
 import Engineer from './components/experiments/engineer';
+import Management from './components/experiments/management';
 
 function App() {
     return (
@@ -68,6 +69,7 @@ function App() {
                 <Route path="calculus" element={<Calculus/>}/>
                 <Route path="javascript" element={<Javascript/>}/>
                 <Route path="engineer" element={<Engineer/>}/>
+                <Route path="management" element={<Management/>}/>
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                 <Route path="/admin" element={<AdminPage/>}/>

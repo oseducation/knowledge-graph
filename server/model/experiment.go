@@ -11,6 +11,7 @@ const (
 	CalculusExperimentID   = "calculus"
 	JavascriptExperimentID = "javascript"
 	EngineerExperimentID   = "engineer"
+	ManagementExperimentID = "management"
 )
 
 // ExperimentUser type defines a potential user who was interested in the experiment
@@ -32,7 +33,8 @@ func (e *ExperimentUser) IsValid() error {
 
 	if e.Source != CalculusExperimentID &&
 		e.Source != JavascriptExperimentID &&
-		e.Source != EngineerExperimentID {
+		e.Source != EngineerExperimentID &&
+		e.Source != ManagementExperimentID {
 		return invalidExperimentError(e.ID, "source", e.Source)
 	}
 
