@@ -19,6 +19,8 @@ const VideoMessage = (props: Props) => {
     const {user} = useAuth();
     const nodeID = props.post.props.node_id;
     const videoKey = props.post.props.video_key;
+    const start = props.post.props.start;
+    const length = props.post.props.length;
 
     const {message} = useMessageReveal(props.post.message, props.isLast, props.scrollToBottom);
 
@@ -49,6 +51,8 @@ const VideoMessage = (props: Props) => {
             }}>
                 <VideoPlayer
                     videoKey={videoKey}
+                    start={start}
+                    length={length}
                     width={'100%'}
                     height={'100%'}
                     autoplay={false}

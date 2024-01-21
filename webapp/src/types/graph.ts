@@ -43,6 +43,7 @@ export type Video = {
     video_type: string;
     key: string;
     length: number;
+    start: number;
     node_id: string;
     author_id: string;
     author_username: string;
