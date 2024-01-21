@@ -147,6 +147,8 @@ export const nextVideoMessage = (node: NodeWithResources, state: NodeViewState):
             node_id: node.id,
             video_index: videoIndex,
             video_key: node.videos[videoIndex].key,
+            start: node.videos[videoIndex].start,
+            length: node.videos[videoIndex].length,
         },
     };
 }

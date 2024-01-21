@@ -130,8 +130,7 @@ var migrations = []Migration{
 					key VARCHAR(128),
 					length bigint,
 					node_id VARCHAR(26),
-					author_id VARCHAR(26),
-					UNIQUE (video_type, key)
+					author_id VARCHAR(26)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table videos")
@@ -496,6 +495,24 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating table experiment_users")
 			}
 
+			return nil
+		},
+	},
+	{
+		fromVersion: semver.MustParse("0.14.0"),
+		toVersion:   semver.MustParse("0.15.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE videos ADD COLUMN start bigint DEFAULT 0;
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column start to table videos")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "videos", "start", "bigint DEFAULT 0"); err != nil {
+					return errors.Wrapf(err, "failed adding column start to table videos")
+				}
+			}
 			return nil
 		},
 	},

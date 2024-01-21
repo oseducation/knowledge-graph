@@ -18,27 +18,44 @@ type NodeWithKey struct {
 	Key string `json:"key"`
 }
 
+type VideoPart struct {
+	ID    string `json:"id"`
+	Start int64  `json:"start"`
+	End   int64  `json:"end"`
+}
+
 type ExtendedNode struct {
 	model.Node
-	VideoKeys         []string `json:"videos"`
-	TextFileNames     []string `json:"texts"`
-	QuestionFileNames []string `json:"questions"`
+	VideoKeys         []string    `json:"videos"`
+	VideoParts        []VideoPart `json:"video_parts"`
+	TextFileNames     []string    `json:"texts"`
+	QuestionFileNames []string    `json:"questions"`
 }
+
+var (
+	numberOfNodes  = 0
+	numberOfVideos = 0
+)
 
 // ImportAllContent get the parent node repo url, reads graph.json, nodes.json files,
 // leaf node repos parses them and imports in the db.
 func (a *App) ImportAllContent(url string) (string, error) {
+	numberOfNodes = 0
+	numberOfVideos = 0
+	fmt.Println("importing parent nodes...")
 	leafNodeURLs, parentNodes, err := a.importParentNodes(url)
 	if err != nil {
 		return "", errors.Wrap(err, "can't import parent nodes")
 	}
 	passwords := ""
 	for _, leafNodeURL := range leafNodeURLs {
-		pass, err := a.importLeafNodes(leafNodeURL, parentNodes)
+		fmt.Println("importing leaf node", leafNodeURL)
+		pass, err := a.importLeafNodes(leafNodeURLs[len(leafNodeURLs)-1], parentNodes)
 		if err != nil {
 			return "", err
 		}
 		passwords += fmt.Sprintf("[%s]", pass)
+		fmt.Println("importing leaf node done. Number of imported nodes:", numberOfNodes, "videos:", numberOfVideos)
 	}
 	return passwords, nil
 }
@@ -69,17 +86,18 @@ func (a *App) importLeafNodes(url string, parentNodes map[string]ExtendedNode) (
 		if err != nil {
 			return "", errors.Wrap(err, "can't import node")
 		}
+		numberOfNodes++
 
 		nodes[id] = ExtendedNode{
 			Node: *updatedNode,
 		}
 
-		if err := a.importVideos(node.VideoKeys, updatedNode.ID, user.ID); err != nil {
+		if err := a.importVideos(node.VideoKeys, node.VideoParts, updatedNode.ID, user.ID); err != nil {
 			return "", errors.Wrap(err, "can't import videos")
 		}
 
 		nodeURL := fmt.Sprintf("%s/nodes/%s", url, id)
-		if err := a.importTexts(nodeURL, node.TextFileNames, updatedNode.ID, user.ID); err != nil {
+		if err := a.importTexts(nodeURL, node.TextFileNames, updatedNode.ID, updatedNode.Name, user.ID); err != nil {
 			return "", errors.Wrap(err, "can't import texts")
 		}
 
@@ -120,6 +138,7 @@ func (a *App) importParentNodes(url string) ([]string, map[string]ExtendedNode, 
 		if err3 != nil {
 			return nil, nil, errors.Wrap(err, "can't import node")
 		}
+		numberOfNodes++
 
 		nodes[id] = ExtendedNode{
 			Node: *updatedNode,
@@ -230,7 +249,7 @@ func (a *App) importQuestions(nodeURL string, questionFileNames []string, nodeID
 	return nil
 }
 
-func (a *App) importTexts(nodeURL string, textFileNames []string, nodeID, userID string) error {
+func (a *App) importTexts(nodeURL string, textFileNames []string, nodeID, name, userID string) error {
 	for _, textFileName := range textFileNames {
 		fullURL := fmt.Sprintf("%s/%s", nodeURL, textFileName)
 		fullURL = strings.ReplaceAll(fullURL, " ", "%20")
@@ -249,7 +268,7 @@ func (a *App) importTexts(nodeURL string, textFileNames []string, nodeID, userID
 		}
 
 		if _, err := a.Store.Text().Save(&model.Text{
-			Name:     textFileName,
+			Name:     fmt.Sprintf("%s/%s", name, textFileName),
 			Text:     content,
 			NodeID:   nodeID,
 			AuthorID: userID,
@@ -260,7 +279,7 @@ func (a *App) importTexts(nodeURL string, textFileNames []string, nodeID, userID
 	return nil
 }
 
-func (a *App) importVideos(videoKeys []string, nodeID, userID string) error {
+func (a *App) importVideos(videoKeys []string, videoParts []VideoPart, nodeID, userID string) error {
 	for _, key := range videoKeys {
 		title, duration, err := a.Services.YoutubeService.GetYoutubeVideoInfo(key)
 		if err != nil {
@@ -271,12 +290,37 @@ func (a *App) importVideos(videoKeys []string, nodeID, userID string) error {
 			VideoType: model.YouTubeVideoType,
 			Key:       key,
 			NodeID:    nodeID,
+			Start:     0,
 			Length:    duration,
 			AuthorID:  userID,
 		}
 		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 			return errors.Wrap(err, "can't save video")
 		}
+		numberOfVideos++
+	}
+
+	for _, videoPart := range videoParts {
+		title, duration, err := a.Services.YoutubeService.GetYoutubeVideoInfo(videoPart.ID)
+		if err != nil {
+			return errors.Wrapf(err, "can't get youtube video info %s", videoPart.ID)
+		}
+		if videoPart.Start < 0 || videoPart.End > duration || videoPart.Start > videoPart.End || videoPart.End < 0 {
+			return errors.Errorf("invalid video part %v", videoPart)
+		}
+		video := model.Video{
+			Name:      title,
+			VideoType: model.YouTubeVideoType,
+			Key:       videoPart.ID,
+			NodeID:    nodeID,
+			Start:     videoPart.Start,
+			Length:    videoPart.End - videoPart.Start,
+			AuthorID:  userID,
+		}
+		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
+			return errors.Wrap(err, "can't save video")
+		}
+		numberOfVideos++
 	}
 
 	return nil

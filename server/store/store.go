@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -310,7 +309,6 @@ func (sqlDB *SQLStore) exec(e execer, sqlString string, args ...interface{}) (sq
 // exec executes the given query, building the necessary sql.
 func (sqlDB *SQLStore) execBuilder(e execer, b builder) (sql.Result, error) {
 	sqlString, args, err := b.ToSql()
-	fmt.Println(sqlString, args, err)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to build sql")
 	}

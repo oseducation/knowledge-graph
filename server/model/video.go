@@ -26,6 +26,7 @@ type Video struct {
 	VideoType      string `json:"video_type" db:"video_type"` // youtube or from our object storage, currently only supports youtube
 	Key            string `json:"key" db:"key"`               // for youtube - video ID
 	Length         int64  `json:"length" db:"length"`         // in seconds
+	Start          int64  `json:"start" db:"start"`           // in seconds
 	NodeID         string `json:"node_id" db:"node_id"`
 	AuthorID       string `json:"author_id" db:"author_id"`
 	AuthorUsername string `json:"author_username" db:"author_username"`
@@ -34,27 +35,31 @@ type Video struct {
 // IsValid validates the video and returns an error if it isn't configured correctly.
 func (v *Video) IsValid() error {
 	if !IsValidID(v.ID) {
-		return invalidVideoError("", "id", v.ID)
+		return invalidVideoError(v.Key, "id", v.ID)
 	}
 
 	if !IsValidID(v.NodeID) {
-		return invalidVideoError(v.ID, "node_id", v.NodeID)
+		return invalidVideoError(v.Key, "node_id", v.NodeID)
 	}
 
 	if !IsValidID(v.AuthorID) {
-		return invalidVideoError(v.ID, "author_id", v.AuthorID)
+		return invalidVideoError(v.Key, "author_id", v.AuthorID)
 	}
 
 	if v.CreatedAt == 0 {
-		return invalidVideoError(v.ID, "create_at", v.CreatedAt)
+		return invalidVideoError(v.Key, "create_at", v.CreatedAt)
 	}
 
 	if v.VideoType != YouTubeVideoType {
-		return invalidVideoError(v.ID, "video_type", v.VideoType)
+		return invalidVideoError(v.Key, "video_type", v.VideoType)
 	}
 
 	if utf8.RuneCountInString(v.Key) > VideoURLMaxRunes {
-		return invalidVideoError(v.ID, "key", v.Key)
+		return invalidVideoError(v.Key, "key", v.Key)
+	}
+
+	if v.Length <= 0 || v.Start < 0 {
+		return invalidVideoError(v.Key, "length", v.Length)
 	}
 
 	return nil
@@ -78,7 +83,7 @@ func VideoFromJSON(data io.Reader) (*Video, error) {
 }
 
 func invalidVideoError(videoID, fieldName string, fieldValue any) error {
-	return errors.Errorf("invalid video error. videoID=%s %s=%v", videoID, fieldName, fieldValue)
+	return errors.Errorf("invalid video error. videoName=%s %s=%v", videoID, fieldName, fieldValue)
 }
 
 // VideoGetOptions for getting and filtering videos

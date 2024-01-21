@@ -21,6 +21,8 @@ type VideoPlayerProps = {
     height: string;
     autoplay: boolean;
     loop?: boolean;
+    start?: number;
+    length?: number;
     onVideoStarted: (videoKey: string) => void;
     onVideoEnded: (videoKey: string) => void;
 }
@@ -33,10 +35,15 @@ const VideoPlayer = (props: VideoPlayerProps) => {
     const [startTime, setStartTime] = useState(0);
     const [id, setID] = useState('')
     const {user} = useAuth();
+    const [once, setOnce] = useState(false);
 
     useEffect(() => {
         if (player) {
-            player.loadVideoById(props.videoKey);
+            player.loadVideoById({
+                'videoId': props.videoKey,
+                'startSeconds': props.start || 0,
+                'endSeconds': props.length ? (props.start || 0) + props.length : undefined
+            });
         }
         return () => {
             if (player) {
@@ -45,7 +52,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
             }
             sendInteraction();
         };
-    }, [props.videoKey]);
+    }, [props.videoKey, props.start]);
 
     const sendInteraction = () => {
         const endDate = Date.now();
@@ -68,6 +75,10 @@ const VideoPlayer = (props: VideoPlayerProps) => {
 
     const onPlayerStateChange = (event: any) => {
         if (event.data === window.YT.PlayerState.PLAYING) {
+            if(player && !once) {
+                player.seekTo(props.start || 0, true)
+                setOnce(true);
+            }
             setStartTime(Date.now());
             setID(generateRandomString());
             props.onVideoStarted(props.videoKey);
@@ -86,6 +97,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
     const opts: YouTubeProps['opts'] = {
         height: props.height,
         width: props.width,
+        playerVars: {}
     };
     if (props.autoplay) {
         opts!.playerVars = {
@@ -95,6 +107,12 @@ const VideoPlayer = (props: VideoPlayerProps) => {
     if (props.loop) {
         opts!.playerVars!.loop = 1;
         opts!.playerVars!.playlist = props.videoKey;
+    }
+    if (props.start && props.start != 0) {
+        opts!.playerVars!.start = props.start;
+    }
+    if (props.length && props.length != 0) {
+        opts!.playerVars!.end = props.length + (props.start || 0);
     }
 
     const onReady = (event: any) => {

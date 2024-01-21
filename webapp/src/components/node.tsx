@@ -251,6 +251,8 @@ const Node = (props: Props) => {
                     {activeItem && determineIfIsVideo(activeItem) &&
                         <VideoPlayer
                             videoKey={activeItem.key}
+                            start={activeItem.start}
+                            length={activeItem.length}
                             width={'100%'}
                             height={'100%'}
                             autoplay={true}
@@ -294,6 +296,8 @@ const Node = (props: Props) => {
                                     >
                                         <VideoPlayer
                                             videoKey={video.key}
+                                            start={video.start}
+                                            length={video.length}
                                             key={video.key}
                                             width={'100%'}
                                             height={'100%'}
