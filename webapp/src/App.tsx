@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {Routes, Route, Navigate} from 'react-router-dom';
+import {Routes, Route} from 'react-router-dom';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -20,7 +20,6 @@ import AdminPage from './pages/AdminPage';
 import GraphPage from './pages/GraphPage';
 import KarelPage from './pages/KarelPage';
 import GuestLayout from './GuestLayout';
-import Landing from './components/landing/landing';
 import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import AITutorChat from './components/bot/ai_tutor_chat';
@@ -31,13 +30,28 @@ import Thanks from './components/experiments/thanks';
 import Javascript from './components/experiments/javascript';
 import Engineer from './components/experiments/engineer';
 import Management from './components/experiments/management';
+import Home from './Home';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
     return (
         <Routes>
+            <Route path="" element={<UserLayout/>}>
+                <Route path="" element={<Home/>}/>
+            </Route>
+
+            <Route path="" element={<GuestLayout/>}>
+                <Route path="login" element={<LoginPage/>}/>
+                <Route path="register" element={<RegisterPage/>}/>
+                <Route path="verify" element={<VerifyPage/>}/>
+                <Route path="do_verify_email" element={<DoVerifyEmailPage/>}/>
+                <Route path="contact" element={<ContactUs/>}/>
+                <Route path="terms" element={<Terms/>}/>
+                <Route path="privacy" element={<PrivacyPolicy/>}/>
+                <Route path="about" element={<AboutUs/>}/>
+            </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]}/>}>
                 <Route path="" element={<UserLayout/>}>
-                    <Route path="/" element={<Navigate to="/dashboard" replace />}/>
                     <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                     <Route path="/welcome" element={<WelcomePage/>}/>
                     <Route path="/profile" element={<ProfilePage/>}/>
@@ -51,19 +65,6 @@ function App() {
                     <Route path="graph" element={<Graph/>}/>
                 </Route>
             </Route>
-            <Route path="" element={<GuestLayout/>}>
-                <Route path="" element={<Landing/>}/>
-                <Route path="en" element={<Landing language='en'/>}/>
-                <Route path="ge" element={<Landing language='ge'/>}/>
-                <Route path="login" element={<LoginPage/>}/>
-                <Route path="register" element={<RegisterPage/>}/>
-                <Route path="verify" element={<VerifyPage/>}/>
-                <Route path="do_verify_email" element={<DoVerifyEmailPage/>}/>
-                <Route path="contact" element={<ContactUs/>}/>
-                <Route path="terms" element={<Terms/>}/>
-                <Route path="privacy" element={<PrivacyPolicy/>}/>
-                <Route path="about" element={<AboutUs/>}/>
-            </Route>
             <Route path="experiments">
                 <Route path="thanks" element={<Thanks/>}/>
                 <Route path="calculus" element={<Calculus/>}/>
@@ -75,6 +76,7 @@ function App() {
                 <Route path="/admin" element={<AdminPage/>}/>
                 <Route path="/graph/:userID" element={<GraphPage/>}/>
             </Route>
+            <Route path="*" element={<NotFoundPage/>} />
         </Routes>
     );
 }
