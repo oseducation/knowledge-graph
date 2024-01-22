@@ -125,8 +125,8 @@ class Analytics {
         Mixpanel.track('Get Me');
     }
 
-    landing() {
-        Mixpanel.track('View Landing Page');
+    landing(name: string) {
+        Mixpanel.track('View Landing Page', {name: name});
     }
 
     messagePosted(props: Dict) {
