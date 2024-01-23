@@ -50,7 +50,7 @@ func (a *App) ImportAllContent(url string) (string, error) {
 	passwords := ""
 	for _, leafNodeURL := range leafNodeURLs {
 		fmt.Println("importing leaf node", leafNodeURL)
-		pass, err := a.importLeafNodes(leafNodeURLs[len(leafNodeURLs)-1], parentNodes)
+		pass, err := a.importLeafNodes(leafNodeURL, parentNodes)
 		if err != nil {
 			return "", err
 		}
@@ -575,7 +575,9 @@ func (a *App) importNode(node *model.Node) (*model.Node, error) {
 		if oldNode.Name == node.Name &&
 			oldNode.Description == node.Description &&
 			oldNode.NodeType == node.NodeType &&
-			oldNode.Lang == node.Lang {
+			oldNode.Lang == node.Lang &&
+			oldNode.ThumbnailURL == node.ThumbnailURL &&
+			oldNode.Environment == node.Environment {
 			// nothing needs to be changed
 			return oldNode, nil
 		}
