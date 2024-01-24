@@ -220,7 +220,7 @@ func (gs *SQLGoalStore) NextDefaultGoalForUser(userID string) (string, error) {
 	}
 
 	sort.Slice(goals, func(i, j int) bool {
-		return goals[i].Num > goals[j].Num
+		return goals[i].Num < goals[j].Num
 	})
 	nodeIDs := make([]string, len(goals))
 	for i := range goals {
