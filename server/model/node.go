@@ -140,6 +140,8 @@ func (n *Node) Clone() *Node {
 	newNode.Description = n.Description
 	newNode.Lang = n.Lang
 	newNode.Environment = n.Environment
+	newNode.ParentID = n.ParentID
+	newNode.ThumbnailURL = n.ThumbnailURL
 	return &newNode
 }
 
