@@ -163,7 +163,7 @@ func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post,
 func (a *App) getSystemMessage(nodeID string) (string, error) {
 	prerequisites, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
-		return "", errors.Errorf("nodeID = %v not in Graph.Prerequisites", nodeID)
+		return "Act as a best tutor in the world and answer the question using less than 1000 tokens", nil
 	}
 
 	nodes, err := a.Store.Node().GetNodesWithIDs(prerequisites)
