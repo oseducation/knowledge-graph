@@ -8,7 +8,7 @@ interface Props {
     children: React.ReactNode;
 }
 
-const MessageLinkFallback = ({fallback, link, children}: Props) => {
+const LinkFallback = ({fallback, link, children}: Props) => {
     const [showLink, setShowLink] = useState(false)
 
     useEffect(()=>{
@@ -25,4 +25,4 @@ const MessageLinkFallback = ({fallback, link, children}: Props) => {
 };
 
 
-export default MessageLinkFallback;
+export default LinkFallback;

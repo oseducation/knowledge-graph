@@ -4,7 +4,7 @@ import {Box} from '@mui/material';
 import {Post, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import IDE from '../karel/ide';
 
-import MessageLinkFallback from '../message_link_fallback';
+import LinkFallback from '../link_fallback';
 
 import {getVideoUrl, getKarelUrl} from '../../utils';
 
@@ -25,13 +25,13 @@ const PostComponent = (props: Props) => {
 
     if (props.post.post_type === PostTypeVideo) {
         component = (
-            <MessageLinkFallback fallback={!props.isLast} link={getVideoUrl(props.post.props.video_key)}>
+            <LinkFallback fallback={!props.isLast} link={getVideoUrl(props.post.props.video_key)}>
                 <VideoMessage
                     post={props.post}
                     isLast={props.isLast}
                     scrollToBottom={props.scrollToBottom}
                 />
-            </MessageLinkFallback>
+            </LinkFallback>
         );
     } else if (props.post.post_type === '' ||
         props.post.post_type === PostTypeTopic ||
@@ -57,7 +57,7 @@ const PostComponent = (props: Props) => {
         const nodeID = props.post.props.node_id;
         const nodeName = props.post.props.node_name;
         component = (
-            <MessageLinkFallback fallback={!props.isLast} link={getKarelUrl(nodeID, nodeName)}>
+            <LinkFallback fallback={!props.isLast} link={getKarelUrl(nodeID, nodeName)}>
                 <Box sx={{height:'600px', width:{xs:'300px', sm:'400px', md:'700px', lg:'1000px'}}}>
                     <IDE
                         nodeName={nodeName}
@@ -66,7 +66,7 @@ const PostComponent = (props: Props) => {
                         height='600px'
                     />
                 </Box>
-            </MessageLinkFallback>
+            </LinkFallback>
         )
     }
 
