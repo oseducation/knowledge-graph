@@ -1,9 +1,13 @@
 /* eslint-disable no-undef */
 
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
+
 const path = require('path');
+var mode = process.env.NODE_ENV || 'development';
+
 module.exports = {
-    devtool: 'inline-source-map',
+  devtool: (mode === 'development') ? 'inline-source-map' : false,
   entry: './src/index.tsx',
   output: {
     filename: '[name].[contenthash].js',
@@ -43,6 +47,10 @@ module.exports = {
         ],
       },
     ],
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
   },
   plugins: [
     new HtmlWebPackPlugin({
