@@ -34,7 +34,7 @@ export default function useMessageReveal(finalMessage: string, reveal: boolean, 
                     clearInterval(interval);
                     scrollToBottom();
                 }
-            }, 10); // speed of typing
+            }, 5); // speed of typing
         }, 1000); // timer to let scroll to bottom
     };
 

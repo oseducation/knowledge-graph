@@ -123,7 +123,7 @@ export const nextTopicMessage = (node: NodeWithResources): Post => {
     return {
         id: '',
         user_id: BOT_ID,
-        message: `## Topic: ${node.name}\n\n ### Description: ${node.description}\n\n`,
+        message: `## Topic\n${node.name}\n ### Description\n ${node.description}\n`,
         post_type: PostTypeTopic,
         user: null,
         props: {
@@ -140,7 +140,7 @@ export const nextVideoMessage = (node: NodeWithResources, state: NodeViewState):
     return {
         id: '',
         user_id: BOT_ID,
-        message: "Here's the video on the topic:\n\n",
+        message: "Here's the video on the topic:\n",
         post_type: PostTypeVideo,
         user: null,
         props: {
@@ -162,7 +162,7 @@ export const nextTextMessage = (node: NodeWithResources, state: NodeViewState): 
     return {
         id: '',
         user_id: BOT_ID,
-        message: `Here's the text on the topic:\n\n ##${node.texts[textIndex].name}\n\n${node.texts[textIndex].text}`,
+        message: node.texts[textIndex].text,
         post_type: PostTypeText,
         user: null,
         props: {
