@@ -9,7 +9,7 @@ interface Props {
     children: React.ReactNode;
 }
 
-const LinkFallback = ({fallback, link, text, children}: Props) => {
+const LinkFallback = ({fallback, link, text = 'Link to Resource', children}: Props) => {
     if(fallback){   
         return <Link target="_blank" rel="noopener" href={link}>{text}</Link>
     }else{
