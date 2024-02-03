@@ -6,8 +6,6 @@ import IDE from '../karel/ide';
 
 import LinkFallback from '../link_fallback';
 
-import {getKarelUrl} from '../../utils';
-
 import { Client } from '../../client/client';
 
 import VideoFallback from '../video_fallback';
@@ -85,3 +83,9 @@ const PostComponent = (props: Props) => {
 
 export default PostComponent;
 
+const getKarelUrl = (nodeId: string, nodeName: string) => {
+    const urlSearchParams = new URLSearchParams();
+    urlSearchParams.append('nodeId', nodeId);
+    urlSearchParams.append('nodeName', nodeName);
+    return `/karel_js?${urlSearchParams.toString()}`
+};
