@@ -10,8 +10,8 @@ interface Props {
 }
 
 const LinkFallback = ({fallback, link, text = 'Link to Resource', children}: Props) => {
-    if(fallback){   
-        return <Link target="_blank" rel="noopener" href={link}>{text}</Link>
+    if(fallback){
+        return <Link href={link}>{text}</Link>
     }else{
         return <>{children}</>
     }

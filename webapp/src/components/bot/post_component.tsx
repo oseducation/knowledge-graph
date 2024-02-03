@@ -87,5 +87,5 @@ const getKarelUrl = (nodeId: string, nodeName: string) => {
     const urlSearchParams = new URLSearchParams();
     urlSearchParams.append('nodeId', nodeId);
     urlSearchParams.append('nodeName', nodeName);
-    return `https://www.vitsi.ai/karel_js?${urlSearchParams.toString()}`
+    return `/karel_js?${urlSearchParams.toString()}`
 };
