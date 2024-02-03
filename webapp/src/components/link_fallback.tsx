@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {Link} from '@mui/material';
 
 
 interface Props {
     fallback: boolean
-    link?: string;
+    link: string;
+    text: string;
     children: React.ReactNode;
 }
 
-const LinkFallback = ({fallback, link, children}: Props) => {
-    const [showLink, setShowLink] = useState(false)
-
-    useEffect(()=>{
-        if(fallback){
-            setShowLink(true);
-        }
-    }, [])
-
-    if(showLink){   
-        return <Link target="_blank" rel="noopener" href={link}>Link to Resource</Link>
+const LinkFallback = ({fallback, link, text, children}: Props) => {
+    if(fallback){   
+        return <Link target="_blank" rel="noopener" href={link}>{text}</Link>
     }else{
         return <>{children}</>
     }

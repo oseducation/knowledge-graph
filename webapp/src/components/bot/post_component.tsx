@@ -6,7 +6,11 @@ import IDE from '../karel/ide';
 
 import LinkFallback from '../link_fallback';
 
-import {getVideoUrl, getKarelUrl} from '../../utils';
+import {getKarelUrl} from '../../utils';
+
+import { Client } from '../../client/client';
+
+import VideoFallback from '../video_fallback';
 
 import VideoMessage from './video_message';
 import {BOT_ID} from './ai_tutor_chat';
@@ -24,14 +28,16 @@ const PostComponent = (props: Props) => {
     let component = null;
 
     if (props.post.post_type === PostTypeVideo) {
+        Client.Node().get(props.post.props.node_id)
+
         component = (
-            <LinkFallback fallback={!props.isLast} link={getVideoUrl(props.post.props.video_key)}>
+            <VideoFallback fallback={!props.isLast} videoProps={props.post.props}>
                 <VideoMessage
                     post={props.post}
                     isLast={props.isLast}
                     scrollToBottom={props.scrollToBottom}
                 />
-            </LinkFallback>
+            </VideoFallback>
         );
     } else if (props.post.post_type === '' ||
         props.post.post_type === PostTypeTopic ||
@@ -57,7 +63,7 @@ const PostComponent = (props: Props) => {
         const nodeID = props.post.props.node_id;
         const nodeName = props.post.props.node_name;
         component = (
-            <LinkFallback fallback={!props.isLast} link={getKarelUrl(nodeID, nodeName)}>
+            <LinkFallback fallback={!props.isLast} link={getKarelUrl(nodeID, nodeName)} text={''}>
                 <Box sx={{height:'600px', width:{xs:'300px', sm:'400px', md:'700px', lg:'1000px'}}}>
                     <IDE
                         nodeName={nodeName}
