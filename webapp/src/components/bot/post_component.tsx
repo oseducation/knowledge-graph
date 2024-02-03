@@ -4,6 +4,14 @@ import {Box} from '@mui/material';
 import {Post, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import IDE from '../karel/ide';
 
+import LinkFallback from '../link_fallback';
+
+import {getKarelUrl} from '../../utils';
+
+import { Client } from '../../client/client';
+
+import VideoFallback from '../video_fallback';
+
 import VideoMessage from './video_message';
 import {BOT_ID} from './ai_tutor_chat';
 import TestMessage from './test_message';
@@ -20,12 +28,16 @@ const PostComponent = (props: Props) => {
     let component = null;
 
     if (props.post.post_type === PostTypeVideo) {
+        Client.Node().get(props.post.props.node_id)
+
         component = (
-            <VideoMessage
-                post={props.post}
-                isLast={props.isLast}
-                scrollToBottom={props.scrollToBottom}
-            />
+            <VideoFallback fallback={!props.isLast} videoProps={props.post.props}>
+                <VideoMessage
+                    post={props.post}
+                    isLast={props.isLast}
+                    scrollToBottom={props.scrollToBottom}
+                />
+            </VideoFallback>
         );
     } else if (props.post.post_type === '' ||
         props.post.post_type === PostTypeTopic ||
@@ -51,14 +63,16 @@ const PostComponent = (props: Props) => {
         const nodeID = props.post.props.node_id;
         const nodeName = props.post.props.node_name;
         component = (
-            <Box sx={{height:'600px', width:{xs:'300px', sm:'400px', md:'700px', lg:'1000px'}}}>
-                <IDE
-                    nodeName={nodeName}
-                    nodeID={nodeID}
-                    lang={'js'}
-                    height='600px'
-                />
-            </Box>
+            <LinkFallback fallback={!props.isLast} link={getKarelUrl(nodeID, nodeName)} text={''}>
+                <Box sx={{height:'600px', width:{xs:'300px', sm:'400px', md:'700px', lg:'1000px'}}}>
+                    <IDE
+                        nodeName={nodeName}
+                        nodeID={nodeID}
+                        lang={'js'}
+                        height='600px'
+                    />
+                </Box>
+            </LinkFallback>
         )
     }
 
