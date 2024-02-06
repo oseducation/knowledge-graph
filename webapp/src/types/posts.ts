@@ -1,6 +1,6 @@
 import {User} from "./users";
 
-export type PostType = "" | "with_actions" | "video" | "text" | "test" | "topic" | "filled_in_by_action" | "karel_js" | "chat_gpt";
+export type PostType = "" | "with_actions" | "video" | "text" | "test" | "topic" | "filled_in_by_action" | "karel_js" | "chat_gpt" | "goal_finished";
 export const PostTypeWithActions:PostType = "with_actions";
 export const PostTypeVideo:PostType = "video";
 export const PostTypeTopic:PostType = "topic";
@@ -8,6 +8,7 @@ export const PostTypeText:PostType = "text";
 export const PostTypeTest:PostType = "test";
 export const PostTypeKarelJS:PostType = "karel_js";
 export const PostTypeFilledInByAction:PostType = "filled_in_by_action";
+export const PostTypeGoalFinish:PostType = "goal_finished";
 export const PostTypeChatGPT:PostType = "chat_gpt";
 
 export type Post = {

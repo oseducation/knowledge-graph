@@ -1,4 +1,4 @@
-import {Post, PostType, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Post, PostType, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {NodeWithResources} from '../../types/graph';
 import {User} from '../../types/users';
 
@@ -58,7 +58,7 @@ export const constructBotPost = (posts: Post[], node: NodeWithResources | null, 
         return theVeryFirstMessage(user!.username);
     }
     const lastPost = posts[posts.length - 1];
-    if (lastPost.user_id === BOT_ID) {
+    if (lastPost.user_id === BOT_ID && lastPost.post_type !== PostTypeGoalFinish) {
         return null;
     }
 
@@ -80,6 +80,9 @@ export const getBotPostActions = (posts: Post[] | null, node: NodeWithResources)
         return [letsStartAction];
     }
     if (posts[posts.length - 1].user_id !== BOT_ID) {
+        return [];
+    }
+    if (posts[posts.length - 1].user_id === BOT_ID && posts[posts.length - 1].post_type === PostTypeGoalFinish) {
         return [];
     }
     const nodeViewState = getNodeViewState(posts, node.id);
