@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box} from '@mui/material';
 
-import {Post, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Post, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import IDE from '../karel/ide';
 
 import LinkFallback from '../link_fallback';
@@ -41,7 +41,8 @@ const PostComponent = (props: Props) => {
         props.post.post_type === PostTypeTopic ||
         props.post.post_type === PostTypeText ||
         props.post.post_type === PostTypeFilledInByAction ||
-        props.post.post_type === PostTypeChatGPT) {
+        props.post.post_type === PostTypeChatGPT ||
+        props.post.post_type === PostTypeGoalFinish ) {
         component = (
             <TextMessage
                 shouldAnimate={props.isLast}

@@ -6,7 +6,7 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {nextNodeToGoal} from '../../context/graph_provider';
@@ -15,7 +15,7 @@ import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 import PostComponent from './post_component';
 import {constructBotPost, getBotPostActions} from './create_post';
 import usePosts from './use_posts';
-import {getUserPostAction} from './messages';
+import {getUserPostAction, goalFinishedMessage} from './messages';
 import BotStreamMessage from './bot_stream_message';
 
 const staticHeight = `calc(100vh - (64px))`;
@@ -27,7 +27,7 @@ const AITutorChat = () => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {pathToGoal, goals, globalGraph} = useGraph();
+    const {pathToGoal, goals, globalGraph, onReload} = useGraph();
     const [node, setNode] = useState<NodeWithResources | null>(null);
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
@@ -60,7 +60,10 @@ const AITutorChat = () => {
     useEffect(() => {
         if (node && posts && posts.length > 0) {
             setActions(getBotPostActions(posts, node));
-            if (posts.length > 0 && posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
+            if (posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
+                createPendingPost();
+            }
+            if (posts[posts.length-1].user_id === BOT_ID && posts[posts.length-1].post_type === PostTypeGoalFinish) {
                 createPendingPost();
             }
         }
@@ -133,19 +136,38 @@ const AITutorChat = () => {
         savePostWithMessage(input, "");
     };
 
+    const isNodeFinished = (node: NodeWithResources): boolean => {
+        if (!globalGraph) {
+            return true;
+        }
+        for (let i = 0; i < globalGraph!.nodes.length; i++) {
+            if (globalGraph!.nodes[i].id === node.id) {
+                return globalGraph!.nodes[i].status === NodeStatusFinished;
+            }
+        }
+        return true;
+    }
+
     const createPendingPost = () => {
-        const action = getUserPostAction(posts[posts.length-1].message);
+        if (node === null || isNodeFinished(node)){
+            return;
+        }
         let post;
-        if (action.action_type === PostActionIKnowThis && nextNodeID) {
+        if (posts[posts.length-1].user_id !== BOT_ID){
+            const action = getUserPostAction(posts[posts.length-1].message);
+            if (action.action_type === PostActionIKnowThis && nextNodeID) {
+                post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+            } else if (action.action_type === PostActionNextTopicVideo) {
+                post = constructBotPost([...posts!], node!, user!, PostTypeVideo);
+            } else if (action.action_type === PostActionNextTopicText) {
+                post = constructBotPost([...posts!], node!, user!, PostTypeText);
+            } else if (action.action_type === PostActionNextTopic) {
+                post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+            } else if (action.action_type === PostActionNextTopicKarelJS) {
+                post = constructBotPost([...posts!], node!, user!, PostTypeKarelJS);
+            }
+        } else if (posts[posts.length - 1].post_type === PostTypeGoalFinish){
             post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
-        } else if (action.action_type === PostActionNextTopicVideo) {
-            post = constructBotPost([...posts!], node!, user!, PostTypeVideo);
-        } else if (action.action_type === PostActionNextTopicText) {
-            post = constructBotPost([...posts!], node!, user!, PostTypeText);
-        } else if (action.action_type === PostActionNextTopic) {
-            post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
-        } else if (action.action_type === PostActionNextTopicKarelJS) {
-            post = constructBotPost([...posts!], node!, user!, PostTypeKarelJS);
         }
         if (post) {
             const locationID = `${user!.id}_${BOT_ID}`
@@ -162,17 +184,27 @@ const AITutorChat = () => {
             if (action.action_type === PostActionIKnowThis && nextNodeID) {
                 Client.Node().markAsKnown(nextNodeID, user!.id).then(() => {
                     for (let i = 0; i < globalGraph!.nodes.length; i++) {
-                        if (globalGraph!.nodes[i].id == nextNodeID) {
+                        if (globalGraph!.nodes[i].id === nextNodeID) {
                             globalGraph!.nodes[i].status = NodeStatusFinished;
                             break;
                         }
                     }
-                    nextNodeID = nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : '');
-                    setPosts([...posts!, userPost]);
+
+                    if (goals.length > 0 && nextNodeID === goals[0].node_id){
+                        Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', node?.name || ''), locationID).then((updatedPost) => {
+                            onReload();
+                            setPosts([...posts!, userPost, updatedPost]);
+                            setActions([]);
+                        });
+                    } else {
+                        nextNodeID = nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : '');
+                        setPosts([...posts!, userPost]);
+                    }
                     scrollToBottom();
                 });
                 return;
-            } else if (action.action_type === PostActionNextTopicVideo) {
+            }
+            if (action.action_type === PostActionNextTopicVideo) {
                 post = constructBotPost([...posts!, userPost], node!, user!, PostTypeVideo);
             } else if (action.action_type === PostActionNextTopicText) {
                 post = constructBotPost([...posts!, userPost], node!, user!, PostTypeText);

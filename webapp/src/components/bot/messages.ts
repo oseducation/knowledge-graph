@@ -1,6 +1,6 @@
 
 import {NodeViewState, NodeWithResources} from "../../types/graph";
-import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
+import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
 
 import {BOT_ID} from "./ai_tutor_chat";
 
@@ -20,6 +20,17 @@ export const theVeryFirstMessage = (username: string): Post => {
 You might know nothing about coding, but it's OK. You'll start coding in minutes. In fact, our first goal will be to write our first program.
 Feel free to ask any questions, and let's make your coding journey exciting and fruitful! 🎉`,
         post_type: PostTypeFilledInByAction,
+        user: null,
+        props: {},
+    };
+}
+
+export const goalFinishedMessage = (username: string, goalName: string): Post => {
+    return {
+        id: '',
+        user_id: BOT_ID,
+        message:`Congratulations ${username}! You've completed the goal - **${goalName}**. 🎉`,
+        post_type: PostTypeGoalFinish,
         user: null,
         props: {},
     };

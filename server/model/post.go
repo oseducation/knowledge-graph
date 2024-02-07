@@ -17,6 +17,7 @@ const (
 	PostTypeKarelJS          = "karel_js"
 	PostTypeFilledInByAction = "filled_in_by_action"
 	PostTypeChatGPT          = "chat_gpt"
+	PostTypeGoalFinished     = "goal_finished"
 )
 
 const PostMessageMaxRunes = 65536
@@ -92,7 +93,8 @@ func (p *Post) IsValid() error {
 		p.PostType != PostTypeFilledInByAction &&
 		p.PostType != PostTypeTopic &&
 		p.PostType != PostTypeKarelJS &&
-		p.PostType != PostTypeChatGPT {
+		p.PostType != PostTypeChatGPT &&
+		p.PostType != PostTypeGoalFinished {
 		return invalidPostError(p.ID, "type", p.PostType)
 	}
 
