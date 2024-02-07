@@ -1,5 +1,5 @@
 # Stage 1: Build Stage
-FROM golang:latest AS build
+FROM golang:1.20.2-alpine AS build
 
 # Set the working directory
 WORKDIR /knowledge-graph-server
