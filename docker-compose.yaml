@@ -37,6 +37,7 @@ services:
       - SITE_URL=${SITE_URL}
       - CHAT_GPT_API_KEY=${CHAT_GPT_API_KEY}
       - CHAT_GPT_ORGANIZATION_ID=${CHAT_GPT_ORGANIZATION_ID}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
     depends_on:
       - kg-db
     healthcheck:
