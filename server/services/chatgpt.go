@@ -392,5 +392,5 @@ func (c *ChatGPTServiceDummy) Send(userID, systemMessage string, messages []stri
 }
 
 func (c *ChatGPTServiceDummy) SendStream(_, _ string, _ []string) (ChatStream, error) {
-	return nil, nil
+	return CreateDummyChatGPTStream(), nil
 }
