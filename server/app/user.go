@@ -30,6 +30,12 @@ func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
 	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified); err != nil {
 		a.Log.Error("Failed to send welcome email on create user from signup", log.Err(err))
 	}
+	c, ok := a.Services.StripeService.CreateCustomer(ruser.Email)
+	if ok != nil {
+		a.Log.Info("Stripe customer created", log.String("customer", c.Email))
+	} else {
+		a.Log.Error("Stripe customer creation failed", log.String("email", ruser.Email))
+	}
 	return user, nil
 }
 

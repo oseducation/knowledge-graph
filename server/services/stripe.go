@@ -28,6 +28,7 @@ func NewStripeService() (StripeServiceInterface, error) {
 }
 
 func (s *StripeService) CreateCustomer(email string) (*stripe.Customer, error) {
+	stripe.Key = s.apiKey
 	params := &stripe.CustomerParams{
 		Email: stripe.String(email),
 		// 	Description: stripe.String("My First Test Customer (created for API docs)"),
