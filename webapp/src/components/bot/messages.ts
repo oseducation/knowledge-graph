@@ -16,9 +16,10 @@ export const theVeryFirstMessage = (username: string): Post => {
     return {
         id: '',
         user_id: BOT_ID,
-        message:`👋 Hello ${username}, and welcome to Vitsi AI! I'm your AI tutor, here to help you learn programming and navigate the world of code. 🚀
-You might know nothing about coding, but it's OK. You'll start coding in minutes. In fact, our first goal will be to write our first program.
-Feel free to ask any questions, and let's make your coding journey exciting and fruitful! 🎉`,
+        message:`👋 Hello ${username}, and welcome to Vitsi AI! I'm your AI tutor, here to guide you through the essentials of becoming a standout startup founder. 🚀
+You might know nothing about startups or not know if you want to start one, but it's OK. In fact, our first goal will be "Deciding When to Start Your Own Company".
+You may request a video or a text on a topic, or you can progress to the next topic by clicking the "I know this" button.
+Feel free to ask any questions, and let's make your entrepreneurship journey exciting and fruitful! 🎉`,
         post_type: PostTypeFilledInByAction,
         user: null,
         props: {},
