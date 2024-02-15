@@ -20,9 +20,11 @@ func TestUserLogin(t *testing.T) {
 
 	t.Run("can't register user without username", func(t *testing.T) {
 		user := model.User{
-			Email:    "bla@gmail.com",
-			Password: "hello1",
-			Lang:     "en",
+			Email:     "bla@gmail.com",
+			Password:  "hello1",
+			Lang:      "en",
+			FirstName: "firstname",
+			LastName:  "lastname",
 		}
 		_, resp, err := th.Client.RegisterUser(&user)
 		require.Error(t, err)
@@ -36,6 +38,8 @@ func TestUserLogin(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		registeredUser, resp, err := th.Client.RegisterUser(&user)
 		require.NoError(t, err)
@@ -51,6 +55,8 @@ func TestUserLogin(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user3",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		registeredUser, resp, err := th.Client.RegisterUser(&user)
 		require.NoError(t, err)
@@ -105,9 +111,11 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("should not register user with existing email", func(t *testing.T) {
 		user := model.User{
-			Email:    "basic_user@someRandomEmail.com",
-			Password: "password",
-			Username: "username",
+			Email:     "basic_user@someRandomEmail.com",
+			Password:  "password",
+			Username:  "username",
+			FirstName: "firstname",
+			LastName:  "lastname",
 		}
 		_, resp, err := th.Client.RegisterUser(&user)
 		require.Error(t, err)
@@ -121,9 +129,11 @@ func TestRegisterUserWithInvalidJson(t *testing.T) {
 
 	t.Run("should not register user with existing email", func(t *testing.T) {
 		user := model.User{
-			Email:    "valid@someRandomEmail.com",
-			Password: "password",
-			Username: "username",
+			Email:     "valid@someRandomEmail.com",
+			Password:  "password",
+			Username:  "username",
+			FirstName: "firstname",
+			LastName:  "lastname",
 		}
 		_, resp, err := th.Client.RegisterUser(&user)
 		require.Error(t, err)
@@ -142,6 +152,8 @@ func TestCreateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, resp, err := th.Client.CreateUser(&user)
 		require.Error(t, err)
@@ -155,6 +167,8 @@ func TestCreateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, resp, err := th.UserClient.CreateUser(&user)
 		require.Error(t, err)
@@ -168,6 +182,8 @@ func TestCreateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
@@ -180,6 +196,8 @@ func TestCreateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, _, err := th.AdminClient.CreateUser(&user)
 		require.Error(t, err)
@@ -192,6 +210,8 @@ func TestCreateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "", // empty username
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, resp, err := th.AdminClient.CreateUser(&user)
 		require.Error(t, err)
@@ -205,6 +225,8 @@ func TestCreateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "username1", // empty username
 			Lang:          "",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, resp, err := th.AdminClient.CreateUser(&user)
 		require.Error(t, err)
@@ -221,6 +243,8 @@ func TestCreateUserInvalidJson(t *testing.T) {
 			Password:      "password",
 			EmailVerified: true,
 			Username:      "testValidUsername",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, resp, err := th.AdminClient.CreateUser(&user)
 		require.Error(t, err)
@@ -251,6 +275,8 @@ func TestGetUsers(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user3",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		registeredUser, _, err := th.Client.RegisterUser(&user)
 		require.NoError(t, err)
@@ -273,6 +299,8 @@ func TestUpdateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		resp, err := th.Client.UpdateUser(&user)
 		require.Error(t, err)
@@ -285,6 +313,8 @@ func TestUpdateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, resp, err := th.UserClient.CreateUser(&user)
 		require.Error(t, err)
@@ -297,6 +327,8 @@ func TestUpdateUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		createdUser, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
@@ -325,6 +357,8 @@ func TestUpdateUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		resp, err := th.AdminClient.UpdateUser(&user)
 		require.Error(t, err)
@@ -337,6 +371,8 @@ func TestUpdateUser(t *testing.T) {
 			Password:      "password",
 			EmailVerified: true,
 			Username:      "", // empty username
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		resp, err := th.AdminClient.UpdateUser(&user)
 		require.Error(t, err)
@@ -354,6 +390,8 @@ func TestPatchCurrentUser(t *testing.T) {
 			Password:      "hello1",
 			EmailVerified: true,
 			Username:      "user",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		resp, err := th.Client.PatchCurrentUser(&user)
 		require.Error(t, err)
@@ -427,6 +465,8 @@ func TestDeleteUser(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		createdUser, _, err := th.AdminClient.CreateUser(&user)
 		require.NoError(t, err)
@@ -453,6 +493,8 @@ func TestVerifyUserEmail(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user3",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
 		require.NoError(t, err)
@@ -469,6 +511,8 @@ func TestVerifyUserEmail(t *testing.T) {
 			EmailVerified: true,
 			Username:      "user4",
 			Lang:          "en",
+			FirstName:     "firstname",
+			LastName:      "lastname",
 		}
 		_, _, err := th.UserClient.RegisterUser(&user)
 		require.NoError(t, err)
