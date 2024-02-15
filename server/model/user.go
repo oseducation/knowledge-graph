@@ -145,6 +145,14 @@ func (u *User) IsValid() error {
 		return invalidUserError(u.ID, "lang", u.Lang)
 	}
 
+	if u.FirstName == "" {
+		return invalidUserError(u.ID, "first_name", u.FirstName)
+	}
+
+	if u.LastName == "" {
+		return invalidUserError(u.ID, "last_name", u.LastName)
+	}
+
 	return nil
 }
 

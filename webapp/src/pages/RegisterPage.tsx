@@ -62,12 +62,12 @@ const RegisterPage = () => {
                     <TextField
                         label={t("First Name")}
                         variant="outlined"
-                        {...register("first_name")}
+                        {...register("first_name", {required: true})}
                     />
                     <TextField
                         label={t("Last Name")}
                         variant="outlined"
-                        {...register('last_name')}
+                        {...register('last_name', {required: true})}
                     />
                     <TextField
                         required
