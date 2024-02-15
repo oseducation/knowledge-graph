@@ -22,6 +22,10 @@ type streamReader struct {
 	response *http.Response
 }
 
+type dummyStreamReader struct {
+	isFinished bool
+}
+
 type ChatCompletionStreamChoiceDelta struct {
 	Content string `json:"content,omitempty"`
 	Role    string `json:"role,omitempty"`
@@ -39,6 +43,10 @@ type ChatCompletionStreamResponse struct {
 	Created int64                        `json:"created"`
 	Model   string                       `json:"model"`
 	Choices []ChatCompletionStreamChoice `json:"choices"`
+}
+
+func CreateDummyChatGPTStream() ChatStream {
+	return &dummyStreamReader{isFinished: false}
 }
 
 func CreateChatGPTStream(response *http.Response) ChatStream {
@@ -110,4 +118,15 @@ func (stream *streamReader) processResponse() (*ChatCompletionStreamResponse, er
 
 func (stream *streamReader) Close() {
 	stream.response.Body.Close()
+}
+
+func (stream *dummyStreamReader) Recv() (string, error) {
+	if stream.isFinished {
+		return "", io.EOF
+	}
+	stream.isFinished = true
+	return "AI is currently offline, sorry.", nil
+}
+
+func (stream *dummyStreamReader) Close() {
 }
