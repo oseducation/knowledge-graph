@@ -32,8 +32,7 @@ const AITutorChat = () => {
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
-
-    let nextNodeID = nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : '');
+    const [nextNodeID, setNextNodeID] = useState<string | null>(null);
 
 
     const scrollToBottom = () => {
@@ -47,6 +46,10 @@ const AITutorChat = () => {
 
         return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        setNextNodeID(nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : ''));
+    }, [globalGraph, pathToGoal, goals]);
 
     useEffect(() => {
         if (nextNodeID) {
@@ -183,12 +186,13 @@ const AITutorChat = () => {
             let post;
             if (action.action_type === PostActionIKnowThis && nextNodeID) {
                 Client.Node().markAsKnown(nextNodeID, user!.id).then(() => {
-                    for (let i = 0; i < globalGraph!.nodes.length; i++) {
-                        if (globalGraph!.nodes[i].id === nextNodeID) {
-                            globalGraph!.nodes[i].status = NodeStatusFinished;
-                            break;
-                        }
-                    }
+                    // for (let i = 0; i < globalGraph!.nodes.length; i++) {
+                    //     if (globalGraph!.nodes[i].id === nextNodeID) {
+                    //         globalGraph!.nodes[i].status = NodeStatusFinished;
+                    //         break;
+                    //     }
+                    // }
+                    onReload();
 
                     if (goals.length > 0 && nextNodeID === goals[0].node_id){
                         Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', node?.name || ''), locationID).then((updatedPost) => {
@@ -197,7 +201,7 @@ const AITutorChat = () => {
                             setActions([]);
                         });
                     } else {
-                        nextNodeID = nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : '');
+                        setNextNodeID(nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : ''));
                         setPosts([...posts!, userPost]);
                     }
                     scrollToBottom();

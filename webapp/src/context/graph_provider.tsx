@@ -2,7 +2,7 @@
 import React, {createContext, useEffect, useState} from 'react';
 
 import {Client} from "../client/client";
-import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal, cloneGraph} from '../types/graph';
+import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal, cloneGraph, NodeStatusUnseen} from '../types/graph';
 import useAuth from '../hooks/useAuth';
 
 interface GraphContextState {
@@ -87,16 +87,16 @@ export const GraphProvider = (props: Props) => {
             if (!data) {
                 return;
             }
-            computeNextNodes(data)
-            setGlobalGraph(data);
-            const graph = getGraphForParent(data, parentID);
+            const updatedGraph = getGraphWithUpdatedNodeStatuses(data)
+            setGlobalGraph(updatedGraph);
+            const graph = getGraphForParent(updatedGraph, parentID);
             setGraph(graph);
 
-            Client.Graph().getGoals().then((goals: Goal[]) => {
-                if (goals && goals.length > 0) {
-                    const computedPathToGoal = computePathToGoal(data, goals[0].node_id);
+            Client.Graph().getGoals().then((newGoals: Goal[]) => {
+                if (newGoals && newGoals.length > 0) {
+                    const computedPathToGoal = computePathToGoal(updatedGraph, newGoals[0].node_id);
                     setPathToGoal(computedPathToGoal);
-                    setGoals(goals);
+                    setGoals(newGoals);
                 }
             });
         });
@@ -209,32 +209,6 @@ export const computePathToGoal = (graph: Graph, goalNodeID: string) => {
     return pathToGoal;
 }
 
-export const computeNextNodeInProgress = (graph: Graph, pathToGoal: Map<string, string>) => {
-    const [inProgressNodes, ] = computeNextNodes(graph);
-    if (!inProgressNodes || inProgressNodes.length === 0) {
-        return null;
-    }
-
-    for (const node of inProgressNodes) {
-        if (pathToGoal.has(node.id)) {
-            return node;
-        }
-    }
-}
-
-export const computeNextNodeNew = (graph: Graph, pathToGoal: Map<string, string>) => {
-    const [, nextNodes] = computeNextNodes(graph);
-    if (!nextNodes || nextNodes.length === 0) {
-        return null;
-    }
-
-    for (const node of nextNodes) {
-        if (pathToGoal.has(node.id)) {
-            return node;
-        }
-    }
-}
-
 export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, string> | null, goalNodeID: string) => {
     if (graph === null || pathToGoal === null) {
         return null;
@@ -285,17 +259,47 @@ const computeParentMap = (graph: Graph) => {
     return parentMap;
 }
 
-export const computeNextNodes = (graph: Graph) => {
+const computeNextNodes = (graph: Graph) => {
+    const inProgressNodes = [];
+    const nextNodes = [];
+    for (const node of graph.nodes) {
+        if(node.parent_id !== "") {
+            if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
+                inProgressNodes.push(node);
+            } else if (node.status === NodeStatusNext) {
+                nextNodes.push(node);
+            }
+        }
+    }
+    nextNodes.sort(nodeCmpFn);
+    inProgressNodes.sort(nodeCmpFn);
+
+    return [inProgressNodes, nextNodes];
+}
+
+const getGraphWithUpdatedNodeStatuses = (graph: Graph) => {
+    const nodeStatuses = getNodeStatuses(graph);
+    const updatedGraph = cloneGraph(graph);
+    for (const node of updatedGraph.nodes) {
+        node.status = nodeStatuses.get(node.id) || NodeStatusUnseen;
+    }
+    return updatedGraph;
+}
+
+const getNodeIDToNodeMap = (graph: Graph): Map<string, Node> => {
     const nodesMap = new Map<string, Node>();
     graph.nodes.forEach((node) => {
         if (node.parent_id !== "") {
             nodesMap.set(node.id, node)
         }
     })
+    return nodesMap
+}
 
-    const prereqMap = new Map<string, Node>();
-    for (let i = 0; i < graph.links.length; i++) {
-        const link = castToLink(graph.links[i]);
+const getNodesWithNotFinishedPrerequisites = (links: Link[], nodesMap: Map<string, Node>): Map<string, Node> => {
+    const nodesWithNotFinishedPrereqs = new Map<string, Node>();
+    for (let i = 0; i < links.length; i++) {
+        const link = castToLink(links[i]);
         const tar = nodesMap.get(link.target);
         if (tar === undefined || tar.status === NodeStatusFinished) {
             continue
@@ -304,65 +308,71 @@ export const computeNextNodes = (graph: Graph) => {
         if (sou === undefined || sou.status === NodeStatusFinished) {
             continue
         }
-        prereqMap.set(tar.id, tar);
+        nodesWithNotFinishedPrereqs.set(tar.id, tar);
     }
+    return nodesWithNotFinishedPrereqs;
+}
 
-    const inProgressNodes = [];
-    const nextNodes = [];
+const getNodeStatuses = (graph: Graph): Map<string, string> => {
+    const nodeStatuses = new Map<string, string>();
+    const nodesMap = getNodeIDToNodeMap(graph);
+    const nodesWithNotFinishedPrereqs = getNodesWithNotFinishedPrerequisites(graph.links, nodesMap);
+
+    // for child nodes
     for (const node of graph.nodes) {
-        if(node.parent_id !== "") {
-            if (node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
-                inProgressNodes.push(node);
-            } else if (!prereqMap.has(node.id) && node.status !== NodeStatusFinished) {
-                nextNodes.push(node);
-                node.status = NodeStatusNext;
-            }
+        if (node.parent_id === "") {
+            continue
+        }
+        if (!nodesWithNotFinishedPrereqs.has(node.id) && node.status !== NodeStatusFinished) {
+            nodeStatuses.set(node.id, NodeStatusNext);
+        } else {
+            nodeStatuses.set(node.id, node.status);
         }
     }
 
     const parentMap = computeParentMap(graph);
+    // for parent nodes
     for (const node of graph.nodes) {
-        if (node.parent_id === "") {
-            let allChildrenFinished = true;
-            const children = parentMap.get(node.id) || []
-            if (children.length === 0) {
-                continue
-            }
-            for (const child of children) {
-                if (child.status !== NodeStatusFinished) {
-                    allChildrenFinished = false;
-                    break
-                }
-            }
-            if (allChildrenFinished){
-                node.status = NodeStatusFinished;
-                continue
-            }
-            let nodeStarted = false;
-            for (const child of children) {
-                if (child.status === NodeStatusStarted || child.status === NodeStatusWatched) {
-                    nodeStarted = true;
-                    break
-                }
-            }
-            if (nodeStarted) {
-                node.status = NodeStatusStarted;
-                continue
-            }
-            for (const child of children) {
-                if (child.status === NodeStatusNext) {
-                    node.status = NodeStatusNext;
-                    break
-                }
-            }
+        if (node.parent_id !== "") {
+            continue
+        }
 
+        const children = parentMap.get(node.id) || []
+        if (children.length === 0) {
+            continue
+        }
+
+        // check if parent node is finished(all children are finished)
+        let allChildrenFinished = true;
+        for (const child of children) {
+            if (nodeStatuses.has(child.id) && nodeStatuses.get(child.id) !== NodeStatusFinished) {
+                allChildrenFinished = false;
+                break
+            }
+        }
+        if (allChildrenFinished){
+            nodeStatuses.set(node.id, NodeStatusFinished);
+            continue
+        }
+
+        // check if parent node is started(at least one child is started)
+        for (const child of children) {
+            if (nodeStatuses.has(child.id) && (nodeStatuses.get(child.id) === NodeStatusStarted || nodeStatuses.get(child.id) === NodeStatusWatched)) {
+                nodeStatuses.set(node.id, NodeStatusStarted);
+                break
+            }
+        }
+
+        // check if parent node is next(at least one child is next)
+        for (const child of children) {
+            if (nodeStatuses.has(child.id) && nodeStatuses.get(child.id) === NodeStatusNext) {
+                node.status = NodeStatusNext;
+                break
+            }
         }
     }
 
-    nextNodes.sort(nodeCmpFn);
-    inProgressNodes.sort(nodeCmpFn);
-
-    return [inProgressNodes, nextNodes];
+    return nodeStatuses;
 }
 
 const nodeCmpFn = (a: Node, b: Node) => {
