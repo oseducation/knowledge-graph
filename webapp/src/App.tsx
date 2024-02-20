@@ -8,6 +8,7 @@ import GuestLayout from './GuestLayout';
 import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import NotFoundPage from './pages/NotFoundPage';
+import EducatorsLanding from './components/landing/educators/educators_landing';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -27,13 +28,6 @@ const KarelPage = lazy(() => import('./pages/KarelPage'));
 const AITutorChat = lazy(() => import('./components/bot/ai_tutor_chat'));
 const Overview = lazy(() => import('./components/overview/overview'));
 const Graph = lazy(() => import('./components/dashboard/graph'));
-const Calculus = lazy(() => import('./components/experiments/calculus'));
-const Thanks = lazy(() => import('./components/experiments/thanks'));
-const Javascript = lazy(() => import('./components/experiments/javascript'));
-const Engineer = lazy(() => import('./components/experiments/engineer'));
-const Management = lazy(() => import('./components/experiments/management'));
-
-
 
 const Home = lazy(() => import('./Home'));
 
@@ -71,13 +65,7 @@ function App() {
                         <Route path="graph" element={<Graph/>}/>
                     </Route>
                 </Route>
-                <Route path="experiments">
-                    <Route path="thanks" element={<Thanks/>}/>
-                    <Route path="calculus" element={<Calculus/>}/>
-                    <Route path="javascript" element={<Javascript/>}/>
-                    <Route path="engineer" element={<Engineer/>}/>
-                    <Route path="management" element={<Management/>}/>
-                </Route>
+                <Route path="educators" element={<EducatorsLanding/>}/>
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                     <Route path="/admin" element={<AdminPage/>}/>
                     <Route path="/graph/:userID" element={<GraphPage/>}/>
