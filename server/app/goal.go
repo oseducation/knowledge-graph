@@ -55,28 +55,35 @@ func (a *App) DeleteGoal(userID, nodeID string) error {
 
 // DeleteGoal deletes a goal for a user
 func (a *App) GetGoals(userID string) ([]*model.GoalWithData, error) {
+	maxGoals := 3
 	goals, err := a.Store.Goal().GetAllWithData(userID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "userID = %s", userID)
 	}
-	if len(goals) > 0 {
-		return goals, nil
+
+	if len(goals) >= maxGoals {
+		return goals[:maxGoals], nil
 	}
-	defaultGoal, err := a.Store.Goal().NextDefaultGoalForUser(userID)
+	defaultGoals, err := a.Store.Goal().DefaultGoalsForUser(userID)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't get default goals")
 	}
-	if defaultGoal == "" {
-		return []*model.GoalWithData{}, nil
-	}
-	node, err := a.Store.Node().Get(defaultGoal)
-	if err != nil {
-		return nil, errors.Wrapf(err, "can't get node = %s", defaultGoal)
+
+	for i := 0; len(goals) < maxGoals && i < len(defaultGoals); i++ {
+		node, err := a.Store.Node().Get(defaultGoals[i])
+		if err != nil {
+			return nil, errors.Wrapf(err, "can't get node = %s", defaultGoals[i])
+		}
+		goals = append(goals, &model.GoalWithData{
+			NodeID:               defaultGoals[i],
+			Name:                 node.Name,
+			ThumbnailRelativeURL: node.ThumbnailURL,
+		})
 	}
 
-	return []*model.GoalWithData{{
-		NodeID:               defaultGoal,
-		Name:                 node.Name,
-		ThumbnailRelativeURL: node.ThumbnailURL,
-	}}, nil
+	if maxGoals > len(goals) {
+		maxGoals = len(goals)
+	}
+
+	return goals[:maxGoals], nil
 }
