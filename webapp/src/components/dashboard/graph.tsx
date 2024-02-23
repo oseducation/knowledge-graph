@@ -19,7 +19,7 @@ const GraphComp = () => {
                 overflowY: 'hidden',
             }}>
                 {graph && graph.nodes?
-                    <GraphComponent graph={graph} hightAdjust={64}/>
+                    <GraphComponent graph={graph} heightAdjust={64} drawGoalPath={true}/>
                     :
                     <div>Loading Graph...</div>
                 }

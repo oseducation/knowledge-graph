@@ -245,6 +245,25 @@ export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, stri
     return null;
 }
 
+export const goalGraph = (graph: Graph | null, pathToGoal: Map<string, string> | null, goalNodeID: string) => {
+    const goalNodes = [];
+    const goalLinks = [];
+    for (const node of graph?.nodes || []) {
+        if (pathToGoal?.has(node.id) || node.id == goalNodeID) {
+            goalNodes.push(node);
+        }
+    }
+
+    for (const link of graph?.links || []) {
+        if (goalNodes.find(node => node.id === link.source) && goalNodes.find(node => node.id === link.target)) {
+            goalLinks.push(link);
+        }
+    }
+
+    return cloneGraph({nodes: goalNodes, links: goalLinks});
+}
+
+
 const computeParentMap = (graph: Graph) => {
     const parentMap = new Map<string, Node[]>();
     for (const node of graph.nodes) {

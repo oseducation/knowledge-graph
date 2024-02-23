@@ -10,11 +10,17 @@ import D3ForceGraph from './3d_force_graph';
 
 interface GraphComponentProps {
     graph: Graph;
-    hightAdjust?: number;
+    heightAdjust?: number;
+    height?: number;
     noClick?: boolean;
     dir?: DagMode;
     textColor?: string;
     isLarge?: boolean;
+    drawGoalPath: boolean;
+    zoomToFit?: number;
+    cooldownTicks?: number;
+    wormupTicks?: number;
+    currentNodeID?: string;
 }
 
 const GraphComponent = (props: GraphComponentProps) => {
@@ -25,7 +31,7 @@ const GraphComponent = (props: GraphComponentProps) => {
 
     useEffect(() => {
         if (myRef.current) {
-            setWidth(myRef.current.offsetWidth)
+            setWidth(myRef.current.offsetWidth);
         }
     }, []);
 
@@ -34,12 +40,17 @@ const GraphComponent = (props: GraphComponentProps) => {
             <D3ForceGraph
                 graph={props.graph}
                 width={width}
-                height={props.hightAdjust? windowHeight - props.hightAdjust: windowHeight-appBarHeight}
+                height={props.height || (props.heightAdjust? windowHeight - props.heightAdjust: windowHeight-appBarHeight)}
                 dimension3={false}
                 noClick={props.noClick}
                 dir={props.dir}
                 textColor={props.textColor}
                 isLarge={props.isLarge}
+                drawGoalPath={props.drawGoalPath}
+                zoomToFit={props.zoomToFit}
+                cooldownTicks={props.cooldownTicks}
+                wormupTicks={props.wormupTicks}
+                currentNodeID={props.currentNodeID}
             />
         </Box>
     );

@@ -16,6 +16,7 @@ import useGraph from '../../hooks/useGraph';
 
 interface Props {
     graph: Graph;
+    drawGoalPath: boolean;
     width?: number;
     height?: number;
     dimension3: boolean;
@@ -23,6 +24,10 @@ interface Props {
     dir?: DagMode;
     textColor?: string;
     isLarge?: boolean;
+    zoomToFit?: number;
+    cooldownTicks?: number;
+    wormupTicks?: number;
+    currentNodeID?: string;
 }
 
 const D3ForceGraph = (props: Props) => {
@@ -232,7 +237,7 @@ const D3ForceGraph = (props: Props) => {
                         paintRing(currentNode, ctx, theme.palette.error.main);
                     } else if (highlightNodes.has(currentNode.id)){
                         paintRing(currentNode, ctx, theme.palette.warning.main);
-                    } else if (pathToGoal?.has(currentNode.id) && currentNode.status !== NodeStatusFinished){
+                    } else if (props.drawGoalPath && pathToGoal?.has(currentNode.id) && currentNode.status !== NodeStatusFinished){
                         paintRing(currentNode, ctx, theme.palette.info.main);
                     }
 
@@ -246,7 +251,10 @@ const D3ForceGraph = (props: Props) => {
                     const x = currentNode.x || 0;
                     const y = currentNode.y || 0;
                     const nodeColor = getNodeColor(currentNode);
-                    if (goals && goals.find(value => value.node_id === currentNode.id)) {
+                    if (currentNode.id === props.currentNodeID) {
+                        paintRing(currentNode, ctx, theme.palette.warning.main);
+                        drawStar(ctx, x, y, 7, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
+                    } else if (goals && goals.find(value => value.node_id === currentNode.id)) {
                         paintRing(currentNode, ctx, theme.palette.info.main);
                         drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
                     } else if (currentNode.node_type === NodeTypeLecture || currentNode.node_type === NodeTypeParent) {
@@ -288,13 +296,13 @@ const D3ForceGraph = (props: Props) => {
                         setOpenGreyNodeAlert(false);
                     }
                 }}
-                cooldownTicks={100}
-                warmupTicks={200}
+                cooldownTicks={props.cooldownTicks || 100}
+                warmupTicks={props.wormupTicks || 200}
                 onEngineStop={() => {
                     if (props.isLarge) {
-                        fgRef.current!.zoomToFit(1000, 60);
+                        fgRef.current!.zoomToFit(props.zoomToFit || 1000, 60);
                     } else {
-                        fgRef.current!.zoomToFit(1000);
+                        fgRef.current!.zoomToFit(props.zoomToFit || 1000);
                     }
                 }}
             />

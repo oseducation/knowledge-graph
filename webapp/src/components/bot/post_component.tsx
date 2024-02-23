@@ -3,11 +3,7 @@ import {Box} from '@mui/material';
 
 import {Post, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import IDE from '../karel/ide';
-
 import LinkFallback from '../link_fallback';
-
-import { Client } from '../../client/client';
-
 import VideoFallback from '../video_fallback';
 
 import VideoMessage from './video_message';
@@ -15,19 +11,19 @@ import {BOT_ID} from './ai_tutor_chat';
 import TestMessage from './test_message';
 import PostContainer from './post_container';
 import TextMessage from './text_message';
+import GraphMessage from './graph_message';
 
 interface Props {
     post: Post;
     isLast: boolean;
     scrollToBottom: () => void;
+    nextNodeID: string;
 }
 
 const PostComponent = (props: Props) => {
     let component = null;
 
     if (props.post.post_type === PostTypeVideo) {
-        Client.Node().get(props.post.props.node_id)
-
         component = (
             <VideoFallback fallback={!props.isLast} videoProps={props.post.props}>
                 <VideoMessage
@@ -38,7 +34,7 @@ const PostComponent = (props: Props) => {
             </VideoFallback>
         );
     } else if (props.post.post_type === '' ||
-        props.post.post_type === PostTypeTopic ||
+        // props.post.post_type === PostTypeTopic ||
         props.post.post_type === PostTypeText ||
         props.post.post_type === PostTypeFilledInByAction ||
         props.post.post_type === PostTypeChatGPT ||
@@ -73,6 +69,24 @@ const PostComponent = (props: Props) => {
                 </Box>
             </LinkFallback>
         )
+    } else if (props.post.post_type === PostTypeTopic) {
+        if (props.isLast) {
+            component = (
+                <GraphMessage
+                    message={props.post.message}
+                    currentNodeID={props.nextNodeID}
+                    scrollToBottom={props.scrollToBottom}
+                />
+            );
+        } else {
+            component = (
+                <TextMessage
+                    shouldAnimate={props.isLast}
+                    message={props.post.message}
+                    scrollToBottom={props.scrollToBottom}
+                />
+            );
+        }
     }
 
     return (

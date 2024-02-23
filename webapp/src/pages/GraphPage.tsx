@@ -20,7 +20,7 @@ const GraphPage = () => {
     return (
         <>
             {graph && graph.nodes?
-                <GraphComponent graph={graph}/>
+                <GraphComponent graph={graph} drawGoalPath={true}/>
                 :
                 <div>Loading Graph...</div>
             }

@@ -246,6 +246,7 @@ const AITutorChat = () => {
                         post={post}
                         isLast={index === posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
                         scrollToBottom={scrollToBottom}
+                        nextNodeID={nextNodeID || ''}
                     />
                 )}
                 {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom}/>}
