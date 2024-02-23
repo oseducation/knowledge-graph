@@ -126,7 +126,7 @@ export const GraphProvider = (props: Props) => {
 export default GraphContext;
 
 
-const getGraphForParent = (graph: Graph, parentID: string) => {
+export const getGraphForParent = (graph: Graph, parentID: string) => {
     const nodes = graph.nodes.filter(node => node.parent_id === parentID);
     const links = [];
     for (const link of graph.links) {
