@@ -53,6 +53,7 @@ const TwoSidedLayout = (props: Props) =>  {
                     dir={'lr'}
                     textColor={props.graphTextColor}
                     isLarge={true}
+                    drawGoalPath={false}
                 />
             </Grid2>
         </Box>
