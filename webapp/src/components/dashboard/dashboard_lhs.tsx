@@ -5,8 +5,8 @@ import {useNavigate} from 'react-router-dom';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
-import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
-import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
+// import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
+// import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
 
 import {DashboardColors} from '../../ThemeOptions';
 import {GroupItem} from '../../types/sidebar';
@@ -32,17 +32,19 @@ const DashboardLHS = () =>{
         display_name: 'Topic Map',
         icon: <AccountTreeOutlinedIcon fontSize='large'/>,
         onClick: () => navigate('/dashboard/graph')
-    }, {
-        id: 'goals',
-        display_name: 'Goals',
-        icon: <RocketLaunchOutlinedIcon fontSize='large'/>,
-        // onClick: () => navigate('/dashboard/goals')
-    }, {
-        id: 'badges',
-        display_name: 'Badges',
-        icon: <MilitaryTechOutlinedIcon fontSize='large'/>,
-        // onClick: () => navigate('/dashboard/badges')
-    }]
+    }
+    // , {
+    //     id: 'goals',
+    //     display_name: 'Goals',
+    //     icon: <RocketLaunchOutlinedIcon fontSize='large'/>,
+    //     onClick: () => navigate('/dashboard/goals')
+    // }, {
+    //     id: 'badges',
+    //     display_name: 'Badges',
+    //     icon: <MilitaryTechOutlinedIcon fontSize='large'/>,
+    //     onClick: () => navigate('/dashboard/badges')
+    // }
+    ]
 
     return (
         <Box>
