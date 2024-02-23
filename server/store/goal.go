@@ -19,7 +19,7 @@ type GoalStore interface {
 	GetAllWithData(userID string) ([]*model.GoalWithData, error)
 	Get(userID, nodeID string) (*model.Goal, error)
 	SaveDefaultGoal(nodeID string, num int64) error
-	NextDefaultGoalForUser(userID string) (string, error)
+	DefaultGoalsForUser(userID string) ([]string, error)
 }
 
 // SQLGoalStore is a struct to store goals
@@ -197,8 +197,8 @@ func (gs *SQLGoalStore) SaveDefaultGoal(nodeID string, num int64) error {
 	return nil
 }
 
-// NextDefaultGoalForUser returns next default goal for a specific user
-func (gs *SQLGoalStore) NextDefaultGoalForUser(userID string) (string, error) {
+// DefaultGoalsForUser returns next default goal for a specific user
+func (gs *SQLGoalStore) DefaultGoalsForUser(userID string) ([]string, error) {
 	type DefaultGoal struct {
 		NodeID string         `json:"node_id" db:"node_id"`
 		Num    int64          `json:"num" db:"num"`
@@ -216,7 +216,7 @@ func (gs *SQLGoalStore) NextDefaultGoalForUser(userID string) (string, error) {
 		From("default_goals dg").JoinClause(subQuery)
 
 	if err := gs.sqlStore.selectBuilder(gs.sqlStore.db, &goals, query); err != nil {
-		return "", errors.Wrap(err, "can't get default goals")
+		return []string{}, errors.Wrap(err, "can't get default goals")
 	}
 
 	sort.Slice(goals, func(i, j int) bool {
@@ -227,10 +227,13 @@ func (gs *SQLGoalStore) NextDefaultGoalForUser(userID string) (string, error) {
 		nodeIDs[i] = goals[i].NodeID
 	}
 
+	defaultGoals := make([]string, 0)
+
 	for _, goal := range goals {
 		if !goal.Status.Valid || goal.Status.String != model.NodeStatusFinished {
-			return goal.NodeID, nil
+			defaultGoals = append(defaultGoals, goal.NodeID)
 		}
 	}
-	return "", nil
+
+	return defaultGoals, nil
 }
