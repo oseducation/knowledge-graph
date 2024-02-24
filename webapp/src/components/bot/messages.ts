@@ -55,7 +55,7 @@ const iKnowThisAction = {
 
 const anotherVideoAction = {
     id: '3',
-    text_on_button: "Video On a Topic",
+    text_on_button: "Show Video",
     message_after_click: anotherVideoMessage,
     action_type: PostActionNextTopicVideo,
     link: '',
@@ -63,7 +63,7 @@ const anotherVideoAction = {
 
 const anotherTextAction = {
     id: '4',
-    text_on_button: "Text On a Topic",
+    text_on_button: "Show Text",
     message_after_click: anotherTextMessage,
     action_type: PostActionNextTopicText,
     link: '',
