@@ -1,20 +1,20 @@
 import React from 'react';
 import {Badge, BadgeProps, Box, IconButton, styled} from '@mui/material';
-import {useLocation} from 'react-router-dom';
+// import {useLocation} from 'react-router-dom';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MenuIcon from '@mui/icons-material/Menu';
 
 import {DashboardColors} from '../../ThemeOptions';
-import useGraph from '../../hooks/useGraph';
+// import useGraph from '../../hooks/useGraph';
 import useDrawer from '../../hooks/useDrawer';
 import ProfileDropdown from '../profile_dropdown';
 
 import SearchBar from './search_bar';
 
 const DashboardHeader = () => {
-    const location = useLocation();
-    const {graph, setParentID} = useGraph();
+    // const location = useLocation();
+    // const {graph, setParentID} = useGraph();
     const {open, setOpen} = useDrawer();
 
     // const backButton = graph && (graph.nodes.length === 0 || graph.nodes.length > 0 && graph.nodes[0].parent_id !== '') && location.pathname.includes('/dashboard/graph');
