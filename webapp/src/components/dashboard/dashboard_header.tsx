@@ -17,7 +17,7 @@ const DashboardHeader = () => {
     const {graph, setParentID} = useGraph();
     const {open, setOpen} = useDrawer();
 
-    const backButton = graph && (graph.nodes.length === 0 || graph.nodes.length > 0 && graph.nodes[0].parent_id !== '') && location.pathname.includes('/dashboard/graph');
+    // const backButton = graph && (graph.nodes.length === 0 || graph.nodes.length > 0 && graph.nodes[0].parent_id !== '') && location.pathname.includes('/dashboard/graph');
 
     const handleDrawerToggle = () => {
         setOpen?.(!open);
@@ -36,7 +36,7 @@ const DashboardHeader = () => {
                 >
                     <MenuIcon/>
                 </IconButton>
-                {backButton &&
+                {/* {backButton &&
                     <IconButton
                         color="primary"
                         aria-label="back"
@@ -44,7 +44,7 @@ const DashboardHeader = () => {
                     >
                         <ArrowBackIcon/>
                     </IconButton>
-                }
+                } */}
             </Box>
 
             <Box mr={'20px'} display={'flex'} flexDirection={'row'} alignItems={'center'} alignContent={'center'}>
