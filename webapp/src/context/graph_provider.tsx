@@ -16,9 +16,9 @@ interface GraphContextState {
     addGoal: (goal: Goal) => void;
     removeGoal: (goal: string) => void;
     selectedNode: Node | null;
-    setSelectedNode: React.Dispatch<React.SetStateAction<Node | null>>;
+    setSelectedNode: (node: Node | null) => void;
     focusedNodeID: string;
-    setFocusedNodeID: React.Dispatch<React.SetStateAction<string>>;
+    setFocusedNodeID: (nodeID: string) => void;
 }
 
 const GraphContext = createContext<GraphContextState>({
@@ -42,93 +42,124 @@ interface Props {
 }
 
 export const GraphProvider = (props: Props) => {
-    const [globalGraph, setGlobalGraph] = useState<Graph | null>(null);
-    const [graph, setGraph] = useState<Graph | null>(null);
-    const [parentID, setParentID] = useState<string>("");
-    const [pathToGoal, setPathToGoal] = useState<Map<string, string> | null>(null);
-    const [goals, setGoals] = useState<Goal[]>([]);
+    const [graphState, setGraphState] = useState<GraphContextState>({} as GraphContextState);
+    // const [globalGraph, setGlobalGraph] = useState<Graph | null>(null);
+    // const [graph, setGraph] = useState<Graph | null>(null);
+    // const [parentID, setParentID] = useState<string>("");
+    // const [pathToGoal, setPathToGoal] = useState<Map<string, string> | null>(null);
+    // const [goals, setGoals] = useState<Goal[]>([]);
     const [reload, setReload] = useState<boolean>(false);
-    const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-    const [focusedNodeID, setFocusedNodeID] = useState<string>('');
-    const [nextNodeTowardsGoal, setNextNodeTowardsGoal] = useState<NodeWithResources | null>(null);
+    // const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+    // const [focusedNodeID, setFocusedNodeID] = useState<string>('');
+    // const [nextNodeTowardsGoal, setNextNodeTowardsGoal] = useState<NodeWithResources | null>(null);
     const {user, preferences} = useAuth();
 
     const onReload = () => {
-        setPathToGoal(null);
-        setGraph(null);
-        setGlobalGraph(null);
+        // setPathToGoal(null);
+        // setGraph(null);
+        // setGlobalGraph(null);
+        setGraphState({...graphState, globalGraph: null, graph: null, pathToGoal: null, nextNodeTowardsGoal: null});
         setReload(prev => !prev);
     }
 
     const addGoal = (newGoal: Goal) => {
-        if (!globalGraph) {
+        if (!graphState.globalGraph) {
             return;
         }
-        if (goals && goals.find(value => value.node_id === newGoal.node_id)) {
+        if (graphState.goals && graphState.goals.find(value => value.node_id === newGoal.node_id)) {
             return;
         }
-        const newPathToGoal = computePathToGoal(globalGraph, newGoal.node_id);
-        setPathToGoal(newPathToGoal);
-        setGoals([newGoal, ...goals]);
+        const newPathToGoal = computePathToGoal(graphState.globalGraph, newGoal.node_id);
+        setGraphState({...graphState, pathToGoal: newPathToGoal, goals: [newGoal, ...graphState.goals]});
+        // setPathToGoal(newPathToGoal);
+        // setGoals([newGoal, ...goals]);
     }
 
     const removeGoal = (goal: string) => {
-        if (!globalGraph) {
+        if (!graphState.globalGraph) {
             return;
         }
-        const newGoals = goals.filter(value => value.node_id !== goal)
+        const newGoals = graphState.goals.filter(value => value.node_id !== goal)
         let newPathToGoal = new Map<string, string>();
         if (newGoals.length > 0) {
-            newPathToGoal = computePathToGoal(globalGraph, newGoals[0].node_id);
+            newPathToGoal = computePathToGoal(graphState.globalGraph, newGoals[0].node_id);
         }
-        setPathToGoal(newPathToGoal);
-        setGoals(newGoals);
+        setGraphState({...graphState, pathToGoal: newPathToGoal, goals: newGoals});
+        // setPathToGoal(newPathToGoal);
+        // setGoals(newGoals);
     }
 
     const fetchGraphData = async () => {
+        console.log('fetchGraphData')
         Client.Graph().get().then((data: Graph | null) => {
             if (!data) {
                 return;
             }
             const updatedGraph = getGraphWithUpdatedNodeStatuses(data)
-            setGlobalGraph(updatedGraph);
-            const graph = getGraphForParent(updatedGraph, parentID);
-            setGraph(graph);
+            // setGlobalGraph(updatedGraph);
+            // const graph = getGraphForParent(updatedGraph, parentID);
+            // setGraph(graph);
 
             Client.Graph().getGoals().then((newGoals: Goal[]) => {
                 if (newGoals && newGoals.length > 0) {
                     const computedPathToGoal = computePathToGoal(updatedGraph, newGoals[0].node_id);
-                    setPathToGoal(computedPathToGoal);
-                    setGoals(newGoals);
+                    // setPathToGoal(computedPathToGoal);
+                    // setGoals(newGoals);
                     const nextNodeID = nextNodeToGoal(updatedGraph, computedPathToGoal, newGoals.length > 0 ? newGoals[0].node_id : '');
                     if (nextNodeID) {
                         Client.Node().get(nextNodeID).then((node) => {
-                            setNextNodeTowardsGoal(node);
+                            // setNextNodeTowardsGoal(node);
+                            setGraphState({...graphState, globalGraph: updatedGraph, pathToGoal: computedPathToGoal, goals: newGoals, nextNodeTowardsGoal: node});
                         });
-                    } else {
-                        setNextNodeTowardsGoal(null)
                     }
+                    // } else {
+                    //     setNextNodeTowardsGoal(null)
+                    // }
                 }
             });
         });
     }
 
     useEffect(() => {
-        if (!globalGraph || !pathToGoal) {
+        if (!graphState.globalGraph || !graphState.pathToGoal || !graphState.nextNodeTowardsGoal) {
             fetchGraphData();
         }
     }, [reload, preferences?.language, user])
 
-    useEffect(() => {
-        if (!globalGraph) {
-            return;
-        }
-        const graph = getGraphForParent(globalGraph, parentID);
-        setGraph(graph);
-    }, [parentID])
+    // useEffect(() => {
+    //     if (!graphState.globalGraph) {
+    //         return;
+    //     }
+    //     const graph = getGraphForParent(graphState.globalGraph, parentID);
+    //     setGraphState({...graphState, graph});
+    //     // setGraph(graph);
+    // }, [parentID])
+
+
+    const setSelectedNode = (node: Node | null) => {
+        setGraphState({...graphState, selectedNode: node});
+    }
+
+    const setFocusedNodeID = (nodeID: string) => {
+        setGraphState({...graphState, focusedNodeID: nodeID});
+    }
 
     return (
-        <GraphContext.Provider value={{globalGraph, graph, setParentID, pathToGoal, onReload, goals, nextNodeTowardsGoal, addGoal, removeGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
+        <GraphContext.Provider value={{
+            globalGraph:graphState.globalGraph,
+            graph: graphState.graph,
+            setParentID: ()=>{},
+            pathToGoal: graphState.pathToGoal,
+            onReload,
+            goals: graphState.goals,
+            nextNodeTowardsGoal: graphState.nextNodeTowardsGoal,
+            addGoal,
+            removeGoal,
+            selectedNode: graphState.selectedNode,
+            setSelectedNode,
+            focusedNodeID: graphState.focusedNodeID,
+            setFocusedNodeID
+        }}>
             {props.children}
         </GraphContext.Provider>
     );
