@@ -2,7 +2,7 @@
 import React, {createContext, useEffect, useState} from 'react';
 
 import {Client} from "../client/client";
-import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal, cloneGraph, NodeStatusUnseen} from '../types/graph';
+import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal, cloneGraph, NodeStatusUnseen, NodeWithResources} from '../types/graph';
 import useAuth from '../hooks/useAuth';
 
 interface GraphContextState {
@@ -11,6 +11,7 @@ interface GraphContextState {
     setParentID: React.Dispatch<React.SetStateAction<string>>
     pathToGoal: Map<string, string> | null;
     goals: Goal[];
+    nextNodeTowardsGoal: NodeWithResources | null;
     onReload: () => void;
     addGoal: (goal: Goal) => void;
     removeGoal: (goal: string) => void;
@@ -26,6 +27,7 @@ const GraphContext = createContext<GraphContextState>({
     setParentID: () => {},
     pathToGoal: null,
     goals: [],
+    nextNodeTowardsGoal: null,
     onReload: () => {},
     addGoal: () => {},
     removeGoal: () => {},
@@ -48,6 +50,7 @@ export const GraphProvider = (props: Props) => {
     const [reload, setReload] = useState<boolean>(false);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [focusedNodeID, setFocusedNodeID] = useState<string>('');
+    const [nextNodeTowardsGoal, setNextNodeTowardsGoal] = useState<NodeWithResources | null>(null);
     const {user, preferences} = useAuth();
 
     const onReload = () => {
@@ -97,6 +100,14 @@ export const GraphProvider = (props: Props) => {
                     const computedPathToGoal = computePathToGoal(updatedGraph, newGoals[0].node_id);
                     setPathToGoal(computedPathToGoal);
                     setGoals(newGoals);
+                    const nextNodeID = nextNodeToGoal(updatedGraph, computedPathToGoal, newGoals.length > 0 ? newGoals[0].node_id : '');
+                    if (nextNodeID) {
+                        Client.Node().get(nextNodeID).then((node) => {
+                            setNextNodeTowardsGoal(node);
+                        });
+                    } else {
+                        setNextNodeTowardsGoal(null)
+                    }
                 }
             });
         });
@@ -117,7 +128,7 @@ export const GraphProvider = (props: Props) => {
     }, [parentID])
 
     return (
-        <GraphContext.Provider value={{globalGraph, graph, setParentID, pathToGoal, onReload, goals, addGoal, removeGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
+        <GraphContext.Provider value={{globalGraph, graph, setParentID, pathToGoal, onReload, goals, nextNodeTowardsGoal, addGoal, removeGoal, selectedNode, setSelectedNode, focusedNodeID, setFocusedNodeID}}>
             {props.children}
         </GraphContext.Provider>
     );

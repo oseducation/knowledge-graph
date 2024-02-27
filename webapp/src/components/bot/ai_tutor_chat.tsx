@@ -9,7 +9,6 @@ import {Client} from '../../client/client';
 import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
-import {nextNodeToGoal} from '../../context/graph_provider';
 import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 
 import PostComponent from './post_component';
@@ -27,12 +26,10 @@ const AITutorChat = () => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {pathToGoal, goals, globalGraph, onReload} = useGraph();
-    const [node, setNode] = useState<NodeWithResources | null>(null);
+    const {goals, nextNodeTowardsGoal, globalGraph, onReload} = useGraph();
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
-    const [nextNodeID, setNextNodeID] = useState<string | null>(null);
     console.log('AITutorChat actions', actions);
 
 
@@ -49,22 +46,9 @@ const AITutorChat = () => {
     }, []);
 
     useEffect(() => {
-        setNextNodeID(nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : ''));
-    }, [globalGraph, pathToGoal, goals]);
-
-    useEffect(() => {
-        if (nextNodeID) {
-            Client.Node().get(nextNodeID).then((node) => {
-                setNode(node);
-            });
-        }
-
-    }, [nextNodeID]);
-
-    useEffect(() => {
-        console.log('running useEffect', posts, node);
-        if (node && posts && posts.length > 0) {
-            const ac = getBotPostActions(posts, node);
+        console.log('running useEffect', posts, nextNodeTowardsGoal);
+        if (nextNodeTowardsGoal && posts && posts.length > 0) {
+            const ac = getBotPostActions(posts, nextNodeTowardsGoal);
             console.log('setting actions in useEffect', ac);
             setActions(ac);
             if (posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
@@ -74,7 +58,7 @@ const AITutorChat = () => {
                 createPendingPost();
             }
         }
-    }, [posts.length, posts, node]);
+    }, [posts.length, posts, nextNodeTowardsGoal]);
 
     useEffect(() => {
         if (!userPostToChat) {
@@ -122,7 +106,7 @@ const AITutorChat = () => {
         const post = {
             message: message,
             post_type: PostTypeChatGPT,
-            props: {node_id: nextNodeID},
+            props: {node_id: nextNodeTowardsGoal?.id || ''},
             user_id: BOT_ID,
             user: null,
             id: '',
@@ -156,25 +140,25 @@ const AITutorChat = () => {
     }
 
     const createPendingPost = () => {
-        if (node === null || isNodeFinished(node)){
+        if (nextNodeTowardsGoal === null || isNodeFinished(nextNodeTowardsGoal)){
             return;
         }
         let post;
         if (posts[posts.length-1].user_id !== BOT_ID){
             const action = getUserPostAction(posts[posts.length-1].message);
-            if (action.action_type === PostActionIKnowThis && nextNodeID) {
-                post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+            if (action.action_type === PostActionIKnowThis && nextNodeTowardsGoal) {
+                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeTopic);
             } else if (action.action_type === PostActionNextTopicVideo) {
-                post = constructBotPost([...posts!], node!, user!, PostTypeVideo);
+                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeVideo);
             } else if (action.action_type === PostActionNextTopicText) {
-                post = constructBotPost([...posts!], node!, user!, PostTypeText);
+                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeText);
             } else if (action.action_type === PostActionNextTopic) {
-                post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeTopic);
             } else if (action.action_type === PostActionNextTopicKarelJS) {
-                post = constructBotPost([...posts!], node!, user!, PostTypeKarelJS);
+                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeKarelJS);
             }
         } else if (posts[posts.length - 1].post_type === PostTypeGoalFinish){
-            post = constructBotPost([...posts!], node!, user!, PostTypeTopic);
+            post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeTopic);
         }
         if (post) {
             const locationID = `${user!.id}_${BOT_ID}`
@@ -188,39 +172,38 @@ const AITutorChat = () => {
     const onButtonClick = (action: Action) => {
         Client.Post().saveUserPost(action.message_after_click, locationID, PostTypeFilledInByAction).then((userPost) => {
             let post;
-            if (action.action_type === PostActionIKnowThis && nextNodeID) {
-                Client.Node().markAsKnown(nextNodeID, user!.id).then(() => {
+            if (action.action_type === PostActionIKnowThis && nextNodeTowardsGoal) {
+                Client.Node().markAsKnown(nextNodeTowardsGoal.id, user!.id).then(() => {
                     // for (let i = 0; i < globalGraph!.nodes.length; i++) {
                     //     if (globalGraph!.nodes[i].id === nextNodeID) {
                     //         globalGraph!.nodes[i].status = NodeStatusFinished;
                     //         break;
                     //     }
                     // }
-                    onReload();
 
-                    if (goals.length > 0 && nextNodeID === goals[0].node_id){
-                        Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', node?.name || ''), locationID).then((updatedPost) => {
+                    if (goals.length > 0 && nextNodeTowardsGoal.id === goals[0].node_id){
+                        Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', nextNodeTowardsGoal.name || ''), locationID).then((updatedPost) => {
                             onReload();
                             setPosts([...posts!, userPost, updatedPost]);
                             console.log('setting actions in onButtonClick', []);
                             setActions([]);
                         });
                     } else {
-                        setNextNodeID(nextNodeToGoal(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : ''));
                         setPosts([...posts!, userPost]);
                     }
+                    onReload();
                     scrollToBottom();
                 });
                 return;
             }
             if (action.action_type === PostActionNextTopicVideo) {
-                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeVideo);
+                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeVideo);
             } else if (action.action_type === PostActionNextTopicText) {
-                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeText);
+                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeText);
             } else if (action.action_type === PostActionNextTopic) {
-                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeTopic);
+                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeTopic);
             } else if (action.action_type === PostActionNextTopicKarelJS) {
-                post = constructBotPost([...posts!, userPost], node!, user!, PostTypeKarelJS);
+                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeKarelJS);
             }
             if (post) {
                 const locationID = `${user!.id}_${BOT_ID}`
@@ -235,7 +218,7 @@ const AITutorChat = () => {
     const savePostWithMessage = (message: string, postType: string) => {
         Client.Post().saveUserPost(message, locationID, postType).then((userPost) => {
             Analytics.messageToAI({user_id: user!.id});
-            userPost.props = {'node_id': nextNodeID};
+            userPost.props = {'node_id': nextNodeTowardsGoal?.id || ''};
             setUserPostToChat(userPost);
             setPosts([...posts!, userPost]);
             setInput('');
@@ -251,7 +234,7 @@ const AITutorChat = () => {
                         post={post}
                         isLast={index === posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
                         scrollToBottom={scrollToBottom}
-                        nextNodeID={nextNodeID || ''}
+                        nextNodeID={nextNodeTowardsGoal?.id || ''}
                     />
                 )}
                 {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom}/>}
