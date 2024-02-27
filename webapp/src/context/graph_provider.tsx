@@ -58,7 +58,8 @@ export const GraphProvider = (props: Props) => {
         // setPathToGoal(null);
         // setGraph(null);
         // setGlobalGraph(null);
-        setGraphState({...graphState, globalGraph: null, graph: null, pathToGoal: null, nextNodeTowardsGoal: null});
+        setGraphState({} as GraphContextState);
+        // setGraphState({...graphState, globalGraph: null, graph: null, pathToGoal: null, nextNodeTowardsGoal: null});
         setReload(prev => !prev);
     }
 
@@ -93,6 +94,8 @@ export const GraphProvider = (props: Props) => {
         console.log('fetchGraphData')
         Client.Graph().get().then((data: Graph | null) => {
             if (!data) {
+                console.log('no graph data downloaded')
+                setGraphState({} as GraphContextState);
                 return;
             }
             const updatedGraph = getGraphWithUpdatedNodeStatuses(data)
@@ -110,13 +113,22 @@ export const GraphProvider = (props: Props) => {
                         Client.Node().get(nextNodeID).then((node) => {
                             // setNextNodeTowardsGoal(node);
                             setGraphState({...graphState, globalGraph: updatedGraph, pathToGoal: computedPathToGoal, goals: newGoals, nextNodeTowardsGoal: node});
+                        }).catch(error => {
+                            console.log('error fetching next node', error)
+                            setGraphState({} as GraphContextState);
                         });
+                    } else {
+                        console.log('no next Node ID')
+                        setGraphState({} as GraphContextState);
                     }
-                    // } else {
-                    //     setNextNodeTowardsGoal(null)
-                    // }
                 }
+            }).catch(error => {
+                console.log('error fetching goals', error)
+                setGraphState({} as GraphContextState);
             });
+        }).catch(error => {
+            console.log('error fetching graph', error)
+            setGraphState({} as GraphContextState);
         });
     }
 
@@ -124,7 +136,7 @@ export const GraphProvider = (props: Props) => {
         if (!graphState.globalGraph || !graphState.pathToGoal || !graphState.nextNodeTowardsGoal) {
             fetchGraphData();
         }
-    }, [reload, preferences?.language, user])
+    }, [reload, preferences?.language, user?.id])
 
     // useEffect(() => {
     //     if (!graphState.globalGraph) {

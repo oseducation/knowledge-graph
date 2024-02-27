@@ -58,7 +58,7 @@ const AITutorChat = () => {
                 createPendingPost();
             }
         }
-    }, [posts.length, posts, nextNodeTowardsGoal]);
+    }, [posts.length > 0 && posts[posts.length-1].id, nextNodeTowardsGoal?.id]);
 
     useEffect(() => {
         if (!userPostToChat) {
@@ -100,7 +100,7 @@ const AITutorChat = () => {
             }
         }
         fetchData();
-    }, [userPostToChat]);
+    }, [userPostToChat?.id]);
 
     const saveGPTAnswer = (message: string) => {
         const post = {
