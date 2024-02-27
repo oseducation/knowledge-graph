@@ -62,6 +62,7 @@ const AITutorChat = () => {
     }, [nextNodeID]);
 
     useEffect(() => {
+        console.log('running useEffect', posts, node);
         if (node && posts && posts.length > 0) {
             const ac = getBotPostActions(posts, node);
             console.log('setting actions in useEffect', ac);
