@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Box} from '@mui/material';
 
-import {Graph} from '../../types/graph';
+import {Graph, cloneGraph} from '../../types/graph';
 import useWindowDimensions from '../../hooks/use_window_dimensions';
 import {DagMode} from '../../types/users';
 import useAppbarHeight from '../../hooks/use_app_bar_height';
@@ -38,7 +38,7 @@ const GraphComponent = (props: GraphComponentProps) => {
     return (
         <Box ref={myRef}>
             <D3ForceGraph
-                graph={props.graph}
+                graph={cloneGraph(props.graph)}
                 width={width}
                 height={props.height || (props.heightAdjust? windowHeight - props.heightAdjust: windowHeight-appBarHeight)}
                 dimension3={false}
