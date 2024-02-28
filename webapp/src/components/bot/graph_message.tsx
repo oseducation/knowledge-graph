@@ -18,7 +18,7 @@ const GraphMessage = (props: Props) => {
     const [graph, setGraph] = useState<Graph | null>(null);
 
     useEffect(() => {
-        setGraph(goalGraph(globalGraph, pathToGoal, goals.length > 0 ? goals[0].node_id : ''));
+        setGraph(goalGraph(globalGraph, pathToGoal, goals && goals.length > 0 ? goals[0].node_id : ''));
         const timer = setTimeout(() => {
             props.scrollToBottom();
         }, 10);
