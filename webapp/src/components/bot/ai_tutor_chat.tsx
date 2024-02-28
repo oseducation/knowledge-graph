@@ -30,8 +30,6 @@ const AITutorChat = () => {
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
-    console.log('AITutorChat actions', actions);
-
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -46,10 +44,8 @@ const AITutorChat = () => {
     }, []);
 
     useEffect(() => {
-        console.log('running useEffect', posts, nextNodeTowardsGoal);
         if (nextNodeTowardsGoal && posts && posts.length > 0) {
             const ac = getBotPostActions(posts, nextNodeTowardsGoal);
-            console.log('setting actions in useEffect', ac);
             setActions(ac);
             if (posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
                 createPendingPost();
@@ -185,7 +181,6 @@ const AITutorChat = () => {
                         Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', nextNodeTowardsGoal.name || ''), locationID).then((updatedPost) => {
                             onReload();
                             setPosts([...posts!, userPost, updatedPost]);
-                            console.log('setting actions in onButtonClick', []);
                             setActions([]);
                         });
                     } else {

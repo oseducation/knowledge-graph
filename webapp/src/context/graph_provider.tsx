@@ -91,10 +91,8 @@ export const GraphProvider = (props: Props) => {
     }
 
     const fetchGraphData = async () => {
-        console.log('fetchGraphData')
         Client.Graph().get().then((data: Graph | null) => {
             if (!data) {
-                console.log('no graph data downloaded')
                 setGraphState({} as GraphContextState);
                 return;
             }
@@ -112,14 +110,13 @@ export const GraphProvider = (props: Props) => {
                     const nextNodeID = nextNodeToGoal(updatedGraph, computedPathToGoal, newGoals.length > 0 ? newGoals[0].node_id : '');
                     if (nextNodeID) {
                         Client.Node().get(nextNodeID).then((node) => {
-                            console.log('setting graph state');
                             setGraphState({...graphState, globalGraph: updatedGraph, pathToGoal: computedPathToGoal, goals: newGoals, nextNodeTowardsGoal: node});
                         }).catch(error => {
                             console.log('error fetching next node', error)
                             setGraphState({} as GraphContextState);
                         });
                     } else {
-                        console.log('no next Node ID', updatedGraph, computedPathToGoal, newGoals[0].node_id);
+                        console.log('no next Node ID, should not happen', updatedGraph, computedPathToGoal, newGoals[0].node_id);
                         setGraphState({} as GraphContextState);
                     }
                 }

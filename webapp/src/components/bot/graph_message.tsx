@@ -24,7 +24,7 @@ const GraphMessage = (props: Props) => {
         }, 10);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [globalGraph, goals && goals.length > 0 ? goals[0].node_id : '']);
 
     if (!graph) {
         return;

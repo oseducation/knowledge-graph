@@ -70,7 +70,6 @@ export const constructBotPost = (posts: Post[], node: NodeWithResources | null, 
 }
 
 export const getBotPostActions = (posts: Post[] | null, node: NodeWithResources) => {
-    console.log('getBotPostActions', posts, node);
     if (!posts || !node) {
         return [];
     }
