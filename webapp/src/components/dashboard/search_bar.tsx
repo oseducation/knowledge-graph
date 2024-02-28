@@ -1,34 +1,17 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {InputBase, Autocomplete, useTheme} from '@mui/material';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import {useLocation} from 'react-router-dom';
 
 import useGraph from '../../hooks/useGraph';
 import {DashboardColors} from '../../ThemeOptions';
-import {getGraphForParent} from '../../context/graph_provider';
-import {Graph} from '../../types/graph';
 
 const SearchBar = () => {
     const location = useLocation();
     const {globalGraph, setSelectedNode, setFocusedNodeID, setParentID} = useGraph();
     const theme = useTheme();
-    const [startupGraph, setStartupGraph] = React.useState<Graph | null>(null);
 
-
-    useEffect(() => {
-        if (!globalGraph){
-            return;
-        }
-        for(const node of globalGraph.nodes) {
-            if(node.name === 'Intro to Startups' && node.parent_id === '') {
-                const g = getGraphForParent(globalGraph, node.id);
-                setStartupGraph(g);
-                return;
-            }
-        }
-    }, [globalGraph]);
-
-    if (!startupGraph) {
+    if (!globalGraph) {
         return null;
     }
     if (!location.pathname.endsWith('graph')) {
@@ -37,7 +20,7 @@ const SearchBar = () => {
 
     return (
         <Autocomplete
-            options={startupGraph.nodes}
+            options={globalGraph.nodes}
             getOptionLabel={(option) => option.name}
             disablePortal
             color={'text.secondary'}
@@ -75,7 +58,7 @@ const SearchBar = () => {
                 )}
             }
             onInputChange={(_, newInputValue) => {
-                for (const node of startupGraph.nodes) {
+                for (const node of globalGraph.nodes) {
                     if (node.name === newInputValue) {
                         if (node.parent_id !== ''){
                             setParentID(node.parent_id);

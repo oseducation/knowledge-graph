@@ -98,7 +98,8 @@ export const GraphProvider = (props: Props) => {
                 setGraphState({} as GraphContextState);
                 return;
             }
-            const updatedGraph = getGraphWithUpdatedNodeStatuses(data)
+            const filteredGraph = filterGraph(data);
+            const updatedGraph = getGraphWithUpdatedNodeStatuses(filteredGraph)
             // setGlobalGraph(updatedGraph);
             // const graph = getGraphForParent(updatedGraph, parentID);
             // setGraph(graph);
@@ -179,7 +180,6 @@ export const GraphProvider = (props: Props) => {
 
 export default GraphContext;
 
-
 export const getGraphForParent = (graph: Graph, parentID: string) => {
     const nodes = graph.nodes.filter(node => node.parent_id === parentID);
     const links = [];
@@ -189,6 +189,15 @@ export const getGraphForParent = (graph: Graph, parentID: string) => {
         }
     }
     return cloneGraph({nodes, links});
+}
+
+const filterGraph = (graph: Graph) => {
+    for (const node of graph.nodes) {
+        if (node.parent_id === "" && node.name === "Intro to Startups") {
+            return getGraphForParent(graph, node.id);
+        }
+    }
+    return graph;
 }
 
 function topologicalSort(neighbors: Map<string, string[]>, start: string): string[] {
