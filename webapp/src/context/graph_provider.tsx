@@ -188,7 +188,7 @@ export const getGraphForParent = (graph: Graph, parentID: string) => {
     return cloneGraph({nodes, links});
 }
 
-const filterGraph = (graph: Graph) => {
+export const filterGraph = (graph: Graph) => {
     for (const node of graph.nodes) {
         if (node.parent_id === "" && node.name === "Intro to Startups") {
             return getGraphForParent(graph, node.id);
