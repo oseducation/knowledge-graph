@@ -29,6 +29,11 @@ export class GraphClient{
         return data;
     };
 
+    getStaticGraph = async () => {
+        const data = this.rest.doFetch<Graph>(`${this.getGraphRoute()}`, {method: 'get'});
+        return data;
+    };
+
     getGoals = async() => {
         if (!this.rest.me || !this.rest.me.id){
             return [];

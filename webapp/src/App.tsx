@@ -9,6 +9,7 @@ import UserLayout from './UserLayout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import NotFoundPage from './pages/NotFoundPage';
 import EducatorsLanding from './components/landing/educators/educators_landing';
+import CourseStartupSchoolMain from './components/landing/course/course_startup_school_main';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -49,6 +50,7 @@ function App() {
                     <Route path="terms" element={<Terms/>}/>
                     <Route path="privacy" element={<PrivacyPolicy/>}/>
                     <Route path="about" element={<AboutUs/>}/>
+                    <Route path="startup-school" element={<CourseStartupSchoolMain/>}/>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]}/>}>
                     <Route path="" element={<UserLayout/>}>
