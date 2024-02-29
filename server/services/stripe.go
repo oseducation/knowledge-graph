@@ -8,6 +8,7 @@ import (
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/customer"
 	"github.com/stripe/stripe-go/v76/price"
+	"github.com/stripe/stripe-go/v76/subscription"
 )
 
 const stripeAPIKey = "STRIPE_API_KEY"
@@ -105,15 +106,15 @@ func (s *StripeService) GetPlans() ([]*stripe.Price, error) {
 }
 
 // get customer subscription
-// func (s *StripeService) GetCustomerSubscription(customerID string) (*stripe.Subscription, error) {
-// 	stripe.Key = s.apiKey
-// 	params := &stripe.SubscriptionListParams{
-// 		Customer: stripe.String(customerID),
-// 	}
-// 	iter := subscription.List(params)
-// 	for iter.Next() {
-// 		subscription := iter.Subscription()
-// 		return subscription, nil
-// 	}
-// 	return nil, nil
-// }
+func (s *StripeService) GetCustomerSubscription(customerID string) (*stripe.Subscription, error) {
+	stripe.Key = s.apiKey
+	params := &stripe.SubscriptionListParams{
+		Customer: stripe.String(customerID),
+	}
+	iter := subscription.List(params)
+	for iter.Next() {
+		subscription := iter.Subscription()
+		return subscription, nil
+	}
+	return nil, nil
+}

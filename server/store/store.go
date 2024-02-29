@@ -11,6 +11,7 @@ import (
 	//nolint: blank-imports
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/pkg/errors"
@@ -38,6 +39,7 @@ type Store interface {
 	Post() PostStore
 	UserInteraction() UserInteractionStore
 	Experiments() ExperimentsStore
+	Customer() CustomerStore
 }
 
 // SQLStore struct represents a DB
@@ -60,6 +62,7 @@ type SQLStore struct {
 	postStore            PostStore
 	userInteractionStore UserInteractionStore
 	experimentsStore     ExperimentsStore
+	customerStore        CustomerStore
 	config               *config.DBSettings
 	logger               *log.Logger
 }
@@ -132,6 +135,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.postStore = NewPostStore(sqlStore)
 	sqlStore.userInteractionStore = NewUserInteractionStore(sqlStore)
 	sqlStore.experimentsStore = NewExperimentsStore(sqlStore)
+	sqlStore.customerStore = NewCustomerStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -198,6 +202,10 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not experiment_users")
 	}
 
+	if _, err := tx.Exec("DROP TABLE IF EXISTS customer"); err != nil {
+		return errors.Wrap(err, "could not customer")
+	}
+
 	if err := tx.Commit(); err != nil {
 		return errors.Wrap(err, "could not commit")
 	}
@@ -253,6 +261,9 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM experiment_users"); err != nil {
 			sqlDB.logger.Fatal("can't delete from experiment_users", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM customer"); err != nil {
+			sqlDB.logger.Fatal("can't delete from customer", log.Err(err))
 		}
 	}
 }
@@ -397,4 +408,9 @@ func (sqlDB *SQLStore) UserInteraction() UserInteractionStore {
 // Experiments returns an interface to manage experiment users in the DB
 func (sqlDB *SQLStore) Experiments() ExperimentsStore {
 	return sqlDB.experimentsStore
+}
+
+// Customer returns an interface to manage cutomer in the DB
+func (sqlDB *SQLStore) Customer() CustomerStore {
+	return sqlDB.customerStore
 }
