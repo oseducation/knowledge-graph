@@ -316,14 +316,14 @@ func (ns *SQLNodeStore) GetFinishedNodesProgress(userID string) (map[string]int,
 	daysAgo := time.Now().AddDate(-1, 0, 0).UnixNano() / int64(time.Millisecond)
 
 	query := ns.sqlStore.builder.Select(
-		"TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD') AS date",
+		"TO_CHAR(TO_TIMESTAMP(updated_at / 1000), 'YYYY-MM-DD') AS date",
 		"COUNT(node_id) AS finished_count",
 	).From("user_nodes").
 		Where(sq.And{
 			sq.Eq{"user_id": userID},
 			sq.Eq{"status": model.NodeStatusFinished},
 			sq.Gt{"updated_at": daysAgo},
-		}).GroupBy("TO_CHAR(TO_TIMESTAMP(updated_at), 'YYYY-MM-DD')")
+		}).GroupBy("TO_CHAR(TO_TIMESTAMP(updated_at / 1000), 'YYYY-MM-DD')")
 
 	if ns.sqlStore.db.DriverName() == "sqlite3" {
 		query = ns.sqlStore.builder.Select(
