@@ -514,11 +514,17 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating table customers")
 			}
 
-			// if _, err := e.Exec(`
-			// 		CREATE INDEX IF NOT EXISTS customers_user_id ON customers (user_id);
-			// 	`); err != nil {
-			// 	return errors.Wrapf(err, "failed creating index posts_user_id on posts table")
-			// }
+			if _, err := e.Exec(`
+					CREATE TABLE IF NOT EXISTS subscriptions (
+						subscription_id VARCHAR(255),
+						customer_id VARCHAR(255) UNIQUE,
+						created_at bigint,
+						plan_id VARCHAR(255),
+						status VARCHAR(32)
+					);
+				`); err != nil {
+				return errors.Wrapf(err, "failed creating table subscriptions")
+			}
 
 			return nil
 		},

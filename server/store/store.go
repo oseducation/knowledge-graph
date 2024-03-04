@@ -40,6 +40,7 @@ type Store interface {
 	UserInteraction() UserInteractionStore
 	Experiments() ExperimentsStore
 	Customer() CustomerStore
+	Subscription() SubscriptionStore
 }
 
 // SQLStore struct represents a DB
@@ -63,6 +64,7 @@ type SQLStore struct {
 	userInteractionStore UserInteractionStore
 	experimentsStore     ExperimentsStore
 	customerStore        CustomerStore
+	subscriptionStore    SubscriptionStore
 	config               *config.DBSettings
 	logger               *log.Logger
 }
@@ -136,6 +138,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.userInteractionStore = NewUserInteractionStore(sqlStore)
 	sqlStore.experimentsStore = NewExperimentsStore(sqlStore)
 	sqlStore.customerStore = NewCustomerStore(sqlStore)
+	sqlStore.subscriptionStore = NewSubscriptionStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -202,8 +205,12 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not experiment_users")
 	}
 
-	if _, err := tx.Exec("DROP TABLE IF EXISTS customer"); err != nil {
-		return errors.Wrap(err, "could not customer")
+	if _, err := tx.Exec("DROP TABLE IF EXISTS customers"); err != nil {
+		return errors.Wrap(err, "could not customers")
+	}
+
+	if _, err := tx.Exec("DROP TABLE IF EXISTS subscriptions"); err != nil {
+		return errors.Wrap(err, "could not subscriptions")
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -262,8 +269,11 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		if _, err := sqlDB.db.Exec("DELETE FROM experiment_users"); err != nil {
 			sqlDB.logger.Fatal("can't delete from experiment_users", log.Err(err))
 		}
-		if _, err := sqlDB.db.Exec("DELETE FROM customer"); err != nil {
-			sqlDB.logger.Fatal("can't delete from customer", log.Err(err))
+		if _, err := sqlDB.db.Exec("DELETE FROM customers"); err != nil {
+			sqlDB.logger.Fatal("can't delete from customers", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM subscriptions"); err != nil {
+			sqlDB.logger.Fatal("can't delete from subscriptions", log.Err(err))
 		}
 	}
 }
@@ -413,4 +423,9 @@ func (sqlDB *SQLStore) Experiments() ExperimentsStore {
 // Customer returns an interface to manage cutomer in the DB
 func (sqlDB *SQLStore) Customer() CustomerStore {
 	return sqlDB.customerStore
+}
+
+// Subscription returns an interface to manage subscription in the DB
+func (sqlDB *SQLStore) Subscription() SubscriptionStore {
+	return sqlDB.subscriptionStore
 }

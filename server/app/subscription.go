@@ -37,28 +37,60 @@ func (a *App) HandleWebhook(payload []byte, signature string) error {
 		}
 		fmt.Printf("PaymentIntent was successful! %v\n", paymentIntent)
 	case "customer.created":
-		var customer model.Customer
+		var customer stripe.Customer
 		err := json.Unmarshal(event.Data.Raw, &customer)
 		if err != nil {
 			return errors.Wrap(err, "Error parsing webhook JSON")
 		}
 		fmt.Printf("Customer was created! %v\n", customer)
 
-		_, err = a.CreateCustomer(&customer)
+		_, err = a.Store.Customer().Save(&model.Customer{
+			CustomerID: customer.ID,
+			Email:      customer.Email,
+			CreatedAt:  customer.Created,
+		})
 		if err != nil {
 			return errors.Wrap(err, "Error creating customer")
+		}
+	case "customer.subscription.created":
+		var subscription stripe.Subscription
+		err := json.Unmarshal(event.Data.Raw, &subscription)
+		if err != nil {
+			return errors.Wrap(err, "Error parsing webhook JSON")
+		}
+		fmt.Printf("Subscription was created! %v\n", subscription)
+
+		_, err = a.Store.Subscription().Save(&model.Subscription{
+			ID:         subscription.ID,
+			CustomerID: subscription.Customer.ID,
+			CreatedAt:  subscription.Created,
+			PlanID:     subscription.Items.Data[0].Price.ID,
+			Status:     string(subscription.Status),
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error creating subscription")
+		}
+	case "customer.subscription.updated":
+		var subscription stripe.Subscription
+		err := json.Unmarshal(event.Data.Raw, &subscription)
+		if err != nil {
+			return errors.Wrap(err, "Error parsing webhook JSON")
+		}
+		fmt.Printf("Subscription was updated! %v\n", subscription)
+
+		_, err = a.Store.Subscription().Update(&model.Subscription{
+			ID:         subscription.ID,
+			CustomerID: subscription.Customer.ID,
+			CreatedAt:  subscription.Created,
+			PlanID:     subscription.Items.Data[0].Price.ID,
+			Status:     string(subscription.Status),
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error updating subscription")
 		}
 	default:
 		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
 	}
 
 	return nil
-}
-
-func (a *App) CreateCustomer(customer *model.Customer) (*model.Customer, error) {
-	_, err := a.Store.Customer().Save(customer)
-	if err != nil {
-		return nil, errors.Wrapf(err, "useremail = %s", customer.Email)
-	}
-	return customer, nil
 }
