@@ -73,7 +73,7 @@ func getPosts(c *gin.Context) {
 		return
 	}
 
-	if len(locationID) > 26 && !strings.Contains(locationID, session.UserID) {
+	if len(locationID) > 26 && !strings.Contains(locationID, session.UserID) && session.Role != model.AdminRole {
 		responseFormat(c, http.StatusForbidden, "invalid location")
 		return
 	}

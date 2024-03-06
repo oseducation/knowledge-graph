@@ -20,7 +20,7 @@ const AdminPage = () => {
     const [users, setUsers] = useState([] as UserWithNodeCount[]);
 
     useEffect(() => {
-        Client.User().getUsersWithNodeCount().then((data) => setUsers(data.sort((a, b) => {return b.finished_node_count - a.finished_node_count})));
+        Client.User().getUsersWithNodeCount().then((data) => setUsers(data.sort((a, b) => {return b.created_at - a.created_at})));
     }, []);
 
     return (
@@ -39,7 +39,8 @@ const AdminPage = () => {
                             <TableCell sx={{backgroundColor: 'grey', fontWeight: 'bold'}}>Username</TableCell>
                             <TableCell sx={{backgroundColor: 'grey', fontWeight: 'bold'}}>Finished</TableCell>
                             <TableCell sx={{backgroundColor: 'grey', fontWeight: 'bold'}}>In Progress</TableCell>
-                            <TableCell sx={{backgroundColor: 'grey', fontWeight: 'bold'}}>Action</TableCell>
+                            <TableCell sx={{backgroundColor: 'grey', fontWeight: 'bold'}}>Graph</TableCell>
+                            <TableCell sx={{backgroundColor: 'grey', fontWeight: 'bold'}}>Chat</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -62,6 +63,15 @@ const AdminPage = () => {
                                         onClick={() => navigate(`/graph/${user.id}`)}
                                     >
                                         {"view graph"}
+                                    </Button>
+                                </TableCell>
+                                <TableCell>
+                                    <Button
+                                        variant='text'
+                                        style={{margin: '10px'}}
+                                        onClick={() => navigate(`/chat/${user.id}`)}
+                                    >
+                                        {"view chat"}
                                     </Button>
                                 </TableCell>
                             </TableRow>
