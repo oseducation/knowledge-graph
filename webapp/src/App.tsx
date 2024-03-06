@@ -10,6 +10,7 @@ import DashboardLayout from './components/dashboard/dashboard_layout';
 import NotFoundPage from './pages/NotFoundPage';
 import EducatorsLanding from './components/landing/educators/educators_landing';
 import CourseStartupSchoolMain from './components/landing/course/course_startup_school_main';
+import AITutorChatGeneral from './components/bot/ai_tutor_chat_general';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -71,6 +72,7 @@ function App() {
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                     <Route path="/admin" element={<AdminPage/>}/>
                     <Route path="/graph/:userID" element={<GraphPage/>}/>
+                    <Route path="/chat/:userID" element={<AITutorChatGeneral/>}/>
                 </Route>
                 <Route path="*" element={<NotFoundPage/>} />
             </Routes>
