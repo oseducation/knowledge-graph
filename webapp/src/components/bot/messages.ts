@@ -1,6 +1,6 @@
 
 import {NodeViewState, NodeWithResources} from "../../types/graph";
-import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
+import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
 
 import {BOT_ID} from "./ai_tutor_chat";
 
