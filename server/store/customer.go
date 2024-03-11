@@ -8,6 +8,7 @@ import (
 
 type CustomerStore interface {
 	Save(Customer *model.Customer) (*model.Customer, error)
+	Update(Customer *model.Customer) (*model.Customer, error)
 }
 
 // SQLCustomerStore is a struct to store Customer
@@ -50,6 +51,22 @@ func (es *SQLCustomerStore) Save(Customer *model.Customer) (*model.Customer, err
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save Customer with email:%s", Customer.Email)
+	}
+	return Customer, nil
+}
+
+// Update updates a Customer in the DB
+func (es *SQLCustomerStore) Update(Customer *model.Customer) (*model.Customer, error) {
+	_, err := es.sqlStore.execBuilder(es.sqlStore.db, es.sqlStore.builder.
+		Update("customers").
+		SetMap(map[string]interface{}{
+			"customer_id": Customer.CustomerID,
+			"email":       Customer.Email,
+			"created_at":  Customer.CreatedAt,
+		}).
+		Where(sq.Eq{"customer_id": Customer.CustomerID}))
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't update Customer with email:%s", Customer.Email)
 	}
 	return Customer, nil
 }

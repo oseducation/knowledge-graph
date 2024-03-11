@@ -11,7 +11,7 @@ import (
 	"github.com/stripe/stripe-go/v76/subscription"
 )
 
-const stripeAPIKey = "STRIPE_API_KEY"
+const stripeAPIKeyEnvVar = "STRIPE_API_KEY"
 
 type StripeService struct {
 	apiKey string
@@ -23,7 +23,7 @@ type StripeServiceInterface interface {
 }
 
 func NewStripeService() (StripeServiceInterface, error) {
-	stripeAPIKey, ok := os.LookupEnv(stripeAPIKey)
+	stripeAPIKey, ok := os.LookupEnv(stripeAPIKeyEnvVar)
 	if !ok {
 		return nil, errors.New("stripe api key is not set")
 	}

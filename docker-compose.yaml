@@ -38,13 +38,14 @@ services:
       - CHAT_GPT_API_KEY=${CHAT_GPT_API_KEY}
       - CHAT_GPT_ORGANIZATION_ID=${CHAT_GPT_ORGANIZATION_ID}
       - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
     depends_on:
       - kg-db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9081/healthcheck"]
-      interval: 15s
+      interval: 300s
       timeout: 15s
-      start_period: 15s
+      start_period: 300s
       retries: 3
     logging:
       driver: "json-file"
