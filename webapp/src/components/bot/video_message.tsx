@@ -29,14 +29,14 @@ const VideoMessage = (props: Props) => {
     }
 
     const onVideoStarted = (videoKey: string) => {
-        if (user && user.id) {
+        if (user && user.id && nodeID) {
             Client.Node().markAsStarted(nodeID, user.id);
             Client.Video().videoStarted(videoKey);
         }
     }
 
     const onVideoEnded = (videoKey: string) => {
-        if (user && user.id) {
+        if (user && user.id && nodeID) {
             Client.Node().markAsWatched(nodeID, user.id);
             Client.Video().videoFinished(videoKey);
         }

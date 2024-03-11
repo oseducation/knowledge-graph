@@ -1,6 +1,6 @@
 
 import {NodeViewState, NodeWithResources} from "../../types/graph";
-import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
+import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
 
 import {BOT_ID} from "./ai_tutor_chat";
 
@@ -16,13 +16,17 @@ export const theVeryFirstMessage = (username: string): Post => {
     return {
         id: '',
         user_id: BOT_ID,
-        message:`👋 Hello ${username}, and welcome to Vitsi AI! I'm your AI tutor, here to guide you through the essentials of becoming a standout startup founder. 🚀
+        message:`👋 Hello ${username}, and welcome to VitsiAI! I'm your AI tutor, here to guide you through the essentials of becoming a standout startup founder. 🚀
 You might know nothing about startups or not know if you want to start one, but it's OK. In fact, our first goal will be "Deciding When to Start Your Own Company".
 You may request a video or a text on a topic, or you can progress to the next topic by clicking the "I know this" button.
 Feel free to ask any questions, and let's make your entrepreneurship journey exciting and fruitful! 🎉`,
-        post_type: PostTypeFilledInByAction,
+        post_type: PostTypeVideo,
         user: null,
-        props: {},
+        props: {
+            video_key: 'HXHKAEl1OQk',
+            start: 0,
+            length: 105,
+        },
     };
 }
 
