@@ -9,28 +9,7 @@ import (
 
 func (apiObj *API) initSubscriptions() {
 	apiObj.Users = apiObj.APIRoot.Group("/subscriptions")
-
-	apiObj.Users.GET("/plans", getAvailablePlans)
 	apiObj.Users.POST("/webhook", handleWebhook)
-	// apiObj.Users.GET("/", authMiddleware(), getUserSubscription)
-	// apiObj.Users.POST("/:userID", authMiddleware(), craeteUserSubscription)
-	// apiObj.Users.PUT("/:userID", authMiddleware(), updateUserSubscription)
-	// apiObj.Users.DELETE("/:userID", authMiddleware(), deleteUserSubscription)
-}
-
-func getAvailablePlans(c *gin.Context) {
-	a, err := getApp(c)
-	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	plans, err := a.GetPlans()
-	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	responseFormat(c, http.StatusOK, plans)
 }
 
 func handleWebhook(c *gin.Context) {
