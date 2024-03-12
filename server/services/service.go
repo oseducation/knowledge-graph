@@ -3,7 +3,6 @@ package services
 type Services struct {
 	YoutubeService YoutubeServiceInterface
 	ChatGPTService ChatGPTServiceInterface
-	StripeService  StripeServiceInterface
 }
 
 func NewServices() (*Services, error) {
@@ -16,14 +15,8 @@ func NewServices() (*Services, error) {
 		return nil, err
 	}
 
-	stripeService, err := NewStripeService()
-	if err != nil {
-		return nil, err
-	}
-
 	return &Services{
 		ChatGPTService: chatGPTService,
 		YoutubeService: youtubeService,
-		StripeService:  stripeService,
 	}, nil
 }

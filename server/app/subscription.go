@@ -14,14 +14,6 @@ import (
 
 const stripeWebHookSecretEnvVar = "STRIPE_WEBHOOK_SECRET"
 
-func (a *App) GetPlans() ([]*stripe.Price, error) {
-	prices, error := a.Services.StripeService.GetPlans()
-	if error != nil {
-		return nil, errors.Wrap(error, "getPlans")
-	}
-	return prices, nil
-}
-
 func (a *App) HandleWebhook(payload []byte, signature string) error {
 	stripeWebHookSecret, ok := os.LookupEnv(stripeWebHookSecretEnvVar)
 	if !ok {
@@ -61,37 +53,6 @@ func (a *App) HandleWebhook(payload []byte, signature string) error {
 		if err != nil {
 			return errors.Wrap(err, "Error updating subscription")
 		}
-		// customer.subscription.created
-		// data.object is a subscription
-		// Occurs whenever a customer is signed up for a new plan.
-
-		// customer.subscription.deleted
-		// data.object is a subscription
-		// Occurs whenever a customer’s subscription ends.
-
-		// customer.subscription.paused
-		// data.object is a subscription
-		// Occurs whenever a customer’s subscription is paused. Only applies when subscriptions enter status=paused, not when payment collection is paused.
-
-		// customer.subscription.pending_update_applied
-		// data.object is a subscription
-		// Occurs whenever a customer’s subscription’s pending update is applied, and the subscription is updated.
-
-		// customer.subscription.pending_update_expired
-		// data.object is a subscription
-		// Occurs whenever a customer’s subscription’s pending update expires before the related invoice is paid.
-
-		// customer.subscription.resumed
-		// data.object is a subscription
-		// Occurs whenever a customer’s subscription is no longer paused. Only applies when a status=paused subscription is resumed, not when payment collection is resumed.
-
-		// customer.subscription.trial_will_end
-		// data.object is a subscription
-		// Occurs three days before a subscription’s trial period is scheduled to end, or when a trial is ended immediately (using trial_end=now).
-
-		// customer.subscription.updated
-		// data.object is a subscription
-		// Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
 	default:
 		log.Printf("Unhandled event type: %s\n", event.Type)
 	}
