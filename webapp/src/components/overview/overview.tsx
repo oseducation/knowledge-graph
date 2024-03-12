@@ -1,12 +1,12 @@
 import * as React from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import TawkMessengerReact from '@tawk.to/tawk-messenger-react';
 
 import Snippets from './snippets';
 import Goals from './goals';
 import Progress from './progress';
 import Activity from './activity';
 import TopPerformers from './top_performers';
-
 
 const Overview = () => {
     return (
@@ -20,6 +20,10 @@ const Overview = () => {
                 <Activity/>
                 <TopPerformers/>
             </Grid2>
+            <TawkMessengerReact
+                propertyId="65f043138d261e1b5f6c7239"
+                widgetId="1hop8c1bi"
+            />
         </Grid2>
     );
 }
