@@ -34,13 +34,13 @@ jobs:
           SITE_URL: "https://www.vitsi.ai"
           CHAT_GPT_API_KEY: ${{ secrets.CHAT_GPT_API_KEY }}
           CHAT_GPT_ORGANIZATION_ID: ${{ secrets.CHAT_GPT_ORGANIZATION_ID }}
-          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          envs: YOUTUBE_API_KEY,SITE_URL,CHAT_GPT_API_KEY,CHAT_GPT_ORGANIZATION_ID,STRIPE_API_KEY
+          envs: YOUTUBE_API_KEY,SITE_URL,CHAT_GPT_API_KEY,CHAT_GPT_ORGANIZATION_ID,STRIPE_WEBHOOK_SECRET
           script: |
             cd knowledge-graph/
             git pull
