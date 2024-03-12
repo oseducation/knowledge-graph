@@ -32,7 +32,7 @@ const AITutorChat = () => {
     const [botMessage, setBotMessage] = useState<string>('');
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
+        messagesEndRef.current?.scrollIntoView();
     }
 
     useEffect(() => {
