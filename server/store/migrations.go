@@ -508,7 +508,8 @@ var migrations = []Migration{
 					CREATE TABLE IF NOT EXISTS customers (
 						customer_id VARCHAR(255) UNIQUE,
 						email VARCHAR(128) UNIQUE,
-						created_at bigint
+						created_at bigint,
+						deleted boolean
 					);
 				`); err != nil {
 				return errors.Wrapf(err, "failed creating table customers")

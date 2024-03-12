@@ -32,15 +32,15 @@ func (a *App) HandleWebhook(payload []byte, signature string) error {
 		if err != nil {
 			return errors.Wrap(err, "Error creating customer")
 		}
-	case "customer.deleted":
-		err := a.customerCreatedEvent(&event)
-		if err != nil {
-			return errors.Wrap(err, "Error deleting customer")
-		}
 	case "customer.updated":
 		err := a.customerUpdatedEvent(&event)
 		if err != nil {
 			return errors.Wrap(err, "Error updating customer")
+		}
+	case "customer.deleted":
+		err := a.customerUpdatedEvent(&event)
+		if err != nil {
+			return errors.Wrap(err, "Error deleting customer")
 		}
 	case "customer.subscription.created":
 		err := a.customerSubscriptionCreatedEvent(&event)
@@ -52,6 +52,11 @@ func (a *App) HandleWebhook(payload []byte, signature string) error {
 		err := a.customerSubscriptionUpdatedEvent(&event)
 		if err != nil {
 			return errors.Wrap(err, "Error updating subscription")
+		}
+	case "customer.subscription.deleted":
+		err := a.customerSubscriptionUpdatedEvent(&event)
+		if err != nil {
+			return errors.Wrap(err, "Error deleting subscription")
 		}
 	default:
 		log.Printf("Unhandled event type: %s\n", event.Type)
@@ -71,6 +76,7 @@ func (a *App) customerCreatedEvent(event *stripe.Event) error {
 		CustomerID: customer.ID,
 		Email:      customer.Email,
 		CreatedAt:  customer.Created,
+		Deleted:    customer.Deleted,
 	})
 	if err != nil {
 		return errors.Wrap(err, "Error saving customer to database")
@@ -91,6 +97,7 @@ func (a *App) customerUpdatedEvent(event *stripe.Event) error {
 		CustomerID: customer.ID,
 		Email:      customer.Email,
 		CreatedAt:  customer.Created,
+		Deleted:    customer.Deleted,
 	})
 	if err != nil {
 		return errors.Wrap(err, "Error updating customer")
@@ -99,26 +106,6 @@ func (a *App) customerUpdatedEvent(event *stripe.Event) error {
 
 	return nil
 }
-
-// func (a *App) customerDeletedEvent(event *stripe.Event) error {
-// 	var customer stripe.Customer
-// 	err := json.Unmarshal(event.Data.Raw, &customer)
-// 	if err != nil {
-// 		return errors.Wrap(err, "Error parsing webhook JSON")
-// 	}
-
-// 	_, err = a.Store.Customer().Delete(&model.Customer{
-// 		CustomerID: customer.ID,
-// 		Email:      customer.Email,
-// 		CreatedAt:  customer.Created,
-// 	})
-// 	if err != nil {
-// 		return errors.Wrap(err, "Error deleting customer from database")
-// 	}
-// 	log.Printf("Customer was deleted! %v\n", customer)
-
-// 	return nil
-// }
 
 func (a *App) customerSubscriptionCreatedEvent(event *stripe.Event) error {
 	var subscription stripe.Subscription
