@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oseducation/knowledge-graph/model"
+	"github.com/oseducation/knowledge-graph/services"
 )
 
 func (apiObj *API) initBot() {
@@ -32,9 +33,14 @@ func askQuestion(c *gin.Context) {
 		return
 	}
 
-	nodeID, ok := post.Props["node_id"]
+	nodeIDInt, ok := post.Props["node_id"]
 	if !ok {
 		responseFormat(c, http.StatusBadRequest, "Missing `node_id` in the request body")
+		return
+	}
+	nodeID, ok := nodeIDInt.(string)
+	if !ok || !model.IsValidID(nodeID) {
+		responseFormat(c, http.StatusBadRequest, "`node_id` not valid")
 		return
 	}
 
@@ -57,7 +63,7 @@ func askQuestion(c *gin.Context) {
 	isStream := c.DefaultQuery("stream", "")
 
 	if isStream != "true" {
-		answer, gptErr := a.AskQuestionToChatGPT(post.Message, fmt.Sprintf("%v", nodeID), post.UserID)
+		answer, gptErr := a.AskQuestionToChatGPT(post.Message, nodeID, post.UserID)
 		if gptErr != nil {
 			responseFormat(c, http.StatusInternalServerError, "Error while asking a question")
 			a.Log.Error(gptErr.Error())
@@ -68,10 +74,28 @@ func askQuestion(c *gin.Context) {
 		return
 	}
 
-	chatStream, err := a.AskQuestionToChatGPTSteam(post.Message, fmt.Sprintf("%v", nodeID), post.UserID)
+	relatedTopicID, err := a.GetRelatedTopicID(post.Message, post.UserID, nodeID)
 	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, "Error getting related topic")
+		return
+	}
+
+	var chatStream services.ChatStream
+	var chatStreamErr error
+
+	if relatedTopicID == nodeID {
+		// a question about the current topic
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteam(post.Message, nodeID, post.UserID)
+	} else if relatedTopicID == "" {
+		// an off-topic question
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOffTopic()
+	} else {
+		// some other topic from the course
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnDifferentTopic(post.Message, relatedTopicID, post.UserID)
+	}
+	if chatStreamErr != nil {
 		responseFormat(c, http.StatusInternalServerError, "Error while asking a stream question")
-		a.Log.Error(err.Error())
+		a.Log.Error(chatStreamErr.Error())
 		return
 	}
 

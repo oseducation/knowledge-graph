@@ -118,6 +118,44 @@ type ChatResponseUsage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// EmbeddingRequestStrings is the input to a create embeddings request with a slice of strings.
+type EmbeddingRequestStrings struct {
+	// Input is a slice of strings for which you want to generate an Embedding vector.
+	// Each input must not exceed 8192 tokens in length.
+	// OpenAPI suggests replacing newlines (\n) in your input with a single space, as they
+	// have observed inferior results when newlines are present.
+	// E.g.
+	//	"The food was delicious and the waiter..."
+	Input []string `json:"input"`
+	// ID of the model to use. You can use the List models API to see all of your available models,
+	// or see our Model overview for descriptions of them.
+	Model string `json:"model"`
+	// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse.
+	User string `json:"user"`
+	// Dimensions The number of dimensions the resulting output embeddings should have.
+	// Only supported in text-embedding-3 and later models.
+	// Dimensions int `json:"dimensions,omitempty"`
+}
+
+// Embedding is a special format of data representation that can be easily utilized by machine
+// learning models and algorithms. The embedding is an information dense representation of the
+// semantic meaning of a piece of text. Each embedding is a vector of floating point numbers,
+// such that the distance between two embeddings in the vector space is correlated with semantic similarity
+// between two inputs in the original format. For example, if two texts are similar,
+// then their vector representations should also be similar.
+type Embedding struct {
+	Object    string    `json:"object"`
+	Embedding []float32 `json:"embedding"`
+	Index     int       `json:"index"`
+}
+
+// EmbeddingResponse is the response from a Create embeddings request.
+type EmbeddingResponse struct {
+	Object string      `json:"object"`
+	Data   []Embedding `json:"data"`
+	Model  string      `json:"model"`
+}
+
 var (
 	// ErrAPIKeyRequired is returned when the API Key is not provided
 	ErrAPIKeyRequired = errors.New("ChatGPT API Key is required")
@@ -142,12 +180,14 @@ var (
 )
 
 const (
-	apiURL = "https://api.openai.com/v1"
+	apiURL         = "https://api.openai.com/v1"
+	embeddingModel = "text-embedding-3-small"
 )
 
 type ChatGPTServiceInterface interface {
 	Send(userID, systemMessage string, messages []string) (string, error)
 	SendStream(userID, systemMessage string, messages []string) (ChatStream, error)
+	GetEmbedding(text, userID string) ([]float32, error)
 }
 
 type ChatGPTService struct {
@@ -190,6 +230,46 @@ func NewCHhatGPTService() (ChatGPTServiceInterface, error) {
 			OrganizationID: orgID,
 		},
 	}, nil
+}
+
+func (c *ChatGPTService) GetEmbedding(text, userID string) ([]float32, error) {
+	request := EmbeddingRequestStrings{
+		Input: []string{text},
+		Model: embeddingModel,
+		User:  userID,
+	}
+	response, err := c.sendEmbeddingRequest(context.Background(), &request)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't send embedding request")
+	}
+	if len(response.Data) == 0 {
+		return nil, errors.New("no data in response")
+	}
+	return response.Data[0].Embedding, nil
+}
+
+func (c *ChatGPTService) sendEmbeddingRequest(ctx context.Context, req *EmbeddingRequestStrings) (*EmbeddingResponse, error) {
+	reqBytes, _ := json.Marshal(req)
+
+	endpoint := "/embeddings"
+	httpReq, err := http.NewRequest("POST", c.config.BaseURL+endpoint, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return nil, err
+	}
+	httpReq = httpReq.WithContext(ctx)
+
+	res, err := c.sendRequest(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var response EmbeddingResponse
+	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 func (c *ChatGPTService) SendStream(userID, systemMessage string, messages []string) (ChatStream, error) {
@@ -389,6 +469,10 @@ func (c *ChatGPTService) sendRequest(req *http.Request) (*http.Response, error) 
 
 func (c *ChatGPTServiceDummy) Send(userID, systemMessage string, messages []string) (string, error) {
 	return fmt.Sprintf("Dummy answer for user `%s`'s message number %d, systemMessage: \n\n %s\n", userID, len(messages), systemMessage), nil
+}
+
+func (c *ChatGPTServiceDummy) GetEmbedding(_, _ string) ([]float32, error) {
+	return []float32{}, nil
 }
 
 func (c *ChatGPTServiceDummy) SendStream(_, _ string, _ []string) (ChatStream, error) {
