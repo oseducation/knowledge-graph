@@ -54,6 +54,7 @@ func Setup(tb testing.TB) *TestHelper {
 	os.Setenv("YOUTUBE_API_KEY", "YoutubeAPIKey")
 	os.Setenv("CHAT_GPT_API_KEY", "")
 	os.Setenv("CHAT_GPT_ORGANIZATION_ID", "")
+	os.Setenv("PINECONE_API_KEY", "")
 
 	err = newServer.Start()
 	if err != nil {

@@ -9,6 +9,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	minimalEmbeddingScore = 0.5
+	numberOfSimilarTopics = 3
+)
+
 func (a *App) AskQuestion(userPost *model.Post) (string, error) {
 	posts, err := a.Store.Post().GetPosts(&model.PostGetOptions{
 		UserID: userPost.UserID,
@@ -160,15 +165,23 @@ func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post,
 	return post, err
 }
 
-func (a *App) getSystemMessage(nodeID string) (string, error) {
+func (a *App) getPrerequisiteNodes(nodeID string) ([]*model.Node, error) {
 	prerequisites, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
-		return "Act as a best tutor in the world and answer the question using less than 1000 tokens", nil
+		return nil, errors.New("can't get prerequisites of a node")
 	}
 
 	nodes, err := a.Store.Node().GetNodesWithIDs(prerequisites)
 	if err != nil || len(nodes) != len(prerequisites) {
-		return "", errors.Wrapf(err, "can't get nodes with ids = %v", prerequisites)
+		return nil, errors.Wrapf(err, "can't get nodes with ids = %v", prerequisites)
+	}
+	return nodes, nil
+}
+
+func (a *App) getSystemMessage(nodeID string) (string, error) {
+	nodes, err := a.getPrerequisiteNodes(nodeID)
+	if err != nil {
+		return "", err
 	}
 
 	node, err := a.Store.Node().Get(nodeID) // TODO: include nodeID in prerequisites to reduce db fetch
@@ -212,4 +225,65 @@ func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string) (service
 		return nil, err
 	}
 	return a.Services.ChatGPTService.SendStream(userID, systemMessage, []string{message})
+}
+
+func (a *App) AskQuestionToChatGPTSteamOnDifferentTopic(message, nodeID, userID string) (services.ChatStream, error) {
+	statuses, err := a.Store.Node().GetNodesForUser(userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, status := range statuses {
+		if status.NodeID == nodeID {
+			continue
+		}
+		if status.Status == model.NodeStatusFinished || status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched {
+			return a.AskQuestionToChatGPTSteam(message, nodeID, userID)
+		}
+		break
+	}
+
+	node, err := a.Store.Node().Get(nodeID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "can't get node with id = %v", nodeID)
+	}
+	answer := fmt.Sprintf("It seems like you're asking a question about a different topic. You will cover this when we reach the topic named **`%s`**. Meanwhile, you can ask any question on the topic in progress!", node.Name)
+
+	return services.CreateStringStream(answer), nil
+}
+
+func (a *App) AskQuestionToChatGPTSteamOffTopic() (services.ChatStream, error) {
+	answer := `This topic is not included in the course, but you can ask any questions on the topic in progress!`
+	return services.CreateStringStream(answer), nil
+}
+
+func (a *App) GetRelatedTopicID(text, userID string, currentNodeID string) (string, error) {
+	currentNode, err := a.Store.Node().Get(currentNodeID)
+	if err != nil {
+		return "", errors.Wrap(err, "can't get current node")
+	}
+
+	vector, err := a.Services.ChatGPTService.GetEmbedding(text, userID)
+	if err != nil {
+		return "", errors.Wrap(err, "can't get embedding")
+	}
+
+	topics, err := a.Services.PineconeService.Query(numberOfSimilarTopics, vector)
+	if err != nil || len(topics) == 0 {
+		return "", errors.Wrap(err, "can't get pinecone response")
+	}
+
+	for _, topic := range topics {
+		if topic.Name == currentNode.Name && topic.Score > minimalEmbeddingScore {
+			return currentNodeID, nil
+		}
+	}
+
+	if topics[0].Score < minimalEmbeddingScore {
+		return "", nil
+	}
+	node, err := a.Store.Node().GetByName(topics[0].Name)
+	if err != nil {
+		return "", errors.Wrapf(err, "can't get node with name = %v", topics[0].Name)
+	}
+	return node.ID, nil
 }
