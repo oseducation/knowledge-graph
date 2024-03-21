@@ -6,7 +6,7 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostType, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
@@ -87,6 +87,26 @@ const AITutorChat = () => {
                             break;
                         }
                         if (event.length > 0) {
+                            let detectedIntent: PostType|null = null;
+                            if (event === '{intent: show_text}') {
+                                detectedIntent = PostTypeText
+                            } else if (event === '{intent: show_video}') {
+                                detectedIntent = PostTypeVideo
+                            }
+                            if (detectedIntent){
+                                const post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, detectedIntent);
+                                if (post) {
+                                    const locationID = `${user!.id}_${BOT_ID}`
+                                    Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
+                                        console.log('updated post', post)
+                                        setPosts([...posts!, updatedPost]);
+                                        setBotMessage('');
+                                        setUserPostToChat(null);
+                                    });
+                                }
+                                return;
+                            }
+
                             totalMessage += event;
                             setBotMessage(totalMessage);
                         }

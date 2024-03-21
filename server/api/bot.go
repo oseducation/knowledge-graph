@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/oseducation/knowledge-graph/app"
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/oseducation/knowledge-graph/services"
 )
@@ -74,24 +75,28 @@ func askQuestion(c *gin.Context) {
 		return
 	}
 
-	relatedTopicID, err := a.GetRelatedTopicID(post.Message, post.UserID, nodeID)
+	userIntent, err := a.GetUserIntent(post.Message, post.UserID, nodeID)
 	if err != nil {
-		responseFormat(c, http.StatusInternalServerError, "Error getting related topic")
+		responseFormat(c, http.StatusInternalServerError, "Error getting user intent")
+		a.Log.Error(err.Error())
 		return
 	}
 
 	var chatStream services.ChatStream
 	var chatStreamErr error
 
-	if relatedTopicID == nodeID {
+	if userIntent.Intent == app.QuestionOnCurrentTopicIntent {
 		// a question about the current topic
 		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteam(post.Message, nodeID, post.UserID)
-	} else if relatedTopicID == "" {
+	} else if userIntent.Intent == app.QuestionOnOffTopicIntent {
 		// an off-topic question
 		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOffTopic()
-	} else {
+	} else if userIntent.Intent == app.QuestionOnDifferentTopicIntent {
 		// some other topic from the course
-		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnDifferentTopic(post.Message, relatedTopicID, post.UserID)
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnDifferentTopic(post.Message, userIntent.TopicID, post.UserID)
+	} else if userIntent.Intent != "" {
+		// show text or show video
+		chatStream = services.CreateStringStream(fmt.Sprintf("{intent: %s}", userIntent.Intent))
 	}
 	if chatStreamErr != nil {
 		responseFormat(c, http.StatusInternalServerError, "Error while asking a stream question")

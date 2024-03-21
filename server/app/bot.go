@@ -12,7 +12,18 @@ import (
 const (
 	minimalEmbeddingScore = 0.5
 	numberOfSimilarTopics = 3
+
+	ShowVideoIntent                = "show_video"
+	ShotTextIntent                 = "show_text"
+	QuestionOnCurrentTopicIntent   = "question_on_current_topic"
+	QuestionOnDifferentTopicIntent = "question_on_different_topic"
+	QuestionOnOffTopicIntent       = "question_on_off_topic"
 )
+
+type UserIntent struct {
+	Intent  string
+	TopicID string
+}
 
 func (a *App) AskQuestion(userPost *model.Post) (string, error) {
 	posts, err := a.Store.Post().GetPosts(&model.PostGetOptions{
@@ -233,13 +244,9 @@ func (a *App) AskQuestionToChatGPTSteamOnDifferentTopic(message, nodeID, userID 
 		return nil, err
 	}
 	for _, status := range statuses {
-		if status.NodeID == nodeID {
-			continue
-		}
-		if status.Status == model.NodeStatusFinished || status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched {
+		if status.NodeID == nodeID && (status.Status == model.NodeStatusFinished || status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched) {
 			return a.AskQuestionToChatGPTSteam(message, nodeID, userID)
 		}
-		break
 	}
 
 	node, err := a.Store.Node().Get(nodeID)
@@ -256,34 +263,42 @@ func (a *App) AskQuestionToChatGPTSteamOffTopic() (services.ChatStream, error) {
 	return services.CreateStringStream(answer), nil
 }
 
-func (a *App) GetRelatedTopicID(text, userID string, currentNodeID string) (string, error) {
+func (a *App) GetUserIntent(text, userID string, currentNodeID string) (UserIntent, error) {
 	currentNode, err := a.Store.Node().Get(currentNodeID)
 	if err != nil {
-		return "", errors.Wrap(err, "can't get current node")
+		return UserIntent{}, errors.Wrap(err, "can't get current node")
 	}
 
 	vector, err := a.Services.ChatGPTService.GetEmbedding(text, userID)
 	if err != nil {
-		return "", errors.Wrap(err, "can't get embedding")
+		return UserIntent{}, errors.Wrap(err, "can't get embedding")
 	}
 
 	topics, err := a.Services.PineconeService.Query(numberOfSimilarTopics, vector)
 	if err != nil || len(topics) == 0 {
-		return "", errors.Wrap(err, "can't get pinecone response")
+		return UserIntent{}, errors.Wrap(err, "can't get pinecone response")
 	}
 
 	for _, topic := range topics {
 		if topic.Name == currentNode.Name && topic.Score > minimalEmbeddingScore {
-			return currentNodeID, nil
+			return UserIntent{TopicID: currentNodeID, Intent: QuestionOnCurrentTopicIntent}, nil
 		}
 	}
 
 	if topics[0].Score < minimalEmbeddingScore {
-		return "", nil
+		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
 	}
+
+	if topics[0].Intent != "" {
+		if topics[0].Intent == ShowVideoIntent || topics[0].Intent == ShotTextIntent {
+			return UserIntent{Intent: topics[0].Intent}, nil
+		}
+		return UserIntent{}, errors.New("unknown intent from pinecone response")
+	}
+
 	node, err := a.Store.Node().GetByName(topics[0].Name)
 	if err != nil {
-		return "", errors.Wrapf(err, "can't get node with name = %v", topics[0].Name)
+		return UserIntent{}, errors.Wrapf(err, "can't get node with name = %v", topics[0].Name)
 	}
-	return node.ID, nil
+	return UserIntent{TopicID: node.ID, Intent: QuestionOnDifferentTopicIntent}, nil
 }

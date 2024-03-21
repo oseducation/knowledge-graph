@@ -27,8 +27,9 @@ type PineconeServiceInterface interface {
 }
 
 type TopicScores struct {
-	Score float32
-	Name  string
+	Score  float32
+	Name   string
+	Intent string
 }
 
 func NewPineconeService() (PineconeServiceInterface, error) {
@@ -77,9 +78,21 @@ func (ps *pineconeService) Query(topK uint32, vector []float32) ([]TopicScores, 
 	}
 	topicScores := make([]TopicScores, 0, len(resp.Matches))
 	for _, match := range resp.Matches {
+		nameValue := ""
+		intentValue := ""
+		nameValueInt, ok := match.Vector.Metadata.Fields["name"]
+		if ok {
+			nameValue = nameValueInt.GetStringValue()
+		}
+		intentValueInt, ok := match.Vector.Metadata.Fields["intent"]
+		if ok {
+			intentValue = intentValueInt.GetStringValue()
+		}
+
 		topicScores = append(topicScores, TopicScores{
-			Score: match.Score,
-			Name:  match.Vector.Metadata.Fields["name"].GetStringValue(),
+			Score:  match.Score,
+			Name:   nameValue,
+			Intent: intentValue,
 		})
 	}
 	return topicScores, nil
