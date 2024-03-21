@@ -23,6 +23,7 @@ const (
 	GPT4             ChatGPTModel = "gpt-4"
 	GPT4_32k         ChatGPTModel = "gpt-4-32k"
 	GPT4_1106Preview ChatGPTModel = "gpt-4-1106-preview"
+	GPT4_0115Preview ChatGPTModel = "gpt-4-0125-preview"
 )
 
 type ChatGPTModelRole string
@@ -276,7 +277,7 @@ func (c *ChatGPTService) SendStream(userID, systemMessage string, messages []str
 	chatMessages := getChatMessages(systemMessage, messages)
 
 	req := &ChatCompletionRequest{
-		Model:    GPT35Turbo,
+		Model:    GPT4_0115Preview,
 		Messages: chatMessages,
 		User:     userID,
 		Stream:   true,
@@ -316,7 +317,7 @@ func (c *ChatGPTService) Send(userID, systemMessage string, messages []string) (
 	chatMessages := getChatMessages(systemMessage, messages)
 
 	req := &ChatCompletionRequest{
-		Model:    GPT35Turbo,
+		Model:    GPT4_0115Preview,
 		Messages: chatMessages,
 		User:     userID,
 	}
@@ -408,7 +409,7 @@ func validate(req *ChatCompletionRequest) error {
 	isAllowed := false
 
 	allowedModels := []ChatGPTModel{
-		GPT35Turbo, GPT35Turbo16k, GPT4, GPT4_32k,
+		GPT35Turbo, GPT35Turbo16k, GPT4, GPT4_32k, GPT4_0115Preview,
 	}
 
 	for _, model := range allowedModels {
