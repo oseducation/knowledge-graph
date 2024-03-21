@@ -98,7 +98,6 @@ const AITutorChat = () => {
                                 if (post) {
                                     const locationID = `${user!.id}_${BOT_ID}`
                                     Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-                                        console.log('updated post', post)
                                         setPosts([...posts!, updatedPost]);
                                         setBotMessage('');
                                         setUserPostToChat(null);

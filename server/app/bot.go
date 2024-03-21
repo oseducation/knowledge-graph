@@ -222,9 +222,9 @@ func (a *App) getSystemMessage(nodeID string) (string, error) {
 	}
 	content := fmt.Sprintf("Topic: %s\nDescription: %s\nContent: %s", node.Name, node.Description, text)
 
-	systemMessage := fmt.Sprintf(`Act as a best tutor in the world and answer the question using less than 1000 tokens. Assume that students knows all the topics listed in braces:
+	systemMessage := fmt.Sprintf(`Act as a best tutor in the world and answer the question concisely. Assume that students knows all the topics listed in braces:
 {%s}
-The question might be related to this content:
+Use the content below to answer the question:
 {%s}
 `, topics, content)
 	return systemMessage, nil
