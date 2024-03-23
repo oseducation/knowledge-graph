@@ -179,7 +179,7 @@ func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post,
 func (a *App) getPrerequisiteNodes(nodeID string) ([]*model.Node, error) {
 	prerequisites, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
-		return nil, errors.New("can't get prerequisites of a node")
+		return []*model.Node{}, nil
 	}
 
 	nodes, err := a.Store.Node().GetNodesWithIDs(prerequisites)
