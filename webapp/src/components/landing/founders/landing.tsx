@@ -17,6 +17,7 @@ import Footer from '../../footer';
 
 import Hero from './hero';
 import Apply from './apply';
+import Courses from './courses';
 
 
 
@@ -113,7 +114,7 @@ const Landing = (props: Props) => {
             parent_id: ''
         }, {
             id: 'apply',
-            name: t('Apply Knowledge to Your Startup'),
+            name: t('Achieve Your Goals'),
             description: t('Apply acquired knowledge to your startup journey'),
             node_type: 'lecture',
             status: '',
@@ -181,47 +182,51 @@ const Landing = (props: Props) => {
         >
             <Grid2 id='parent-grid' container spacing={2} disableEqualOverflow m={0}>
                 <Hero/>
+                <Courses
+                    height={staticHeight}
+                    color='#023E8A'
+                />
                 <Problem1
                     graph={p1}
                     height={staticHeight}
-                    color='#023E8A'
+                    color='#0077B6'
                 />
                 <Problem2
                     graph={p2}
                     height={staticHeight}
-                    color='#0077B6'
+                    color='#0096C7'
                 />
                 <DropOut
                     graph={drop}
                     height={staticHeight}
-                    color='#0096C7'
+                    color='#00B4D8'
                 />
                 <Vitsi
                     graph={vitsi}
                     height={staticHeight}
-                    color='#00B4D8'
+                    color='#48CAE4'
                 />
                 <Explore
                     graph={explore}
                     height={staticHeight}
-                    color='#48CAE4'
+                    color='#90E0EF'
                 />
                 <Learn
                     graph={learn}
                     height={staticHeight}
-                    color='#90E0EF'
+                    color='#a6e6f2'
                 />
                 <Apply
                     graph={apply}
                     height={staticHeight}
-                    color='#ADE8F4'
+                    color='#b8ebf5'
                 />
                 <Grid2 container
                     m={0}
                     p={1}
                     xs={12}
                     id='testimoenials-sction'
-                    bgcolor={'#CAF0F8'}
+                    bgcolor={'#c6eff7'}
                     minHeight={staticHeight}
                     sx={{scrollSnapAlign: 'start'}}
                 >

@@ -32,7 +32,7 @@ const Vitsi = (props: Props) => {
                 variant='h6'
                 fontWeight={'bold'}
             >
-                {t("A Map Of Two Minute Topics, Linked With Prerequisites")}
+                {t("A Map Of 5-Minute Topics, Linked With Prerequisites")}
             </Typography>
         </TwoSidedLayout>
     )

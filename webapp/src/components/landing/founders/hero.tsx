@@ -34,14 +34,14 @@ const Hero = () => {
                         color={'white'}
                         p={'30px 0'}
                     >
-                        {t("Become a Successful Startup Founder Learning 5-Minute Topics Daily")}
+                        {t("Master Courses One Topic At A Time With Interactive AI Tutor")}
                     </Typography>
                     <Typography
                         variant='h5'
                         fontWeight={'bold'}
                         color={'white'}
                     >
-                        {t("For early stage builders, founders looking to pivot, or anyone interested in Startups")}
+                        {t("Learning should be fun and engaging!")}
                     </Typography>
                 </Stack>
             </Grid2>
