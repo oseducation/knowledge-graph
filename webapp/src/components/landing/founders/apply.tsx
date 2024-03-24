@@ -26,13 +26,13 @@ const Apply = (props: Props) => {
                 variant='h4'
                 fontWeight={'bold'}
             >
-                {t("Vitsi AI: Apply Acquired Knowledge to Your Startup")}
+                {t("Vitsi AI: Achieve")}
             </Typography>
             <Typography
                 variant='h6'
                 fontWeight={'bold'}
             >
-                {t("Come up with the startup idea, Build your team, Build an MVP, Launch, Create a company, Fundraise, Grow")}
+                {t("Set The Goals and Fulfill Them")}
             </Typography>
         </TwoSidedLayout>
     )
