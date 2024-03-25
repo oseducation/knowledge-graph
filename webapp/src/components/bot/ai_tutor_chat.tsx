@@ -36,6 +36,18 @@ const AITutorChat = () => {
     }
 
     useEffect(() => {
+        const w = window as any;
+        if (w.Tawk_API) {
+            w.Tawk_API.hideWidget();
+        }
+        return () => {
+            if (w.Tawk_API) {
+                w.Tawk_API.showWidget();
+            }
+        };
+    }, []);
+
+    useEffect(() => {
         const timer = setTimeout(() => {
             scrollToBottom();
         }, 500);
