@@ -99,7 +99,7 @@ const computeGoalPercentage = (globalGraph: Graph, goalNodeID: string) => {
 }
 
 const Goals = () => {
-    const {goals, globalGraph} = useGraph();
+    const {goals, globalGraph, currentGoalID, setCurrentGoal} = useGraph();
     const navigate = useNavigate();
 
     if (!globalGraph) {
@@ -137,7 +137,12 @@ const Goals = () => {
                                 title={goal.name}
                                 imageURL={goal.thumbnail_relative_url}
                                 progress={globalGraph ? computeGoalPercentage(globalGraph, goal.node_id) : 0}
-                                onClick={() => navigate(`/nodes/${nextNodeID}`)}
+                                onClick={() => {
+                                    if (currentGoalID !== goal.node_id) {
+                                        setCurrentGoal(goal);
+                                    }
+                                    navigate(`/dashboard/ai-tutor`)
+                                }}
                             />
                         </Grid2>
                     );
