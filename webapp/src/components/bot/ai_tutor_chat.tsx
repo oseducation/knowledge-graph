@@ -14,7 +14,7 @@ import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 import PostComponent from './post_component';
 import {constructBotPost, getBotPostActions} from './create_post';
 import usePosts from './use_posts';
-import {getUserPostAction, goalFinishedMessage} from './messages';
+import {getUserPostAction, goalFinishedMessage, iKnowThisMessage, nextTopicMessage} from './messages';
 import BotStreamMessage from './bot_stream_message';
 
 const staticHeight = `calc(100vh - (64px))`;
@@ -26,7 +26,7 @@ const AITutorChat = () => {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {goals, nextNodeTowardsGoal, globalGraph, onReload} = useGraph();
+    const {nextNodeTowardsGoal, currentGoalID, globalGraph, onReload} = useGraph();
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
@@ -59,6 +59,33 @@ const AITutorChat = () => {
         if (nextNodeTowardsGoal && posts && posts.length > 0) {
             const ac = getBotPostActions(posts, nextNodeTowardsGoal);
             setActions(ac);
+
+            let goalSwitchDetected = false;
+            for (let i = posts.length-1; i >= 0; i--) {
+                if (posts[i].message === iKnowThisMessage) {
+                    break;
+                }
+                if (posts[i].post_type === PostTypeGoalFinish) {
+                    break;
+                }
+                if (posts[i].props && posts[i].props.node_id) {
+                    if (posts[i].props.node_id !== nextNodeTowardsGoal.id) {
+                        goalSwitchDetected = true;
+                    }
+                    break;
+                }
+            }
+            if (goalSwitchDetected) {
+                const post  = nextTopicMessage(nextNodeTowardsGoal);
+                post.message = 'You have the new goal. The topic towards your goal is the following:\n\n' + post.message;
+                const locationID = `${user!.id}_${BOT_ID}`
+                Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
+                    setPosts([...posts!, updatedPost]);
+                });
+                scrollToBottom();
+                return;
+            }
+
             if (posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
                 createPendingPost();
             }
@@ -201,14 +228,8 @@ const AITutorChat = () => {
             let post;
             if (action.action_type === PostActionIKnowThis && nextNodeTowardsGoal) {
                 Client.Node().markAsKnown(nextNodeTowardsGoal.id, user!.id).then(() => {
-                    // for (let i = 0; i < globalGraph!.nodes.length; i++) {
-                    //     if (globalGraph!.nodes[i].id === nextNodeID) {
-                    //         globalGraph!.nodes[i].status = NodeStatusFinished;
-                    //         break;
-                    //     }
-                    // }
 
-                    if (goals.length > 0 && nextNodeTowardsGoal.id === goals[0].node_id){
+                    if (nextNodeTowardsGoal.id === currentGoalID){
                         Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', nextNodeTowardsGoal.name || ''), locationID).then((updatedPost) => {
                             onReload();
                             setPosts([...posts!, userPost, updatedPost]);

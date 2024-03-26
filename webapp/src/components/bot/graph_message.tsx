@@ -14,17 +14,17 @@ interface Props {
 }
 
 const GraphMessage = (props: Props) => {
-    const {pathToGoal, goals, globalGraph} = useGraph();
+    const {pathToGoal, globalGraph, currentGoalID} = useGraph();
     const [graph, setGraph] = useState<Graph | null>(null);
 
     useEffect(() => {
-        setGraph(goalGraph(globalGraph, pathToGoal, goals && goals.length > 0 ? goals[0].node_id : ''));
+        setGraph(goalGraph(globalGraph, pathToGoal, currentGoalID || ''));
         const timer = setTimeout(() => {
             props.scrollToBottom();
         }, 10);
 
         return () => clearTimeout(timer);
-    }, [globalGraph, goals && goals.length > 0 ? goals[0].node_id : '']);
+    }, [globalGraph, currentGoalID]);
 
     if (!graph) {
         return;
