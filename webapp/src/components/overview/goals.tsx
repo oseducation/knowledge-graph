@@ -5,7 +5,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import useGraph from '../../hooks/useGraph';
 import {Graph, Node, NodeStatusFinished} from '../../types/graph';
-import {computePathToGoal, nextNodeToGoal} from '../../context/graph_provider';
+import {computePathToGoal} from '../../context/graph_provider';
 
 interface Props {
     imageURL: string;
@@ -99,7 +99,7 @@ const computeGoalPercentage = (globalGraph: Graph, goalNodeID: string) => {
 }
 
 const Goals = () => {
-    const {goals, globalGraph} = useGraph();
+    const {goals, globalGraph, currentGoalID, setCurrentGoal} = useGraph();
     const navigate = useNavigate();
 
     if (!globalGraph) {
@@ -129,15 +129,18 @@ const Goals = () => {
             </Box>
             <Grid2 display={'flex'} flexDirection={{xs: 'column', sm: 'row'}}>
                 {goals.slice(0,3).map((goal, index) => {
-                    const path = computePathToGoal(globalGraph, goal.node_id);
-                    const nextNodeID = nextNodeToGoal(globalGraph, path, goal.node_id);
                     return (
                         <Grid2 xs={12} sm={4} key={index}>
                             <GoalCard
                                 title={goal.name}
                                 imageURL={goal.thumbnail_relative_url}
                                 progress={globalGraph ? computeGoalPercentage(globalGraph, goal.node_id) : 0}
-                                onClick={() => navigate(`/nodes/${nextNodeID}`)}
+                                onClick={() => {
+                                    if (currentGoalID !== goal.node_id) {
+                                        setCurrentGoal(goal);
+                                    }
+                                    navigate(`/dashboard/ai-tutor`)
+                                }}
                             />
                         </Grid2>
                     );
