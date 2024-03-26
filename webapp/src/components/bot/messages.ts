@@ -6,7 +6,7 @@ import {BOT_ID} from "./ai_tutor_chat";
 
 
 const letsStartMessage = "Great, Let's start with the next topic";
-const iKnowThisMessage = "I know this topic, mark as done";
+export const iKnowThisMessage = "I know this topic, mark as done";
 const anotherVideoMessage = "Show me another video on this topic, please";
 const anotherTextMessage = "Show me some text, please";
 const anotherTestMessage = "Test me on this topic";

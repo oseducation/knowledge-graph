@@ -63,7 +63,7 @@ type RHSProps = {
 }
 
 const RHS = (props: RHSProps) => {
-    const {selectedNode, addGoal, removeGoal, goals} = useGraph();
+    const {selectedNode, setCurrentGoal, removeGoal, goals} = useGraph();
     const theme = useTheme()
     const {t} = useTranslation();
 
@@ -152,7 +152,7 @@ const RHS = (props: RHSProps) => {
                 onClick={() => {
                     if (selectedNode?.id) {
                         Client.Graph().addGoal(selectedNode?.id || '').then(() => {
-                            addGoal({
+                            setCurrentGoal({
                                 node_id: selectedNode.id,
                                 name: selectedNode.name,
                                 thumbnail_relative_url: `/images/nodes/${selectedNode.name.replaceAll(' ', '-')}.png`,
@@ -161,7 +161,7 @@ const RHS = (props: RHSProps) => {
                     }
                 }}
             >
-                {t("Add a new Goal")}
+                {t("Set as a Goal")}
             </Button>
     }
 
