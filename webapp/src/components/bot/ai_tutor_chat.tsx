@@ -171,7 +171,10 @@ const AITutorChat = () => {
     }
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        if ((e.ctrlKey || e.metaKey || e.shiftKey) && e.key === 'Enter') {
+            e.preventDefault();
+            setInput(input + '\n');
+        } else if (e.key === 'Enter') {
             handleSend();
             e.preventDefault();
         }
