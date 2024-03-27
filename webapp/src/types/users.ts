@@ -42,12 +42,16 @@ export type UserPreferences = {
     language: string;
     is_video_looped: boolean;
     graph_direction: DagMode;
+    legend_on_graph_message: boolean;
+    legend_on_topic_graph: boolean;
 }
 
 export const UserPreferencesDefaultValues: UserPreferences = {
     language: 'ge',
     is_video_looped: false,
-    graph_direction: 'td'
+    graph_direction: 'td',
+    legend_on_graph_message: true,
+    legend_on_topic_graph: true,
 }
 
 export type Preference = {
