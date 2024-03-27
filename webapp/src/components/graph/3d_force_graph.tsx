@@ -42,6 +42,27 @@ const D3ForceGraph = (props: Props) => {
     const {t, i18n} = useTranslation();
     const {pathToGoal, goals, selectedNode, setSelectedNode, focusedNodeID, setParentID} = useGraph();
 
+    useEffect(() => {
+        if (props.dimension3) {
+            return
+        }
+        fgRef.current!.d3Force('collide', forceCollide(50));
+        if (focusedNodeID) {
+            let focusNode = null;
+            for (let i = 0; i < props.graph.nodes.length; i++) {
+                const node = props.graph.nodes[i];
+                if (node.id === focusedNodeID) {
+                    focusNode = node as NodeObject<Node>
+                    break
+                }
+            }
+            if (focusNode) {
+                fgRef.current!.centerAt(focusNode.x, focusNode.y, 1000);
+                fgRef.current!.zoom(3, 2000);
+            }
+        }
+    },[focusedNodeID]);
+
     const onNodeClick = (node : Node) => {
         if (props.noClick){
             return;
@@ -65,27 +86,6 @@ const D3ForceGraph = (props: Props) => {
         }
     };
 
-    useEffect(() => {
-        if (props.dimension3) {
-            return
-        }
-        fgRef.current!.d3Force('collide', forceCollide(50));
-        if (focusedNodeID) {
-            let focusNode = null;
-            for (let i = 0; i < props.graph.nodes.length; i++) {
-                const node = props.graph.nodes[i];
-                if (node.id === focusedNodeID) {
-                    focusNode = node as NodeObject<Node>
-                    break
-                }
-            }
-            if (focusNode) {
-                fgRef.current!.centerAt(focusNode.x, focusNode.y, 1000);
-                fgRef.current!.zoom(3, 2000);
-            }
-        }
-    },[focusedNodeID]);
-
     if (props.dimension3) {
         return (
             <ForceGraph3D
@@ -102,6 +102,34 @@ const D3ForceGraph = (props: Props) => {
                 nodeAutoColorBy={"status"}
             />
         );
+    }
+
+    const nodeLabel = (node: Node) => {
+        return `
+            <div style="font-family: Arial, sans-serif; border: 1px solid #ccc; border-radius: 5px; padding: 20px; max-width: 300px;">
+                <h2 style="margin-top: 0;">${node.name}</h2>
+                <p style="font-size: 14px;">${node.description}</p>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 30px; height: 30px;">
+                        <span style="width: 30px; height: 30px; border-radius: 50%; background-color: ${getNodeColor(node)}; display: inline-block;"></span>
+                    </div>
+                    <div>
+                        ${getNodeStatusText(node)}
+                    </div>
+                </div>
+            </div>`
+    }
+
+    const getNodeStatusText = (node: Node) => {
+        if (node.status === NodeStatusFinished) {
+            return t("This topic is Finished");
+        } else if (node.status === NodeStatusStarted || node.status === NodeStatusWatched){
+            return t("You've already Started this topic");
+        } else if (node.status === NodeStatusNext) {
+            return t("You can learn this topic next");
+        } else {
+            return t("To learn this topic you have to learn prerequisites first");
+        }
     }
 
     const getNodeColor = (node: Node) => {
@@ -214,7 +242,7 @@ const D3ForceGraph = (props: Props) => {
                 ref={fgRef}
                 enableNodeDrag={false}
                 graphData={props.graph}
-                nodeLabel="description"
+                nodeLabel={nodeLabel}
                 width={props.width}
                 height={props.height}
                 linkDirectionalParticleWidth={4}
