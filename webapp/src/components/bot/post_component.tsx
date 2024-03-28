@@ -18,6 +18,9 @@ interface Props {
     isLast: boolean;
     scrollToBottom: () => void;
     nextNodeID: string;
+    addScrollListener?: (a: ()=>void) => void;
+    removeScrollListener?: (a: ()=>void) => void;
+    isLastVideo?: boolean;
 }
 
 const PostComponent = (props: Props) => {
@@ -25,11 +28,14 @@ const PostComponent = (props: Props) => {
 
     if (props.post.post_type === PostTypeVideo) {
         component = (
-            <VideoFallback fallback={!props.isLast} videoProps={props.post.props}>
+            <VideoFallback fallback={!props.isLastVideo} videoProps={props.post.props}>
                 <VideoMessage
                     post={props.post}
                     isLast={props.isLast}
                     scrollToBottom={props.scrollToBottom}
+                    addScrollListener={props.addScrollListener}
+                    removeScrollListener={props.removeScrollListener}
+                    isLastVideo={props.isLastVideo}
                 />
             </VideoFallback>
         );

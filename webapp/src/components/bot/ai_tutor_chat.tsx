@@ -1,6 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Paper, IconButton, List, TextareaAutosize, Box, Button} from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+import {List, Box, Button} from '@mui/material';
 import {styled} from '@mui/system';
 
 import {DashboardColors} from '../../ThemeOptions';
@@ -16,13 +15,13 @@ import {constructBotPost, getBotPostActions} from './create_post';
 import usePosts from './use_posts';
 import {getUserPostAction, goalFinishedMessage, iKnowThisMessage, nextTopicMessage} from './messages';
 import BotStreamMessage from './bot_stream_message';
+import InputComponent from './input_component';
 
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
 
 const AITutorChat = () => {
     const {posts, setPosts} = usePosts();
-    const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
@@ -30,10 +29,25 @@ const AITutorChat = () => {
     const [actions, setActions] = useState<Action[]>([]);
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
+    const [scrollListeners, setScrollListeners] = useState<(() => void)[]>([]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView();
     }
+
+    const addScrollListener = (listener: () => void) => {
+        setScrollListeners([...scrollListeners, listener]);
+    }
+
+    const removeEventListener = (listener: () => void) => {
+        setScrollListeners(scrollListeners.filter((l) => l !== listener));
+    }
+
+    const handleScroll = () => {
+        scrollListeners.forEach((listener) => {
+            listener();
+        });
+    };
 
     useEffect(() => {
         const w = window as any;
@@ -170,20 +184,6 @@ const AITutorChat = () => {
         });
     }
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if ((e.ctrlKey || e.metaKey || e.shiftKey) && e.key === 'Enter') {
-            e.preventDefault();
-            setInput(input + '\n');
-        } else if (e.key === 'Enter') {
-            handleSend();
-            e.preventDefault();
-        }
-    }
-
-    const handleSend = () => {
-        savePostWithMessage(input, "");
-    };
-
     const isNodeFinished = (node: NodeWithResources): boolean => {
         if (!globalGraph) {
             return true;
@@ -265,19 +265,31 @@ const AITutorChat = () => {
         });
     }
 
-    const savePostWithMessage = (message: string, postType: string) => {
-        Client.Post().saveUserPost(message, locationID, postType).then((userPost) => {
+    const handleSend = (input: string): Promise<void> => {
+        return Client.Post().saveUserPost(input, locationID, '').then((userPost) => {
             Analytics.messageToAI({user_id: user!.id});
             userPost.props = {'node_id': nextNodeTowardsGoal?.id || ''};
             setUserPostToChat(userPost);
             setPosts([...posts!, userPost]);
-            setInput('');
         });
     }
 
+    const getLastVideoIndex = () => {
+        for (let i = posts.length - 1; i >= 0; i--) {
+            if (posts[i].post_type === PostTypeVideo) {
+                return i;
+            } else if (posts[i].message === iKnowThisMessage) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    const lastVideoIndex = getLastVideoIndex();
+
     return (
         <ChatContainer>
-            <MessageList>
+            <MessageList onScroll={handleScroll}>
                 {posts && posts.map((post, index) =>
                     <PostComponent
                         key={post.id}
@@ -285,6 +297,9 @@ const AITutorChat = () => {
                         isLast={index === posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
                         scrollToBottom={scrollToBottom}
                         nextNodeID={nextNodeTowardsGoal?.id || ''}
+                        addScrollListener={addScrollListener}
+                        removeScrollListener={removeEventListener}
+                        isLastVideo={index === lastVideoIndex}
                     />
                 )}
                 {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom}/>}
@@ -312,21 +327,7 @@ const AITutorChat = () => {
                 }
                 <div ref={messagesEndRef}/>
             </MessageList>
-            <MessageInputContainer>
-                <MessageInput
-                    placeholder="Type a message"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={onKeyDown}
-                />
-                <IconButton
-                    onClick={handleSend}
-                    sx={{color:DashboardColors.primary}}
-                    disabled={input.trim() === ''}
-                >
-                    <SendIcon/>
-                </IconButton>
-            </MessageInputContainer>
+            <InputComponent handleSend={handleSend}/>
         </ChatContainer>
     );
 }
@@ -354,32 +355,6 @@ const MessageList = styled(List)({
         backgroundColor: DashboardColors.primary,
     },
 });
-
-const MessageInputContainer = styled(Paper)({
-    display: 'flex',
-    padding: '2px 4px',
-    alignItems: 'center',
-    margin: '20px',
-});
-
-const MessageInput = styled(TextareaAutosize)({
-    marginLeft: 8,
-    flex: 1,
-    maxHeight: '200px',
-    height: '56px',
-    overflowY: 'hidden',
-    width: '100%',
-    border: '0 solid #d9d9e3',
-    borderRadius: '12px',
-    resize: 'none',
-    ":focus-visible": {
-        outline: 'none',
-    },
-    fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
-    fontSize: '16px',
-    fontWeight: 400,
-});
-
 
 function getSubstrings(input: string, start: string, end: string): string[] {
     const result = [];

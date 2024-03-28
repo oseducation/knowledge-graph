@@ -31,7 +31,7 @@ const GraphMessage = (props: Props) => {
     }, [globalGraph, currentGoalID]);
 
     if (!graph) {
-        return;
+        return null;
     }
 
     return (
