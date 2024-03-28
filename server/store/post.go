@@ -162,6 +162,9 @@ func filterPosts(options *model.PostGetOptions, query sq.SelectBuilder) sq.Selec
 	if options.Before > 0 {
 		query = query.Where(sq.Lt{"p.created_at": options.Before})
 	}
+	if options.LastX > 0 {
+		return query.OrderBy("p.created_at DESC").Limit(uint64(options.LastX))
+	}
 	if options.PerPage > 0 {
 		query = query.Limit(uint64(options.PerPage))
 	}
@@ -179,12 +182,17 @@ func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, 
 	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &sqlPosts, query); err != nil {
 		return nil, errors.Wrapf(err, "can't get posts with options %v", options)
 	}
-	posts := make([]*model.Post, 0, len(sqlPosts))
-	for _, p := range sqlPosts {
+	posts := make([]*model.Post, len(sqlPosts))
+
+	for i, p := range sqlPosts {
 		if err := json.Unmarshal([]byte(p.PropsJSON), &p.Props); err != nil {
 			return nil, errors.Wrapf(err, "failed to unmarshal props json: '%s'", p.PropsJSON)
 		}
-		posts = append(posts, &p.Post)
+		if options.LastX > 0 {
+			posts[len(sqlPosts)-1-i] = &p.Post
+		} else {
+			posts[i] = &p.Post
+		}
 	}
 	return posts, nil
 }
@@ -212,7 +220,7 @@ func (ps *SQLPostStore) GetPostsWithUser(locationID string) ([]*model.PostWithUs
 		From("posts p").
 		Join("users u ON u.id = p.user_id").
 		Where(sq.Eq{"p.location_id": locationID}).
-		OrderBy("p.created_at ASC").
+		OrderBy("p.created_at DESC").
 		Limit(100). //TODO: make it configurable
 		Offset(0)
 
@@ -220,7 +228,8 @@ func (ps *SQLPostStore) GetPostsWithUser(locationID string) ([]*model.PostWithUs
 		return nil, errors.Wrapf(err, "can't get posts from location %v", locationID)
 	}
 	posts := make([]*model.PostWithUser, 0, len(postWUser))
-	for _, p := range postWUser {
+	for i := len(postWUser) - 1; i >= 0; i-- {
+		p := postWUser[i]
 		posts = append(posts, &model.PostWithUser{
 			Post: model.Post{
 				ID:      p.ID,
