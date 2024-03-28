@@ -162,6 +162,7 @@ type PostGetOptions struct {
 	IncludeDeleted bool
 	After          int64
 	Before         int64
+	LastX          int
 }
 
 type PostGetOption func(*PostGetOptions)
@@ -225,5 +226,11 @@ func PostAfter(after int64) PostGetOption {
 func PostBefore(before int64) PostGetOption {
 	return func(args *PostGetOptions) {
 		args.Before = before
+	}
+}
+
+func LastX(lastX int) PostGetOption {
+	return func(args *PostGetOptions) {
+		args.LastX = lastX
 	}
 }

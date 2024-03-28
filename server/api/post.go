@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -47,14 +46,6 @@ func getPosts(c *gin.Context) {
 	userID := c.DefaultQuery("user_id", "")
 	locationID := c.DefaultQuery("location_id", "")
 	withUsers := c.DefaultQuery("with_users", "")
-	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultNodePage)))
-	if err != nil {
-		page = defaultUserPage
-	}
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(defaultNodePerPage)))
-	if err != nil {
-		perPage = defaultUserPerPage
-	}
 
 	a, err := getApp(c)
 	if err != nil {
@@ -92,8 +83,7 @@ func getPosts(c *gin.Context) {
 		model.TermInMessage(term),
 		model.PostUserID(userID),
 		model.PostLocationID(locationID),
-		model.PostPage(page),
-		model.PostPerPage(perPage))(options)
+		model.LastX(defaultPostsPerPage))(options)
 	posts, err := a.GetPosts(options)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())

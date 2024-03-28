@@ -13,6 +13,11 @@ import (
 	"github.com/oseducation/knowledge-graph/services"
 )
 
+const (
+	defaultPostsPage    = 0
+	defaultPostsPerPage = 50
+)
+
 func (apiObj *API) initBot() {
 	apiObj.Bots = apiObj.APIRoot.Group("/bots")
 
@@ -136,11 +141,11 @@ type OldAndNewPosts struct {
 }
 
 func getBotPosts(c *gin.Context) {
-	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultNodePage)))
+	page, err := strconv.Atoi(c.DefaultQuery("page", strconv.Itoa(defaultPostsPage)))
 	if err != nil {
 		page = defaultUserPage
 	}
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(defaultNodePerPage)))
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(defaultPostsPage)))
 	if err != nil {
 		perPage = defaultUserPerPage
 	}
