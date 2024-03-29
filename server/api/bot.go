@@ -99,6 +99,8 @@ func askQuestion(c *gin.Context) {
 	} else if userIntent.Intent == app.QuestionOnDifferentTopicIntent {
 		// some other topic from the course
 		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnDifferentTopic(post.Message, userIntent.TopicID, post.UserID)
+	} else if userIntent.Intent == app.DialogueIntent {
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnTopicDialogue(post.Message, nodeID, post.UserID, userIntent.PrevPosts)
 	} else if userIntent.Intent != "" {
 		// show text or show video
 		chatStream = services.CreateStringStream(fmt.Sprintf("{intent: %s}", userIntent.Intent))

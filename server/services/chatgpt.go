@@ -188,6 +188,7 @@ const (
 type ChatGPTServiceInterface interface {
 	Send(userID, systemMessage string, messages []string) (string, error)
 	SendStream(userID, systemMessage string, messages []string) (ChatStream, error)
+	SendStreamWithChatMessages(userID string, chatMessages []ChatMessage) (ChatStream, error)
 	GetEmbedding(text, userID string) ([]float32, error)
 }
 
@@ -271,6 +272,22 @@ func (c *ChatGPTService) sendEmbeddingRequest(ctx context.Context, req *Embeddin
 	}
 
 	return &response, nil
+}
+
+func (c *ChatGPTService) SendStreamWithChatMessages(userID string, chatMessages []ChatMessage) (ChatStream, error) {
+	req := &ChatCompletionRequest{
+		Model:    GPT4_0115Preview,
+		Messages: chatMessages,
+		User:     userID,
+		Stream:   true,
+	}
+
+	resp, err := c.sendStream(context.Background(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return CreateChatGPTStream(resp), nil
 }
 
 func (c *ChatGPTService) SendStream(userID, systemMessage string, messages []string) (ChatStream, error) {
@@ -477,5 +494,9 @@ func (c *ChatGPTServiceDummy) GetEmbedding(_, _ string) ([]float32, error) {
 }
 
 func (c *ChatGPTServiceDummy) SendStream(_, _ string, _ []string) (ChatStream, error) {
+	return CreateDummyChatGPTStream(), nil
+}
+
+func (c *ChatGPTServiceDummy) SendStreamWithChatMessages(_ string, _ []ChatMessage) (ChatStream, error) {
 	return CreateDummyChatGPTStream(), nil
 }
