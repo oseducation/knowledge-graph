@@ -23,6 +23,7 @@ type PostStore interface {
 	CountPosts(options *model.PostGetOptions) (int, error)
 	GetPostsWithUser(locationID string) ([]*model.PostWithUser, error)
 	Delete(post *model.Post) error
+	GetLastNPostsForLocation(n int, location string) ([]*model.Post, error)
 }
 
 // SQLPostStore is a struct to store posts
@@ -193,6 +194,27 @@ func (ps *SQLPostStore) GetPosts(options *model.PostGetOptions) ([]*model.Post, 
 		} else {
 			posts[i] = &p.Post
 		}
+	}
+	return posts, nil
+}
+
+func (ps *SQLPostStore) GetLastNPostsForLocation(n int, location string) ([]*model.Post, error) {
+	var sqlPosts []*sqlPost
+	query := ps.postSelect.Where(
+		sq.Eq{"location_id": location}).
+		OrderBy("created_at DESC").
+		Limit(uint64(n))
+
+	if err := ps.sqlStore.selectBuilder(ps.sqlStore.db, &sqlPosts, query); err != nil {
+		return nil, errors.Wrapf(err, "can't get %d posts on location %s", n, location)
+	}
+
+	posts := make([]*model.Post, 0, len(sqlPosts))
+	for _, p := range sqlPosts {
+		if err := json.Unmarshal([]byte(p.PropsJSON), &p.Props); err != nil {
+			return nil, errors.Wrapf(err, "failed to unmarshal props json: '%s'", p.PropsJSON)
+		}
+		posts = append(posts, &p.Post)
 	}
 	return posts, nil
 }

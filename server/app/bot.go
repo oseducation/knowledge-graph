@@ -13,16 +13,22 @@ const (
 	minimalEmbeddingScore = 0.5
 	numberOfSimilarTopics = 3
 
+	numberOfDialoguePosts = 10
+
 	ShowVideoIntent                = "show_video"
 	ShotTextIntent                 = "show_text"
 	QuestionOnCurrentTopicIntent   = "question_on_current_topic"
 	QuestionOnDifferentTopicIntent = "question_on_different_topic"
 	QuestionOnOffTopicIntent       = "question_on_off_topic"
+	DialogueIntent                 = "dialogue"
+
+	offTopicString = "This topic is not included in the course, but you can ask any questions on the topic in progress!"
 )
 
 type UserIntent struct {
-	Intent  string
-	TopicID string
+	Intent    string
+	TopicID   string
+	PrevPosts []*model.Post
 }
 
 func (a *App) AskQuestion(userPost *model.Post) (string, error) {
@@ -238,6 +244,26 @@ func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string) (service
 	return a.Services.ChatGPTService.SendStream(userID, systemMessage, []string{message})
 }
 
+func (a *App) AskQuestionToChatGPTSteamOnTopicDialogue(message, nodeID, userID string, prevPosts []*model.Post) (services.ChatStream, error) {
+	systemMessage, err := a.getSystemMessage(nodeID)
+	if err != nil {
+		return nil, err
+	}
+	chatMessages := []services.ChatMessage{{
+		Role:    services.ChatGPTModelRoleSystem,
+		Content: systemMessage,
+	}}
+	for _, post := range prevPosts {
+		if post.UserID == userID {
+			chatMessages = append(chatMessages, services.ChatMessage{Content: post.Message, Role: services.ChatGPTModelRoleUser})
+		} else if post.UserID == model.BotID {
+			chatMessages = append(chatMessages, services.ChatMessage{Content: post.Message, Role: services.ChatGPTModelRoleAssistant})
+		}
+	}
+	chatMessages = append(chatMessages, services.ChatMessage{Content: message, Role: services.ChatGPTModelRoleUser})
+	return a.Services.ChatGPTService.SendStreamWithChatMessages(userID, chatMessages)
+}
+
 func (a *App) AskQuestionToChatGPTSteamOnDifferentTopic(message, nodeID, userID string) (services.ChatStream, error) {
 	statuses, err := a.Store.Node().GetNodesForUser(userID)
 	if err != nil {
@@ -259,8 +285,7 @@ func (a *App) AskQuestionToChatGPTSteamOnDifferentTopic(message, nodeID, userID 
 }
 
 func (a *App) AskQuestionToChatGPTSteamOffTopic() (services.ChatStream, error) {
-	answer := `This topic is not included in the course, but you can ask any questions on the topic in progress!`
-	return services.CreateStringStream(answer), nil
+	return services.CreateStringStream(offTopicString), nil
 }
 
 func (a *App) GetUserIntent(text, userID string, currentNodeID string) (UserIntent, error) {
@@ -285,20 +310,75 @@ func (a *App) GetUserIntent(text, userID string, currentNodeID string) (UserInte
 		}
 	}
 
-	if topics[0].Score < minimalEmbeddingScore {
-		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
-	}
-
-	if topics[0].Intent != "" {
+	// Do we have user intent?
+	if topics[0].Score >= minimalEmbeddingScore {
 		if topics[0].Intent == ShowVideoIntent || topics[0].Intent == ShotTextIntent {
 			return UserIntent{Intent: topics[0].Intent}, nil
+		} else if topics[0].Intent != "" {
+			return UserIntent{}, errors.New("unknown intent from pinecone response")
+		} else if topics[0].Intent == "" {
+			node, err2 := a.Store.Node().GetByName(topics[0].Name)
+			if err2 != nil {
+				return UserIntent{}, errors.Wrapf(err2, "can't get node with name = %v", topics[0].Name)
+			}
+			return UserIntent{TopicID: node.ID, Intent: QuestionOnDifferentTopicIntent}, nil
 		}
-		return UserIntent{}, errors.New("unknown intent from pinecone response")
 	}
 
-	node, err := a.Store.Node().GetByName(topics[0].Name)
+	// Do we have off-topic intent?
+	posts, err := a.getLastNDialoguePosts(userID, numberOfDialoguePosts)
 	if err != nil {
-		return UserIntent{}, errors.Wrapf(err, "can't get node with name = %v", topics[0].Name)
+		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
 	}
-	return UserIntent{TopicID: node.ID, Intent: QuestionOnDifferentTopicIntent}, nil
+	if len(posts) == 0 {
+		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
+	}
+	gptMessages := a.getGPTMessages(posts)
+	messagesEmbedding, err := a.Services.ChatGPTService.GetEmbedding(gptMessages, userID)
+	if err != nil {
+		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
+	}
+	score := dotProduct(vector, messagesEmbedding)
+	if score < minimalEmbeddingScore {
+		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
+	}
+	return UserIntent{Intent: DialogueIntent, PrevPosts: posts}, nil
+}
+
+func (a *App) getLastNDialoguePosts(userID string, n int) ([]*model.Post, error) {
+	posts, err := a.Store.Post().GetLastNPostsForLocation(n, fmt.Sprintf("%s_%s", userID, model.BotID))
+	if err != nil {
+		return nil, nil
+	}
+
+	dialoguePosts := []*model.Post{}
+	for _, post := range posts {
+		if post.Message == offTopicString {
+			continue
+		} else if post.PostType == model.PostTypeTopic {
+			break
+		}
+		dialoguePosts = append([]*model.Post{post}, dialoguePosts...)
+	}
+	return dialoguePosts, nil
+}
+
+func (a *App) getGPTMessages(posts []*model.Post) string {
+	message := ""
+	for _, post := range posts {
+		if post.Message == offTopicString || post.PostType != model.PostTypeChatGPT {
+			continue
+		}
+		message += post.Message + "\n"
+	}
+	return message
+}
+
+// Function to calculate the dot product of two vectors
+func dotProduct(vectorA, vectorB []float32) float32 {
+	sum := float32(0.0)
+	for i := range vectorA {
+		sum += vectorA[i] * vectorB[i]
+	}
+	return sum
 }
