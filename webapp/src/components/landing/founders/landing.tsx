@@ -33,7 +33,7 @@ const Landing = (props: Props) => {
         i18n.changeLanguage(props.language);
     }
 
-    Analytics.landing('founders');
+    Analytics.landing('general');
 
     type Testimonial = {
         name: string;
