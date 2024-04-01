@@ -12,7 +12,6 @@ import useDrawer from '../hooks/useDrawer';
 import {Analytics} from '../analytics';
 
 import ProfileDropdown from "./profile_dropdown";
-import LanguagePicker from './language_picker';
 
 
 function Header() {
@@ -109,6 +108,19 @@ function Header() {
                     <Spacer/>
                     {user == null ?
                         <>
+                            <Button
+                                variant='text'
+                                color='inherit'
+                                onClick={() => navigate('/pricing')}
+                                sx={{
+                                    color: theme.palette.background.default,
+                                    m: {xs: 1, sm: 1, md: 2},
+                                    minWidth: {xs: 'min-content', sm: 'max-content'},
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {t("Pricing")}
+                            </Button>
                             {getLoginButton()}
                             <Button
                                 variant='outlined'
@@ -125,7 +137,6 @@ function Header() {
 
                                 {isPhone? t("Sign Up") : t("Sign Up For Free")}
                             </Button>
-                            <LanguagePicker/>
                         </>
                         :
                         <>
