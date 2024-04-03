@@ -12,7 +12,16 @@ export type User = {
     last_password_update: number;
     props: Record<string, string>;
     lang: string;
+    plan: Plan;
 };
+
+export type Plan = {
+    name: string;
+    number_of_questions_daily: number;
+    chat_gpt_version: string;
+    price: string;
+    url: string
+}
 
 export type UserWithNodeCount = {
     id: string;
@@ -34,6 +43,11 @@ export type UserWithNodeCount = {
 export const ROLES = {
     'Admin': 'admin',
     'User': 'user'
+};
+
+export const PLANS = {
+    'Free': 'free',
+    'Premium': 'premium'
 };
 
 export type DagMode = 'td' | 'bu' | 'lr' | 'rl' | 'radialout' | 'radialin';

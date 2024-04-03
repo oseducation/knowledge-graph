@@ -16,9 +16,6 @@ const PricingTable = () => {
         setChecked(event.target.checked);
     };
 
-    const offersFree = ['10 AI prompts daily', 'GPT 3.5', 'Access to Free Topics']
-    const offersPremium = ['Unlimited AI prompts', 'GPT 4.0', 'Access to Premium Topics', 'Priority support', 'Access to latest features']
-
     return (
         <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
             <Typography variant={'h1'} color={'primary'}>Simple and transparent pricing</Typography>
@@ -77,5 +74,7 @@ const PricingTable = () => {
     )
 };
 
+const offersFree = ['10 AI prompts daily', 'GPT 3.5', 'Access to Free Topics']
+export const offersPremium = ['Unlimited AI prompts', 'GPT 4.0', 'Access to Premium Topics', 'Priority support', 'Access to latest features']
 
 export default PricingTable;
