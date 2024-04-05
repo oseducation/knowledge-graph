@@ -55,6 +55,8 @@ func Setup(tb testing.TB) *TestHelper {
 	os.Setenv("CHAT_GPT_API_KEY", "")
 	os.Setenv("CHAT_GPT_ORGANIZATION_ID", "")
 	os.Setenv("PINECONE_API_KEY", "")
+	os.Setenv("STRIPE_API_KEY", "")
+	os.Setenv("STRIPE_CUSTOMER_WEBHOOK_SECRET", "")
 
 	err = newServer.Start()
 	if err != nil {
