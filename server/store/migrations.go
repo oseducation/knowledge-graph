@@ -507,7 +507,7 @@ var migrations = []Migration{
 			if _, err := e.Exec(`
 					CREATE TABLE IF NOT EXISTS customers (
 						customer_id VARCHAR(255) UNIQUE,
-						email VARCHAR(128) UNIQUE,
+						email VARCHAR(128),
 						created_at bigint,
 						deleted_at bigint,
 						user_id VARCHAR(26)
@@ -517,12 +517,20 @@ var migrations = []Migration{
 			}
 
 			if _, err := e.Exec(`
+				CREATE INDEX IF NOT EXISTS customers_user_id_index ON customers (user_id);
+			`); err != nil {
+				return errors.Wrapf(err, "failed creating index on customers table")
+			}
+
+			if _, err := e.Exec(`
 					CREATE TABLE IF NOT EXISTS subscriptions (
 						subscription_id VARCHAR(255),
-						customer_id VARCHAR(255) UNIQUE,
+						customer_id VARCHAR(255),
 						created_at bigint,
+						deleted_at bigint,
 						plan_id VARCHAR(255),
-						status VARCHAR(32)
+						status VARCHAR(32),
+						triggered_by_event_at bigint
 					);
 				`); err != nil {
 				return errors.Wrapf(err, "failed creating table subscriptions")

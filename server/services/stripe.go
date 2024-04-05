@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -91,6 +92,12 @@ func (ss *stripeService) HandleCustomerWebhook(payload []byte, signature string)
 		if err != nil {
 			return errors.Wrap(err, "Error deleting subscription")
 		}
+	case "checkout.session.completed":
+		err := ss.customerCheckoutSessionCompleted(&event)
+		if err != nil {
+			return errors.Wrap(err, "Error in checkout session completed")
+		}
+
 	default:
 		ss.logger.Warn("Unhandled event type", log.String("type", fmt.Sprintf("%v", event.Type)), log.String("event", fmt.Sprintf("%v", event)))
 	}
@@ -109,15 +116,34 @@ func (ss *stripeService) customerCreatedEvent(event *stripe.Event) error {
 		return errors.Wrap(err, "Error parsing webhook JSON")
 	}
 
-	_, err = ss.db.Customer().Save(&model.Customer{
-		CustomerID: customer.ID,
-		Email:      customer.Email,
-		CreatedAt:  customer.Created,
-		DeletedAt:  0,
-	})
-	if err != nil {
-		return errors.Wrap(err, "Error saving customer to database")
+	ss.logger.Info("Customer was created!", log.String("customer", fmt.Sprintf("%v", string(event.Data.Raw))))
+	savedCustomer, err := ss.db.Customer().Get(customer.ID)
+	if err != nil && errors.Cause(err) != sql.ErrNoRows {
+		return errors.Wrapf(err, "Error getting customer(%s) from db while creating one", customer.ID)
 	}
+	if errors.Cause(err) == sql.ErrNoRows {
+		_, err = ss.db.Customer().Save(&model.Customer{
+			CustomerID: customer.ID,
+			Email:      customer.Email,
+			CreatedAt:  customer.Created,
+			DeletedAt:  0,
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error saving customer to database")
+		}
+	} else if savedCustomer.Email != customer.Email {
+		_, err = ss.db.Customer().Update(&model.Customer{
+			CustomerID: customer.ID,
+			Email:      customer.Email,
+			CreatedAt:  savedCustomer.CreatedAt,
+			DeletedAt:  0,
+			UserID:     savedCustomer.UserID,
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error updating customer")
+		}
+	}
+
 	ss.logger.Info("Customer was created!", log.String("customer", fmt.Sprintf("%v", customer)))
 
 	return nil
@@ -146,9 +172,14 @@ func (ss *stripeService) customerUpdatedEvent(event *stripe.Event) error {
 		return nil
 	}
 
+	email := savedCustomer.Email
+	if customer.Email != "" {
+		email = customer.Email
+	}
+
 	_, err = ss.db.Customer().Update(&model.Customer{
 		CustomerID: customer.ID,
-		Email:      customer.Email,
+		Email:      email,
 		CreatedAt:  customer.Created,
 		DeletedAt:  deletedAt,
 	})
@@ -185,16 +216,47 @@ func (ss *stripeService) customerSubscriptionCreatedEvent(event *stripe.Event) e
 		return errors.Wrap(err, "Error parsing webhook JSON")
 	}
 
-	_, err = ss.db.Customer().SaveSubscription(&model.Subscription{
-		ID:         subscription.ID,
-		CustomerID: subscription.Customer.ID,
-		CreatedAt:  subscription.Created,
-		PlanID:     subscription.Items.Data[0].Price.ID,
-		Status:     string(subscription.Status),
-	})
-	if err != nil {
-		return errors.Wrap(err, "Error saving subscription to database")
+	savedSub, err := ss.db.Customer().GetSubscription(subscription.ID)
+	if err != nil && errors.Cause(err) != sql.ErrNoRows {
+		return errors.Wrap(err, "Error getting subscription from db")
 	}
+	if errors.Cause(err) == sql.ErrNoRows {
+		_, err = ss.db.Customer().SaveSubscription(&model.Subscription{
+			ID:                 subscription.ID,
+			CustomerID:         subscription.Customer.ID,
+			CreatedAt:          subscription.Created,
+			PlanID:             subscription.Items.Data[0].Price.ID,
+			Status:             string(subscription.Status),
+			TriggeredByEventAt: event.Created,
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error saving subscription to database")
+		}
+	} else {
+		if savedSub.TriggeredByEventAt > event.Created {
+			ss.logger.Info("Subscription was already created!", log.String("subscription", fmt.Sprintf("%v", subscription)))
+			return nil
+		}
+		if (savedSub.TriggeredByEventAt == event.Created &&
+			savedSub.Status != string(subscription.Status) &&
+			string(subscription.Status) == "active") ||
+			(savedSub.TriggeredByEventAt < event.Created) {
+			if savedSub.Status != string(subscription.Status) && string(subscription.Status) == "active" {
+				_, err = ss.db.Customer().UpdateSubscription(&model.Subscription{
+					ID:                 subscription.ID,
+					CustomerID:         subscription.Customer.ID,
+					CreatedAt:          subscription.Created,
+					PlanID:             subscription.Items.Data[0].Price.ID,
+					Status:             string(subscription.Status),
+					TriggeredByEventAt: event.Created,
+				})
+				if err != nil {
+					return errors.Wrap(err, "Error updating subscription with the save event_at")
+				}
+			}
+		}
+	}
+
 	ss.logger.Info("Subscription was created!", log.String("subscription", fmt.Sprintf("%v", subscription)))
 
 	return nil
@@ -207,16 +269,47 @@ func (ss *stripeService) customerSubscriptionUpdatedEvent(event *stripe.Event) e
 		return errors.Wrap(err, "Error parsing webhook JSON")
 	}
 
-	_, err = ss.db.Customer().UpdateSubscription(&model.Subscription{
-		ID:         subscription.ID,
-		CustomerID: subscription.Customer.ID,
-		CreatedAt:  subscription.Created,
-		PlanID:     subscription.Items.Data[0].Price.ID,
-		Status:     string(subscription.Status),
-	})
-	if err != nil {
-		return errors.Wrap(err, "Error updating subscription")
+	savedSub, err := ss.db.Customer().GetSubscription(subscription.ID)
+	if err != nil && errors.Cause(err) != sql.ErrNoRows {
+		return errors.Wrap(err, "Error getting subscription from db")
 	}
+	if errors.Cause(err) == sql.ErrNoRows {
+		_, err = ss.db.Customer().UpdateSubscription(&model.Subscription{
+			ID:                 subscription.ID,
+			CustomerID:         subscription.Customer.ID,
+			CreatedAt:          subscription.Created,
+			PlanID:             subscription.Items.Data[0].Price.ID,
+			Status:             string(subscription.Status),
+			TriggeredByEventAt: event.Created,
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error updating subscription")
+		}
+	} else {
+		if savedSub.TriggeredByEventAt > event.Created {
+			ss.logger.Info("Subscription was already updated!", log.String("subscription", fmt.Sprintf("%v", subscription)))
+			return nil
+		}
+		if (savedSub.TriggeredByEventAt == event.Created &&
+			savedSub.Status != string(subscription.Status) &&
+			string(subscription.Status) == "active") ||
+			(savedSub.TriggeredByEventAt < event.Created) {
+			if savedSub.Status != string(subscription.Status) && string(subscription.Status) == "active" {
+				_, err = ss.db.Customer().UpdateSubscription(&model.Subscription{
+					ID:                 subscription.ID,
+					CustomerID:         subscription.Customer.ID,
+					CreatedAt:          subscription.Created,
+					PlanID:             subscription.Items.Data[0].Price.ID,
+					Status:             string(subscription.Status),
+					TriggeredByEventAt: event.Created,
+				})
+				if err != nil {
+					return errors.Wrap(err, "Error updating subscription with the same event_at")
+				}
+			}
+		}
+	}
+
 	ss.logger.Info("Subscription was updated!", log.String("subscription", fmt.Sprintf("%v", subscription)))
 
 	return nil
@@ -236,6 +329,49 @@ func (ss *stripeService) customerSubscriptionDeletedEvent(event *stripe.Event) e
 		return errors.Wrap(err, "Error deleting subscription")
 	}
 	ss.logger.Info("Subscription was deleted!", log.String("subscription", fmt.Sprintf("%v", subscription)))
+
+	return nil
+}
+
+func (ss *stripeService) customerCheckoutSessionCompleted(event *stripe.Event) error {
+	var session stripe.CheckoutSession
+	err := json.Unmarshal(event.Data.Raw, &session)
+	if err != nil {
+		return errors.Wrap(err, "Error parsing webhook JSON for subscription")
+	}
+	customer, err := ss.db.Customer().Get(session.Customer.ID)
+	if err != nil && errors.Cause(err) != sql.ErrNoRows {
+		return errors.Wrap(err, "Error getting customer from db")
+	}
+	if errors.Cause(err) == sql.ErrNoRows {
+		customer, err = ss.db.Customer().Save(&model.Customer{
+			CustomerID: session.Customer.ID,
+			Email:      session.Customer.Email,
+			CreatedAt:  model.GetMillis(),
+			DeletedAt:  0,
+			UserID:     session.ClientReferenceID,
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error saving customer to database")
+		}
+	} else {
+		email := customer.Email
+		if session.Customer.Email != "" {
+			email = session.Customer.Email
+		}
+		customer, err = ss.db.Customer().Update(&model.Customer{
+			CustomerID: session.Customer.ID,
+			Email:      email,
+			CreatedAt:  customer.CreatedAt,
+			DeletedAt:  0,
+			UserID:     session.ClientReferenceID,
+		})
+		if err != nil {
+			return errors.Wrap(err, "Error updating customer")
+		}
+	}
+
+	ss.logger.Info("Customer checkout completed!", log.String("customer", fmt.Sprintf("%v", customer)))
 
 	return nil
 }

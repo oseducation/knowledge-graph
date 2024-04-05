@@ -39,6 +39,7 @@ type User struct {
 	LastPasswordUpdate int64    `json:"last_password_update,omitempty" db:"last_password_update"`
 	Role               RoleType `json:"role" db:"role"`
 	Lang               string   `json:"lang" db:"lang"`
+	IsActiveCustomer   bool     `json:"is_active_customer"`
 }
 
 // UserLogin type defines login info of the user.

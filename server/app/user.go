@@ -51,6 +51,15 @@ func (a *App) GetUser(userID string) (*model.User, error) {
 	return user, nil
 }
 
+// GetUser gets user with id
+func (a *App) IsActiveCustomer(userID string) (bool, error) {
+	isActive, err := a.Store.Customer().IsActiveCustomer(userID)
+	if err != nil {
+		return false, errors.Wrapf(err, "can't get userID = %v", userID)
+	}
+	return isActive, nil
+}
+
 // CreateUser creates new user
 func (a *App) CreateUser(user *model.User) (*model.User, error) {
 	user.EmailVerified = false

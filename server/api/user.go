@@ -108,6 +108,12 @@ func login(c *gin.Context) {
 		responseFormat(c, http.StatusUnauthorized, err.Error())
 		return
 	}
+	isActive, err := a.IsActiveCustomer(user.ID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	user.IsActiveCustomer = isActive
 
 	session := &model.Session{
 		UserID:    user.ID,
@@ -152,6 +158,12 @@ func getMe(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	isActive, err := a.IsActiveCustomer(user.ID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	user.IsActiveCustomer = isActive
 
 	responseFormat(c, http.StatusOK, user)
 }
