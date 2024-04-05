@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import {Box, Button, Modal, Theme, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
+import useAuth from "../../hooks/useAuth";
+
 import {offersPremium} from "./pricing_table";
 
 interface UpgradeModalProps {
@@ -12,6 +14,7 @@ interface UpgradeModalProps {
 const UpgradeModal = (props: UpgradeModalProps) => {
     const [pricing, setPricing] = useState('annual');
     const theme = useTheme();
+    const {user} = useAuth();
 
     const handleChange = (event: React.MouseEvent<HTMLElement>, price: string) => {
         setPricing(price);
@@ -77,7 +80,23 @@ const UpgradeModal = (props: UpgradeModalProps) => {
                         fullWidth
                         sx={{mt:2}}
                         variant={'contained'}
-                        onClick={() => {console.log(pricing)}}
+                        onClick={() => {
+                            let url: URL;
+                            if (pricing === 'annual') {
+                                url = new URL('https://buy.stripe.com/test_8wM6rV1g47TIbYc6oq');
+                            } else if (pricing === 'monthly') {
+                                url = new URL('https://buy.stripe.com/test_3cs9E79MA2zo9Q45kl');
+                            } else {
+                                return;
+                            }
+                            if (user) {
+                                if (user.email) {
+                                    url.searchParams.append('prefilled_email', user.email);
+                                }
+                                url.searchParams.append('client_reference_id', user.id);
+                            }
+                            location.href = url.toString();
+                        }}
                     >
                         Upgrade Now
                     </Button>

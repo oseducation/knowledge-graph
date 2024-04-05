@@ -9,7 +9,7 @@ import (
 
 func (apiObj *API) initSubscriptions() {
 	apiObj.Subscriptions = apiObj.APIRoot.Group("/subscriptions")
-	apiObj.Subscriptions.POST("/stripe_webhook", handleStripeWebhook)
+	apiObj.Subscriptions.POST("/stripe_customer_webhook", handleStripeWebhook)
 }
 
 func handleStripeWebhook(c *gin.Context) {
