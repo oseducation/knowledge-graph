@@ -3,7 +3,9 @@ package commands
 import (
 	"fmt"
 
+	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/services"
+	"github.com/oseducation/knowledge-graph/store"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -34,7 +36,7 @@ func pineconeCmdF(command *cobra.Command, _ []string) error {
 		return errors.New("text is required")
 	}
 
-	services, err := services.NewServices()
+	services, err := services.NewServices(&store.SQLStore{}, log.NewLogger(&log.LoggerConfiguration{NonLogger: true}))
 	if err != nil {
 		return errors.Wrap(err, "can't create services")
 	}

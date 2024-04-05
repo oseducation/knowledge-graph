@@ -500,6 +500,37 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.14.0"),
+		toVersion:   semver.MustParse("0.15.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if _, err := e.Exec(`
+					CREATE TABLE IF NOT EXISTS customers (
+						customer_id VARCHAR(255) UNIQUE,
+						email VARCHAR(128) UNIQUE,
+						created_at bigint,
+						deleted_at bigint,
+						user_id VARCHAR(26)
+					);
+				`); err != nil {
+				return errors.Wrapf(err, "failed creating table customers")
+			}
+
+			if _, err := e.Exec(`
+					CREATE TABLE IF NOT EXISTS subscriptions (
+						subscription_id VARCHAR(255),
+						customer_id VARCHAR(255) UNIQUE,
+						created_at bigint,
+						plan_id VARCHAR(255),
+						status VARCHAR(32)
+					);
+				`); err != nil {
+				return errors.Wrapf(err, "failed creating table subscriptions")
+			}
+
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {
