@@ -83,9 +83,9 @@ const UpgradeModal = (props: UpgradeModalProps) => {
                         onClick={() => {
                             let url: URL;
                             if (pricing === 'annual') {
-                                url = new URL('https://buy.stripe.com/test_8wM6rV1g47TIbYc6oq');
+                                url = new URL('https://buy.stripe.com/00gg2h7cl5jG7SMeUU');
                             } else if (pricing === 'monthly') {
-                                url = new URL('https://buy.stripe.com/test_3cs9E79MA2zo9Q45kl');
+                                url = new URL('https://buy.stripe.com/9AQ6rHdAJeUg3Cw5kl');
                             } else {
                                 return;
                             }

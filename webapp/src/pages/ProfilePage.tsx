@@ -124,7 +124,7 @@ const ProfilePage: React.FC = () => {
                         {user && user.role === 'customer' &&
                             <Button
                                 sx={{display: 'flex', justifyContent:'flex-end'}}
-                                href={'https://billing.stripe.com/p/login/test_8wM4hSbABaKa5Ww9AA'}
+                                href={'https://billing.stripe.com/p/login/28o8yE3EQ8B09IQeUU'}
                             >
                                 Manage Subscription
                             </Button>
