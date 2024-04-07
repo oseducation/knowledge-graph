@@ -44,9 +44,9 @@ services:
       - kg-db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9081/healthcheck"]
-      interval: 15s
+      interval: 300s
       timeout: 15s
-      start_period: 15s
+      start_period: 300s
       retries: 3
     logging:
       driver: "json-file"
