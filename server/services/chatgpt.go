@@ -23,7 +23,7 @@ const (
 	GPT4             ChatGPTModel = "gpt-4"
 	GPT4_32k         ChatGPTModel = "gpt-4-32k"
 	GPT4_1106Preview ChatGPTModel = "gpt-4-1106-preview"
-	GPT4_0115Preview ChatGPTModel = "gpt-4-0125-preview"
+	GPT4_0125Preview ChatGPTModel = "gpt-4-0125-preview"
 )
 
 type ChatGPTModelRole string
@@ -186,9 +186,9 @@ const (
 )
 
 type ChatGPTServiceInterface interface {
-	Send(userID, systemMessage string, messages []string) (string, error)
-	SendStream(userID, systemMessage string, messages []string) (ChatStream, error)
-	SendStreamWithChatMessages(userID string, chatMessages []ChatMessage) (ChatStream, error)
+	Send(userID, systemMessage string, model ChatGPTModel, messages []string) (string, error)
+	SendStream(userID, systemMessage string, model ChatGPTModel, messages []string) (ChatStream, error)
+	SendStreamWithChatMessages(userID string, model ChatGPTModel, chatMessages []ChatMessage) (ChatStream, error)
 	GetEmbedding(text, userID string) ([]float32, error)
 }
 
@@ -274,9 +274,9 @@ func (c *ChatGPTService) sendEmbeddingRequest(ctx context.Context, req *Embeddin
 	return &response, nil
 }
 
-func (c *ChatGPTService) SendStreamWithChatMessages(userID string, chatMessages []ChatMessage) (ChatStream, error) {
+func (c *ChatGPTService) SendStreamWithChatMessages(userID string, model ChatGPTModel, chatMessages []ChatMessage) (ChatStream, error) {
 	req := &ChatCompletionRequest{
-		Model:    GPT4_0115Preview,
+		Model:    model,
 		Messages: chatMessages,
 		User:     userID,
 		Stream:   true,
@@ -290,11 +290,11 @@ func (c *ChatGPTService) SendStreamWithChatMessages(userID string, chatMessages 
 	return CreateChatGPTStream(resp), nil
 }
 
-func (c *ChatGPTService) SendStream(userID, systemMessage string, messages []string) (ChatStream, error) {
+func (c *ChatGPTService) SendStream(userID, systemMessage string, model ChatGPTModel, messages []string) (ChatStream, error) {
 	chatMessages := getChatMessages(systemMessage, messages)
 
 	req := &ChatCompletionRequest{
-		Model:    GPT4_0115Preview,
+		Model:    model,
 		Messages: chatMessages,
 		User:     userID,
 		Stream:   true,
@@ -330,11 +330,11 @@ func getChatMessages(systemMessage string, messages []string) []ChatMessage {
 	return chatMessages
 }
 
-func (c *ChatGPTService) Send(userID, systemMessage string, messages []string) (string, error) {
+func (c *ChatGPTService) Send(userID, systemMessage string, model ChatGPTModel, messages []string) (string, error) {
 	chatMessages := getChatMessages(systemMessage, messages)
 
 	req := &ChatCompletionRequest{
-		Model:    GPT4_0115Preview,
+		Model:    model,
 		Messages: chatMessages,
 		User:     userID,
 	}
@@ -426,7 +426,7 @@ func validate(req *ChatCompletionRequest) error {
 	isAllowed := false
 
 	allowedModels := []ChatGPTModel{
-		GPT35Turbo, GPT35Turbo16k, GPT4, GPT4_32k, GPT4_0115Preview,
+		GPT35Turbo, GPT35Turbo16k, GPT4, GPT4_32k, GPT4_0125Preview,
 	}
 
 	for _, model := range allowedModels {
@@ -485,7 +485,7 @@ func (c *ChatGPTService) sendRequest(req *http.Request) (*http.Response, error) 
 	return res, nil
 }
 
-func (c *ChatGPTServiceDummy) Send(userID, systemMessage string, messages []string) (string, error) {
+func (c *ChatGPTServiceDummy) Send(userID, systemMessage string, _ ChatGPTModel, messages []string) (string, error) {
 	return fmt.Sprintf("Dummy answer for user `%s`'s message number %d, systemMessage: \n\n %s\n", userID, len(messages), systemMessage), nil
 }
 
@@ -493,10 +493,10 @@ func (c *ChatGPTServiceDummy) GetEmbedding(_, _ string) ([]float32, error) {
 	return []float32{}, nil
 }
 
-func (c *ChatGPTServiceDummy) SendStream(_, _ string, _ []string) (ChatStream, error) {
+func (c *ChatGPTServiceDummy) SendStream(_, _ string, _ ChatGPTModel, _ []string) (ChatStream, error) {
 	return CreateDummyChatGPTStream(), nil
 }
 
-func (c *ChatGPTServiceDummy) SendStreamWithChatMessages(_ string, _ []ChatMessage) (ChatStream, error) {
+func (c *ChatGPTServiceDummy) SendStreamWithChatMessages(_ string, _ ChatGPTModel, _ []ChatMessage) (ChatStream, error) {
 	return CreateDummyChatGPTStream(), nil
 }

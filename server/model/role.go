@@ -5,8 +5,9 @@ import "errors"
 type RoleType string
 
 const (
-	AdminRole = "admin"
-	UserRole  = "user"
+	AdminRole    = "admin"
+	UserRole     = "user"
+	CustomerRole = "customer"
 )
 
 func (r RoleType) CanManageUsers() bool {

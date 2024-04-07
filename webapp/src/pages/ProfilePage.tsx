@@ -110,13 +110,25 @@ const ProfilePage: React.FC = () => {
                                 </TableRow>
                             </TableBody>
                         </Table>
-                        <Button
-                            sx={{display: 'flex', justifyContent:'flex-end'}}
-                            onClick={() => setOpen(true)}
-                        >
-                            Upgrade Plan
-                        </Button>
-                        <UpgradeModal open={open} onClose={() => setOpen(false)}/>
+                        {user && user.role === 'user' &&
+                            <>
+                                <Button
+                                    sx={{display: 'flex', justifyContent:'flex-end'}}
+                                    onClick={() => setOpen(true)}
+                                >
+                                    Upgrade Plan
+                                </Button>
+                                <UpgradeModal open={open} onClose={() => setOpen(false)}/>
+                            </>
+                        }
+                        {user && user.role === 'customer' &&
+                            <Button
+                                sx={{display: 'flex', justifyContent:'flex-end'}}
+                                href={'https://billing.stripe.com/p/login/test_8wM4hSbABaKa5Ww9AA'}
+                            >
+                                Manage Subscription
+                            </Button>
+                        }
                     </TableContainer>
                 }
                 <form onSubmit={handleSubmit}>
@@ -164,12 +176,18 @@ const ProfilePage: React.FC = () => {
 export default ProfilePage
 
 export const getUserPlan = (user: User | null): Plan => {
-    if (user && user.plan) {
-        return user.plan;
+    if (user && (user.role === 'customer' || user.role === 'admin')) {
+        return {
+            name: 'Premium',
+            number_of_questions_daily: 'unlimited',
+            chat_gpt_version: '4.0',
+            price: '$20/month',
+            url: 'https://www.google.com',
+        }
     }
     return {
         name: 'Free',
-        number_of_questions_daily: 10,
+        number_of_questions_daily: '10',
         chat_gpt_version: '3.5',
         price: '0',
         url: 'https://www.google.com',

@@ -65,11 +65,15 @@ func askQuestion(c *gin.Context) {
 		responseFormat(c, http.StatusBadRequest, "Monthly limit exceeded")
 		return
 	}
+	gptModel := services.GPT35Turbo
+	if session.Role != model.UserRole {
+		gptModel = services.GPT4_0125Preview
+	}
 
 	isStream := c.DefaultQuery("stream", "")
 
 	if isStream != "true" {
-		answer, gptErr := a.AskQuestionToChatGPT(post.Message, nodeID, post.UserID)
+		answer, gptErr := a.AskQuestionToChatGPT(post.Message, nodeID, post.UserID, gptModel)
 		if gptErr != nil {
 			responseFormat(c, http.StatusInternalServerError, "Error while asking a question")
 			a.Log.Error(gptErr.Error())
@@ -92,15 +96,15 @@ func askQuestion(c *gin.Context) {
 
 	if userIntent.Intent == app.QuestionOnCurrentTopicIntent {
 		// a question about the current topic
-		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteam(post.Message, nodeID, post.UserID)
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteam(post.Message, nodeID, post.UserID, gptModel)
 	} else if userIntent.Intent == app.QuestionOnOffTopicIntent {
 		// an off-topic question
 		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOffTopic()
 	} else if userIntent.Intent == app.QuestionOnDifferentTopicIntent {
 		// some other topic from the course
-		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnDifferentTopic(post.Message, userIntent.TopicID, post.UserID)
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnDifferentTopic(post.Message, userIntent.TopicID, post.UserID, gptModel)
 	} else if userIntent.Intent == app.DialogueIntent {
-		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnTopicDialogue(post.Message, nodeID, post.UserID, userIntent.PrevPosts)
+		chatStream, chatStreamErr = a.AskQuestionToChatGPTSteamOnTopicDialogue(post.Message, nodeID, post.UserID, gptModel, userIntent.PrevPosts)
 	} else if userIntent.Intent != "" {
 		// show text or show video
 		chatStream = services.CreateStringStream(fmt.Sprintf("{intent: %s}", userIntent.Intent))

@@ -12,12 +12,11 @@ export type User = {
     last_password_update: number;
     props: Record<string, string>;
     lang: string;
-    plan: Plan;
 };
 
 export type Plan = {
     name: string;
-    number_of_questions_daily: number;
+    number_of_questions_daily: string;
     chat_gpt_version: string;
     price: string;
     url: string
@@ -42,7 +41,8 @@ export type UserWithNodeCount = {
 
 export const ROLES = {
     'Admin': 'admin',
-    'User': 'user'
+    'User': 'user',
+    'Customer': 'customer'
 };
 
 export const PLANS = {

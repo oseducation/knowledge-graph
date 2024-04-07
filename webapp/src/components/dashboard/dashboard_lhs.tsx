@@ -13,7 +13,6 @@ import {DashboardColors} from '../../ThemeOptions';
 import {GroupItem} from '../../types/sidebar';
 import {getLogo} from '../header';
 import useAuth from '../../hooks/useAuth';
-import {PLANS} from '../../types/users';
 import UpgradeModal from '../pricing/upgrade_modal';
 
 import Item from './item';
@@ -84,7 +83,7 @@ const DashboardLHS = () =>{
                 )}
             </List>
             <Divider/>
-            {user && (!user.plan || user.plan.name === PLANS.Free) &&
+            {user && user.role === 'user' &&
                 <>
                     <Button
                         variant={'outlined'}
