@@ -40,6 +40,29 @@ func (a *App) RevokeSession(session *model.Session) error {
 	return a.Store.Session().Delete(session.ID)
 }
 
+func (a *App) UpdateSessionRole(userID string, isActive bool) error {
+	sessions, err := a.GetSessions(userID)
+	if err != nil {
+		return errors.Wrap(err, "can't get sessions")
+	}
+
+	role := model.UserRole
+	if isActive {
+		role = model.CustomerRole
+	}
+	for _, session := range sessions {
+		if session.Role == model.AdminRole {
+			continue
+		}
+		session.Role = model.RoleType(role)
+		if err := a.Store.Session().Update(session); err != nil {
+			return errors.Wrap(err, "can't update session")
+		}
+
+	}
+	return nil
+}
+
 func (a *App) ExtendSessionIfNeeded(session *model.Session) bool {
 	if !a.Config.ServerSettings.ExtendSessionLengthWithActivity {
 		return false

@@ -161,12 +161,12 @@ func (a *App) CountChatGPTPosts(userID string, after int64) (int, error) {
 	return count, nil
 }
 
-func (a *App) AskQuestionToChatGPT(message, nodeID, userID string) (*model.Post, error) {
+func (a *App) AskQuestionToChatGPT(message, nodeID, userID string, gptModel services.ChatGPTModel) (*model.Post, error) {
 	systemMessage, err := a.getSystemMessage(nodeID)
 	if err != nil {
 		return nil, err
 	}
-	answer, err := a.Services.ChatGPTService.Send(userID, systemMessage, []string{message})
+	answer, err := a.Services.ChatGPTService.Send(userID, systemMessage, gptModel, []string{message})
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't send message to chatGPT")
 	}
@@ -236,15 +236,15 @@ Use the content below to answer the question:
 	return systemMessage, nil
 }
 
-func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string) (services.ChatStream, error) {
+func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string, gptModel services.ChatGPTModel) (services.ChatStream, error) {
 	systemMessage, err := a.getSystemMessage(nodeID)
 	if err != nil {
 		return nil, err
 	}
-	return a.Services.ChatGPTService.SendStream(userID, systemMessage, []string{message})
+	return a.Services.ChatGPTService.SendStream(userID, systemMessage, gptModel, []string{message})
 }
 
-func (a *App) AskQuestionToChatGPTSteamOnTopicDialogue(message, nodeID, userID string, prevPosts []*model.Post) (services.ChatStream, error) {
+func (a *App) AskQuestionToChatGPTSteamOnTopicDialogue(message, nodeID, userID string, gptModel services.ChatGPTModel, prevPosts []*model.Post) (services.ChatStream, error) {
 	systemMessage, err := a.getSystemMessage(nodeID)
 	if err != nil {
 		return nil, err
@@ -261,17 +261,17 @@ func (a *App) AskQuestionToChatGPTSteamOnTopicDialogue(message, nodeID, userID s
 		}
 	}
 	chatMessages = append(chatMessages, services.ChatMessage{Content: message, Role: services.ChatGPTModelRoleUser})
-	return a.Services.ChatGPTService.SendStreamWithChatMessages(userID, chatMessages)
+	return a.Services.ChatGPTService.SendStreamWithChatMessages(userID, gptModel, chatMessages)
 }
 
-func (a *App) AskQuestionToChatGPTSteamOnDifferentTopic(message, nodeID, userID string) (services.ChatStream, error) {
+func (a *App) AskQuestionToChatGPTSteamOnDifferentTopic(message, nodeID, userID string, gptModel services.ChatGPTModel) (services.ChatStream, error) {
 	statuses, err := a.Store.Node().GetNodesForUser(userID)
 	if err != nil {
 		return nil, err
 	}
 	for _, status := range statuses {
 		if status.NodeID == nodeID && (status.Status == model.NodeStatusFinished || status.Status == model.NodeStatusStarted || status.Status == model.NodeStatusWatched) {
-			return a.AskQuestionToChatGPTSteam(message, nodeID, userID)
+			return a.AskQuestionToChatGPTSteam(message, nodeID, userID, gptModel)
 		}
 	}
 

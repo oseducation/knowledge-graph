@@ -113,11 +113,13 @@ func login(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	user.IsActiveCustomer = isActive
+	if isActive && user.Role == model.UserRole {
+		user.Role = model.RoleType(model.CustomerRole)
+	}
 
 	session := &model.Session{
 		UserID:    user.ID,
-		Role:      user.Role,
+		Role:      user.Role, // TODO: user role in the DB is not the same as user role in the session
 		ExpiresAt: model.GetMillis() + int64(a.Config.ServerSettings.SessionLengthInMinutes)*60*1000,
 	}
 	session, err = a.CreateSession(session)
@@ -163,7 +165,20 @@ func getMe(c *gin.Context) {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	user.IsActiveCustomer = isActive
+	if isActive && user.Role == model.UserRole {
+		user.Role = model.RoleType(model.CustomerRole)
+	}
+	if session.Role == model.UserRole && isActive {
+		if err := a.UpdateSessionRole(session.UserID, true); err != nil {
+			responseFormat(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else if session.Role == model.CustomerRole && !isActive {
+		if err := a.UpdateSessionRole(session.UserID, false); err != nil {
+			responseFormat(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
 
 	responseFormat(c, http.StatusOK, user)
 }

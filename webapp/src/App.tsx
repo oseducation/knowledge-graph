@@ -55,7 +55,7 @@ function App() {
                     <Route path="startup-school" element={<CourseStartupSchoolMain/>}/>
                     <Route path="pricing" element={<PricingTable/>}/>
                 </Route>
-                <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]}/>}>
+                <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin, ROLES.Customer]}/>}>
                     <Route path="" element={<UserLayout/>}>
                         <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                         <Route path="/welcome" element={<WelcomePage/>}/>
