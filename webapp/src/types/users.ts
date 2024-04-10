@@ -58,14 +58,16 @@ export type UserPreferences = {
     graph_direction: DagMode;
     legend_on_graph_message: boolean;
     legend_on_topic_graph: boolean;
+    tutor_personality: string;
 }
 
 export const UserPreferencesDefaultValues: UserPreferences = {
-    language: 'ge',
+    language: 'en',
     is_video_looped: false,
     graph_direction: 'td',
     legend_on_graph_message: true,
     legend_on_topic_graph: true,
+    tutor_personality: 'standard-tutor-personality'
 }
 
 export type Preference = {
@@ -98,3 +100,9 @@ export type PerformerUser = {
     last_name: string;
     finished_count: number;
 };
+
+export type TutorPersonality = {
+    id: string;
+    name: string;
+    prompt: string;
+}
