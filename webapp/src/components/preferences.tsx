@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Alert,
     Button,
@@ -6,11 +6,11 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
-    FormControlLabel,
+    // FormControlLabel,
     InputLabel,
     MenuItem,
     Select,
-    Switch
+    // Switch
 } from '@mui/material';
 import {useTranslation} from "react-i18next";
 import {Controller, useForm} from 'react-hook-form';
@@ -18,7 +18,7 @@ import {Controller, useForm} from 'react-hook-form';
 import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
 import useAuth from '../hooks/useAuth';
-import {Preference, UserPreferences, UserPreferencesDefaultValues} from '../types/users';
+import {Preference, TutorPersonality, UserPreferences, UserPreferencesDefaultValues} from '../types/users';
 
 interface Props {
     onClose: () => void;
@@ -26,10 +26,16 @@ interface Props {
 
 const Preferences = (props: Props) => {
     const {user, preferences, setPreferences} = useAuth();
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
 
     const {control, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<UserPreferences>();
+    const [personalities, setPersonalities] = useState<TutorPersonality[]>([]);
 
+    useEffect(() => {
+        Client.User().getTutorPersonalities().then((data) => {
+            setPersonalities(data);
+        })
+    }, []);
 
     const onSubmit = (data: UserPreferences) => {
         if (!user) {
@@ -42,21 +48,26 @@ const Preferences = (props: Props) => {
                 user_id: user.id,
                 value: data.graph_direction || UserPreferencesDefaultValues['graph_direction']
             },
+            // {
+            //     key: 'is_video_looped',
+            //     user_id: user.id,
+            //     value: "" + (data.is_video_looped || UserPreferencesDefaultValues['is_video_looped'])
+            // },
+            // {
+            //     key: 'language',
+            //     user_id: user.id,
+            //     value: data.language || UserPreferencesDefaultValues['language']
+            // },
             {
-                key: 'is_video_looped',
+                key: 'tutor_personality',
                 user_id: user.id,
-                value: "" + (data.is_video_looped || UserPreferencesDefaultValues['is_video_looped'])
-            },
-            {
-                key: 'language',
-                user_id: user.id,
-                value: data.language || UserPreferencesDefaultValues['language']
-            },
+                value: data.tutor_personality || UserPreferencesDefaultValues['tutor_personality']
+            }
         ]
 
-        if (i18n.language !== data.language) {
-            i18n.changeLanguage(data.language);
-        }
+        // if (i18n.language !== data.language) {
+        //     i18n.changeLanguage(data.language);
+        // }
 
         Client.User().saveMyPreferences(prefs)
             .then(() => {
@@ -82,7 +93,7 @@ const Preferences = (props: Props) => {
                             {errors.root.message}
                         </Alert>
                     }
-                    <FormControl style={{margin: '16px'}}>
+                    {/* <FormControl style={{margin: '16px'}}>
                         <InputLabel id="language-label">{t("Language")}</InputLabel>
                         <Controller
                             name='language'
@@ -95,7 +106,7 @@ const Preferences = (props: Props) => {
                                 </Select>
                             )}
                         />
-                    </FormControl>
+                    </FormControl> */}
 
                     <FormControl style={{margin: '16px'}}>
                         <InputLabel id='graphDirection-label'>{t("Graph Direction")}</InputLabel>
@@ -114,7 +125,7 @@ const Preferences = (props: Props) => {
                         />
                     </FormControl>
 
-                    <FormControl style={{margin: '16px'}}>
+                    {/* <FormControl style={{margin: '16px'}}>
                         <Controller
                             name='is_video_looped'
                             control={control}
@@ -124,6 +135,21 @@ const Preferences = (props: Props) => {
                                     control={<Switch {...field} checked={field.value}/>}
                                     label={field.value ? t('Should videos loop in carousel mode: Yes') : t('Should videos loop in carousel mode: No')}
                                 />
+                            )}
+                        />
+                    </FormControl> */}
+                    <FormControl style={{margin: '16px'}}>
+                        <InputLabel id='tutor-personality-label'>{t("Tutor Personality")}</InputLabel>
+                        <Controller
+                            name='tutor_personality'
+                            control={control}
+                            defaultValue={preferences?.tutor_personality || 'standard-tutor-personality'}
+                            render={({field}) => (
+                                <Select labelId='tutor-personality-label' id='tutor-personality' {...field}>
+                                    {personalities.map((personality) => (
+                                        <MenuItem key={personality.id} value={personality.id}>{personality.name}</MenuItem>
+                                    ))}
+                                </Select>
                             )}
                         />
                     </FormControl>

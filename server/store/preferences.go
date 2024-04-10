@@ -10,6 +10,7 @@ import (
 // PreferencesStore is an interface to crud preferences
 type PreferencesStore interface {
 	GetAll(userID string) ([]model.Preference, error)
+	Get(userID, preferenceKey string) (string, error)
 	Save(preferences []model.Preference) error
 }
 
@@ -42,6 +43,18 @@ func (ps *SQLPreferencesStore) GetAll(userID string) ([]model.Preference, error)
 		return nil, errors.Wrapf(err, "can't get preferences for user: %s", userID)
 	}
 	return preferences, nil
+}
+
+func (ps *SQLPreferencesStore) Get(userID string, preferenceKey string) (string, error) {
+	preference := model.Preference{}
+	if err := ps.sqlStore.getBuilder(ps.sqlStore.db, &preference, ps.preferencesSelect.
+		Where(sq.And{
+			sq.Eq{"user_id": userID},
+			sq.Eq{"key": preferenceKey},
+		})); err != nil {
+		return "", errors.Wrapf(err, "can't get preferences for user: %s", userID)
+	}
+	return preference.Value, nil
 }
 
 func (ps *SQLPreferencesStore) Save(preferences []model.Preference) error {

@@ -162,7 +162,7 @@ func (a *App) CountChatGPTPosts(userID string, after int64) (int, error) {
 }
 
 func (a *App) AskQuestionToChatGPT(message, nodeID, userID string, gptModel services.ChatGPTModel) (*model.Post, error) {
-	systemMessage, err := a.getSystemMessage(nodeID)
+	systemMessage, err := a.getSystemMessage(nodeID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func (a *App) getPrerequisiteNodes(nodeID string) ([]*model.Node, error) {
 	return nodes, nil
 }
 
-func (a *App) getSystemMessage(nodeID string) (string, error) {
+func (a *App) getSystemMessage(nodeID, userID string) (string, error) {
 	nodes, err := a.getPrerequisiteNodes(nodeID)
 	if err != nil {
 		return "", err
@@ -228,16 +228,17 @@ func (a *App) getSystemMessage(nodeID string) (string, error) {
 	}
 	content := fmt.Sprintf("Topic: %s\nDescription: %s\nContent: %s", node.Name, node.Description, text)
 
-	systemMessage := fmt.Sprintf(`Act as a best tutor in the world and answer the question concisely. Assume that students knows all the topics listed in braces:
+	tutorPersonalityPrompt := a.getTutorPrompt(userID)
+	systemMessage := fmt.Sprintf(`%s. Assume that students knows all the topics listed in braces:
 {%s}
 Use the content below to answer the question:
 {%s}
-`, topics, content)
+`, tutorPersonalityPrompt, topics, content)
 	return systemMessage, nil
 }
 
 func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string, gptModel services.ChatGPTModel) (services.ChatStream, error) {
-	systemMessage, err := a.getSystemMessage(nodeID)
+	systemMessage, err := a.getSystemMessage(nodeID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +246,7 @@ func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string, gptModel
 }
 
 func (a *App) AskQuestionToChatGPTSteamOnTopicDialogue(message, nodeID, userID string, gptModel services.ChatGPTModel, prevPosts []*model.Post) (services.ChatStream, error) {
-	systemMessage, err := a.getSystemMessage(nodeID)
+	systemMessage, err := a.getSystemMessage(nodeID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -372,6 +373,19 @@ func (a *App) getGPTMessages(posts []*model.Post) string {
 		message += post.Message + "\n"
 	}
 	return message
+}
+
+func (a *App) getTutorPrompt(userID string) string {
+	tutorPersonality, err := a.Store.Preferences().Get(userID, "tutor_personality")
+	if err != nil {
+		return model.StandardTutorPersonality.Prompt
+	}
+	for _, personality := range model.DefaultTutorPersonalities {
+		if personality.ID == tutorPersonality {
+			return personality.Prompt
+		}
+	}
+	return model.StandardTutorPersonality.Prompt
 }
 
 // Function to calculate the dot product of two vectors

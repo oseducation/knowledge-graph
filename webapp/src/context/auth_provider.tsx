@@ -48,6 +48,12 @@ export const AuthProvider = (props: Props) => {
                         prefs.is_video_looped = Boolean(data[i].value);
                     } else if (data[i].key === 'graph_direction') {
                         prefs.graph_direction = data[i].value as DagMode;
+                    } else if (data[i].key === 'tutor_personality') {
+                        prefs.tutor_personality = data[i].value;
+                    } else if (data[i].key === 'legend_on_graph_message') {
+                        prefs.legend_on_graph_message = Boolean(data[i].value);
+                    } else if (data[i].key === 'legend_on_topic_graph') {
+                        prefs.legend_on_topic_graph = Boolean(data[i].value);
                     }
                 }
                 setPreferences(prefs);
