@@ -331,18 +331,18 @@ func (a *App) GetUserIntent(text, userID string, currentNodeID string) (UserInte
 	if err != nil {
 		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
 	}
-	if len(posts) == 0 {
-		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
-	}
-	gptMessages := a.getGPTMessages(posts)
-	messagesEmbedding, err := a.Services.ChatGPTService.GetEmbedding(gptMessages, userID)
-	if err != nil {
-		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
-	}
-	score := dotProduct(vector, messagesEmbedding)
-	if score < minimalEmbeddingScore {
-		return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
-	}
+	// if len(posts) == 0 {
+	// 	return UserIntent{Intent: QuestionOnOffTopicIntent}, nil
+	// }
+	// gptMessages := a.getGPTMessages(posts)
+	// messagesEmbedding, err := a.Services.ChatGPTService.GetEmbedding(gptMessages, userID)
+	// if err != nil {
+	// 	return UserIntent{Intent: QuestionOnOffTopicIntent, PrevPosts: posts}, nil
+	// }
+	// score := dotProduct(vector, messagesEmbedding)
+	// if score < minimalEmbeddingScore {
+	// 	return UserIntent{Intent: QuestionOnOffTopicIntent, PrevPosts: posts}, nil
+	// }
 	return UserIntent{Intent: DialogueIntent, PrevPosts: posts}, nil
 }
 
