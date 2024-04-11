@@ -364,16 +364,16 @@ func (a *App) getLastNDialoguePosts(userID string, n int) ([]*model.Post, error)
 	return dialoguePosts, nil
 }
 
-func (a *App) getGPTMessages(posts []*model.Post) string {
-	message := ""
-	for _, post := range posts {
-		if post.Message == offTopicString || post.PostType != model.PostTypeChatGPT {
-			continue
-		}
-		message += post.Message + "\n"
-	}
-	return message
-}
+// func (a *App) getGPTMessages(posts []*model.Post) string {
+// 	message := ""
+// 	for _, post := range posts {
+// 		if post.Message == offTopicString || post.PostType != model.PostTypeChatGPT {
+// 			continue
+// 		}
+// 		message += post.Message + "\n"
+// 	}
+// 	return message
+// }
 
 func (a *App) getTutorPrompt(userID string) string {
 	tutorPersonality, err := a.Store.Preferences().Get(userID, "tutor_personality")
@@ -388,11 +388,11 @@ func (a *App) getTutorPrompt(userID string) string {
 	return model.StandardTutorPersonality.Prompt
 }
 
-// Function to calculate the dot product of two vectors
-func dotProduct(vectorA, vectorB []float32) float32 {
-	sum := float32(0.0)
-	for i := range vectorA {
-		sum += vectorA[i] * vectorB[i]
-	}
-	return sum
-}
+// // Function to calculate the dot product of two vectors
+// func dotProduct(vectorA, vectorB []float32) float32 {
+// 	sum := float32(0.0)
+// 	for i := range vectorA {
+// 		sum += vectorA[i] * vectorB[i]
+// 	}
+// 	return sum
+// }
