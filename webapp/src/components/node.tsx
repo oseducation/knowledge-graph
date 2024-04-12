@@ -258,6 +258,7 @@ const Node = (props: Props) => {
                             autoplay={true}
                             onVideoStarted={onVideoStarted}
                             onVideoEnded={onVideoEnded}
+                            name={node.name}
                         />
                     }
                     {activeItem && determineIfIsText(activeItem) &&
@@ -304,6 +305,7 @@ const Node = (props: Props) => {
                                             autoplay={false}
                                             onVideoStarted={onVideoStarted}
                                             onVideoEnded={onVideoEnded}
+                                            name={node.name}
                                         />
                                         <Divider variant={"fullWidth"}/>
                                     </Box>
