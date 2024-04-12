@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import YouTube, {YouTubeProps} from 'react-youtube';
+import {Box} from '@mui/material';
 
 import useAuth from '../hooks/useAuth';
 import {UserInteraction} from '../types/users';
 import {Client} from '../client/client';
+import useGraph from '../hooks/useGraph';
 
 import {generateRandomString} from './time_tracker';
+import VideoOverlay from './player_overlay';
 
 declare global {
     interface Window {
@@ -25,6 +28,7 @@ type VideoPlayerProps = {
     length?: number;
     onVideoStarted: (videoKey: string) => void;
     onVideoEnded: (videoKey: string) => void;
+    name?: string;
 }
 
 let player: any = null;
@@ -36,6 +40,15 @@ const VideoPlayer = (props: VideoPlayerProps) => {
     const [id, setID] = useState('')
     const {user} = useAuth();
     const [once, setOnce] = useState(false);
+    const [showOverlay, setShowOverlay] = useState(true);
+    const {nextNodeTowardsGoal} = useGraph();
+
+    let title = '';
+    if (props.name) {
+        title = props.name;
+    } else if (nextNodeTowardsGoal) {
+        title = nextNodeTowardsGoal.name;
+    }
 
     useEffect(() => {
         if (player) {
@@ -53,6 +66,13 @@ const VideoPlayer = (props: VideoPlayerProps) => {
             sendInteraction();
         };
     }, [props.videoKey, props.start]);
+
+    const handleOverlayClick = () => {
+        if (player) {
+            player.playVideo();  // Start playing the video
+        }
+        setShowOverlay(false);  // Hide the overlay
+    };
 
     const sendInteraction = () => {
         const endDate = Date.now();
@@ -120,15 +140,18 @@ const VideoPlayer = (props: VideoPlayerProps) => {
     }
 
     return (
-        <YouTube
-            style={{height: props.height, width: props.width}}
-            videoId={props.videoKey}
-            key={props.id}
-            opts={opts}
-            onStateChange={onPlayerStateChange}
-            onReady={onReady}
-            onError={(event)=>{console.log("youtube player error", event)}}
-        />
+        <Box sx={{ position: 'relative', width: props.width, height: props.height }}>
+            <YouTube
+                style={{height: props.height, width: props.width}}
+                videoId={props.videoKey}
+                key={props.id}
+                opts={opts}
+                onStateChange={onPlayerStateChange}
+                onReady={onReady}
+                onError={(event)=>{console.log("youtube player error", event)}}
+            />
+            {showOverlay && !props.autoplay && title && <VideoOverlay text={title} onClick={handleOverlayClick} />}
+        </Box>
     );
 
 };
