@@ -101,8 +101,3 @@ export type PerformerUser = {
     finished_count: number;
 };
 
-export type TutorPersonality = {
-    id: string;
-    name: string;
-    prompt: string;
-}

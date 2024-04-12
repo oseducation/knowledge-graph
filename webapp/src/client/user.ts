@@ -1,5 +1,6 @@
 import {Graph} from "../types/graph";
-import {Preference, TutorPersonality, User, UserCode, UserInteraction, UserWithNodeCount} from "../types/users";
+import {TutorPersonality} from "../types/tutor_personalities";
+import {Preference, User, UserCode, UserInteraction, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 

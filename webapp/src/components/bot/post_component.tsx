@@ -96,7 +96,10 @@ const PostComponent = (props: Props) => {
     }
 
     return (
-        <PostContainer isBot={props.post.user_id === BOT_ID}>
+        <PostContainer
+            isBot={props.post.user_id === BOT_ID}
+            tutorPersonality={props.post.props?.tutor_personality || 'standard-tutor-personality'}
+        >
             {component}
         </PostContainer>
     );

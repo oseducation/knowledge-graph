@@ -7,6 +7,7 @@ import PostContainer from './post_container';
 
 interface Props {
     message: string;
+    tutorPersonality: string;
     scrollToBottom: () => void;
 }
 
@@ -16,7 +17,7 @@ const BotStreamMessage = (props: Props) => {
     }, [props.message]);
 
     const component = (
-        <PostContainer isBot={true}>
+        <PostContainer isBot={true} tutorPersonality={props.tutorPersonality}>
             <Typography component="span" sx={{whiteSpace: 'pre-wrap'}}>
                 <Markdown text={props.message + '⬤'}/>
             </Typography>

@@ -48,6 +48,7 @@ const MessageInputContainer = styled(Paper)({
     padding: '2px 4px',
     alignItems: 'center',
     margin: '20px',
+    width: '100%',
 });
 
 const MessageInput = styled(TextareaAutosize)({
