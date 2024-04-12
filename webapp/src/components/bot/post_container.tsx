@@ -1,17 +1,21 @@
 import React from 'react';
-import {ListItem, ListItemAvatar, Avatar, Box} from '@mui/material';
+import {ListItem, ListItemAvatar, Avatar, Box, Icon} from '@mui/material';
 
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {stringAvatar} from '../rhs/rhs';
+import {personalities} from '../../types/tutor_personalities';
 
 interface Props {
     isBot: boolean;
     children?: React.ReactNode;
+    tutorPersonality?: string;
 }
 
 const PostContainer = (props: Props) => {
     const {user} = useAuth();
+
+    const icon = getIcon(props.tutorPersonality);
 
     return (
         <ListItem
@@ -22,10 +26,10 @@ const PostContainer = (props: Props) => {
             }}
         >
             <Box display='flex' flexDirection='row' alignItems={'flex-start'} flexGrow={1}>
-                <Box display='flex' flexDirection='row' alignItems={'flex-start'}>
-                    <ListItemAvatar>
+                <Box display='flex' flexDirection='row' alignItems={'flex-start'} justifyContent={'center'}>
+                    <ListItemAvatar sx={{display: 'flex', justifyContent:'center'}}>
                         {props.isBot ?
-                            <Avatar alt='bot' src='/favicon-32x32.png'/>
+                            icon
                             :
                             <Avatar alt={user!.username} {...stringAvatar(user!)}/>
                         }
@@ -35,6 +39,17 @@ const PostContainer = (props: Props) => {
             </Box>
         </ListItem>
     );
+}
+
+const getIcon = (tutorPersonality: string | undefined) => {
+    let currentPersonalitySymbol = '👩‍🏫'
+    for (let i = 0; i < personalities.length; i++) {
+        if (personalities[i].id === tutorPersonality) {
+            currentPersonalitySymbol = personalities[i].symbol;
+            break
+        }
+    }
+    return <Icon sx={{height:'100%'}}>{currentPersonalitySymbol}</Icon>
 }
 
 export default PostContainer;

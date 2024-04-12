@@ -16,6 +16,7 @@ import usePosts from './use_posts';
 import {getUserPostAction, goalFinishedMessage, iKnowThisMessage, nextTopicMessage} from './messages';
 import BotStreamMessage from './bot_stream_message';
 import InputComponent from './input_component';
+import BotComponent from './bot_component';
 
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
@@ -23,7 +24,7 @@ export const BOT_ID = 'aiTutorBotID01234567890123';
 const AITutorChat = () => {
     const {posts, setPosts} = usePosts();
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
-    const {user} = useAuth();
+    const {user, preferences} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
     const {nextNodeTowardsGoal, currentGoalID, globalGraph, onReload} = useGraph();
     const [actions, setActions] = useState<Action[]>([]);
@@ -174,7 +175,7 @@ const AITutorChat = () => {
         const post = {
             message: message,
             post_type: PostTypeChatGPT,
-            props: {node_id: nextNodeTowardsGoal?.id || ''},
+            props: {node_id: nextNodeTowardsGoal?.id || '', tutor_personality: preferences?.tutor_personality || 'standard-tutor-personality'},
             user_id: BOT_ID,
             user: null,
             id: '',
@@ -268,7 +269,7 @@ const AITutorChat = () => {
     const handleSend = (input: string): Promise<void> => {
         return Client.Post().saveUserPost(input, locationID, '').then((userPost) => {
             Analytics.messageToAI({user_id: user!.id});
-            userPost.props = {'node_id': nextNodeTowardsGoal?.id || ''};
+            userPost.props = {'node_id': nextNodeTowardsGoal?.id || '', 'tutor_personality': preferences?.tutor_personality || 'standard-tutor-personality'};
             setUserPostToChat(userPost);
             setPosts([...posts!, userPost]);
         });
@@ -302,7 +303,7 @@ const AITutorChat = () => {
                         isLastVideo={index === lastVideoIndex}
                     />
                 )}
-                {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom}/>}
+                {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom} tutorPersonality={preferences?.tutor_personality || 'standard-tutor-personality'}/>}
                 {actions &&
                     <Box>
                         {actions.map((action : Action) => (
@@ -327,7 +328,10 @@ const AITutorChat = () => {
                 }
                 <div ref={messagesEndRef}/>
             </MessageList>
-            <InputComponent handleSend={handleSend}/>
+            <Box display={'flex'} flexDirection={'row'} alignItems={'center'} sx={{pl: {xs: '2px', sm: '10px', md: '20px', lg: '40px'},}}>
+                <BotComponent/>
+                <InputComponent handleSend={handleSend}/>
+            </Box>
         </ChatContainer>
     );
 }
