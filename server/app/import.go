@@ -45,13 +45,16 @@ func (a *App) ImportAllContent(url string) (string, error) {
 	fmt.Println("importing parent nodes...")
 	leafNodeURLs, parentNodes, err := a.importParentNodes(url)
 	if err != nil {
+		fmt.Println("can't import parent nodes", leafNodeURLs, len(parentNodes))
 		return "", errors.Wrap(err, "can't import parent nodes")
 	}
+	fmt.Println("importing parent nodes ended...", leafNodeURLs, len(parentNodes))
 	passwords := ""
 	for _, leafNodeURL := range leafNodeURLs {
 		fmt.Println("importing leaf node", leafNodeURL)
 		pass, err := a.importLeafNodes(leafNodeURL, parentNodes)
 		if err != nil {
+			fmt.Println("can't import leaf nodes")
 			return "", err
 		}
 		passwords += fmt.Sprintf("[%s]", pass)
@@ -101,9 +104,14 @@ func (a *App) importLeafNodes(url string, parentNodes map[string]ExtendedNode) (
 			return "", errors.Wrap(err, "can't import texts")
 		}
 
-		if err := a.importQuestions(nodeURL, node.QuestionFileNames, updatedNode.ID); err != nil {
+		questionFileNames := []string{"questions.json"}
+		if node.QuestionFileNames != nil && len(node.QuestionFileNames) > 0 {
+			questionFileNames = node.QuestionFileNames
+		}
+		if err := a.importQuestions(nodeURL, questionFileNames, updatedNode.ID); err != nil {
 			return "", errors.Wrap(err, "can't import questions")
 		}
+
 	}
 
 	if err := a.importGraph(url, nodes); err != nil {
