@@ -473,11 +473,11 @@ var migrations = []Migration{
 				if _, err := e.Exec(`
 					ALTER TABLE nodes ADD COLUMN thumbnail_url VARCHAR(256) DEFAULT '';
 				`); err != nil {
-					return errors.Wrapf(err, "failed adding column thumbnail_url to table posts")
+					return errors.Wrapf(err, "failed adding column thumbnail_url to table nodes")
 				}
 			} else {
 				if err := addColumnToPGTable(e, "nodes", "thumbnail_url", "VARCHAR(256) DEFAULT ''"); err != nil {
-					return errors.Wrapf(err, "failed adding column thumbnail_url to table posts")
+					return errors.Wrapf(err, "failed adding column thumbnail_url to table nodes")
 				}
 			}
 			return nil
@@ -536,6 +536,24 @@ var migrations = []Migration{
 				return errors.Wrapf(err, "failed creating table subscriptions")
 			}
 
+			return nil
+		},
+	},
+	{
+		fromVersion: semver.MustParse("0.15.0"),
+		toVersion:   semver.MustParse("0.16.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE questions ADD COLUMN explanation VARCHAR(512) DEFAULT '';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column explanation to table questions")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "questions", "explanation", "VARCHAR(512) DEFAULT ''"); err != nil {
+					return errors.Wrapf(err, "failed adding column explanation to table questions")
+				}
+			}
 			return nil
 		},
 	},

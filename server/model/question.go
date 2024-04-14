@@ -17,6 +17,7 @@ type Question struct {
 	Question     string           `json:"question" db:"question"`
 	QuestionType string           `json:"question_type" db:"question_type"`
 	NodeID       string           `json:"node_id" db:"node_id"`
+	Explanation  string           `json:"explanation" db:"explanation"`
 	Choices      []QuestionChoice `json:"choices" db:"_"`
 }
 

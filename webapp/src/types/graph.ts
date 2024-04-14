@@ -73,6 +73,7 @@ export type Question = {
     question: string;
     question_type: string;
     node_id: string;
+    explanation: string;
     choices: QuestionChoice[];
 }
 

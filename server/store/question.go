@@ -29,6 +29,7 @@ func NewQuestionStore(db *SQLStore) QuestionStore {
 			"q.question",
 			"q.question_type",
 			"q.node_id",
+			"q.explanation",
 		).
 		From("questions q")
 
@@ -56,6 +57,7 @@ func (qs *SQLQuestionStore) Save(question *model.Question) (*model.Question, err
 			"question":      question.Question,
 			"question_type": question.QuestionType,
 			"node_id":       question.NodeID,
+			"explanation":   question.Explanation,
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save question with text: %s", question.Question)
