@@ -3,7 +3,7 @@ import {NodeWithResources} from '../../types/graph';
 import {User} from '../../types/users';
 
 import {BOT_ID} from './ai_tutor_chat';
-import {getActions, letsStartAction, nextKarelJSMessage, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
+import {getActions, nextKarelJSMessage, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
 
 
 const getNodeViewState = (posts: Post[], nodeID: string) => {
@@ -69,20 +69,8 @@ export const constructBotPost = (posts: Post[], node: NodeWithResources | null, 
     }
 }
 
-export const getBotPostActions = (posts: Post[] | null, node: NodeWithResources) => {
-    if (!posts || !node) {
-        return [];
-    }
-    if (posts.length === 0) {
-        return [letsStartAction];
-    }
-    if (posts.length === 1 && posts[0].user_id === BOT_ID) {
-        return [letsStartAction];
-    }
-    if (posts[posts.length - 1].user_id !== BOT_ID) {
-        return [];
-    }
-    if (posts[posts.length - 1].user_id === BOT_ID && posts[posts.length - 1].post_type === PostTypeGoalFinish) {
+export const getStandardActions = (posts: Post[], node: NodeWithResources | null) => {
+    if (!node) {
         return [];
     }
     const nodeViewState = getNodeViewState(posts, node.id);
@@ -90,3 +78,4 @@ export const getBotPostActions = (posts: Post[] | null, node: NodeWithResources)
 
     return actions;
 }
+

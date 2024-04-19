@@ -5,29 +5,27 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicText, PostActionNextTopicVideo, PostType, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeGoalFinish, PostTypeKarelJS, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
+import {Action, Post, PostActionIKnowThis, PostType, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeText, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
-import {NodeStatusFinished, NodeWithResources} from '../../types/graph';
 
 import PostComponent from './post_component';
-import {constructBotPost, getBotPostActions} from './create_post';
-import usePosts from './use_posts';
-import {getUserPostAction, goalFinishedMessage, iKnowThisMessage, nextTopicMessage} from './messages';
+import {constructBotPost} from './create_post';
+import {goalFinishedMessage, iKnowThisMessage} from './messages';
 import BotStreamMessage from './bot_stream_message';
 import InputComponent from './input_component';
 import BotComponent from './bot_component';
+import useConversation from './use_converstion';
 
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
 
 const AITutorChat = () => {
-    const {posts, setPosts} = usePosts();
+    const {conversationState, setConversationState} = useConversation();
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user, preferences} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {nextNodeTowardsGoal, currentGoalID, globalGraph, onReload} = useGraph();
-    const [actions, setActions] = useState<Action[]>([]);
+    const {nextNodeTowardsGoal, currentGoalID, onReload} = useGraph();
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
     const [scrollListeners, setScrollListeners] = useState<(() => void)[]>([]);
@@ -70,45 +68,6 @@ const AITutorChat = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    useEffect(() => {
-        if (nextNodeTowardsGoal && posts && posts.length > 0) {
-            const ac = getBotPostActions(posts, nextNodeTowardsGoal);
-            setActions(ac);
-
-            let goalSwitchDetected = false;
-            for (let i = posts.length-1; i >= 0; i--) {
-                if (posts[i].message === iKnowThisMessage) {
-                    break;
-                }
-                if (posts[i].post_type === PostTypeGoalFinish) {
-                    break;
-                }
-                if (posts[i].props && posts[i].props.node_id) {
-                    if (posts[i].props.node_id !== nextNodeTowardsGoal.id) {
-                        goalSwitchDetected = true;
-                    }
-                    break;
-                }
-            }
-            if (goalSwitchDetected) {
-                const post  = nextTopicMessage(nextNodeTowardsGoal);
-                post.message = 'You have the new goal. The topic towards your goal is the following:\n\n' + post.message;
-                const locationID = `${user!.id}_${BOT_ID}`
-                Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-                    setPosts([...posts!, updatedPost]);
-                });
-                scrollToBottom();
-                return;
-            }
-
-            if (posts[posts.length-1].user_id !== BOT_ID && userPostToChat === null) {
-                createPendingPost();
-            }
-            if (posts[posts.length-1].user_id === BOT_ID && posts[posts.length-1].post_type === PostTypeGoalFinish) {
-                createPendingPost();
-            }
-        }
-    }, [posts.length > 0 && posts[posts.length-1].id, nextNodeTowardsGoal?.id]);
 
     useEffect(() => {
         if (!userPostToChat) {
@@ -148,11 +107,14 @@ const AITutorChat = () => {
                                 detectedIntent = PostTypeVideo
                             }
                             if (detectedIntent){
-                                const post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, detectedIntent);
+                                const post = constructBotPost([...conversationState.posts], nextNodeTowardsGoal, user!, detectedIntent);
                                 if (post) {
-                                    const locationID = `${user!.id}_${BOT_ID}`
+                                    if (preferences && preferences.tutor_personality && preferences.tutor_personality !== 'standard-tutor-personality') {
+                                        post.props.tutor_personality = preferences?.tutor_personality;
+                                    }
+
                                     Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-                                        setPosts([...posts!, updatedPost]);
+                                        setConversationState({...conversationState, posts: [...conversationState.posts, updatedPost]});
                                         setBotMessage('');
                                         setUserPostToChat(null);
                                     });
@@ -181,88 +143,28 @@ const AITutorChat = () => {
             id: '',
         };
         Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-            setPosts([...posts!, updatedPost]);
+            setConversationState({...conversationState, posts: [...conversationState.posts, updatedPost]});
         });
-    }
-
-    const isNodeFinished = (node: NodeWithResources): boolean => {
-        if (!globalGraph) {
-            return true;
-        }
-        for (let i = 0; i < globalGraph!.nodes.length; i++) {
-            if (globalGraph!.nodes[i].id === node.id) {
-                return globalGraph!.nodes[i].status === NodeStatusFinished;
-            }
-        }
-        return true;
-    }
-
-    const createPendingPost = () => {
-        if (nextNodeTowardsGoal === null || isNodeFinished(nextNodeTowardsGoal)){
-            return;
-        }
-        let post;
-        if (posts[posts.length-1].user_id !== BOT_ID){
-            const action = getUserPostAction(posts[posts.length-1].message);
-            if (action.action_type === PostActionIKnowThis && nextNodeTowardsGoal) {
-                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeTopic);
-            } else if (action.action_type === PostActionNextTopicVideo) {
-                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeVideo);
-            } else if (action.action_type === PostActionNextTopicText) {
-                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeText);
-            } else if (action.action_type === PostActionNextTopic) {
-                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeTopic);
-            } else if (action.action_type === PostActionNextTopicKarelJS) {
-                post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeKarelJS);
-            }
-        } else if (posts[posts.length - 1].post_type === PostTypeGoalFinish){
-            post = constructBotPost([...posts!], nextNodeTowardsGoal, user!, PostTypeTopic);
-        }
-        if (post) {
-            const locationID = `${user!.id}_${BOT_ID}`
-            Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-                setPosts([...posts!, updatedPost]);
-            });
-        }
-        scrollToBottom();
     }
 
     const onButtonClick = (action: Action) => {
         Client.Post().saveUserPost(action.message_after_click, locationID, PostTypeFilledInByAction).then((userPost) => {
-            let post;
             if (action.action_type === PostActionIKnowThis && nextNodeTowardsGoal) {
                 Client.Node().markAsKnown(nextNodeTowardsGoal.id, user!.id).then(() => {
-
                     if (nextNodeTowardsGoal.id === currentGoalID){
                         Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', nextNodeTowardsGoal.name || ''), locationID).then((updatedPost) => {
                             onReload();
-                            setPosts([...posts!, userPost, updatedPost]);
-                            setActions([]);
+                            setConversationState({...conversationState, posts: [...conversationState.posts, userPost, updatedPost], actions: []});
                         });
                     } else {
-                        setPosts([...posts!, userPost]);
+                        setConversationState({...conversationState, posts: [...conversationState.posts, userPost], actions: []});
                     }
                     onReload();
                     scrollToBottom();
                 });
-                return;
+            } else {
+                setConversationState({...conversationState, posts: [...conversationState.posts, userPost], actions: []});
             }
-            if (action.action_type === PostActionNextTopicVideo) {
-                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeVideo);
-            } else if (action.action_type === PostActionNextTopicText) {
-                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeText);
-            } else if (action.action_type === PostActionNextTopic) {
-                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeTopic);
-            } else if (action.action_type === PostActionNextTopicKarelJS) {
-                post = constructBotPost([...posts!, userPost], nextNodeTowardsGoal, user!, PostTypeKarelJS);
-            }
-            if (post) {
-                const locationID = `${user!.id}_${BOT_ID}`
-                Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-                    setPosts([...posts!, userPost, updatedPost]);
-                });
-            }
-            scrollToBottom();
         });
     }
 
@@ -271,15 +173,18 @@ const AITutorChat = () => {
             Analytics.messageToAI({user_id: user!.id});
             userPost.props = {'node_id': nextNodeTowardsGoal?.id || '', 'tutor_personality': preferences?.tutor_personality || 'standard-tutor-personality'};
             setUserPostToChat(userPost);
-            setPosts([...posts!, userPost]);
+            setConversationState({...conversationState, posts: [...conversationState.posts, userPost]});
         });
     }
 
     const getLastVideoIndex = () => {
-        for (let i = posts.length - 1; i >= 0; i--) {
-            if (posts[i].post_type === PostTypeVideo) {
+        if (!conversationState.posts) {
+            return -1;
+        }
+        for (let i = conversationState.posts.length - 1; i >= 0; i--) {
+            if (conversationState.posts[i].post_type === PostTypeVideo) {
                 return i;
-            } else if (posts[i].message === iKnowThisMessage) {
+            } else if (conversationState.posts[i].message === iKnowThisMessage) {
                 return -1;
             }
         }
@@ -291,11 +196,11 @@ const AITutorChat = () => {
     return (
         <ChatContainer>
             <MessageList onScroll={handleScroll}>
-                {posts && posts.map((post, index) =>
+                {conversationState.posts && conversationState.posts.map((post, index) =>
                     <PostComponent
                         key={post.id}
                         post={post}
-                        isLast={index === posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
+                        isLast={index === conversationState.posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
                         scrollToBottom={scrollToBottom}
                         nextNodeID={nextNodeTowardsGoal?.id || ''}
                         addScrollListener={addScrollListener}
@@ -304,9 +209,9 @@ const AITutorChat = () => {
                     />
                 )}
                 {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom} tutorPersonality={preferences?.tutor_personality || 'standard-tutor-personality'}/>}
-                {actions &&
+                {conversationState.actions &&
                     <Box>
-                        {actions.map((action : Action) => (
+                        {conversationState.actions.map((action : Action) => (
                             <Button
                                 key={action.text_on_button}
                                 variant='contained'
