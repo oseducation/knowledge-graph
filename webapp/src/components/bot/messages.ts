@@ -7,10 +7,10 @@ import {BOT_ID} from "./ai_tutor_chat";
 
 const letsStartMessage = "Great, Let's start with the next topic";
 export const iKnowThisMessage = "I know this topic, mark as done";
-const anotherVideoMessage = "Show me another video on this topic, please";
-const anotherTextMessage = "Show me some text, please";
-const anotherTestMessage = "Test me on this topic";
-const karelJSActionMessage = "Let me write some code";
+export const anotherVideoMessage = "Show me another video on this topic, please";
+export const anotherTextMessage = "Show me some text, please";
+export const anotherTestMessage = "Test me on this topic";
+export const karelJSActionMessage = "Let me write some code";
 
 export const theVeryFirstMessage = (username: string): Post => {
     return {
