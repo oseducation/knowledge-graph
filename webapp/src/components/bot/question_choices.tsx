@@ -14,6 +14,9 @@ import {DashboardColors}  from '../../ThemeOptions';
 
 interface Props {
     choices: QuestionChoice[];
+    onRightChoice: (answer: string) => void;
+    onWrongChoice: (answer: string) => void;
+    isLast: boolean;
 }
 
 const QuestionChoices = (props: Props) => {
@@ -31,9 +34,11 @@ const QuestionChoices = (props: Props) => {
                 if (choice.is_right_choice) {
                     setHelperText(t("You got it!"));
                     setError(false);
+                    props.onRightChoice(value);
                 } else {
                     setHelperText(t("Sorry, wrong answer!"));
                     setError(true);
+                    props.onWrongChoice(value)
                 }
                 break
             }
@@ -67,21 +72,25 @@ const QuestionChoices = (props: Props) => {
                         )
                     }
                 </RadioGroup>
-                <FormHelperText>{helperText}</FormHelperText>
-                <Button
-                    sx={{
-                        mt: 1,
-                        mr: 1,
-                        color: DashboardColors.background,
-                        bgcolor: DashboardColors.primary,
-                        '&:hover': {
-                            bgcolor: DashboardColors.primary,
-                        }
-                    }}
-                    type="submit"
-                    variant="contained">
-                    {t('Check Answer')}
-                </Button>
+                {props.isLast &&
+                    <>
+                        <FormHelperText>{helperText}</FormHelperText>
+                        <Button
+                            sx={{
+                                mt: 1,
+                                mr: 1,
+                                color: DashboardColors.background,
+                                bgcolor: DashboardColors.primary,
+                                '&:hover': {
+                                    bgcolor: DashboardColors.primary,
+                                }
+                            }}
+                            type="submit"
+                            variant="contained">
+                            {t('Check Answer')}
+                        </Button>
+                    </>
+                }
             </FormControl>
         </form>
     )

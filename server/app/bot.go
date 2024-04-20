@@ -245,6 +245,27 @@ func (a *App) AskQuestionToChatGPTSteam(message, nodeID, userID string, gptModel
 	return a.Services.ChatGPTService.SendStream(userID, systemMessage, gptModel, []string{message})
 }
 
+func (a *App) GetResponseToCorrectAnswerStream(explanation string, userID string, gptModel services.ChatGPTModel) (services.ChatStream, error) {
+	tutorPersonalityPrompt := a.getTutorPrompt(userID)
+	systemMessage := fmt.Sprintf("%s. Learner correctly answered to the multiple choice question. Here is the explanation of the question: {%s}. Congratulate and explain the correct answer to the learner.", tutorPersonalityPrompt, explanation)
+	message := ""
+	return a.Services.ChatGPTService.SendStream(userID, systemMessage, gptModel, []string{message})
+}
+
+func (a *App) GetResponseToIncorrectAnswerStream(question *model.Question, incorrectAnswer, userID string, gptModel services.ChatGPTModel) (services.ChatStream, error) {
+	tutorPersonalityPrompt := a.getTutorPrompt(userID)
+	correctAnswer := ""
+	for _, choice := range question.Choices {
+		if choice.IsRightChoice {
+			correctAnswer = choice.Choice
+			break
+		}
+	}
+	systemMessage := fmt.Sprintf("%s. Learner incorrectly answered to the multiple choice question. They question was: {%s}. They answered: {%s}. They should have answered: {%s}. Here is the explanation of the correct answer: {%s}. State that the learner answered incorrectly, explain to the learner why they might have answered incorrectly, state the correct answer and explain why it is the correct answer. Be concise.", tutorPersonalityPrompt, question.Question, incorrectAnswer, correctAnswer, question.Explanation)
+	message := ""
+	return a.Services.ChatGPTService.SendStream(userID, systemMessage, gptModel, []string{message})
+}
+
 func (a *App) AskQuestionToChatGPTSteamOnTopicDialogue(message, nodeID, userID string, gptModel services.ChatGPTModel, prevPosts []*model.Post) (services.ChatStream, error) {
 	systemMessage, err := a.getSystemMessage(nodeID, userID)
 	if err != nil {

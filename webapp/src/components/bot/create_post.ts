@@ -3,7 +3,7 @@ import {NodeWithResources} from '../../types/graph';
 import {User} from '../../types/users';
 
 import {BOT_ID} from './ai_tutor_chat';
-import {getActions, nextKarelJSMessage, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
+import {getActions, nextKarelJSMessage, nextTestMessage, nextTextMessage, nextTopicMessage, nextVideoMessage, theVeryFirstMessage, theVeryLastMessage} from './messages';
 
 
 const getNodeViewState = (posts: Post[], nodeID: string) => {
@@ -28,6 +28,9 @@ const getNodeViewState = (posts: Post[], nodeID: string) => {
                     testIndex = posts[index].props.test_index;
                 }
             }
+            if(posts[index].post_type === PostTypeTopic){
+                break;
+            }
         }
         index--;
     }
@@ -38,7 +41,7 @@ const getNodeViewState = (posts: Post[], nodeID: string) => {
     }
 }
 
-const getNextContent = (posts: Post[], node: NodeWithResources, contentType: string):Post => {
+export const getNextContent = (posts: Post[], node: NodeWithResources, contentType: PostType):Post => {
     const nodeViewState = getNodeViewState(posts, node.id);
     if (contentType === PostTypeVideo) {
         return nextVideoMessage(node, nodeViewState);
@@ -48,6 +51,8 @@ const getNextContent = (posts: Post[], node: NodeWithResources, contentType: str
         return nextTopicMessage(node);
     } else if (contentType === PostTypeKarelJS){
         return nextKarelJSMessage(node);
+    } else if (contentType === PostTypeTest){
+        return nextTestMessage(node, nodeViewState);
     } else {
         return nextVideoMessage(node, nodeViewState);
     }

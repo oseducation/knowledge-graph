@@ -5,13 +5,12 @@ import {styled} from '@mui/system';
 import {DashboardColors} from '../../ThemeOptions';
 import useAuth from '../../hooks/useAuth';
 import {Client} from '../../client/client';
-import {Action, Post, PostActionIKnowThis, PostType, PostTypeChatGPT, PostTypeFilledInByAction, PostTypeText, PostTypeVideo} from '../../types/posts';
+import {Action, Post, PostType, PostTypeChatGPT, PostTypeChatGPTCorrectAnswerExplanation, PostTypeChatGPTIncorrectAnswerExplanation, PostTypeFilledInByAction, PostTypeTestAnswer, PostTypeText, PostTypeTopic, PostTypeVideo} from '../../types/posts';
 import {Analytics} from '../../analytics';
 import useGraph from '../../hooks/useGraph';
 
 import PostComponent from './post_component';
 import {constructBotPost} from './create_post';
-import {goalFinishedMessage, iKnowThisMessage} from './messages';
 import BotStreamMessage from './bot_stream_message';
 import InputComponent from './input_component';
 import BotComponent from './bot_component';
@@ -20,15 +19,21 @@ import useConversation from './use_converstion';
 const staticHeight = `calc(100vh - (64px))`;
 export const BOT_ID = 'aiTutorBotID01234567890123';
 
+interface TestCheckInterface {
+    body: string;
+    isCorrect: boolean;
+}
+
 const AITutorChat = () => {
     const {conversationState, setConversationState} = useConversation();
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {user, preferences} = useAuth();
     const locationID = `${user!.id}_${BOT_ID}`
-    const {nextNodeTowardsGoal, currentGoalID, onReload} = useGraph();
+    const {nextNodeTowardsGoal} = useGraph();
     const [userPostToChat, setUserPostToChat] = useState<Post | null>(null);
     const [botMessage, setBotMessage] = useState<string>('');
     const [scrollListeners, setScrollListeners] = useState<(() => void)[]>([]);
+    const [testCheck, setTestCheck] = useState<TestCheckInterface | null>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView();
@@ -67,7 +72,6 @@ const AITutorChat = () => {
 
         return () => clearTimeout(timer);
     }, []);
-
 
     useEffect(() => {
         if (!userPostToChat) {
@@ -127,51 +131,95 @@ const AITutorChat = () => {
                         }
                     }
                 }
-
             }
         }
         fetchData();
     }, [userPostToChat?.id]);
 
+    useEffect(() => {
+        if (!testCheck) {
+            return;
+        }
+        const fetchData = async () => {
+            let endpoint = "incorrect_answer"
+            if (testCheck.isCorrect) {
+                endpoint = "correct_answer"
+            }
+            const response = await fetch(`${Client.Bot().getBotsRoute()}/${endpoint}`, {
+                method: 'POST',
+                headers: {},
+                body: testCheck.body,
+            })
+            if (response && response.body) {
+                const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+
+                let totalMessage = '';
+
+                // eslint-disable-next-line no-constant-condition
+                while (true) {
+                    const {value, done} = await reader.read();
+                    if (done) {
+                        if (testCheck.isCorrect) {
+                            saveGPTCorrectAnswerExplanation(totalMessage)
+                        } else {
+                            saveGPTIncorrectAnswerExplanation(totalMessage)
+                        }
+                        setBotMessage('');
+                        setTestCheck(null);
+                        break;
+                    }
+                    const events = getData(value)
+                    for (const event of events) {
+                        if (event === '[DONE]') {
+                            break;
+                        }
+                        if (event.length > 0) {
+                            totalMessage += event;
+                            setBotMessage(totalMessage);
+                        }
+                    }
+                }
+            }
+        }
+        fetchData();
+    }, [testCheck]);
+
     const saveGPTAnswer = (message: string) => {
+        saveGPTPost(message, PostTypeChatGPT);
+    }
+
+    const saveGPTCorrectAnswerExplanation = (message: string) => {
+        saveGPTPost(message, PostTypeChatGPTCorrectAnswerExplanation);
+    }
+
+    const saveGPTIncorrectAnswerExplanation = (message: string) => {
+        saveGPTPost(message, PostTypeChatGPTIncorrectAnswerExplanation);
+    }
+
+    const saveGPTPost = (message: string, postType:PostType) => {
         const post = {
             message: message,
-            post_type: PostTypeChatGPT,
+            post_type: postType,
             props: {node_id: nextNodeTowardsGoal?.id || '', tutor_personality: preferences?.tutor_personality || 'standard-tutor-personality'},
             user_id: BOT_ID,
             user: null,
             id: '',
         };
         Client.Post().saveBotPost(post, locationID).then((updatedPost) => {
-            setConversationState({...conversationState, posts: [...conversationState.posts, updatedPost]});
+            setConversationState({...conversationState, posts: [...conversationState.posts, updatedPost]})
         });
     }
 
     const onButtonClick = (action: Action) => {
         Client.Post().saveUserPost(action.message_after_click, locationID, PostTypeFilledInByAction).then((userPost) => {
-            if (action.action_type === PostActionIKnowThis && nextNodeTowardsGoal) {
-                Client.Node().markAsKnown(nextNodeTowardsGoal.id, user!.id).then(() => {
-                    if (nextNodeTowardsGoal.id === currentGoalID){
-                        Client.Post().saveBotPost(goalFinishedMessage(user?.username || '', nextNodeTowardsGoal.name || ''), locationID).then((updatedPost) => {
-                            onReload();
-                            setConversationState({...conversationState, posts: [...conversationState.posts, userPost, updatedPost], actions: []});
-                        });
-                    } else {
-                        setConversationState({...conversationState, posts: [...conversationState.posts, userPost], actions: []});
-                    }
-                    onReload();
-                    scrollToBottom();
-                });
-            } else {
-                setConversationState({...conversationState, posts: [...conversationState.posts, userPost], actions: []});
-            }
+            setConversationState({...conversationState, posts: [...conversationState.posts, userPost]})
         });
     }
 
     const handleSend = (input: string): Promise<void> => {
         return Client.Post().saveUserPost(input, locationID, '').then((userPost) => {
             Analytics.messageToAI({user_id: user!.id});
-            userPost.props = {'node_id': nextNodeTowardsGoal?.id || '', 'tutor_personality': preferences?.tutor_personality || 'standard-tutor-personality'};
+            userPost.props = {'node_id': nextNodeTowardsGoal?.id || ''};
             setUserPostToChat(userPost);
             setConversationState({...conversationState, posts: [...conversationState.posts, userPost]});
         });
@@ -184,7 +232,7 @@ const AITutorChat = () => {
         for (let i = conversationState.posts.length - 1; i >= 0; i--) {
             if (conversationState.posts[i].post_type === PostTypeVideo) {
                 return i;
-            } else if (conversationState.posts[i].message === iKnowThisMessage) {
+            } else if (conversationState.posts[i].post_type === PostTypeTopic) {
                 return -1;
             }
         }
@@ -193,6 +241,24 @@ const AITutorChat = () => {
 
     const lastVideoIndex = getLastVideoIndex();
 
+    const questionAnsweredCorrectly = async (questionID: string, answer: string) => {
+        const body = JSON.stringify(questionID);
+        questionAnswered(body, true, answer);
+    }
+
+    const questionAnsweredIncorrectly = async (questionID: string, answer: string) => {
+        const body = JSON.stringify({question_id: questionID, incorrect_answer: answer});
+        questionAnswered(body, false, answer);
+    }
+
+    const questionAnswered = async (body: string, isCorrect: boolean, answer: string) => {
+        Client.Post().saveUserPost(answer, locationID, PostTypeTestAnswer).then((returnedPost) => {
+            setTestCheck({body, isCorrect});
+            setConversationState({...conversationState, posts: [...conversationState.posts, returnedPost]})
+        });
+
+    }
+
     return (
         <ChatContainer>
             <MessageList onScroll={handleScroll}>
@@ -200,15 +266,17 @@ const AITutorChat = () => {
                     <PostComponent
                         key={post.id}
                         post={post}
-                        isLast={index === conversationState.posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT}
+                        isLast={index === conversationState.posts.length - 1 && post.user_id === BOT_ID && post.post_type !== PostTypeChatGPT && post.post_type !== PostTypeChatGPTCorrectAnswerExplanation && post.post_type !== PostTypeChatGPTIncorrectAnswerExplanation}
                         scrollToBottom={scrollToBottom}
                         nextNodeID={nextNodeTowardsGoal?.id || ''}
                         addScrollListener={addScrollListener}
                         removeScrollListener={removeEventListener}
                         isLastVideo={index === lastVideoIndex}
+                        onRightChoice={(answer: string) => {questionAnsweredCorrectly(post.props.question_id || '', answer)}}
+                        onWrongChoice={(answer: string) => {questionAnsweredIncorrectly(post.props.question_id || '', answer)}}
                     />
                 )}
-                {userPostToChat && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom} tutorPersonality={preferences?.tutor_personality || 'standard-tutor-personality'}/>}
+                {botMessage && <BotStreamMessage message={botMessage} scrollToBottom={scrollToBottom} tutorPersonality={preferences?.tutor_personality || 'standard-tutor-personality'}/>}
                 {conversationState.actions &&
                     <Box>
                         {conversationState.actions.map((action : Action) => (

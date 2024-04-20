@@ -1,11 +1,11 @@
 
 import {NodeViewState, NodeWithResources} from "../../types/graph";
-import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeVideo} from "../../types/posts";
+import {Post, PostActionIKnowThis, PostActionNextTopic, PostActionNextTopicKarelJS, PostActionNextTopicTest, PostActionNextTopicText, PostActionNextTopicVideo, PostTypeGoalFinish, PostTypeKarelJS, PostTypeTest, PostTypeText, PostTypeTopic, PostTypeTopicFinish, PostTypeVideo} from "../../types/posts";
 
 import {BOT_ID} from "./ai_tutor_chat";
 
 
-const letsStartMessage = "Great, Let's start with the next topic";
+export const letsStartMessage = "Great, Let's start with the next topic";
 export const iKnowThisMessage = "I know this topic, mark as done";
 export const anotherVideoMessage = "Show me another video on this topic, please";
 export const anotherTextMessage = "Show me some text, please";
@@ -34,8 +34,19 @@ export const goalFinishedMessage = (username: string, goalName: string): Post =>
     return {
         id: '',
         user_id: BOT_ID,
-        message:`Congratulations ${username}! You've completed the goal - **${goalName}**. 🎉`,
+        message:`Congratulations ${username}! You've completed the goal - **${goalName}**. 🎉🎉🎉`,
         post_type: PostTypeGoalFinish,
+        user: null,
+        props: {},
+    };
+}
+
+export const TopicFinishedMessage = (username: string, topicName: string): Post => {
+    return {
+        id: '',
+        user_id: BOT_ID,
+        message:`Congratulations ${username}! You've completed the topic - **${topicName}**. 🎉`,
+        post_type: PostTypeTopicFinish,
         user: null,
         props: {},
     };
@@ -96,6 +107,9 @@ export const getActions = (state: NodeViewState, node: NodeWithResources) => {
     }
     if (node.texts && state.textIndex + 1 < node.texts.length) {
         actions.push(anotherTextAction);
+    }
+    if (node.questions && state.testIndex + 1 < node.questions.length) {
+        actions.push(anotherTestAction);
     }
     if (node.environment === 'karel_js'){
         actions.push(karelJSAction);
@@ -190,18 +204,23 @@ export const nextTextMessage = (node: NodeWithResources, state: NodeViewState): 
 
 export const nextTestMessage = (node: NodeWithResources, state: NodeViewState): Post => {
     let testIndex = state.testIndex + 1;
-    if (state.textIndex + 1 >= node.questions.length) {
+    if (state.testIndex + 1 >= node.questions.length) {
         testIndex = Math.floor(Math.random() * node.questions.length);
+    }
+    let startingText = "Let's go though some questions:\n";
+    if (state.testIndex !== -1) {
+        startingText = "Here's another question for you:\n";
     }
     return {
         id: '',
         user_id: BOT_ID,
-        message: `Here's the question on the topic:\n\n ## ${node.questions[testIndex].name}\n\n${node.questions[testIndex].question}`,
+        message: `${startingText}**${node.questions[testIndex].question}**`,
         post_type: PostTypeTest,
         user: null,
         props: {
             node_id: node.id,
             test_index: testIndex,
+            question_id: node.questions[testIndex].id,
             test_choices: node.questions[testIndex].choices,
         },
     };
