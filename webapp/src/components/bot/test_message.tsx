@@ -11,6 +11,8 @@ interface Props {
     post: Post;
     isLast: boolean;
     scrollToBottom: () => void;
+    onRightChoice: (answer: string) => void;
+    onWrongChoice: (answer: string) => void;
 }
 
 const TestMessage = (props: Props) => {
@@ -24,7 +26,12 @@ const TestMessage = (props: Props) => {
     return (
         <Box display={'flex'} flexDirection={'column'}>
             <Markdown text={message}/>
-            <QuestionChoices choices={choices}/>
+            <QuestionChoices
+                choices={choices}
+                onRightChoice={props.onRightChoice}
+                onWrongChoice={props.onWrongChoice}
+                isLast={props.isLast}
+            />
         </Box>
     );
 }

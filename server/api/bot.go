@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -24,6 +25,9 @@ func (apiObj *API) initBot() {
 	apiObj.Bots.POST("/ask", authMiddleware(), askQuestion)
 	apiObj.Bots.POST("/first", authMiddleware(), getBotPosts)
 	apiObj.Bots.POST("/next", authMiddleware(), getBotPosts)
+	apiObj.Bots.POST("/correct_answer", authMiddleware(), getResponseToCorrectAnswer)
+	apiObj.Bots.POST("/incorrect_answer", authMiddleware(), getResponseToIncorrectAnswer)
+
 }
 
 func askQuestion(c *gin.Context) {
@@ -112,6 +116,136 @@ func askQuestion(c *gin.Context) {
 	if chatStreamErr != nil {
 		responseFormat(c, http.StatusInternalServerError, "Error while asking a stream question")
 		a.Log.Error(chatStreamErr.Error())
+		return
+	}
+
+	defer chatStream.Close()
+
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Content-Encoding", "none")
+	c.Writer.WriteHeaderNow()
+
+	for {
+		resp, err := chatStream.Recv()
+		if errors.Is(err, io.EOF) {
+			fmt.Fprintf(c.Writer, "data: {%s}\n\n", "[DONE]")
+			c.Writer.Flush()
+			return // stream finished
+		}
+		if err != nil {
+			responseFormat(c, http.StatusInternalServerError, "Error while reading stream")
+			a.Log.Error(err.Error())
+			return
+		}
+		fmt.Fprintf(c.Writer, "data: {%s}\n\n", resp)
+		c.Writer.Flush()
+	}
+}
+
+func getResponseToCorrectAnswer(c *gin.Context) {
+	var questionID string
+	if err := json.NewDecoder(c.Request.Body).Decode(&questionID); err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `questionID` in the request body")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	question, err := a.GetQuestion(questionID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	gptModel := services.GPT35Turbo
+	if session.Role != model.UserRole {
+		gptModel = services.GPT4_0125Preview
+	}
+
+	chatStream, err := a.GetResponseToCorrectAnswerStream(question.Explanation, session.UserID, gptModel)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, "Error while getting response to correct answer stream")
+		a.Log.Error(err.Error())
+		return
+	}
+
+	defer chatStream.Close()
+
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Content-Encoding", "none")
+	c.Writer.WriteHeaderNow()
+
+	for {
+		resp, err := chatStream.Recv()
+		if errors.Is(err, io.EOF) {
+			fmt.Fprintf(c.Writer, "data: {%s}\n\n", "[DONE]")
+			c.Writer.Flush()
+			return // stream finished
+		}
+		if err != nil {
+			responseFormat(c, http.StatusInternalServerError, "Error while reading stream")
+			a.Log.Error(err.Error())
+			return
+		}
+		fmt.Fprintf(c.Writer, "data: {%s}\n\n", resp)
+		c.Writer.Flush()
+	}
+}
+
+func getResponseToIncorrectAnswer(c *gin.Context) {
+	type IncorrectAnswer struct {
+		QuestionID      string `json:"question_id"`
+		IncorrectAnswer string `json:"incorrect_answer"`
+	}
+	var data IncorrectAnswer
+	if err := json.NewDecoder(c.Request.Body).Decode(&data); err != nil {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `IncorrectAnswer` in the request body")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	question, err := a.GetQuestion(data.QuestionID)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	gptModel := services.GPT35Turbo
+	if session.Role != model.UserRole {
+		gptModel = services.GPT4_0125Preview
+	}
+
+	chatStream, err := a.GetResponseToIncorrectAnswerStream(question, data.IncorrectAnswer, session.UserID, gptModel)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, "Error while getting response to correct answer stream")
+		a.Log.Error(err.Error())
 		return
 	}
 

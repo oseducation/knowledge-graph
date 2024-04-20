@@ -9,15 +9,19 @@ import (
 )
 
 const (
-	PostTypeWithActions      = "with_actions"
-	PostTypeVideo            = "video"
-	PostTypeTopic            = "topic"
-	PostTypeText             = "text"
-	PostTypeTest             = "test"
-	PostTypeKarelJS          = "karel_js"
-	PostTypeFilledInByAction = "filled_in_by_action"
-	PostTypeChatGPT          = "chat_gpt"
-	PostTypeGoalFinished     = "goal_finished"
+	PostTypeWithActions                       = "with_actions"
+	PostTypeVideo                             = "video"
+	PostTypeTopic                             = "topic"
+	PostTypeText                              = "text"
+	PostTypeTest                              = "test"
+	PostTypeKarelJS                           = "karel_js"
+	PostTypeFilledInByAction                  = "filled_in_by_action"
+	PostTypeChatGPT                           = "chat_gpt"
+	PostTypeGoalFinished                      = "goal_finished"
+	PostTypeTopicFinished                     = "topic_finished"
+	PostTypeChatGPTCorrectAnswerExplanation   = "chat_gpt_correct_answer_expl"
+	PostTypeChatGPTIncorrectAnswerExplanation = "chat_gpt_incorrect_answer_expl"
+	PostTypeTestAnswer                        = "answer"
 )
 
 const PostMessageMaxRunes = 65536
@@ -94,7 +98,11 @@ func (p *Post) IsValid() error {
 		p.PostType != PostTypeTopic &&
 		p.PostType != PostTypeKarelJS &&
 		p.PostType != PostTypeChatGPT &&
-		p.PostType != PostTypeGoalFinished {
+		p.PostType != PostTypeGoalFinished &&
+		p.PostType != PostTypeTopicFinished &&
+		p.PostType != PostTypeChatGPTCorrectAnswerExplanation &&
+		p.PostType != PostTypeChatGPTIncorrectAnswerExplanation &&
+		p.PostType != PostTypeTestAnswer {
 		return invalidPostError(p.ID, "type", p.PostType)
 	}
 

@@ -58,6 +58,8 @@ const AITutorChatGeneral = () => {
                         isLast={false}
                         scrollToBottom={scrollToBottom}
                         nextNodeID={''}
+                        onRightChoice={() => {}}
+                        onWrongChoice={() => {}}
                     />
                 )}
                 <div ref={messagesEndRef}/>
