@@ -74,7 +74,7 @@ export const getConversationStatus = (posts: Post[], userID: string, node?: Node
         return UserWaitingForTopic;
     }
     if (lastPost.message === iKnowThisMessage) {
-        if (node.questions.length > 0) {
+        if (node.questions && node.questions.length > 0) {
             return UserWaitingForTheFirstTest
         }
         return UserWaitingForTopic;
@@ -91,12 +91,12 @@ export const getConversationStatus = (posts: Post[], userID: string, node?: Node
     if (lastPost.user_id === BOT_ID) {
         const lastTestIndex = getLastTestIndex(posts, node.id);
         if ((lastPost.post_type === PostTypeChatGPTCorrectAnswerExplanation ||
-            lastPost.post_type === PostTypeChatGPTIncorrectAnswerExplanation) &&
+            lastPost.post_type === PostTypeChatGPTIncorrectAnswerExplanation) && node.questions &&
             lastTestIndex < node.questions.length-1) {
             return UserWaitingForAnotherTest;
         }
         if ((lastPost.post_type === PostTypeChatGPTCorrectAnswerExplanation ||
-            lastPost.post_type === PostTypeChatGPTIncorrectAnswerExplanation) &&
+            lastPost.post_type === PostTypeChatGPTIncorrectAnswerExplanation) && node.questions &&
             lastTestIndex === node.questions.length-1) {
             return UserWaitingForTheTestsResult;
         }
