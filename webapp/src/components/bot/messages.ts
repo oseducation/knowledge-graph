@@ -12,6 +12,8 @@ export const anotherTextMessage = "Show me some text, please";
 export const anotherTestMessage = "Test me on this topic";
 export const karelJSActionMessage = "Let me write some code";
 
+export const vitsiOverviewVideoKey = 'dzbnpfvNA6Y'
+
 export const theVeryFirstMessage = (username: string): Post => {
     return {
         id: '',
@@ -23,7 +25,7 @@ Feel free to ask any questions, and let's make your entrepreneurship journey exc
         post_type: PostTypeVideo,
         user: null,
         props: {
-            video_key: 'HXHKAEl1OQk',
+            video_key: vitsiOverviewVideoKey,
             start: 0,
             length: 105,
         },
