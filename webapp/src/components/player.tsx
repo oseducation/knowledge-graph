@@ -9,6 +9,7 @@ import useGraph from '../hooks/useGraph';
 
 import {generateRandomString} from './time_tracker';
 import VideoOverlay from './player_overlay';
+import {vitsiOverviewVideoKey} from './bot/messages';
 
 declare global {
     interface Window {
@@ -48,6 +49,9 @@ const VideoPlayer = (props: VideoPlayerProps) => {
         title = props.name;
     } else if (nextNodeTowardsGoal) {
         title = nextNodeTowardsGoal.name;
+    }
+    if (props.videoKey === vitsiOverviewVideoKey) {
+        title = 'Vitsi Overview';
     }
 
     useEffect(() => {
