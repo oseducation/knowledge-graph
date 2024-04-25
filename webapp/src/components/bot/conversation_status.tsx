@@ -1,4 +1,4 @@
-import {Post, PostTypeChatGPTCorrectAnswerExplanation, PostTypeChatGPTIncorrectAnswerExplanation, PostTypeGoalFinish, PostTypeTest, PostTypeTestAnswer, PostTypeTopicFinish} from "../../types/posts"
+import {Post, PostTypeChatGPTCorrectAnswerExplanation, PostTypeChatGPTIncorrectAnswerExplanation, PostTypeGoalFinish, PostTypeTest, PostTypeTestAnswer, PostTypeTopic, PostTypeTopicFinish} from "../../types/posts"
 import {NodeWithResources} from "../../types/graph";
 
 import {iKnowThisMessage, anotherVideoMessage, anotherTextMessage, letsStartMessage, anotherTestMessage} from "./messages";
@@ -47,24 +47,24 @@ export const getConversationStatus = (posts: Post[], userID: string, node?: Node
         return WaitingForUser;
     }
 
-    // let goalSwitchDetected = false;
-    // for (let i = posts.length-1; i >= 0; i--) {
-    //     if (posts[i].message === iKnowThisMessage) {
-    //         break;
-    //     }
-    //     if (posts[i].post_type === PostTypeGoalFinish) {
-    //         break;
-    //     }
-    //     if (posts[i].props && posts[i].props.node_id) {
-    //         if (posts[i].props.node_id !== node.id) {
-    //             goalSwitchDetected = true;
-    //         }
-    //         break;
-    //     }
-    // }
-    // if (goalSwitchDetected) {
-    //     return UserSwitchedGoal;
-    // }
+    let goalSwitchDetected = false;
+    for (let i = posts.length-1; i >= 0; i--) {
+        if (posts[i].props && posts[i].props.node_id) {
+            if (posts[i].props.node_id !== node.id) {
+                goalSwitchDetected = true;
+            }
+            break;
+        }
+        if (posts[i].post_type === PostTypeGoalFinish) {
+            break;
+        }
+        if (posts[i].post_type === PostTypeTopic) {
+            break;
+        }
+    }
+    if (goalSwitchDetected) {
+        return UserSwitchedGoal;
+    }
 
     const lastPost = posts[posts.length - 1];
     if (lastPost.post_type === "" && lastPost.user_id === userID) {
