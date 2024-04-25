@@ -25,7 +25,7 @@ const PostContainer = (props: Props) => {
                 pr: {xs: '2px', sm: '10px', md: '20px', lg: '40px'},
             }}
         >
-            <Box display='flex' flexDirection='row' alignItems={'flex-start'} flexGrow={1}>
+            <Box display='flex' flexDirection='row' alignItems={'flex-start'} flexGrow={1} minWidth={0}>
                 <Box display='flex' flexDirection='row' alignItems={'flex-start'} justifyContent={'center'}>
                     <ListItemAvatar sx={{display: 'flex', justifyContent:'center'}}>
                         {props.isBot ?

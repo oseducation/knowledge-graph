@@ -72,8 +72,8 @@ const VideoMessage = (props: Props) => {
         position: 'fixed',
         top: '40px',
         right: '0',
-        width: '300px',
-        height: 'auto',
+        width: {xs: '280px', sm: '400px'},
+        height: {xs: '200px', sm: '300px'},
         zIndex: 1000,
         margin: '20px'
     } : {};
