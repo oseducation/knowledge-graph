@@ -39,6 +39,7 @@ type Store interface {
 	UserInteraction() UserInteractionStore
 	Experiments() ExperimentsStore
 	Customer() CustomerStore
+	NodeNote() NodeNoteStore
 }
 
 // SQLStore struct represents a DB
@@ -62,6 +63,7 @@ type SQLStore struct {
 	userInteractionStore UserInteractionStore
 	experimentsStore     ExperimentsStore
 	customerStore        CustomerStore
+	nodeNoteStore        NodeNoteStore
 	config               *config.DBSettings
 	logger               *log.Logger
 }
@@ -135,6 +137,7 @@ func CreateStore(config *config.DBSettings, logger *log.Logger) Store {
 	sqlStore.userInteractionStore = NewUserInteractionStore(sqlStore)
 	sqlStore.experimentsStore = NewExperimentsStore(sqlStore)
 	sqlStore.customerStore = NewCustomerStore(sqlStore)
+	sqlStore.nodeNoteStore = NewNodeNoteStore(sqlStore)
 	if err := sqlStore.RunMigrations(); err != nil {
 		logger.Fatal("can't run migrations", log.Err(err))
 	}
@@ -209,6 +212,10 @@ func (sqlDB *SQLStore) Nuke() error {
 		return errors.Wrap(err, "could not subscriptions")
 	}
 
+	if _, err := tx.Exec("DROP TABLE IF EXISTS user_node_notes"); err != nil {
+		return errors.Wrap(err, "could not user_node_notes")
+	}
+
 	if err := tx.Commit(); err != nil {
 		return errors.Wrap(err, "could not commit")
 	}
@@ -270,6 +277,9 @@ func (sqlDB *SQLStore) EmptyAllTables() {
 		}
 		if _, err := sqlDB.db.Exec("DELETE FROM subscriptions"); err != nil {
 			sqlDB.logger.Fatal("can't delete from subscriptions", log.Err(err))
+		}
+		if _, err := sqlDB.db.Exec("DELETE FROM user_node_notes"); err != nil {
+			sqlDB.logger.Fatal("can't delete from user_node_notes", log.Err(err))
 		}
 	}
 }
@@ -419,4 +429,9 @@ func (sqlDB *SQLStore) Experiments() ExperimentsStore {
 // Customer returns an interface to manage customers in the DB
 func (sqlDB *SQLStore) Customer() CustomerStore {
 	return sqlDB.customerStore
+}
+
+// NodeNote returns an interface to manage user's notes in the DB
+func (sqlDB *SQLStore) NodeNote() NodeNoteStore {
+	return sqlDB.nodeNoteStore
 }
