@@ -18,7 +18,7 @@ const BotStreamMessage = (props: Props) => {
 
     const component = (
         <PostContainer isBot={true} tutorPersonality={props.tutorPersonality}>
-            <Typography component="span" sx={{whiteSpace: 'pre-wrap'}}>
+            <Typography component="span">
                 <Markdown text={props.message + '⬤'}/>
             </Typography>
         </PostContainer>
