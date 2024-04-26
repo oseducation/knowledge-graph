@@ -8,10 +8,11 @@ import (
 
 // NodeNoteStore is an interface to crud users's notes on node
 type NodeNoteStore interface {
-	SaveOrUpdate(nodeNote *model.UserNodeNote) error
+	Save(nodeNote *model.UserNodeNote) (*model.UserNodeNote, error)
 	Update(new *model.UserNodeNote) error
+	Delete(new *model.UserNodeNote) error
+	Get(id string) (*model.UserNodeNote, error)
 	GetNotesForUser(userID string) ([]*model.UserNodeNote, error)
-	GetNoteForUserNode(userID, nodeID, noteName string) (*model.UserNodeNote, error)
 }
 
 // SQLNodeNoteStore is a struct to store users's notes on a node
@@ -24,10 +25,14 @@ type SQLNodeNoteStore struct {
 func NewNodeNoteStore(db *SQLStore) NodeNoteStore {
 	nodeNotesSelect := db.builder.
 		Select(
+			"nn.id",
 			"nn.user_id",
 			"nn.node_id",
 			"nn.note_name",
 			"nn.note",
+			"nn.created_at",
+			"nn.updated_at",
+			"nn.deleted_at",
 		).
 		From("user_node_notes nn")
 
@@ -37,31 +42,36 @@ func NewNodeNoteStore(db *SQLStore) NodeNoteStore {
 	}
 }
 
-func (nn *SQLNodeNoteStore) SaveOrUpdate(nodeNote *model.UserNodeNote) error {
+func (nn *SQLNodeNoteStore) Save(nodeNote *model.UserNodeNote) (*model.UserNodeNote, error) {
+	if nodeNote.ID != "" {
+		return nil, errors.New("invalid input")
+	}
+	nodeNote.BeforeSave()
 	if err := nodeNote.IsValid(); err != nil {
-		return err
+		return nil, err
 	}
 
-	oldNote, err := nn.GetNoteForUserNode(nodeNote.UserID, nodeNote.NodeID, nodeNote.NoteName)
-	if err != nil && oldNote.Note != nodeNote.Note {
-		return nn.Update(nodeNote)
-	}
-
-	_, err = nn.sqlStore.execBuilder(nn.sqlStore.db, nn.sqlStore.builder.
+	_, err := nn.sqlStore.execBuilder(nn.sqlStore.db, nn.sqlStore.builder.
 		Insert("user_node_notes").
 		SetMap(map[string]interface{}{
-			"user_id":   nodeNote.UserID,
-			"node_id":   nodeNote.NodeID,
-			"note_name": nodeNote.NoteName,
-			"note":      nodeNote.Note,
+			"id":         nodeNote.ID,
+			"user_id":    nodeNote.UserID,
+			"node_id":    nodeNote.NodeID,
+			"note_name":  nodeNote.NoteName,
+			"note":       nodeNote.Note,
+			"created_at": nodeNote.CreatedAt,
+			"updated_at": nodeNote.UpdatedAt,
+			"deleted_at": nodeNote.DeletedAt,
 		}))
 	if err != nil {
-		return errors.Wrapf(err, "can't save user node note with note name:%s for user:%s", nodeNote.NoteName, nodeNote.UserID)
+		return nil, errors.Wrapf(err, "can't save user node note with note name:%s for user:%s", nodeNote.NoteName, nodeNote.UserID)
 	}
-	return nil
+	return nodeNote, nil
 }
 
 func (nn *SQLNodeNoteStore) Update(new *model.UserNodeNote) error {
+	new.BeforeUpdate()
+
 	if err := new.IsValid(); err != nil {
 		return err
 	}
@@ -69,18 +79,42 @@ func (nn *SQLNodeNoteStore) Update(new *model.UserNodeNote) error {
 	_, err := nn.sqlStore.execBuilder(nn.sqlStore.db, nn.sqlStore.builder.
 		Update("user_node_notes").
 		SetMap(map[string]interface{}{
-			"note": new.Note,
+			"note":      new.Note,
+			"note_name": new.NoteName,
 		}).
 		Where(sq.And{
-			sq.Eq{"user_id": new.UserID},
-			sq.Eq{"node_id": new.NodeID},
-			sq.Eq{"note_name": new.NoteName},
+			sq.Eq{"id": new.ID},
 		}))
 	if err != nil {
 		return errors.Wrapf(err, "failed to update note for user with id '%s'", new.UserID)
 	}
 
 	return nil
+}
+
+func (nn *SQLNodeNoteStore) Delete(note *model.UserNodeNote) error {
+	_, err := nn.sqlStore.execBuilder(nn.sqlStore.db, nn.sqlStore.builder.
+		Update("user_node_notes").
+		SetMap(map[string]interface{}{
+			"deleted_at": model.GetMillis(),
+		}).
+		Where(sq.And{
+			sq.Eq{"id": note.ID},
+		}))
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete note for user with id '%s'", note.ID)
+	}
+
+	return nil
+}
+
+// Get gets note by id
+func (nn *SQLNodeNoteStore) Get(id string) (*model.UserNodeNote, error) {
+	var userNote model.UserNodeNote
+	if err := nn.sqlStore.getBuilder(nn.sqlStore.db, &userNote, nn.nodeNotesSelect.Where(sq.Eq{"nn.id": id})); err != nil {
+		return nil, errors.Wrapf(err, "can't get note by id: %s", id)
+	}
+	return &userNote, nil
 }
 
 func (nn *SQLNodeNoteStore) GetNotesForUser(userID string) ([]*model.UserNodeNote, error) {
@@ -92,17 +126,4 @@ func (nn *SQLNodeNoteStore) GetNotesForUser(userID string) ([]*model.UserNodeNot
 		return nil, errors.Wrapf(err, "can't get all the notes")
 	}
 	return userNotes, nil
-}
-
-func (nn *SQLNodeNoteStore) GetNoteForUserNode(userID, nodeID, noteName string) (*model.UserNodeNote, error) {
-	var userNote model.UserNodeNote
-	if err := nn.sqlStore.getBuilder(nn.sqlStore.db, &userNote,
-		nn.nodeNotesSelect.Where(sq.And{
-			sq.Eq{"user_id": userID},
-			sq.Eq{"node_id": nodeID},
-			sq.Eq{"note_name": noteName},
-		})); err != nil {
-		return nil, errors.Wrapf(err, "can't get note for %s note_name", noteName)
-	}
-	return &userNote, nil
 }

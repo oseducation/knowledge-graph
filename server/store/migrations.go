@@ -563,11 +563,15 @@ var migrations = []Migration{
 		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
 			if _, err := e.Exec(`
 				CREATE TABLE IF NOT EXISTS user_node_notes (
+					id VARCHAR(26) PRIMARY KEY,
 					user_id VARCHAR(26),
 					node_id VARCHAR(26),
 					note_name VARCHAR(64),
 					note VARCHAR(8192),
-					UNIQUE (user_id, node_id, note_name)
+					created_at bigint,
+					updated_at bigint,
+					deleted_at bigint,
+					UNIQUE (user_id, note_name)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table user_node_notes")
