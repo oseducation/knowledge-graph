@@ -15,7 +15,7 @@ const TextMessage = (props: Props) => {
     const {message} = useMessageReveal(props.message, props.shouldAnimate, props.scrollToBottom);
 
     return (
-        <Typography component="span" sx={{whiteSpace: 'pre-wrap'}}>
+        <Typography component="span">
             <Markdown text={message}/>
         </Typography>
     );
