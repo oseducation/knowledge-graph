@@ -1,7 +1,7 @@
 import React, {createContext, useEffect, useState} from 'react';
 import {useTranslation} from "react-i18next";
 
-import {DagMode, User, UserPreferences} from '../types/users';
+import {DagMode, User, UserNoteForDisplay, UserPreferences} from '../types/users';
 import {Client} from "../client/client";
 import {Analytics} from '../analytics';
 
@@ -11,6 +11,8 @@ interface UserContextState {
     setUser: React.Dispatch<React.SetStateAction<User | null>> | null;
     preferences: UserPreferences | null;
     setPreferences: React.Dispatch<React.SetStateAction<UserPreferences | null>> | null;
+    userNotes: UserNoteForDisplay[];
+    setUserNotes: React.Dispatch<React.SetStateAction<UserNoteForDisplay[]>>;
 }
 
 const AuthContext = createContext<UserContextState>({
@@ -18,7 +20,9 @@ const AuthContext = createContext<UserContextState>({
     loading: true,
     setUser: null,
     preferences: null,
-    setPreferences: null
+    setPreferences: null,
+    userNotes: [],
+    setUserNotes: () => {},
 });
 
 interface Props {
@@ -30,6 +34,7 @@ export const AuthProvider = (props: Props) => {
     const [preferences, setPreferences] = useState<UserPreferences | null>(null);
     const [loading, setLoading] = useState(true)
     const {i18n} = useTranslation();
+    const [userNotes, setUserNotes] = useState<UserNoteForDisplay[]>([]);
 
     const fetchUserData = async () => {
         setLoading(true);
@@ -63,6 +68,32 @@ export const AuthProvider = (props: Props) => {
                 setUser(null);
                 setLoading(false);
             });
+
+            Client.User().getNotes(data.id).then((data) => {
+                // const x = [
+                //     {
+                //         id: 'startups',
+                //         note_name: 'startups'
+                //     },
+                //     {
+                //         id: 'startups1',
+                //         note_name: 'startups'
+                //     },
+                //     {
+                //         id: 'startups2',
+                //         note_name: 'blublu'
+                //     },
+                //     {
+                //         id: 'startups3',
+                //         note_name: 'bla bla'
+                //     },
+                //     {
+                //         id: 'Where Do Great Startup Ideas Come From: Stripe',
+                //         note_name: 'Where Do Great Startup Ideas Come From: Stripe'
+                //     }
+                // ]
+                setUserNotes(data);
+            })
         }).catch((err) => {
             console.log('error while getting me', err);
             setUser(null);
@@ -77,7 +108,7 @@ export const AuthProvider = (props: Props) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{user, loading, setUser, preferences, setPreferences}}>
+        <AuthContext.Provider value={{user, loading, setUser, preferences, setPreferences, userNotes, setUserNotes}}>
             {props.children}
         </AuthContext.Provider>
     );

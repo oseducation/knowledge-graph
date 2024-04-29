@@ -1,51 +1,51 @@
 import React, {useState} from 'react';
 import {ClickAwayListener, ListItem, ListItemIcon, ListItemText, useTheme} from '@mui/material';
 
-import {GroupItem} from '../../types/sidebar';
-import { DashboardColors } from '../../ThemeOptions';
-
-interface ItemProps {
-    item: GroupItem;
+interface DashboardLHSGroupProps {
+    id: string;
+    display_name: string;
+    areaLabel: string;
+    icon?: React.ReactNode;
+    onClick: () => void;
+    onHoverIcon?: React.ReactNode;
+    secondaryOnHover?: React.ReactNode
 }
 
-const Item = (props: ItemProps) => {
+const DashboardLHSGroup = (props: DashboardLHSGroupProps) => {
     const [isHovered, setIsHovered] = useState(false);
-    const theme = useTheme()
-    // const primaryContrastColor = theme.palette.getContrastText(DashboardColors.primary)
+    const theme = useTheme();
 
     return (
         <ClickAwayListener onClickAway={() => setIsHovered(false)}>
             <ListItem
-                aria-label={props.item.areaLabel}
+                aria-label={props.areaLabel}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                secondaryAction={isHovered && props.item.itemMenu}
-                onClick={() => props.item.onClick?.()}
+                secondaryAction={isHovered && props.secondaryOnHover}
+                onClick={() => props.onClick()}
                 sx={{
                     'cursor': 'pointer',
                     '&:hover': {
-                        // backgroundColor: theme.palette.action.hover,
-                        backgroundColor: DashboardColors.background,
-                        color: DashboardColors.primary,
+                        backgroundColor: theme.palette.background.default,
+                        color: theme.palette.primary.main,
                         borderRadius: '12px',
-                        // margin: '0px 12px',
                     },
                     '&:active': {
                         backgroundColor: theme.palette.action.active,
                     },
                     height: '48px',
                 }}
-                color={DashboardColors.background}
+                color={theme.palette.background.default}
             >
-                {props.item.icon &&
+                {props.icon &&
                     <ListItemIcon
                         sx={{
-                            color: isHovered? DashboardColors.primary : DashboardColors.background,
+                            color: isHovered? theme.palette.primary.main : theme.palette.background.default,
                             mr: '12px',
                             minWidth: 0
                         }}
                     >
-                        {props.item.icon}
+                        {isHovered? props.onHoverIcon : props.icon}
                     </ListItemIcon>
                 }
                 <ListItemText
@@ -54,17 +54,17 @@ const Item = (props: ItemProps) => {
                     }}
                     primaryTypographyProps={{
                         sx: {
-                            color: isHovered? DashboardColors.primary : DashboardColors.background,
+                            color: isHovered? theme.palette.primary.main : theme.palette.background.default,
                             fontWeight: 600,
                             fontSize: '16px',
                         }
                     }}
-                    color={DashboardColors.background}
-                    primary={props.item.display_name}
+                    color={theme.palette.background.default}
+                    primary={props.display_name}
                 />
             </ListItem>
         </ClickAwayListener>
     );
 };
 
-export default Item;
+export default DashboardLHSGroup;

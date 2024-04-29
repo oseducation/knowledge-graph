@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Box from '@mui/material/Box';
-import {Button, Divider, List, Typography} from "@mui/material";
+import {Button, List, Typography} from "@mui/material";
 import {useNavigate} from 'react-router-dom';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
@@ -10,12 +10,12 @@ import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import BoltIcon from '@mui/icons-material/Bolt';
 
 import {DashboardColors} from '../../ThemeOptions';
-import {GroupItem} from '../../types/sidebar';
 import {getLogo} from '../header';
 import useAuth from '../../hooks/useAuth';
 import UpgradeModal from '../pricing/upgrade_modal';
 
-import Item from './item';
+import DashboardLHSGroup from './dashboard_lhs_group';
+// import LHSNotes from './notes_lhs';
 
 
 const DashboardLHS = () =>{
@@ -75,14 +75,18 @@ const DashboardLHS = () =>{
             </Box>
             <List dense={true}>
                 {items.map((item) =>
-                    <div key={item.id || item.display_name}>
-                        <Item
-                            item={item as GroupItem}
+                    <div key={item.id}>
+                        <DashboardLHSGroup
+                            id={item.id}
+                            display_name={item.display_name}
+                            areaLabel={item.display_name}
+                            icon={item.icon}
+                            onClick={item.onClick}
                         />
                     </div>
                 )}
+                {/* <LHSNotes/> */}
             </List>
-            <Divider/>
             {user && user.role === 'user' &&
                 <>
                     <Button

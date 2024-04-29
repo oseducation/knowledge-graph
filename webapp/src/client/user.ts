@@ -1,6 +1,6 @@
 import {Graph} from "../types/graph";
 import {TutorPersonality} from "../types/tutor_personalities";
-import {Preference, User, UserCode, UserInteraction, UserWithNodeCount} from "../types/users";
+import {Preference, User, UserCode, UserInteraction, UserNoteForDisplay, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -168,6 +168,15 @@ export class UserClient {
     getTutorPersonalities = async () => {
         const {data} = await this.rest.doFetchWithResponse<TutorPersonality[]>(
             `${this.rest.getBaseRoute()}/tutor-personalities`,
+            {method: 'get'},
+        );
+
+        return data;
+    }
+
+    getNotes = async (userID: string) => {
+        const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
+            `${this.rest.getBaseRoute()}/notes/users/${userID}`,
             {method: 'get'},
         );
 

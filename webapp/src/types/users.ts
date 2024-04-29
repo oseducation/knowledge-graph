@@ -101,3 +101,8 @@ export type PerformerUser = {
     finished_count: number;
 };
 
+
+export type UserNoteForDisplay = {
+    id: string;
+    note_name: string;
+}

@@ -104,6 +104,17 @@ func getNoteNamesForUser(c *gin.Context) {
 		return
 	}
 
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if session.UserID != userID {
+		responseFormat(c, http.StatusBadRequest, "invalid user_id")
+		return
+	}
+
 	notes, err := a.GetNotesForUser(userID)
 	if err != nil {
 		responseFormat(c, http.StatusInternalServerError, err.Error())
