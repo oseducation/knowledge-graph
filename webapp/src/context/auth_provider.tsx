@@ -70,28 +70,49 @@ export const AuthProvider = (props: Props) => {
             });
 
             Client.User().getNotes(data.id).then((data) => {
-                // const x = [
-                //     {
-                //         id: 'startups',
-                //         note_name: 'startups'
-                //     },
-                //     {
-                //         id: 'startups1',
-                //         note_name: 'startups'
-                //     },
-                //     {
-                //         id: 'startups2',
-                //         note_name: 'blublu'
-                //     },
-                //     {
-                //         id: 'startups3',
-                //         note_name: 'bla bla'
-                //     },
-                //     {
-                //         id: 'Where Do Great Startup Ideas Come From: Stripe',
-                //         note_name: 'Where Do Great Startup Ideas Come From: Stripe'
-                //     }
-                // ]
+                /*const x = [
+                    {
+                        id: 'startups',
+                        note_name: 'startups'
+                    },
+                    {
+                        id: 'startups1',
+                        note_name: 'startups'
+                    },
+                    {
+                        id: 'startups2',
+                        note_name: 'blublu'
+                    },
+                    {
+                        id: 'startups3',
+                        note_name: 'bla bla'
+                    },
+                    {
+                        id: 'Where Do Great Startup Ideas Come From: Stripe',
+                        note_name: 'Where Do Great Startup Ideas Come From: Stripe'
+                    },
+                    {
+                        id: 'startups4',
+                        note_name: 'startups'
+                    },
+                    {
+                        id: 'Are you wondering if youre cut out to be a startup founder? Its a complex question and, frankly',
+                        note_name: 'Are you wondering if youre cut out to be a startup founder? Its a complex question and, frankly'
+                    },
+                    {
+                        id: 'startups25',
+                        note_name: 'blublu'
+                    },
+                    {
+                        id: 'startups36',
+                        note_name: 'bla bla'
+                    },
+                    {
+                        id: '7Where Do Great Startup Ideas Come From: Stripe',
+                        note_name: 'Where Do Great Startup Ideas Come From: Stripe'
+                    }
+                ]
+*/
                 setUserNotes(data);
             })
         }).catch((err) => {
