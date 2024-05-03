@@ -1,0 +1,59 @@
+.tiptap {
+    > * + * {
+        margin-top: 0.75em;
+    }
+
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+
+    &:focus-visible {
+        outline: none;
+    }
+    height: 100px;
+}
+
+.bubble-menu {
+    display: flex;
+    background-color: #6b57ea;
+    padding: 0.2rem;
+    border-radius: 0.5rem;
+
+    button {
+        border: none;
+        background: none;
+        color: #f6f4ff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0 0.2rem;
+        opacity: 0.6;
+
+        &:hover,
+        &.is-active {
+            opacity: 1;
+        }
+    }
+}
+
+.floating-menu {
+    display: flex;
+    background-color: #6b57ea;
+    padding: 0.2rem;
+    border-radius: 0.5rem;
+
+    button {
+        border: none;
+        background: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0 0.2rem;
+        opacity: 0.6;
+        color: #f6f4ff;
+
+        &:hover,
+        &.is-active {
+            opacity: 1;
+        }
+    }
+}

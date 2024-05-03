@@ -111,9 +111,10 @@ export const AuthProvider = (props: Props) => {
                         id: '7Where Do Great Startup Ideas Come From: Stripe',
                         note_name: 'Where Do Great Startup Ideas Come From: Stripe'
                     }
-                ]
-*/
-                setUserNotes(data);
+                ]*/
+                if (data) {
+                    setUserNotes(data);
+                }
             })
         }).catch((err) => {
             console.log('error while getting me', err);
