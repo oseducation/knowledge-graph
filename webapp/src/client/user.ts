@@ -1,6 +1,6 @@
 import {Graph} from "../types/graph";
 import {TutorPersonality} from "../types/tutor_personalities";
-import {Preference, User, UserCode, UserInteraction, UserNoteForDisplay, UserWithNodeCount} from "../types/users";
+import {Preference, User, UserCode, UserInteraction, UserNote, UserNoteForDisplay, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -178,6 +178,33 @@ export class UserClient {
         const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
             `${this.rest.getBaseRoute()}/notes/users/${userID}`,
             {method: 'get'},
+        );
+
+        return data;
+    }
+
+    getNote = async (noteID: string) => {
+        const {data} = await this.rest.doFetchWithResponse<UserNote>(
+            `${this.rest.getBaseRoute()}/notes/${noteID}`,
+            {method: 'get'},
+        );
+
+        return data;
+    }
+
+    CreateNote = async (note: UserNote) => {
+        const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
+            `${this.rest.getBaseRoute()}/notes`,
+            {method: 'post', body: JSON.stringify(note)},
+        );
+
+        return data;
+    }
+
+    UpdateNote = async (note: UserNote) => {
+        const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
+            `${this.rest.getBaseRoute()}/notes`,
+            {method: 'put', body: JSON.stringify(note)},
         );
 
         return data;

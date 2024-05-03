@@ -8,7 +8,7 @@ import {useTranslation} from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import useAuth from "../hooks/useAuth";
-import useDrawer from '../hooks/useDrawer';
+import useLayout from '../hooks/useLayout';
 import {Analytics} from '../analytics';
 
 import ProfileDropdown from "./profile_dropdown";
@@ -19,7 +19,7 @@ function Header() {
     const {user} = useAuth()
     const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
-    const {open, setOpen} = useDrawer();
+    const {drawerOpen, setDrawerOpen} = useLayout();
     const isLoggedInOnThePhone = user && isPhone;
     const location = useLocation();
     const {t} = useTranslation();
@@ -85,7 +85,7 @@ function Header() {
     }
 
     const handleDrawerToggle = () => {
-        setOpen?.(!open);
+        setDrawerOpen?.(!drawerOpen);
     };
 
     return (

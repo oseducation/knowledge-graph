@@ -10,7 +10,7 @@ import {getVideoLength, NodeStatusFinished, NodeWithResources, Video, Text, Ques
 import {Client} from '../client/client';
 import {GroupItem, SidebarGroup} from '../types/sidebar';
 import useAuth from '../hooks/useAuth';
-import useDrawer from '../hooks/useDrawer';
+import useLayout from '../hooks/useLayout';
 import {Analytics} from '../analytics';
 import useGraph from '../hooks/useGraph';
 
@@ -33,7 +33,7 @@ const Node = (props: Props) => {
     const [loading, setLoading] = useState<boolean>(false)
     const theme = useTheme();
     const {user} = useAuth()
-    const {open, setOpen} = useDrawer();
+    const {drawerOpen, setDrawerOpen} = useLayout();
     const {t} = useTranslation();
     const {
         mixins: {toolbar},
@@ -68,7 +68,7 @@ const Node = (props: Props) => {
     }, [props.nodeID]);
 
     const handleDrawerToggle = () => {
-        setOpen?.(!open);
+        setDrawerOpen?.(!drawerOpen);
     };
 
     const computeGroups = (node: NodeWithResources) => {
@@ -220,7 +220,7 @@ const Node = (props: Props) => {
             >
                 <Drawer
                     variant="temporary"
-                    open={open}
+                    open={drawerOpen}
                     onClose={handleDrawerToggle}
                     ModalProps={{
                         keepMounted: true, // Better open performance on mobile.

@@ -4,17 +4,18 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import {Box, CssBaseline, Drawer, Toolbar} from '@mui/material';
 
 import {DashboardColors} from '../../ThemeOptions';
-import useDrawer from '../../hooks/useDrawer';
-import {DrawerProvider} from '../../context/drawer_provider';
+import useLayout from '../../hooks/useLayout';
+import {LayoutProvider} from '../../context/layout_provider';
+import NoteEditorRHS from '../rhs/note_editor_rhs';
 
 import DashboardHeader from './dashboard_header';
 import DashboardLHS from './dashboard_lhs';
 
 const DashboardLayoutComp = () => {
-    const {open, setOpen} = useDrawer();
+    const {drawerOpen, setDrawerOpen, rhsNoteID} = useLayout();
 
     const handleDrawerToggle = () => {
-        setOpen?.(!open);
+        setDrawerOpen?.(!drawerOpen);
     };
 
     return (
@@ -30,7 +31,7 @@ const DashboardLayoutComp = () => {
             >
                 <Drawer
                     variant="temporary"
-                    open={open}
+                    open={drawerOpen}
                     onClose={handleDrawerToggle}
                     ModalProps={{
                         keepMounted: true, // Better open performance on mobile.
@@ -64,13 +65,31 @@ const DashboardLayoutComp = () => {
                 }}>
                     <DashboardLHS/>
                 </Grid2>
-                <Grid2 xs={true} sx={{height: '100vh'}} bgcolor={DashboardColors.background}>
-                    <Box sx={{height: '64px'}}>
-                        <Toolbar disableGutters>
-                            <DashboardHeader/>
-                        </Toolbar>
-                    </Box>
-                    <Outlet/>
+                <Grid2
+                    xs={true}
+                    sx={{height: '100vh'}}
+                    bgcolor={DashboardColors.background}
+                >
+                    <Grid2 xs={true}>
+                        <Box sx={{height: '64px'}}>
+                            <Toolbar disableGutters>
+                                <DashboardHeader/>
+                            </Toolbar>
+                        </Box>
+                        <Box display={'flex'} flexDirection={'row'}>
+                            <Grid2 xs={true}>
+                                <Outlet/>
+                            </Grid2>
+                            {rhsNoteID &&
+                                <Grid2 xs={3} sx={{
+                                    overflowY: 'auto',
+                                    display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
+                                }}>
+                                    <NoteEditorRHS noteID={rhsNoteID}/>
+                                </Grid2>
+                            }
+                        </Box>
+                    </Grid2>
                 </Grid2>
             </Grid2>
         </Box>
@@ -80,8 +99,8 @@ const DashboardLayoutComp = () => {
 
 export default function DashboardLayout() {
     return (
-        <DrawerProvider>
+        <LayoutProvider>
             <DashboardLayoutComp/>
-        </DrawerProvider>
+        </LayoutProvider>
     );
 }

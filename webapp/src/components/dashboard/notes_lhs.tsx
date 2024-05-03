@@ -10,6 +10,7 @@ import {IconButton, useTheme} from '@mui/material';
 // import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
 
 import useAuth from '../../hooks/useAuth';
+import useLayout from '../../hooks/useLayout';
 
 import DashboardLHSGroup from './dashboard_lhs_group';
 import DashboardLHSItem from './dashboard_lhs_item';
@@ -20,6 +21,7 @@ const LHSNotes = () =>{
     const {userNotes} = useAuth();
     const [open, setOpen] = useState(false);
     const theme = useTheme();
+    const {setRHSNoteID} = useLayout();
 
     return (
         <Box>
@@ -38,7 +40,7 @@ const LHSNotes = () =>{
                         }}
                         onClick={(event) => {
                             event.stopPropagation();
-                            // navigate('/dashboard/notes/new')
+                            setRHSNoteID('');
                         }}
                     >
                         <AddIcon fontSize='small'/>
@@ -53,7 +55,7 @@ const LHSNotes = () =>{
                                 key={note.id}
                                 display_name= {note.note_name}
                                 onClick = {() => {
-                                    // navigate(`/dashboard/notes/${note.id}`)
+                                    setRHSNoteID(note.id)
                                 }}
                                 areaLabel= {note.note_name}
                             />

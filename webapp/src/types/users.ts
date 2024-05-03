@@ -106,3 +106,10 @@ export type UserNoteForDisplay = {
     id: string;
     note_name: string;
 }
+
+export type UserNote = {
+    id: string;
+    user_id: string;
+    note_name: string;
+    note: string;
+}
