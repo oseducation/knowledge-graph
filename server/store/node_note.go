@@ -123,6 +123,7 @@ func (nn *SQLNodeNoteStore) GetNotesForUser(userID string) ([]*model.UserNodeNot
 	if err := nn.sqlStore.selectBuilder(nn.sqlStore.db, &userNotes,
 		nn.nodeNotesSelect.Where(sq.And{
 			sq.Eq{"user_id": userID},
+			sq.Eq{"deleted_at": 0},
 		}).OrderBy("nn.updated_at DESC")); err != nil {
 		return nil, errors.Wrapf(err, "can't get all the notes")
 	}

@@ -201,6 +201,15 @@ export class UserClient {
         return data;
     }
 
+    DeleteNote = async (noteID: string) => {
+        const {data} = await this.rest.doFetchWithResponse<string>(
+            `${this.rest.getBaseRoute()}/notes/${noteID}`,
+            {method: 'delete'},
+        );
+
+        return data;
+    }
+
     UpdateNote = async (note: UserNote) => {
         const {data} = await this.rest.doFetchWithResponse<string>(
             `${this.rest.getBaseRoute()}/notes`,

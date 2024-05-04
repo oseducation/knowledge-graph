@@ -4,7 +4,12 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import useAuth from '../../hooks/useAuth';
+import {Client} from '../../client/client';
+import useLayout from '../../hooks/useLayout';
+
 interface DashboardLHSItemProps {
+    id: string;
     display_name: string;
     areaLabel: string;
     icon?: React.ReactNode;
@@ -16,6 +21,8 @@ const DashboardLHSItem = (props: DashboardLHSItemProps) => {
     const [isHovered, setIsHovered] = useState(false);
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const {userNotes, setUserNotes} = useAuth();
+    const {setRHSNoteID} = useLayout();
 
     const open = Boolean(anchorEl);
 
@@ -27,6 +34,14 @@ const DashboardLHSItem = (props: DashboardLHSItemProps) => {
         setAnchorEl(null);
         setIsHovered(false);
     };
+
+    const onDelete = () => {
+        Client.User().DeleteNote(props.id).then(() => {
+            setUserNotes(userNotes.filter((note) => note.id !== props.id));
+            setRHSNoteID(null);
+        });
+        handleClose();
+    }
 
     return (
         <ListItem
@@ -114,7 +129,7 @@ const DashboardLHSItem = (props: DashboardLHSItemProps) => {
                             Rename
                         </ListItemText>
                     </MenuItem>
-                    <MenuItem>
+                    <MenuItem onClick={() => onDelete()}>
                         <ListItemIcon color={theme.palette.primary.main}>
                             <DeleteIcon fontSize="small"/>
                         </ListItemIcon>
