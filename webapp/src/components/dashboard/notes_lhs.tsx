@@ -40,7 +40,7 @@ const LHSNotes = () =>{
                         }}
                         onClick={(event) => {
                             event.stopPropagation();
-                            setRHSNoteID('');
+                            setRHSNoteID('new');
                         }}
                     >
                         <AddIcon fontSize='small'/>

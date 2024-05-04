@@ -79,8 +79,9 @@ func (nn *SQLNodeNoteStore) Update(new *model.UserNodeNote) error {
 	_, err := nn.sqlStore.execBuilder(nn.sqlStore.db, nn.sqlStore.builder.
 		Update("user_node_notes").
 		SetMap(map[string]interface{}{
-			"note":      new.Note,
-			"note_name": new.NoteName,
+			"note":       new.Note,
+			"note_name":  new.NoteName,
+			"updated_at": new.UpdatedAt,
 		}).
 		Where(sq.And{
 			sq.Eq{"id": new.ID},
@@ -122,7 +123,7 @@ func (nn *SQLNodeNoteStore) GetNotesForUser(userID string) ([]*model.UserNodeNot
 	if err := nn.sqlStore.selectBuilder(nn.sqlStore.db, &userNotes,
 		nn.nodeNotesSelect.Where(sq.And{
 			sq.Eq{"user_id": userID},
-		})); err != nil {
+		}).OrderBy("nn.updated_at DESC")); err != nil {
 		return nil, errors.Wrapf(err, "can't get all the notes")
 	}
 	return userNotes, nil

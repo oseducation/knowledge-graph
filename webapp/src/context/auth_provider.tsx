@@ -1,7 +1,7 @@
 import React, {createContext, useEffect, useState} from 'react';
 import {useTranslation} from "react-i18next";
 
-import {DagMode, User, UserNoteForDisplay, UserPreferences} from '../types/users';
+import {DagMode, User, UserNote, UserPreferences} from '../types/users';
 import {Client} from "../client/client";
 import {Analytics} from '../analytics';
 
@@ -11,8 +11,8 @@ interface UserContextState {
     setUser: React.Dispatch<React.SetStateAction<User | null>> | null;
     preferences: UserPreferences | null;
     setPreferences: React.Dispatch<React.SetStateAction<UserPreferences | null>> | null;
-    userNotes: UserNoteForDisplay[];
-    setUserNotes: React.Dispatch<React.SetStateAction<UserNoteForDisplay[]>>;
+    userNotes: UserNote[];
+    setUserNotes: React.Dispatch<React.SetStateAction<UserNote[]>>;
 }
 
 const AuthContext = createContext<UserContextState>({
@@ -34,7 +34,7 @@ export const AuthProvider = (props: Props) => {
     const [preferences, setPreferences] = useState<UserPreferences | null>(null);
     const [loading, setLoading] = useState(true)
     const {i18n} = useTranslation();
-    const [userNotes, setUserNotes] = useState<UserNoteForDisplay[]>([]);
+    const [userNotes, setUserNotes] = useState<UserNote[]>([]);
 
     const fetchUserData = async () => {
         setLoading(true);
@@ -70,48 +70,6 @@ export const AuthProvider = (props: Props) => {
             });
 
             Client.User().getNotes(data.id).then((data) => {
-                /*const x = [
-                    {
-                        id: 'startups',
-                        note_name: 'startups'
-                    },
-                    {
-                        id: 'startups1',
-                        note_name: 'startups'
-                    },
-                    {
-                        id: 'startups2',
-                        note_name: 'blublu'
-                    },
-                    {
-                        id: 'startups3',
-                        note_name: 'bla bla'
-                    },
-                    {
-                        id: 'Where Do Great Startup Ideas Come From: Stripe',
-                        note_name: 'Where Do Great Startup Ideas Come From: Stripe'
-                    },
-                    {
-                        id: 'startups4',
-                        note_name: 'startups'
-                    },
-                    {
-                        id: 'Are you wondering if youre cut out to be a startup founder? Its a complex question and, frankly',
-                        note_name: 'Are you wondering if youre cut out to be a startup founder? Its a complex question and, frankly'
-                    },
-                    {
-                        id: 'startups25',
-                        note_name: 'blublu'
-                    },
-                    {
-                        id: 'startups36',
-                        note_name: 'bla bla'
-                    },
-                    {
-                        id: '7Where Do Great Startup Ideas Come From: Stripe',
-                        note_name: 'Where Do Great Startup Ideas Come From: Stripe'
-                    }
-                ]*/
                 if (data) {
                     setUserNotes(data);
                 }

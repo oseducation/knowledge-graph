@@ -33,8 +33,10 @@ func createNote(c *gin.Context) {
 
 	rnote, err := a.CreateNote(note)
 	if err != nil {
+		a.Log.Error(err.Error())
 		if strings.Contains(err.Error(), "invalid user note error") {
 			responseFormat(c, http.StatusBadRequest, "Invalid or missing `note` in the request body")
+			return
 		}
 		responseFormat(c, http.StatusInternalServerError, "Error while creating node")
 		return

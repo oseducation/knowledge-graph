@@ -27,7 +27,7 @@ func (u *UserNodeNote) IsValid() error {
 	if !IsValidID(u.UserID) {
 		return invalidUserNodeNoteError("userID", u.UserID)
 	}
-	if !IsValidID(u.NodeID) {
+	if u.NodeID != "" && !IsValidID(u.NodeID) {
 		return invalidUserNodeNoteError("nodeID", u.NodeID)
 	}
 
