@@ -1,6 +1,6 @@
 import {Graph} from "../types/graph";
 import {TutorPersonality} from "../types/tutor_personalities";
-import {Preference, User, UserCode, UserInteraction, UserNote, UserNoteForDisplay, UserWithNodeCount} from "../types/users";
+import {Preference, User, UserCode, UserInteraction, UserNote, UserWithNodeCount} from "../types/users";
 
 import {Rest} from "./rest";
 
@@ -175,7 +175,7 @@ export class UserClient {
     }
 
     getNotes = async (userID: string) => {
-        const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
+        const {data} = await this.rest.doFetchWithResponse<UserNote[]>(
             `${this.rest.getBaseRoute()}/notes/users/${userID}`,
             {method: 'get'},
         );
@@ -193,7 +193,7 @@ export class UserClient {
     }
 
     CreateNote = async (note: UserNote) => {
-        const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
+        const {data} = await this.rest.doFetchWithResponse<UserNote>(
             `${this.rest.getBaseRoute()}/notes`,
             {method: 'post', body: JSON.stringify(note)},
         );
@@ -202,7 +202,7 @@ export class UserClient {
     }
 
     UpdateNote = async (note: UserNote) => {
-        const {data} = await this.rest.doFetchWithResponse<UserNoteForDisplay[]>(
+        const {data} = await this.rest.doFetchWithResponse<string>(
             `${this.rest.getBaseRoute()}/notes`,
             {method: 'put', body: JSON.stringify(note)},
         );
