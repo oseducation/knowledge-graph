@@ -40,8 +40,9 @@ const TipTapEditor = (props: NoteEditorRHSProps) => {
             Typography2,
         ],
         content: props.note.note,
-        onDestroy: () => saveNote(),
-        onBlur: () => saveNote(),
+        onBlur: () => {
+            saveNote();
+        }
     }, [props.note.id]);
 
     const saveNote = () => {
@@ -77,7 +78,7 @@ const TipTapEditor = (props: NoteEditorRHSProps) => {
                     size="small"
                     onClick={() => {
                         setRHSNoteID(null);
-                        saveNote();
+                        // saveNote();
                     }}
                 >
                     <CloseIcon fontSize="inherit"/>

@@ -570,8 +570,7 @@ var migrations = []Migration{
 					note VARCHAR(8192),
 					created_at bigint,
 					updated_at bigint,
-					deleted_at bigint,
-					UNIQUE (user_id, note_name)
+					deleted_at bigint
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table user_node_notes")

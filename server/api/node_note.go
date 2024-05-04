@@ -79,9 +79,20 @@ func deleteNote(c *gin.Context) {
 		return
 	}
 
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	note, err := a.Store.NodeNote().Get(noteID)
 	if err != nil {
 		responseFormat(c, http.StatusBadRequest, "unknown node")
+		return
+	}
+
+	if session.UserID != note.UserID {
+		responseFormat(c, http.StatusForbidden, "invalid user_id")
 		return
 	}
 

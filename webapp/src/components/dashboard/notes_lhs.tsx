@@ -53,6 +53,7 @@ const LHSNotes = () =>{
                         return (
                             <DashboardLHSItem
                                 key={note.id}
+                                id={note.id}
                                 display_name= {note.note_name}
                                 onClick = {() => {
                                     setRHSNoteID(note.id)
