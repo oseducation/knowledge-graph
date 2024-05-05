@@ -15,7 +15,7 @@ import useAuth from '../../hooks/useAuth';
 import UpgradeModal from '../pricing/upgrade_modal';
 
 import DashboardLHSGroup from './dashboard_lhs_group';
-// import LHSNotes from './notes_lhs';
+import LHSNotes from './notes_lhs';
 
 
 const DashboardLHS = () =>{
@@ -85,7 +85,7 @@ const DashboardLHS = () =>{
                         />
                     </div>
                 )}
-                {/* <LHSNotes/> */}
+                <LHSNotes/>
             </List>
             {user && user.role === 'user' &&
                 <>

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {ClickAwayListener, IconButton, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, useTheme} from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+// import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import useAuth from '../../hooks/useAuth';
@@ -13,7 +13,6 @@ interface DashboardLHSItemProps {
     display_name: string;
     areaLabel: string;
     icon?: React.ReactNode;
-    onClick: () => void;
     onHoverIcon?: React.ReactNode;
 }
 
@@ -57,7 +56,7 @@ const DashboardLHSItem = (props: DashboardLHSItemProps) => {
                     <MoreVertIcon fontSize='small'/>
                 </IconButton>
             }
-            onClick={() => props.onClick()}
+            onClick={() => setRHSNoteID(props.id)}
             sx={{
                 'cursor': 'pointer',
                 backgroundColor: isHovered? theme.palette.background.default : theme.palette.primary.main,
@@ -89,7 +88,6 @@ const DashboardLHSItem = (props: DashboardLHSItemProps) => {
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleClose}
-                    // onClick={handleClose}
                     PaperProps={{
                         elevation: 0,
                         sx: {
@@ -121,14 +119,14 @@ const DashboardLHSItem = (props: DashboardLHSItemProps) => {
                     transformOrigin={{horizontal: 'right', vertical: 'top'}}
                     anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                 >
-                    <MenuItem>
+                    {/* <MenuItem onClick={() => onEdit()}>
                         <ListItemIcon color={theme.palette.primary.main}>
                             <DriveFileRenameOutlineIcon fontSize="small"/>
                         </ListItemIcon>
                         <ListItemText>
                             Rename
                         </ListItemText>
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem onClick={() => onDelete()}>
                         <ListItemIcon color={theme.palette.primary.main}>
                             <DeleteIcon fontSize="small"/>
