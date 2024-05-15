@@ -32,6 +32,9 @@ func (apiObj *API) initUser() {
 	apiObj.Users.POST("/register", registerUser)
 	apiObj.Users.POST("/email/verify", verifyUserEmail)
 	apiObj.Users.POST("/email/verify/send", authMiddleware(), sendVerificationEmail)
+	apiObj.Users.PUT("/password", authMiddleware(), updatePassword)
+	apiObj.Users.POST("/password/reset/send", sendResetPassword)
+	apiObj.Users.POST("/password/reset", resetPassword)
 
 	apiObj.Users.GET("/", authMiddleware(), requireUserPermissions(), getUsers)
 	apiObj.Users.POST("/", authMiddleware(), requireUserPermissions(), createUser)
@@ -496,4 +499,71 @@ func updateMyCode(c *gin.Context) {
 	}
 
 	responseFormat(c, http.StatusOK, "user code updated")
+}
+
+func updatePassword(c *gin.Context) {
+	props := model.MapFromJSON(c.Request.Body)
+	newPassword := props["new_password"]
+	currentPassword := props["current_password"]
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session, err := getSession(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := a.UpdatePasswordAsUser(session.UserID, currentPassword, newPassword); err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, "password updated")
+}
+
+func sendResetPassword(c *gin.Context) {
+	props := model.MapFromJSON(c.Request.Body)
+
+	email := props["email"]
+	email = strings.ToLower(email)
+	if email == "" {
+		responseFormat(c, http.StatusBadRequest, "Invalid or missing `email` in the request body")
+		return
+	}
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := a.SendResetPassword(email); err != nil {
+		responseFormat(c, http.StatusInternalServerError, "can't send reset password email")
+		return
+	}
+	responseFormat(c, http.StatusOK, "reset password email sent")
+}
+
+func resetPassword(c *gin.Context) {
+	props := model.MapFromJSON(c.Request.Body)
+	newPassword := props["new_password"]
+	token := props["token"]
+
+	a, err := getApp(c)
+	if err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := a.ResetPasswordFromToken(token, newPassword); err != nil {
+		responseFormat(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseFormat(c, http.StatusOK, "password was reset")
 }

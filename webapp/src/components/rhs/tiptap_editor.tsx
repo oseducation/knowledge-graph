@@ -23,7 +23,6 @@ type NoteEditorRHSProps = {
 
 const TipTapEditor = (props: NoteEditorRHSProps) => {
     const {userNotes, setUserNotes} = useAuth();
-    console.log('TipTapEditor', props.note)
 
     const editor = useEditor({
         extensions: [
@@ -44,7 +43,6 @@ const TipTapEditor = (props: NoteEditorRHSProps) => {
     }, [props.note.id]);
 
     const saveNote = () => {
-        console.log('saveNote', props.note)
         if (!editor) {
             return;
         }

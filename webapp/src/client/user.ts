@@ -218,4 +218,22 @@ export class UserClient {
 
         return data;
     }
+
+    ResetPasswordSend = async (email: string) => {
+        const {data} = await this.rest.doFetchWithResponse<string>(
+            `${this.getUsersRoute()}/password/reset/send`,
+            {method: 'post', body: JSON.stringify({email})},
+        );
+
+        return data;
+    }
+
+    ResetUserPassword = async (token: string, newPassword: string) => {
+        const {data} = await this.rest.doFetchWithResponse<string>(
+            `${this.getUsersRoute()}/password/reset`,
+            {method: 'post', body: JSON.stringify({token, new_password: newPassword})},
+        );
+
+        return data;
+    }
 }

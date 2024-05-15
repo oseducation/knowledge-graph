@@ -150,3 +150,12 @@ func (a *App) VerifyEmailFromToken(token string) error {
 	}
 	return nil
 }
+
+func (a *App) SendPasswordResetEmail(email, token string) error {
+	siteURL := a.GetSiteURL()
+	link := fmt.Sprintf("%s/reset-password-complete?token=%s", siteURL, url.QueryEscape(token))
+	title := "Reset Your Password"
+
+	body := "Click the link below to reset your password. If you didn’t request this, you can safely ignore this email.\n <br/> The password reset link expires in 24 hours. \n <br/> <a href=\"" + link + "\">Reset Password</a>\n <br/>"
+	return a.sendMail(email, title, body)
+}
