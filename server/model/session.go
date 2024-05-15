@@ -27,7 +27,7 @@ func (s *Session) IsValid() error {
 		return invalidSessionError(s.ID, "CreateAt", s.CreateAt)
 	}
 
-	if s.Role != AdminRole && s.Role != UserRole {
+	if s.Role != AdminRole && s.Role != UserRole && s.Role != CustomerRole {
 		return invalidSessionError(s.ID, "Role", s.Role)
 	}
 

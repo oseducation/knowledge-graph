@@ -12,6 +12,8 @@ import EducatorsLanding from './components/landing/educators/educators_landing';
 import CourseStartupSchoolMain from './components/landing/course/course_startup_school_main';
 import AITutorChatGeneral from './components/bot/ai_tutor_chat_general';
 import PricingTable from './components/pricing/pricing_table';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import ResetPasswordCompletePage from './pages/ResetPasswordCompletePage';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -46,6 +48,8 @@ function App() {
                 <Route path="" element={<GuestLayout/>}>
                     <Route path="login" element={<LoginPage/>}/>
                     <Route path="register" element={<RegisterPage/>}/>
+                    <Route path="reset-password" element={<ResetPasswordPage/>}/>
+                    <Route path="reset-password-complete" element={<ResetPasswordCompletePage/>}/>
                     <Route path="verify" element={<VerifyPage/>}/>
                     <Route path="do_verify_email" element={<DoVerifyEmailPage/>}/>
                     <Route path="contact" element={<ContactUs/>}/>

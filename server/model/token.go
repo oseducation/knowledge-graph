@@ -5,10 +5,12 @@ import (
 )
 
 const (
-	TokenSize          = 64
-	MaxTokenExpireTime = 1000 * 60 * 60 * 48 // 48 hour
+	TokenSize                 = 64
+	MaxTokenExpireTime        = 1000 * 60 * 60 * 48 // 48 hour
+	PasswordRecoverExpiryTime = 1000 * 60 * 60 * 24 // 24 hours
 
-	TokenTypeVerifyEmail = "verify_email"
+	TokenTypeVerifyEmail      = "verify_email"
+	TokenTypePasswordRecovery = "password_recovery"
 )
 
 // Token describes secrets given to users

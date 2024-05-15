@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, Button, Stack, TextField, Typography} from '@mui/material';
+import {Alert, Button, Link, Stack, TextField, Typography} from '@mui/material';
 import {useLocation, useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
 import {useForm} from "react-hook-form";
@@ -77,6 +77,7 @@ const LoginPage = () => {
                         <Button type={'submit'}>{t("Log in")}</Button>
                         <Button id="register" onClick={handleRegisterClick}>{t("Register")}</Button>
                     </Stack>
+                    <Link id="reset-password" onClick={() => navigate('/reset-password')}>{t("Forgot your password?")}</Link>
                 </Stack>
             </form>
         </Login>

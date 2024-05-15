@@ -170,6 +170,11 @@ func (u *User) ComparePassword(password string) bool {
 	return err == nil
 }
 
+func (u *User) UpdatePassword(newPassword string) {
+	u.Password = hashPassword(newPassword)
+	u.LastPasswordUpdate = GetMillis()
+}
+
 // HashPassword generates a hash using the bcrypt.GenerateFromPassword
 func hashPassword(password string) string {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
