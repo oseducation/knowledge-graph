@@ -19,9 +19,9 @@
     },
     "EmailSettings": {
         "RequireEmailVerification": true,
-        "FeedbackName": "Knowledge Graph",
-        "FeedbackEmail": "knowledgegraph.info@gmail.com",
-        "ReplyToAddress": "knowledgegraph.info@gmail.com",
+        "FeedbackName": "VitsiAI",
+        "FeedbackEmail": "support@vitsi.ai",
+        "ReplyToAddress": "support@vitsi.ai",
         "SMTPUser": "knowledgegraph.info@gmail.com",
         "SMTPPassword": "rdlfdcliahkamaru",
         "SMTPHost": "smtp.gmail.com",
