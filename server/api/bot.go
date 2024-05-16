@@ -69,9 +69,9 @@ func askQuestion(c *gin.Context) {
 		responseFormat(c, http.StatusBadRequest, "Monthly limit exceeded")
 		return
 	}
-	gptModel := services.GPT35Turbo
+	gptModel := services.FreeGPT
 	if session.Role != model.UserRole {
-		gptModel = services.GPT4_0125Preview
+		gptModel = services.PremiumGPT
 	}
 
 	isStream := c.DefaultQuery("stream", "")
@@ -170,9 +170,9 @@ func getResponseToCorrectAnswer(c *gin.Context) {
 		return
 	}
 
-	gptModel := services.GPT35Turbo
+	gptModel := services.FreeGPT
 	if session.Role != model.UserRole {
-		gptModel = services.GPT4_0125Preview
+		gptModel = services.PremiumGPT
 	}
 
 	chatStream, err := a.GetResponseToCorrectAnswerStream(question.Explanation, session.UserID, gptModel)
@@ -237,9 +237,9 @@ func getResponseToIncorrectAnswer(c *gin.Context) {
 		return
 	}
 
-	gptModel := services.GPT35Turbo
+	gptModel := services.FreeGPT
 	if session.Role != model.UserRole {
-		gptModel = services.GPT4_0125Preview
+		gptModel = services.PremiumGPT
 	}
 
 	chatStream, err := a.GetResponseToIncorrectAnswerStream(question, data.IncorrectAnswer, session.UserID, gptModel)

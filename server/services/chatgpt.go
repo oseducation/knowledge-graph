@@ -17,13 +17,18 @@ const chatGPTOrganizationID = "CHAT_GPT_ORGANIZATION_ID"
 type ChatGPTModel string
 
 const (
-	GPT35Turbo    ChatGPTModel = "gpt-3.5-turbo"
-	GPT35Turbo16k ChatGPTModel = "gpt-3.5-turbo-16k"
+	gpt35Turbo    ChatGPTModel = "gpt-3.5-turbo"
+	gpt35Turbo16k ChatGPTModel = "gpt-3.5-turbo-16k"
 
-	GPT4             ChatGPTModel = "gpt-4"
-	GPT4_32k         ChatGPTModel = "gpt-4-32k"
-	GPT4_1106Preview ChatGPTModel = "gpt-4-1106-preview"
-	GPT4_0125Preview ChatGPTModel = "gpt-4-0125-preview"
+	gpt4             ChatGPTModel = "gpt-4"
+	gpt4_32k         ChatGPTModel = "gpt-4-32k"
+	gpt4_1106Preview ChatGPTModel = "gpt-4-1106-preview"
+	gpt4_0125Preview ChatGPTModel = "gpt-4-0125-preview"
+
+	gpt4o ChatGPTModel = "gpt-4o"
+
+	FreeGPT    = gpt35Turbo
+	PremiumGPT = gpt4o
 )
 
 type ChatGPTModelRole string
@@ -426,7 +431,7 @@ func validate(req *ChatCompletionRequest) error {
 	isAllowed := false
 
 	allowedModels := []ChatGPTModel{
-		GPT35Turbo, GPT35Turbo16k, GPT4, GPT4_32k, GPT4_0125Preview,
+		gpt35Turbo, gpt35Turbo16k, gpt4, gpt4_32k, gpt4_0125Preview, gpt4o,
 	}
 
 	for _, model := range allowedModels {
