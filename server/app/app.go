@@ -32,7 +32,7 @@ func NewApp(logger *log.Logger, store store.Store, config *config.Config) (*App,
 	}
 	logger.Info("graph constructed", log.String("nodes", strconv.Itoa(len(graph.Nodes))), log.String("prerequisites", strconv.Itoa(len(graph.Prerequisites))))
 
-	services, err := services.NewServices(store, logger)
+	services, err := services.NewServices(store, config.EmailSettings, logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't create services")
 	}

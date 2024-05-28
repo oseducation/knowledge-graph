@@ -1,16 +1,13 @@
 package app
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"net/mail"
 	"net/url"
 	"strings"
 
 	"github.com/oseducation/knowledge-graph/model"
 	"github.com/pkg/errors"
-	"gopkg.in/gomail.v2"
 )
 
 func (a *App) sendWelcomeEmail(userID string, email string, verified bool) error {
@@ -27,7 +24,7 @@ func (a *App) sendWelcomeEmail(userID string, email string, verified bool) error
 		body += "<a href=\"" + link + "\">Verify Email</a>\n"
 	}
 
-	if err := a.sendMail(email, subject, body); err != nil {
+	if err := a.Services.EmailService.Send(email, subject, body); err != nil {
 		return errors.Wrapf(err, "can't send email to %s", email)
 	}
 	return nil
@@ -57,27 +54,8 @@ func (a *App) sendNotificationEmail(nodeName, message, userName, nodeID string) 
 	body += message
 	email += "eson"
 	email += "@gmail.com"
-	if err := a.sendMail(email, subject, body); err != nil {
+	if err := a.Services.EmailService.Send(email, subject, body); err != nil {
 		return errors.Wrapf(err, "can't send email to %s", email)
-	}
-	return nil
-}
-
-func (a *App) sendMail(email, subject, body string) error {
-	fromMail := mail.Address{Name: a.Config.EmailSettings.FeedbackName, Address: a.Config.EmailSettings.FeedbackEmail}
-	replyTo := mail.Address{Name: a.Config.EmailSettings.FeedbackName, Address: a.Config.EmailSettings.ReplyToAddress}
-
-	m := gomail.NewMessage()
-	m.SetHeader("From", fromMail.String())
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", subject)
-	m.SetHeader("Reply-To", replyTo.String())
-	m.SetBody("text/html", body)
-
-	d := gomail.NewDialer(a.Config.EmailSettings.SMTPHost, a.Config.EmailSettings.SMTPPort, a.Config.EmailSettings.SMTPUser, a.Config.EmailSettings.SMTPPassword)
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-	if err := d.DialAndSend(m); err != nil {
-		return errors.Wrapf(err, "can't send email to - %s", email)
 	}
 	return nil
 }
@@ -157,5 +135,5 @@ func (a *App) SendPasswordResetEmail(email, token string) error {
 	title := "Reset Your Password"
 
 	body := "Click the link below to reset your password. If you didn’t request this, you can safely ignore this email.\n <br/> The password reset link expires in 24 hours. \n <br/> <a href=\"" + link + "\">Reset Password</a>\n <br/>"
-	return a.sendMail(email, title, body)
+	return a.Services.EmailService.Send(email, title, body)
 }
