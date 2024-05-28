@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/oseducation/knowledge-graph/config"
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/store"
 )
@@ -10,9 +11,10 @@ type Services struct {
 	ChatGPTService  ChatGPTServiceInterface
 	PineconeService PineconeServiceInterface
 	StripeService   StripeServiceInterface
+	EmailService    EmailServiceInterface
 }
 
-func NewServices(st store.Store, logger *log.Logger) (*Services, error) {
+func NewServices(st store.Store, config config.EmailSettings, logger *log.Logger) (*Services, error) {
 	chatGPTService, err := NewCHhatGPTService()
 	if err != nil {
 		return nil, err
@@ -35,5 +37,6 @@ func NewServices(st store.Store, logger *log.Logger) (*Services, error) {
 		YoutubeService:  youtubeService,
 		PineconeService: pineconeService,
 		StripeService:   stripeService,
+		EmailService:    NewEmailService(config),
 	}, nil
 }
