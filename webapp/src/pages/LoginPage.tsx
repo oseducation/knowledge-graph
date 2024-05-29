@@ -1,16 +1,21 @@
-import React from 'react';
-import {Alert, Button, Link, Stack, TextField, Typography} from '@mui/material';
+import React, {ChangeEvent, FormEvent, useState} from 'react';
+import {Alert, Box, Button, Link, Stack, Typography} from '@mui/material';
 import {useLocation, useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
-import {useForm} from "react-hook-form";
 import {useTranslation} from 'react-i18next';
 
 import {Client} from '../client/client';
 import {ClientError} from "../client/rest";
 import useAuth from '../hooks/useAuth';
 import {Analytics} from '../analytics';
+import AutoFillAwareTextField from '../components/autofill_aware_textfield';
 
 declare const gtag: Gtag.Gtag;
+
+interface FormData {
+    email: string;
+    password: string;
+}
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -18,18 +23,23 @@ const LoginPage = () => {
     const from = location.state?.from?.pathname || "/";
     const {setUser} = useAuth();
     const {t, i18n} = useTranslation();
+    const [formData, setFormData] = useState<FormData>({
+        email: '',
+        password: ''
+    });
+    const [error, setError] = useState<string>('');
 
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
 
-    type FormData = {
-        email: string,
-        password: string
-    }
-
-    const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
-
-
-    const onSubmit = (data: FormData) => {
-        Client.User().login(data.email, data.password)
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        Client.User().login(formData.email, formData.password)
             .then((user) => {
                 setUser?.(user);
                 Client.rest.setMe(user);
@@ -41,7 +51,7 @@ const LoginPage = () => {
                 Analytics.loginCompleted();
                 return navigate(from, {replace: true});
             }).catch((err: ClientError) => {
-                setError('root', {type: 'server', message: err.message});
+                setError(err.message);
             })
     }
 
@@ -51,27 +61,31 @@ const LoginPage = () => {
 
     return (
         <Login>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <Box component="form" onSubmit={handleSubmit}>
                 <Stack direction={'column'} spacing={1} alignItems={'center'}>
                     <Typography paragraph={true} fontSize={26} fontWeight={'bold'}>
                         {t("Login")}
                     </Typography>
-                    {errors.root &&
-                        <Alert severity="error" onClose={() => {clearErrors()}} >
-                            {errors.root.message}
+                    {error &&
+                        <Alert severity="error" onClose={() => {setError('')}} >
+                            {error}
                         </Alert>
                     }
-                    <TextField
+                    <AutoFillAwareTextField
                         fullWidth
                         label={t('Email')}
                         type={'email'}
-                        {...register("email", {required: true})}
+                        onChange={handleChange}
+                        value={formData.email}
+                        name="email"
                     />
-                    <TextField
+                    <AutoFillAwareTextField
                         fullWidth
                         label={t('Password')}
                         type={'password'}
-                        {...register("password", {required: true})}
+                        onChange={handleChange}
+                        value={formData.password}
+                        name="password"
                     />
                     <Stack direction={'row'} justifyContent={'center'}>
                         <Button type={'submit'}>{t("Log in")}</Button>
@@ -79,7 +93,7 @@ const LoginPage = () => {
                     </Stack>
                     <Link id="reset-password" onClick={() => navigate('/reset-password')}>{t("Forgot your password?")}</Link>
                 </Stack>
-            </form>
+            </Box>
         </Login>
     )
 }

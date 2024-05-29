@@ -1,8 +1,7 @@
-import React from 'react';
-import {Alert, Button, Stack, TextField, Typography} from '@mui/material';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
+import {Alert, Box, Button, Stack, TextField, Typography} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
-import {useForm} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 
 import {User} from '../types/users';
@@ -12,24 +11,48 @@ import {Analytics} from '../analytics';
 
 declare const gtag: Gtag.Gtag;
 
+interface FormData {
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    password: string;
+}
+
 const RegisterPage = () => {
     const navigate = useNavigate();
     const {t, i18n} = useTranslation();
+    const [formData, setFormData] = useState<FormData>({
+        first_name: '',
+        last_name: '',
+        username: '',
+        email: '',
+        password: ''
+    });
+    const [error, setError] = useState<string>('');
 
-    type FormData = {
-        first_name: string;
-        last_name: string;
-        username: string;
-        email: string;
-        password: string;
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
     };
 
-    const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
 
-    const onSubmit = (data: FormData) => {
-        const user = data as User;
+    // const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        const user = {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+        } as User;
         user.lang = i18n.language;
-        Client.User().register(data as User).then((user) => {
+        Client.User().register(user).then((user) => {
             gtag('event', 'sign_up', {
                 method: 'email'
             });
@@ -37,63 +60,90 @@ const RegisterPage = () => {
             Analytics.signUpCompleted();
             navigate('/verify', {
                 state: {
-                    email: data.email,
+                    email: formData.email,
                 }
             });
         }).catch((err: ClientError) => {
-            setError('root', {type: 'server', message: err.message});
+            setError(err.message);
         })
     };
 
     return (
         <Register>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <Box component="form" onSubmit={handleSubmit}>
                 <Stack spacing={2}>
                     <Typography paragraph={true} fontSize={26} fontWeight={'bold'}>
                         {t("Create your account")}
                     </Typography>
-                    {errors.root &&
+                    {error &&
                         <Alert severity="error" onClose={() => {
-                            clearErrors()
+                            setError('')
                         }}>
-                            {errors.root.message}
+                            {error}
                         </Alert>
                     }
                     <TextField
+                        required
                         label={t("First Name")}
                         variant="outlined"
-                        {...register("first_name", {required: true})}
+                        onChange={handleChange}
+                        value={formData.first_name}
+                        name="first_name"
+                        inputProps={{
+                            autoComplete: 'off'
+                        }}
                     />
                     <TextField
+                        required
                         label={t("Last Name")}
                         variant="outlined"
-                        {...register('last_name', {required: true})}
+                        onChange={handleChange}
+                        value={formData.last_name}
+                        name="last_name"
+                        inputProps={{
+                            autoComplete: 'off'
+                        }}
                     />
                     <TextField
                         required
                         label={t("Username")}
                         variant="outlined"
-                        {...register('username', {required: true})}
+                        onChange={handleChange}
+                        value={formData.username}
+                        name="username"
+                        inputProps={{
+                            autoComplete: 'off'
+                        }}
                     />
                     <TextField
                         required
                         label={t("Email")}
                         variant="outlined"
                         type="email"
-                        {...register('email', {required: true})}
+                        onChange={handleChange}
+                        value={formData.email}
+                        name="email"
+                        inputProps={{
+                            autoComplete: 'new-password'
+                        }}
                     />
                     <TextField
                         required
                         label={t("Password")}
                         variant="outlined"
                         type="password"
-                        {...register('password', {required: true})}
+                        onChange={handleChange}
+                        value={formData.password}
+                        name="password"
+                        inputProps={{
+                            autoComplete: 'new-password'
+                        }}
                     />
                     <Button type="submit" variant="contained">
                         {t("Create account")}
                     </Button>
                 </Stack>
-            </form>
+            </Box>
         </Register>
     );
 }
