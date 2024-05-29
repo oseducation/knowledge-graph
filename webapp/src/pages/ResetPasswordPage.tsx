@@ -1,30 +1,40 @@
-import React, {useState} from 'react';
-import {Alert, Box, Button, Stack, TextField, Typography} from '@mui/material';
-import {useForm} from 'react-hook-form';
+import React, {ChangeEvent, FormEvent, useState} from 'react';
+import {Alert, Box, Button, Stack, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 
 import {Client} from '../client/client';
 import {ClientError} from '../client/rest';
+import AutoFillAwareTextField from '../components/autofill_aware_textfield';
+
+interface FormData {
+    email: string;
+}
 
 const ResetPasswordPage = () => {
     const {t} = useTranslation();
     const [sent, setSent] = useState(false);
+    const [formData, setFormData] = useState<FormData>({email: ''});
+    const [error, setError] = useState<string>('');
 
-    type FormData = {
-        email: string;
-    };
-
-    const {register, handleSubmit, setError, clearErrors, formState: {errors}} = useForm<FormData>();
-
-    const onSubmit = (data: FormData) => {
-        const email = data.email.trim().toLowerCase();
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        const email = formData.email.trim().toLowerCase();
         Client.User().ResetPasswordSend(email).then(() => {
             setSent(true);
         }).catch((err: ClientError) => {
             console.log('error', err)
-            setError('root', {type: 'server', message: err.message});
+            setError(err.message);
         });
     };
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+
 
     return (
         <Box>
@@ -43,28 +53,30 @@ const ResetPasswordPage = () => {
                 justifyContent: 'center',
                 mt: 2
             }}>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <Box component="form" onSubmit={handleSubmit}>
                     <Stack spacing={2}>
-                        {errors.root &&
+                        {error &&
                             <Alert severity="error" onClose={() => {
-                                clearErrors()
+                                setError('')
                             }}>
-                                {errors.root.message}
+                                {error}
                             </Alert>
                         }
                         <Typography>
                             {t("To reset your password, enter the email address you used to sign up")}
                         </Typography>
-                        <TextField
-                            helperText={'Email'}
-                            type='email'
-                            {...register('email', {required: true})}
+                        <AutoFillAwareTextField
+                            label={t('Email')}
+                            type={'email'}
+                            onChange={handleChange}
+                            value={formData.email}
+                            name="email"
                         />
                         <Button type="submit" variant="contained">
                             {t("Reset my password")}
                         </Button>
                     </Stack>
-                </form>
+                </Box>
             </Box>
         </Box>
     );
