@@ -9,6 +9,7 @@ import useAppBarHeight from '../../../hooks/use_app_bar_height';
 import Footer from '../../footer';
 
 import Hero from './hero';
+import Benefits from './benefits';
 
 const SimpleMain = () => {
     const {t} = useTranslation();
@@ -34,6 +35,7 @@ const SimpleMain = () => {
                     height={staticHeight}
                     color={'#023e8a'}
                 />
+                <Benefits height={staticHeight}/>
 
                 <Grid2 container
                     m={0}
