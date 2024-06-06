@@ -24,6 +24,10 @@ function Header() {
     const location = useLocation();
     const {t} = useTranslation();
 
+    if (location.pathname === '/onboarding') {
+        return null;
+    }
+
     let hasIconButton = true;
     if (location.pathname === '/carousel' || !user) {
         hasIconButton = false
