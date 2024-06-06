@@ -13,3 +13,7 @@ func (a *App) GetQuestion(id string) (*model.Question, error) {
 	}
 	return text, nil
 }
+
+func (a *App) GetOnboardingQuestions(courseID string) ([][]*model.Question, error) {
+	return a.Store.Question().GetOnboardingQuestions(courseID)
+}

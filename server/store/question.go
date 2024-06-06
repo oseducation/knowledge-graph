@@ -12,6 +12,7 @@ type QuestionStore interface {
 	Get(id string) (*model.Question, error)
 	GetQuestions(options *model.QuestionGetOptions) ([]*model.Question, error)
 	Delete(question *model.Question) error
+	GetOnboardingQuestions(courseID string) ([][]*model.Question, error)
 }
 
 // SQLQuestionStore is a struct to store Questions
@@ -133,12 +134,16 @@ func (qs *SQLQuestionStore) GetQuestions(options *model.QuestionGetOptions) ([]*
 		return questions, nil
 	}
 
+	return qs.populateQuestionsWithChoices(questions)
+}
+
+func (qs *SQLQuestionStore) populateQuestionsWithChoices(questions []*model.Question) ([]*model.Question, error) {
 	questionIDs := make([]string, 0, len(questions))
 	for _, question := range questions {
 		questionIDs = append(questionIDs, question.ID)
 	}
 
-	query = qs.sqlStore.builder.Select(
+	query := qs.sqlStore.builder.Select(
 		"qc.id",
 		"qc.question_id",
 		"qc.choice",
@@ -190,4 +195,88 @@ func (qs *SQLQuestionStore) Delete(question *model.Question) error {
 	}
 
 	return nil
+}
+
+func (qs *SQLQuestionStore) GetOnboardingQuestions(courseID string) ([][]*model.Question, error) {
+	type OnboardingQuestion struct {
+		CourseID   string `db:"course_id"`
+		NodeID     string `db:"node_id"`
+		QuestionID string `db:"question_id"`
+		Pos        int    `db:"pos"`
+	}
+
+	questionSelect := qs.sqlStore.builder.
+		Select(
+			"oq.course_id",
+			"oq.node_id",
+			"oq.question_id",
+			"oq.pos",
+		).
+		From("onboarding_questions oq").
+		Where(sq.Eq{"oq.course_id": courseID}).OrderBy("oq.pos ASC")
+
+	var questions []*OnboardingQuestion
+	if err := qs.sqlStore.selectBuilder(qs.sqlStore.db, &questions, questionSelect); err != nil {
+		return nil, errors.Wrap(err, "can't get onboarding question")
+	}
+	allQuestionsIDs := []string{}
+	for _, question := range questions {
+		allQuestionsIDs = append(allQuestionsIDs, question.QuestionID)
+	}
+	allQuestions, err := qs.getQuestionsFromIDs(allQuestionsIDs)
+	if err != nil {
+		return nil, err
+	}
+	allQuestions, err = qs.populateQuestionsWithChoices(allQuestions)
+	if err != nil {
+		return nil, err
+	}
+
+	allQuestionsMap := make(map[string]*model.Question, len(allQuestions))
+	for _, question := range allQuestions {
+		allQuestionsMap[question.ID] = question
+	}
+
+	questionIDs := [][]string{}
+	for i, question := range questions {
+		if i == 0 || questions[i-1].NodeID != question.NodeID {
+			questionIDs = append(questionIDs, []string{})
+		}
+		questionIDs[len(questionIDs)-1] = append(questionIDs[len(questionIDs)-1], question.QuestionID)
+	}
+
+	onboardingQuestions := [][]*model.Question{}
+	for i, ids := range questionIDs {
+		onboardingQuestions = append(onboardingQuestions, []*model.Question{})
+		for _, id := range ids {
+			question, ok := allQuestionsMap[id]
+			if !ok {
+				return nil, errors.Wrapf(err, "missing questions in a map %s", id)
+			}
+			onboardingQuestions[i] = append(onboardingQuestions[i], question)
+		}
+	}
+
+	return onboardingQuestions, nil
+}
+
+func (qs *SQLQuestionStore) getQuestionsFromIDs(questionIDs []string) ([]*model.Question, error) {
+	questionSelect := qs.sqlStore.builder.
+		Select(
+			"q.id",
+			"q.name",
+			"q.question",
+			"q.question_type",
+			"q.node_id",
+			"q.explanation",
+		).
+		From("questions q").
+		Where(sq.Eq{"q.id": questionIDs})
+
+	var questions []*model.Question
+	if err := qs.sqlStore.selectBuilder(qs.sqlStore.db, &questions, questionSelect); err != nil {
+		return nil, errors.Wrap(err, "can't get questions from ids")
+	}
+
+	return questions, nil
 }
