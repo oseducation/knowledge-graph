@@ -4,3 +4,6 @@
 node_modules
 dist
 .eslintcache
+webapp/public/images/onboarding/goal.png
+webapp/public/images/onboarding/plan.png
+webapp/public/images/onboarding/success.png
