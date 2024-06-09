@@ -8,7 +8,7 @@ interface Props {
     onContinue: () => void;
 }
 
-const Body = (props: Props) => {
+const ProfileSetupQuiz = (props: Props) => {
     if (props.step.component) {
         return props.step.component;
     }
@@ -29,4 +29,4 @@ const Body = (props: Props) => {
     );
 }
 
-export default Body;
+export default ProfileSetupQuiz;
