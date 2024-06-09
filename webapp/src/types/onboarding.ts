@@ -1,3 +1,5 @@
+import {Question} from "./graph";
+
 export type Step = {
     component?: JSX.Element | null;
     image?: string;
@@ -14,4 +16,12 @@ export type LearningStyles = {
     social: boolean;
     solitary: boolean;
     other: boolean;
+}
+
+export type OnboardingState = {
+    courseID: string;
+    learningStyles: LearningStyles;
+    time: string;
+    questions: Question[][];
+    answers: Map<string, boolean>;
 }

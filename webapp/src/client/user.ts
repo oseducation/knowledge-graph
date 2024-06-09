@@ -1,4 +1,5 @@
 import {Graph} from "../types/graph";
+import {OnboardingState} from "../types/onboarding";
 import {TutorPersonality} from "../types/tutor_personalities";
 import {Preference, User, UserCode, UserInteraction, UserNote, UserWithNodeCount} from "../types/users";
 
@@ -43,6 +44,16 @@ export class UserClient {
         return this.rest.doFetch<User>(
             `${this.getUsersRoute()}/register`,
             {method: 'post', body: JSON.stringify(user)},
+        );
+    }
+
+    registerFromOnboarding = async (user: User, onboarding: OnboardingState) => {
+        return this.rest.doFetch<User>(
+            `${this.getUsersRoute()}/register`,
+            {method: 'post', body: JSON.stringify({
+                user: user,
+                onboarding: onboarding
+            })},
         );
     }
 
