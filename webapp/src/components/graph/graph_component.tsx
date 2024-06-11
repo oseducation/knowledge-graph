@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Box} from '@mui/material';
 
-import {Graph} from '../../types/graph';
+import {Graph, Node} from '../../types/graph';
 import useWindowDimensions from '../../hooks/use_window_dimensions';
 import {DagMode} from '../../types/users';
 import useAppbarHeight from '../../hooks/use_app_bar_height';
@@ -21,6 +21,7 @@ interface GraphComponentProps {
     cooldownTicks?: number;
     wormupTicks?: number;
     currentNodeID?: string;
+    onClick?: (node: Node) => void;
 }
 
 const GraphComponent = (props: GraphComponentProps) => {
@@ -51,6 +52,7 @@ const GraphComponent = (props: GraphComponentProps) => {
                 cooldownTicks={props.cooldownTicks}
                 wormupTicks={props.wormupTicks}
                 currentNodeID={props.currentNodeID}
+                onClick={props.onClick}
             />
         </Box>
     );
