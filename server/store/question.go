@@ -13,6 +13,7 @@ type QuestionStore interface {
 	GetQuestions(options *model.QuestionGetOptions) ([]*model.Question, error)
 	Delete(question *model.Question) error
 	GetOnboardingQuestions(courseID string) ([][]*model.Question, error)
+	SaveOnboardingQuestion(courseID, nodeID, questionID string, pos int) error
 }
 
 // SQLQuestionStore is a struct to store Questions
@@ -258,6 +259,21 @@ func (qs *SQLQuestionStore) GetOnboardingQuestions(courseID string) ([][]*model.
 	}
 
 	return onboardingQuestions, nil
+}
+
+func (qs *SQLQuestionStore) SaveOnboardingQuestion(courseID, nodeID, questionID string, pos int) error {
+	_, err := qs.sqlStore.execBuilder(qs.sqlStore.db, qs.sqlStore.builder.
+		Insert("onboarding_questions").
+		SetMap(map[string]interface{}{
+			"course_id":   courseID,
+			"node_id":     nodeID,
+			"question_id": questionID,
+			"pos":         pos,
+		}))
+	if err != nil {
+		return errors.Wrapf(err, "can't save onboarding question for node: %s", nodeID)
+	}
+	return nil
 }
 
 func (qs *SQLQuestionStore) getQuestionsFromIDs(questionIDs []string) ([]*model.Question, error) {

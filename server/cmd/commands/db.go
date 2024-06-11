@@ -42,6 +42,14 @@ var dbImportContent = &cobra.Command{
 	RunE:    importAllContentCmdF,
 }
 
+var dbOnboardingImportQuestions = &cobra.Command{
+	Use:     "onboarding-questions",
+	Short:   "Import onboarding questions content",
+	Long:    `Import VitsiAI Content from file onboarding.json.`,
+	Example: `  db import-content questions --url URL-to-folder`,
+	RunE:    importOnboardingQuestionsContentCmdF,
+}
+
 var dbAddNode = &cobra.Command{
 	Use:     "add-node",
 	Short:   "Add a single node",
@@ -68,6 +76,10 @@ func init() {
 
 	dbImportContent.Flags().String("url", "", "URL to folder with graph.json file")
 	dbCmd.AddCommand(dbImportContent)
+
+	dbOnboardingImportQuestions.Flags().String("url", "", "URL to folder with onboarding.json file")
+	dbOnboardingImportQuestions.Flags().String("course_id", "", "CourseID of the course")
+	dbImportContent.AddCommand(dbOnboardingImportQuestions)
 
 	dbAddNode.Flags().String("node", "", "a string in json format with node data")
 	dbAddNode.Flags().String("pre", "", "a list in json format with prerequisite node names")
@@ -155,6 +167,27 @@ func importAllContentCmdF(command *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "can't import all the content")
 	}
 	println("password", password)
+	return nil
+}
+
+func importOnboardingQuestionsContentCmdF(command *cobra.Command, _ []string) error {
+	url, err := command.Flags().GetString("url")
+	if err != nil || url == "" {
+		return errors.New("url is required")
+	}
+	courseID, err := command.Flags().GetString("course_id")
+	if err != nil || courseID == "" {
+		return errors.New("course_id is required")
+	}
+	srv, err := runServer()
+	if err != nil {
+		return errors.New("can't run server")
+	}
+	defer srv.Shutdown()
+
+	if err := srv.App.ImportOnboardingQuestionsContent(url, courseID); err != nil {
+		return errors.Wrap(err, "can't import onboarding questions content")
+	}
 	return nil
 }
 

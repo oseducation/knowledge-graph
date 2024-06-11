@@ -63,6 +63,54 @@ func (a *App) ImportAllContent(url string) (string, error) {
 	return passwords, nil
 }
 
+func (a *App) ImportOnboardingQuestionsContent(url, courseID string) error {
+	questionsContent, err := getFileContent(fmt.Sprintf("%s/questions.json", url))
+	if err != nil {
+		return errors.Wrapf(err, "can't get questions.json file\n%s", questionsContent)
+	}
+
+	type Question struct {
+		Name         string                 `json:"name"`
+		Question     string                 `json:"question"`
+		QuestionType string                 `json:"question_type"`
+		NodeName     string                 `json:"node_name"`
+		Explanation  string                 `json:"explanation"`
+		Choices      []model.QuestionChoice `json:"choices"`
+	}
+
+	var questions [][]Question
+	if err2 := json.Unmarshal([]byte(questionsContent), &questions); err2 != nil {
+		return errors.Wrap(err, "can't unmarshal questions.json file")
+	}
+
+	for index, quests := range questions {
+		for _, q := range quests {
+			if q.NodeName == "" {
+				return errors.New("question node name is required")
+			}
+			node, err3 := a.Store.Node().GetByName(q.NodeName)
+			if err3 != nil {
+				return errors.Wrapf(err3, "can't get node by name %s", q.NodeName)
+			}
+			q, err4 := a.Store.Question().Save(&model.Question{
+				Name:         q.Name,
+				Question:     q.Question,
+				QuestionType: q.QuestionType,
+				Choices:      q.Choices,
+				Explanation:  q.Explanation,
+				NodeID:       "",
+			})
+			if err4 != nil {
+				return errors.Wrap(err3, "can't save question")
+			}
+			if err := a.Store.Question().SaveOnboardingQuestion(courseID, node.ID, q.ID, index); err != nil {
+				return errors.Wrap(err, "can't save onboarding question")
+			}
+		}
+	}
+	return nil
+}
+
 func (a *App) importLeafNodes(url string, parentNodes map[string]ExtendedNode) (string, error) {
 	user, password, err := a.importAuthor(url)
 	if err != nil {
@@ -120,6 +168,21 @@ func (a *App) importLeafNodes(url string, parentNodes map[string]ExtendedNode) (
 
 	if err := a.importGoals(url, nodes); err != nil {
 		return "", errors.Wrap(err, "can't import goals")
+	}
+
+	courseID := ""
+	for _, node := range nodes {
+		if node.ParentID != "" {
+			courseID = node.ParentID
+			break
+		}
+	}
+	if courseID == "" {
+		return "", errors.New("no course id found")
+	}
+
+	if err := a.ImportOnboardingQuestionsContent(url, courseID); err != nil {
+		return "", errors.Wrap(err, "can't import onboarding questions content")
 	}
 
 	return password, nil
