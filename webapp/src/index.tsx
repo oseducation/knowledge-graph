@@ -1,7 +1,7 @@
 import React from 'react';
 import {BrowserRouter} from 'react-router-dom';
 import {createRoot} from 'react-dom/client';
-import {ThemeProvider, createTheme} from '@mui/material';
+import {ThemeProvider, createTheme, responsiveFontSizes} from '@mui/material';
 
 import './i18n';
 
@@ -12,7 +12,8 @@ import {GraphProvider} from './context/graph_provider';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
-const theme = createTheme(AppTheme);
+let theme = createTheme(AppTheme);
+theme = responsiveFontSizes(theme);
 
 const element = (
     <React.StrictMode>

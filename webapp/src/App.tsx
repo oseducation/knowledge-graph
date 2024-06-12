@@ -14,6 +14,7 @@ import AITutorChatGeneral from './components/bot/ai_tutor_chat_general';
 import PricingTable from './components/pricing/pricing_table';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordCompletePage from './pages/ResetPasswordCompletePage';
+import SimpleMain from './components/landing/simple/simple_main';
 import OnboardingPage from './pages/OnboardingPage';
 import GraphManipulationPage from './pages/GraphManipulationPage';
 
@@ -60,6 +61,7 @@ function App() {
                     <Route path="about" element={<AboutUs/>}/>
                     <Route path="startup-school" element={<CourseStartupSchoolMain/>}/>
                     <Route path="pricing" element={<PricingTable/>}/>
+                    <Route path="simple" element={<SimpleMain/>}/>
                     <Route path="onboarding" element={<OnboardingPage/>}/>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin, ROLES.Customer]}/>}>
