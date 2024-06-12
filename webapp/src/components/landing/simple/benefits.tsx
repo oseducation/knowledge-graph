@@ -1,16 +1,12 @@
 import React from 'react';
 import {Typography, Box, useTheme} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
-import {useNavigate} from 'react-router-dom';
-import {useTranslation} from 'react-i18next';
 
 interface Props {
     height: string;
 }
 
 const Benefits = (props: Props) => {
-    const navigate = useNavigate();
-    const {t} = useTranslation();
     const theme = useTheme();
 
     return (
