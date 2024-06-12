@@ -15,6 +15,8 @@ import PricingTable from './components/pricing/pricing_table';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordCompletePage from './pages/ResetPasswordCompletePage';
 import SimpleMain from './components/landing/simple/simple_main';
+import OnboardingPage from './pages/OnboardingPage';
+import GraphManipulationPage from './pages/GraphManipulationPage';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -60,6 +62,7 @@ function App() {
                     <Route path="startup-school" element={<CourseStartupSchoolMain/>}/>
                     <Route path="pricing" element={<PricingTable/>}/>
                     <Route path="simple" element={<SimpleMain/>}/>
+                    <Route path="onboarding" element={<OnboardingPage/>}/>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin, ROLES.Customer]}/>}>
                     <Route path="" element={<UserLayout/>}>
@@ -81,6 +84,7 @@ function App() {
                     <Route path="/admin" element={<AdminPage/>}/>
                     <Route path="/graph/:userID" element={<GraphPage/>}/>
                     <Route path="/chat/:userID" element={<AITutorChatGeneral/>}/>
+                    <Route path="/graph" element={<GraphManipulationPage/>}/>
                 </Route>
                 <Route path="*" element={<NotFoundPage/>} />
             </Routes>

@@ -28,6 +28,7 @@ interface Props {
     cooldownTicks?: number;
     wormupTicks?: number;
     currentNodeID?: string;
+    onClick?: (node: Node) => void;
 }
 
 const D3ForceGraph = (props: Props) => {
@@ -64,9 +65,14 @@ const D3ForceGraph = (props: Props) => {
     },[focusedNodeID]);
 
     const onNodeClick = (node : Node) => {
+        if (props.onClick) {
+            props.onClick(node);
+            return;
+        }
         if (props.noClick){
             return;
         }
+
         Analytics.clickOnTopic({
             'node_id': node.id,
             'Node Name': node.name,

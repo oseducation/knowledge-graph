@@ -33,7 +33,7 @@ func (q *Question) IsValid() error {
 		return invalidQuestionError("", "id", q.ID)
 	}
 
-	if !IsValidID(q.NodeID) {
+	if !IsValidID(q.NodeID) || q.NodeID != "" {
 		return invalidTextError(q.ID, "node_id", q.NodeID)
 	}
 
