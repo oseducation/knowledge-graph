@@ -42,7 +42,7 @@ const GraphComp = () => {
                 maxWidth: '400px',
                 display: {xs: 'none', sm: 'none', md: 'none', lg: 'block'}
             }}>
-                {selectedNode && selectedNode.id &&
+                {selectedNode && selectedNode.nodeID &&
                     <RHS
                         userID={user?.id || ''}
                         onReload={onReload}

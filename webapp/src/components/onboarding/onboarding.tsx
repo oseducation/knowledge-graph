@@ -97,7 +97,6 @@ const Onboarding = () => {
                     setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].node_id, true))})
                     setQuestionFeedback({title: 'Correct! We\'ve marked some topics which you most likely know already', description: state.questions[activeQuestion][0].explanation})
                     setActiveQuestion(activeQuestion*2 + 1);
-                    console.log(state.questions[activeQuestion][0]);
                     if (graph) {
                         setGraph(updateGraph(graph, state.questions[activeQuestion][0].node_id, true))
                     }
@@ -130,7 +129,7 @@ const Onboarding = () => {
                 questionsProgress={questionsProgress}
                 onStepBack={() => {
                     if (activeQuestion > 0) {
-                        setActiveQuestion(Math.floor((activeQuestion - 1)/2));
+                        return;
                     } else if (activeStep > 0) setActiveStep(activeStep - 1);
                 }}
             />

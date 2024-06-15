@@ -5,14 +5,14 @@ type AdjacencyList = { [key: string]: string[] };
 
 const buildAdjacencyList = (links: Link[]): AdjacencyList => {
     const adjacencyList: AdjacencyList = {};
-    links.forEach(({ source, target }) => {
-        if (!adjacencyList[source]) {
-            adjacencyList[source] = [];
+    links.forEach(({ sourceID, targetID }) => {
+        if (!adjacencyList[sourceID]) {
+            adjacencyList[sourceID] = [];
         }
-        if (!adjacencyList[target]) {
-            adjacencyList[target] = [];
+        if (!adjacencyList[targetID]) {
+            adjacencyList[targetID] = [];
         }
-        adjacencyList[source].push(target);
+        adjacencyList[sourceID].push(targetID);
     });
     return adjacencyList;
 };
@@ -74,33 +74,38 @@ export const findRedundantLinks = (links: Link[]): Link[] => {
 
 export const updateGraph = (graph: Graph, nodeID: string, isRightChoice: boolean): Graph => {
     const g = cloneGraph(graph);
-    console.log('Original graph:', g, nodeID, isRightChoice);
     if (isRightChoice) {
         const reverseNeighbors = generateReverseGraph(g.nodes, g.links)
         const path = allPreviousNodes(reverseNeighbors, nodeID);
-        console.log(path);
-        for (let [n] of path){
+        for (const [n] of path){
             for (const node of g.nodes){
-                if (node.id === n){
+                if (node.nodeID === n){
                     node.status = NodeStatusFinished;
                 }
             }
         }
     } else {
         const neighbors = generateGraph(g.nodes, g.links)
-        const path = allPreviousNodes(neighbors, nodeID);
-        console.log(path);
-        for (let [n] of path){
+        let path = allPreviousNodes(neighbors, nodeID);
+        for (const [n] of path){
             for (const node of g.nodes){
-                if (node.id === n){
+                if (node.nodeID === n){
+                    node.status = NodeStatusStarted;
+                }
+            }
+        }
+        const reverseNeighbors = generateReverseGraph(g.nodes, g.links)
+        path = allPreviousNodes(reverseNeighbors, nodeID);
+        for (const [n] of path){
+            for (const node of g.nodes){
+                if (node.nodeID === n && node.status !== NodeStatusFinished){
                     node.status = NodeStatusStarted;
                 }
             }
         }
     }
-    // console.log('Updated graph:', g)
-    console.log('node', g.nodes[146]);
-    return cloneGraph(g);
+
+    return g;
 }
 
 

@@ -16,7 +16,7 @@ type Graph struct {
 }
 
 type FrontendNodes struct {
-	ID          string `json:"id"`
+	ID          string `json:"nodeID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	NodeType    string `json:"node_type"`
@@ -25,8 +25,8 @@ type FrontendNodes struct {
 }
 
 type FrontendLinks struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
+	Source string `json:"sourceID"`
+	Target string `json:"targetID"`
 }
 
 type FrontendGraph struct {

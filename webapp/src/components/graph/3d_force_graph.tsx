@@ -52,7 +52,7 @@ const D3ForceGraph = (props: Props) => {
             let focusNode = null;
             for (let i = 0; i < props.graph.nodes.length; i++) {
                 const node = props.graph.nodes[i];
-                if (node.id === focusedNodeID) {
+                if (node.nodeID === focusedNodeID) {
                     focusNode = node as NodeObject<Node>
                     break
                 }
@@ -74,7 +74,7 @@ const D3ForceGraph = (props: Props) => {
         }
 
         Analytics.clickOnTopic({
-            'node_id': node.id,
+            'node_id': node.nodeID,
             'Node Name': node.name,
             'Language': i18n.language,
             'Node Type': node.node_type,
@@ -82,11 +82,11 @@ const D3ForceGraph = (props: Props) => {
             'Entry Point': 'Graph'
         });
         if (node.node_type === NodeTypeParent) {
-            setParentID(node.id);
+            setParentID(node.nodeID);
             return;
         }
         if (node.status === NodeStatusFinished || node.status === NodeStatusNext || node.status === NodeStatusStarted || node.status === NodeStatusWatched) {
-            navigate(`/nodes/${node.id}`);
+            navigate(`/nodes/${node.nodeID}`);
         } else {
             setOpenGreyNodeAlert(true);
         }
@@ -170,14 +170,14 @@ const D3ForceGraph = (props: Props) => {
             return;
         }
 
-        highlightNodes.add(hoveredNode.id);
+        highlightNodes.add(hoveredNode.nodeID);
         props.graph.links.forEach((link: LinkObject<Node, Link>) => {
-            if ((link.source as Node).id === hoveredNode.id) {
+            if ((link.source as Node).nodeID === hoveredNode.nodeID) {
                 highlightLinks.add(link);
-                highlightNodes.add((link.target as Node).id);
-            } else if ((link.target as Node).id === hoveredNode.id) {
+                highlightNodes.add((link.target as Node).nodeID);
+            } else if ((link.target as Node).nodeID === hoveredNode.nodeID) {
                 highlightLinks.add(link);
-                highlightNodes.add((link.source as Node).id);
+                highlightNodes.add((link.source as Node).nodeID);
             }
         });
 
@@ -245,6 +245,9 @@ const D3ForceGraph = (props: Props) => {
             </Collapse>
 
             <ForceGraph2D
+                nodeId='nodeID'
+                linkSource='sourceID'
+                linkTarget='targetID'
                 ref={fgRef}
                 enableNodeDrag={false}
                 graphData={props.graph}
@@ -267,11 +270,11 @@ const D3ForceGraph = (props: Props) => {
                     if (currentNode.node_type === NodeTypeGeneral) {
                         return;
                     }
-                    if (currentNode.id === selectedNode?.id) {
+                    if (currentNode.nodeID === selectedNode?.nodeID) {
                         paintRing(currentNode, ctx, theme.palette.error.main);
-                    } else if (highlightNodes.has(currentNode.id)){
+                    } else if (highlightNodes.has(currentNode.nodeID)){
                         paintRing(currentNode, ctx, theme.palette.warning.main);
-                    } else if (props.drawGoalPath && pathToGoal?.has(currentNode.id) && currentNode.status !== NodeStatusFinished){
+                    } else if (props.drawGoalPath && pathToGoal?.has(currentNode.nodeID) && currentNode.status !== NodeStatusFinished){
                         paintRing(currentNode, ctx, theme.palette.info.main);
                     }
 
@@ -285,10 +288,10 @@ const D3ForceGraph = (props: Props) => {
                     const x = currentNode.x || 0;
                     const y = currentNode.y || 0;
                     const nodeColor = getNodeColor(currentNode);
-                    if (currentNode.id === props.currentNodeID) {
+                    if (currentNode.nodeID === props.currentNodeID) {
                         paintRing(currentNode, ctx, theme.palette.warning.main);
                         drawStar(ctx, x, y, 7, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
-                    } else if (goals && goals.find(value => value.node_id === currentNode.id)) {
+                    } else if (goals && goals.find(value => value.node_id === currentNode.nodeID)) {
                         paintRing(currentNode, ctx, theme.palette.info.main);
                         drawStar(ctx, x, y, 4, 3*nodeRadius/2, 2*nodeRadius/3, nodeColor)
                     } else if (currentNode.node_type === NodeTypeLecture || currentNode.node_type === NodeTypeParent) {

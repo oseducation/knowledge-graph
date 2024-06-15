@@ -66,7 +66,7 @@ const SearchBar = () => {
                             setParentID('');
                         }
                         setSelectedNode(node);
-                        setFocusedNodeID(node.id);
+                        setFocusedNodeID(node.nodeID);
                         return;
                     }
                 }

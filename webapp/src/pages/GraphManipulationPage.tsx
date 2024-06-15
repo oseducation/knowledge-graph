@@ -44,8 +44,8 @@ const GraphManipulationPage = () => {
                     const newLinks = [];
                     for (let i = 0; i < graph.links.length; i++) {
                         newLinks.push({
-                            source: graph.links[i].target,
-                            target: graph.links[i].source
+                            sourceID: graph.links[i].targetID,
+                            targetID: graph.links[i].sourceID
                         })
                     }
                     setGraph({
@@ -95,7 +95,7 @@ const GraphManipulationPage = () => {
                     onInputChange={(_, newInputValue) => {
                         for (const node of graph.nodes) {
                             if (node.name === newInputValue) {
-                                setCurrentNodeID(node.id);
+                                setCurrentNodeID(node.nodeID);
                                 return;
                             }
                         }
@@ -109,7 +109,6 @@ const GraphManipulationPage = () => {
                     drawGoalPath={false}
                     // noClick={true}
                     onClick={(node) => {
-                        console.log(node);
                         if (node.status === NodeStatusFinished) {
                             node.status = NodeStatusUnseen
                         } else {
@@ -145,7 +144,7 @@ const downloadGraph = async (url: string): Promise<Graph> => {
     const nodes = [];
     for (const id in rawNodes) {
         nodes.push({
-            id: id,
+            nodeID: id,
             name: rawNodes[id].name,
             description: rawNodes[id].description,
             node_type: rawNodes[id].node_type,
@@ -158,8 +157,8 @@ const downloadGraph = async (url: string): Promise<Graph> => {
     for (const target in rawLinks) {
         for (let j = 0; j < rawLinks[target].length; j++) {
             links.push({
-                source: rawLinks[target][j],
-                target: target
+                sourceID: rawLinks[target][j],
+                targetID: target
             })
         }
 
