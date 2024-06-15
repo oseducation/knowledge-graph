@@ -236,12 +236,23 @@ func (qs *SQLQuestionStore) GetOnboardingQuestions(courseID string) ([][]*model.
 		return nil, errors.Wrap(err, "can't get onboarding question")
 	}
 	allQuestionsIDs := []string{}
+	allQuestionsIDsMap := map[string]*OnboardingQuestion{}
 	for _, question := range questions {
-		allQuestionsIDs = append(allQuestionsIDs, question.QuestionID)
+		allQuestionsIDsMap[question.QuestionID] = question
+	}
+	for questionID := range allQuestionsIDsMap {
+		allQuestionsIDs = append(allQuestionsIDs, questionID)
 	}
 	allQuestions, err := qs.getQuestionsFromIDs(allQuestionsIDs)
 	if err != nil {
 		return nil, err
+	}
+	for _, question := range allQuestions {
+		onboardingQuestion, ok := allQuestionsIDsMap[question.ID]
+		if !ok {
+			return nil, errors.Wrapf(err, "missing onboarding question %s", question.ID)
+		}
+		question.NodeID = onboardingQuestion.NodeID
 	}
 	allQuestions, err = qs.populateQuestionsWithChoices(allQuestions)
 	if err != nil {
@@ -255,7 +266,7 @@ func (qs *SQLQuestionStore) GetOnboardingQuestions(courseID string) ([][]*model.
 
 	questionIDs := [][]string{}
 	for i, question := range questions {
-		if i == 0 || questions[i-1].NodeID != question.NodeID {
+		if i == 0 || questions[i-1].Pos != question.Pos {
 			questionIDs = append(questionIDs, []string{})
 		}
 		questionIDs[len(questionIDs)-1] = append(questionIDs[len(questionIDs)-1], question.QuestionID)

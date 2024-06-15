@@ -179,7 +179,7 @@ export const getGraphForParent = (graph: Graph, parentID: string) => {
     const nodes = graph.nodes.filter(node => node.parent_id === parentID);
     const links = [];
     for (const link of graph.links) {
-        if (nodes.find(node => node.id === link.source) && nodes.find(node => node.id === link.target)) {
+        if (nodes.find(node => node.nodeID === link.sourceID) && nodes.find(node => node.nodeID === link.targetID)) {
             links.push(link);
         }
     }
@@ -189,7 +189,7 @@ export const getGraphForParent = (graph: Graph, parentID: string) => {
 export const filterGraph = (graph: Graph) => {
     for (const node of graph.nodes) {
         if (node.parent_id === "" && node.name === "Intro to Startups") {
-            return getGraphForParent(graph, node.id);
+            return getGraphForParent(graph, node.nodeID);
         }
     }
     return graph;
@@ -213,7 +213,7 @@ function topologicalSort(neighbors: Map<string, string[]>, start: string): strin
     return stack.reverse();
 }
 
-const allPreviousNodes = (reverseNeighbors: Map<string, string[]>, goalNodeID: string) => {
+export const allPreviousNodes = (reverseNeighbors: Map<string, string[]>, goalNodeID: string) => {
     const visited: { [key: string]: boolean } = {};
     const queue: string[] = [goalNodeID];
     const nodes: Map<string, boolean> = new Map();
@@ -242,8 +242,8 @@ export const computePathToGoal = (graph: Graph, goalNodeID: string) => {
 
     let start = ''
     for (const node of graph.nodes) {
-        if (reverseNeighbors.get(node.id)?.length === 0 && node.parent_id !== "") {
-            start = node.id;
+        if (reverseNeighbors.get(node.nodeID)?.length === 0 && node.parent_id !== "") {
+            start = node.nodeID;
             break;
         }
     }
@@ -274,28 +274,28 @@ export const nextNodeToGoal = (graph: Graph | null, pathToGoal: Map<string, stri
     const [inProgressNodes, nextNodes] = computeNextNodes(graph);
     if (goalNodeID === "") {
         if (inProgressNodes && inProgressNodes.length !== 0) {
-            return inProgressNodes[0].id;
+            return inProgressNodes[0].nodeID;
         } else if (nextNodes && nextNodes.length !== 0) {
-            return nextNodes[0].id;
+            return nextNodes[0].nodeID;
         }
         return null;
     }
 
     if (inProgressNodes && inProgressNodes.length !== 0) {
         for (const node of inProgressNodes) {
-            if (pathToGoal.has(node.id)) {
-                return node.id;
-            } else if (node.id === goalNodeID) {
-                return node.id;
+            if (pathToGoal.has(node.nodeID)) {
+                return node.nodeID;
+            } else if (node.nodeID === goalNodeID) {
+                return node.nodeID;
             }
         }
     }
     if (nextNodes && nextNodes.length !== 0) {
         for (const node of nextNodes) {
-            if (pathToGoal.has(node.id)) {
-                return node.id;
-            } else if (node.id === goalNodeID) {
-                return node.id;
+            if (pathToGoal.has(node.nodeID)) {
+                return node.nodeID;
+            } else if (node.nodeID === goalNodeID) {
+                return node.nodeID;
             }
         }
     }
@@ -307,14 +307,14 @@ export const goalGraph = (graph: Graph | null, pathToGoal: Map<string, string> |
     const goalNodes = [];
     const goalLinks = [];
     for (const node of graph?.nodes || []) {
-        if (pathToGoal?.has(node.id) || node.id == goalNodeID) {
+        if (pathToGoal?.has(node.nodeID) || node.nodeID == goalNodeID) {
             goalNodes.push(node);
         }
     }
 
     for (const generalLink of graph?.links || []) {
         const link = castToLink(generalLink);
-        if (goalNodes.find(node => node.id === link.source) && goalNodes.find(node => node.id === link.target)) {
+        if (goalNodes.find(node => node.nodeID === link.sourceID) && goalNodes.find(node => node.nodeID === link.targetID)) {
             goalLinks.push(link);
         }
     }
@@ -326,8 +326,8 @@ export const goalGraph = (graph: Graph | null, pathToGoal: Map<string, string> |
 const computeParentMap = (graph: Graph) => {
     const parentMap = new Map<string, Node[]>();
     for (const node of graph.nodes) {
-        if (!parentMap.has(node.id)) {
-            parentMap.set(node.id, []);
+        if (!parentMap.has(node.nodeID)) {
+            parentMap.set(node.nodeID, []);
         }
         if (!parentMap.has(node.parent_id)) {
             parentMap.set(node.parent_id, []);
@@ -359,7 +359,7 @@ const getGraphWithUpdatedNodeStatuses = (graph: Graph) => {
     const nodeStatuses = getNodeStatuses(graph);
     const updatedGraph = cloneGraph(graph);
     for (const node of updatedGraph.nodes) {
-        node.status = nodeStatuses.get(node.id) || NodeStatusUnseen;
+        node.status = nodeStatuses.get(node.nodeID) || NodeStatusUnseen;
     }
     return updatedGraph;
 }
@@ -368,7 +368,7 @@ const getNodeIDToNodeMap = (graph: Graph): Map<string, Node> => {
     const nodesMap = new Map<string, Node>();
     graph.nodes.forEach((node) => {
         if (node.parent_id !== "") {
-            nodesMap.set(node.id, node)
+            nodesMap.set(node.nodeID, node)
         }
     })
     return nodesMap
@@ -378,15 +378,15 @@ const getNodesWithNotFinishedPrerequisites = (links: Link[], nodesMap: Map<strin
     const nodesWithNotFinishedPrereqs = new Map<string, Node>();
     for (let i = 0; i < links.length; i++) {
         const link = castToLink(links[i]);
-        const tar = nodesMap.get(link.target);
+        const tar = nodesMap.get(link.targetID);
         if (tar === undefined || tar.status === NodeStatusFinished) {
             continue
         }
-        const sou = nodesMap.get(link.source);
+        const sou = nodesMap.get(link.sourceID);
         if (sou === undefined || sou.status === NodeStatusFinished) {
             continue
         }
-        nodesWithNotFinishedPrereqs.set(tar.id, tar);
+        nodesWithNotFinishedPrereqs.set(tar.nodeID, tar);
     }
     return nodesWithNotFinishedPrereqs;
 }
@@ -401,10 +401,10 @@ const getNodeStatuses = (graph: Graph): Map<string, string> => {
         if (node.parent_id === "") {
             continue
         }
-        if (!nodesWithNotFinishedPrereqs.has(node.id) && node.status !== NodeStatusFinished) {
-            nodeStatuses.set(node.id, NodeStatusNext);
+        if (!nodesWithNotFinishedPrereqs.has(node.nodeID) && node.status !== NodeStatusFinished) {
+            nodeStatuses.set(node.nodeID, NodeStatusNext);
         } else {
-            nodeStatuses.set(node.id, node.status);
+            nodeStatuses.set(node.nodeID, node.status);
         }
     }
 
@@ -415,7 +415,7 @@ const getNodeStatuses = (graph: Graph): Map<string, string> => {
             continue
         }
 
-        const children = parentMap.get(node.id) || []
+        const children = parentMap.get(node.nodeID) || []
         if (children.length === 0) {
             continue
         }
@@ -423,27 +423,27 @@ const getNodeStatuses = (graph: Graph): Map<string, string> => {
         // check if parent node is finished(all children are finished)
         let allChildrenFinished = true;
         for (const child of children) {
-            if (nodeStatuses.has(child.id) && nodeStatuses.get(child.id) !== NodeStatusFinished) {
+            if (nodeStatuses.has(child.nodeID) && nodeStatuses.get(child.nodeID) !== NodeStatusFinished) {
                 allChildrenFinished = false;
                 break
             }
         }
         if (allChildrenFinished){
-            nodeStatuses.set(node.id, NodeStatusFinished);
+            nodeStatuses.set(node.nodeID, NodeStatusFinished);
             continue
         }
 
         // check if parent node is started(at least one child is started)
         for (const child of children) {
-            if (nodeStatuses.has(child.id) && (nodeStatuses.get(child.id) === NodeStatusStarted || nodeStatuses.get(child.id) === NodeStatusWatched)) {
-                nodeStatuses.set(node.id, NodeStatusStarted);
+            if (nodeStatuses.has(child.nodeID) && (nodeStatuses.get(child.nodeID) === NodeStatusStarted || nodeStatuses.get(child.nodeID) === NodeStatusWatched)) {
+                nodeStatuses.set(node.nodeID, NodeStatusStarted);
                 break
             }
         }
 
         // check if parent node is next(at least one child is next)
         for (const child of children) {
-            if (nodeStatuses.has(child.id) && nodeStatuses.get(child.id) === NodeStatusNext) {
+            if (nodeStatuses.has(child.nodeID) && nodeStatuses.get(child.nodeID) === NodeStatusNext) {
                 node.status = NodeStatusNext;
                 break
             }
@@ -474,19 +474,19 @@ const nodeCmpFn = (a: Node, b: Node) => {
     return nodeTypeMap.get(a.node_type) - nodeTypeMap.get(b.node_type);
 }
 
-const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
+export const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
     const graph: Map<string, string[]> = new Map();
 
     // Initialize the graph with empty arrays for each node
     for (const node of nodes) {
-        graph.set(node.id, []);
+        graph.set(node.nodeID, []);
     }
 
     // Populate the graph based on the links
     for (const l of links) {
         const link = castToLink(l)
-        if (graph.has(link.source) && graph.has(link.target)) {
-            graph.get(link.target)!.push(link.source);
+        if (graph.has(link.sourceID) && graph.has(link.targetID)) {
+            graph.get(link.targetID)!.push(link.sourceID);
         }
     }
 
@@ -494,19 +494,19 @@ const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[
 }
 
 
-const generateGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
+export const generateGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
     const graph: Map<string, string[]> = new Map();
 
     // Initialize the graph with empty arrays for each node
     for (const node of nodes) {
-        graph.set(node.id, []);
+        graph.set(node.nodeID, []);
     }
 
     // Populate the graph based on the links
     for (const l of links) {
         const link = castToLink(l)
-        if (graph.has(link.source) && graph.has(link.target)) {
-            graph.get(link.source)!.push(link.target);
+        if (graph.has(link.sourceID) && graph.has(link.targetID)) {
+            graph.get(link.sourceID)!.push(link.targetID);
         }
     }
 

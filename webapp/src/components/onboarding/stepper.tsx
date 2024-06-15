@@ -25,7 +25,7 @@ const Stepper = (props: Props) => {
     return (
         <Box width={'100%'} pl={10} pr={10}>
             <Box>
-                {props.onBoardingProgress > 0 &&
+                {props.onBoardingProgress > 0 && props.questionsProgress === 0 &&
                     <Button
                         aria-label="back"
                         variant="text"

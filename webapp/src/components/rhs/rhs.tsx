@@ -72,18 +72,18 @@ const RHS = (props: RHSProps) => {
     const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(() => {
-        if (selectedNode && selectedNode.id) {
-            Client.Node().get(selectedNode.id).then((data) => {
+        if (selectedNode && selectedNode.nodeID) {
+            Client.Node().get(selectedNode.nodeID).then((data) => {
                 setNodeWithResources(data);
             });
         }
-    }, [selectedNode?.id]);
+    }, [selectedNode?.nodeID]);
 
 
     function markAsKnown() {
-        if (props.userID && selectedNode?.id) {
+        if (props.userID && selectedNode?.nodeID) {
             setLoading(true)
-            Client.Node().markAsKnown(selectedNode.id, props.userID)
+            Client.Node().markAsKnown(selectedNode.nodeID, props.userID)
                 .then(() => {
                     props.onReload();
                     setLoading(false)
@@ -96,9 +96,9 @@ const RHS = (props: RHSProps) => {
     }
 
     function markAsStarted() {
-        if (props.userID && selectedNode?.id) {
+        if (props.userID && selectedNode?.nodeID) {
             setLoading(true)
-            Client.Node().markAsStarted(selectedNode.id, props.userID)
+            Client.Node().markAsStarted(selectedNode.nodeID, props.userID)
                 .then(() => {
                     props.onReload();
                     setLoading(false)
@@ -129,15 +129,15 @@ const RHS = (props: RHSProps) => {
                 onMarkAsKnown={markAsKnown}
                 onMarkAsStarted={markAsStarted}
             />
-    } else if (goals && goals.find(value => value.node_id === selectedNode?.id)) {
+    } else if (goals && goals.find(value => value.node_id === selectedNode?.nodeID)) {
         buttonComp =
             <Button
                 variant='contained'
                 color='primary'
                 onClick={() => {
-                    if (selectedNode?.id) {
-                        Client.Graph().deleteGoal(selectedNode?.id || '').then(() => {
-                            removeGoal(selectedNode.id);
+                    if (selectedNode?.nodeID) {
+                        Client.Graph().deleteGoal(selectedNode?.nodeID || '').then(() => {
+                            removeGoal(selectedNode.nodeID);
                         })
                     }
                 }}
@@ -150,10 +150,10 @@ const RHS = (props: RHSProps) => {
                 variant='contained'
                 color='primary'
                 onClick={() => {
-                    if (selectedNode?.id) {
-                        Client.Graph().addGoal(selectedNode?.id || '').then(() => {
+                    if (selectedNode?.nodeID) {
+                        Client.Graph().addGoal(selectedNode?.nodeID || '').then(() => {
                             setCurrentGoal({
-                                node_id: selectedNode.id,
+                                node_id: selectedNode.nodeID,
                                 name: selectedNode.name,
                                 thumbnail_relative_url: `/images/nodes/${selectedNode.name.replaceAll(' ', '-')}.png`,
                             });

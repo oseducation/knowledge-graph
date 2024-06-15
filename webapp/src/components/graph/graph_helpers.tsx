@@ -1,17 +1,18 @@
-import {Link} from "../../types/graph";
+import {allPreviousNodes, generateGraph, generateReverseGraph} from "../../context/graph_provider";
+import {Graph, Link, NodeStatusFinished, NodeStatusStarted, cloneGraph} from "../../types/graph";
 
 type AdjacencyList = { [key: string]: string[] };
 
 const buildAdjacencyList = (links: Link[]): AdjacencyList => {
     const adjacencyList: AdjacencyList = {};
-    links.forEach(({ source, target }) => {
-        if (!adjacencyList[source]) {
-            adjacencyList[source] = [];
+    links.forEach(({ sourceID, targetID }) => {
+        if (!adjacencyList[sourceID]) {
+            adjacencyList[sourceID] = [];
         }
-        if (!adjacencyList[target]) {
-            adjacencyList[target] = [];
+        if (!adjacencyList[targetID]) {
+            adjacencyList[targetID] = [];
         }
-        adjacencyList[source].push(target);
+        adjacencyList[sourceID].push(targetID);
     });
     return adjacencyList;
 };
@@ -71,6 +72,66 @@ export const findRedundantLinks = (links: Link[]): Link[] => {
     return result
 }
 
+export const updateGraph = (graph: Graph, nodeID: string, isRightChoice: boolean): Graph => {
+    const g = cloneGraph(graph);
+    if (isRightChoice) {
+        const reverseNeighbors = generateReverseGraph(g.nodes, g.links)
+        const path = allPreviousNodes(reverseNeighbors, nodeID);
+        for (const [n] of path){
+            for (const node of g.nodes){
+                if (node.nodeID === n){
+                    node.status = NodeStatusFinished;
+                }
+            }
+        }
+    } else {
+        const neighbors = generateGraph(g.nodes, g.links)
+        let path = allPreviousNodes(neighbors, nodeID);
+        for (const [n] of path){
+            for (const node of g.nodes){
+                if (node.nodeID === n){
+                    node.status = NodeStatusStarted;
+                }
+            }
+        }
+        const reverseNeighbors = generateReverseGraph(g.nodes, g.links)
+        path = allPreviousNodes(reverseNeighbors, nodeID);
+        for (const [n] of path){
+            for (const node of g.nodes){
+                if (node.nodeID === n && node.status !== NodeStatusFinished){
+                    node.status = NodeStatusStarted;
+                }
+            }
+        }
+    }
+
+    return g;
+}
+
+
 const clone = (obj: any): any => {
     return JSON.parse(JSON.stringify(obj));
 }
+
+// const cloneGraph = (graph: Graph): Graph => {
+//     const nodes = graph.nodes.map(node => {
+//         return {
+//             id: node.id,
+//             name: node.name,
+//             status: node.status,
+//             description: node.description,
+//             node_type: node.node_type,
+//             parent_id: node.parent_id,
+//         }
+//     });
+//     const links = graph.links.map(link => {
+//         return {
+//             source: link.source,
+//             target: link.target,
+//         }
+//     });
+//     return {
+//         nodes,
+//         links,
+//     }
+// }

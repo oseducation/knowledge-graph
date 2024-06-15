@@ -38,8 +38,8 @@ const NodeTitleSection = (props: Props) => {
                     <p>{t("Prerequisite Topics")}:</p>
                     <List dense={true}>
                         {props.prerequisites && props.prerequisites.map(n =>
-                            <ListItem key={n.id}>
-                                <Link href={`/nodes/${n.id}`} target="_blank" rel="noopener">
+                            <ListItem key={n.nodeID}>
+                                <Link href={`/nodes/${n.nodeID}`} target="_blank" rel="noopener">
                                     {n.name}
                                 </Link>
                             </ListItem>

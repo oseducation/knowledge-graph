@@ -17,7 +17,7 @@ export const NodeTypeParent = 'parent'
 export const NodeTypeGeneral = 'general'
 
 export type Node = {
-    id: string;
+    nodeID: string;
     name: string;
     description: string;
     node_type: string;
@@ -26,8 +26,8 @@ export type Node = {
 }
 
 export type Link = {
-    source: string;
-    target: string;
+    sourceID: string;
+    targetID: string;
 }
 
 export type Graph = {
@@ -78,7 +78,7 @@ export type Question = {
 }
 
 export type NodeWithResources = {
-    id: string;
+    id: string; // ?
     name: string;
     description: string;
     status: string;
@@ -115,15 +115,15 @@ export const getVideoLength = (length: number) => {
 // We are doing this because in graph component graph object is changed and links
 // are of type Node not string
 export const castToLink = (link: Link): Link => {
-    let sourceID = link.source
-    let targetID = link.target
-    if (typeof link.source !== 'string' && typeof link.target !== 'string') {
-        sourceID = (link.source as Node).id;
-        targetID = (link.target as Node).id;
+    let sourceID = link.sourceID
+    let targetID = link.targetID
+    if (typeof link.sourceID !== 'string' && typeof link.targetID !== 'string') {
+        sourceID = (link.sourceID as Node).nodeID;
+        targetID = (link.targetID as Node).nodeID;
     }
     return {
-        source: sourceID,
-        target: targetID
+        sourceID: sourceID,
+        targetID: targetID
     }
 }
 

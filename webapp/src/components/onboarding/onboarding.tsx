@@ -6,6 +6,7 @@ import {Client} from '../../client/client';
 import {Graph} from '../../types/graph';
 import {filterGraph} from '../../context/graph_provider';
 import Registration from '../registration';
+import {updateGraph} from '../graph/graph_helpers';
 
 import TimeChooser from './time_chooser';
 import Stepper from './stepper';
@@ -37,6 +38,11 @@ const Onboarding = () => {
             }
             setGraph(filterGraph(data));
         });
+        if (state.courseID === 'gmat') {
+            setQuestionFeedback({title: 'These are all the topics you should know to ace the GMAT', description: 'You can see how the topics are connected with each other'});
+        } else if (state.courseID === 'startup') {
+            setQuestionFeedback({title: 'These are all the topics about the startups', description: 'You can see how the topics are connected with each other'});
+        }
     }, [state.courseID]);
 
     const profileSetupSteps = [{
@@ -88,14 +94,20 @@ const Onboarding = () => {
             component = <QuizQuestion
                 question={state.questions[activeQuestion][0]}
                 onRightChoice={() => {
-                    setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].id, true))})
+                    setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].node_id, true))})
                     setQuestionFeedback({title: 'Correct! We\'ve marked some topics which you most likely know already', description: state.questions[activeQuestion][0].explanation})
                     setActiveQuestion(activeQuestion*2 + 1);
+                    if (graph) {
+                        setGraph(updateGraph(graph, state.questions[activeQuestion][0].node_id, true))
+                    }
                 }}
                 onWrongChoice={() => {
-                    setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].id, false))})
+                    setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].node_id, false))})
                     setQuestionFeedback({title: 'You\'ll have all the chance to learn this', description: state.questions[activeQuestion][0].explanation})
                     setActiveQuestion(activeQuestion*2 + 2);
+                    if (graph) {
+                        setGraph(updateGraph(graph, state.questions[activeQuestion][0].node_id, false))
+                    }
                 }}
             />
         }
@@ -104,7 +116,7 @@ const Onboarding = () => {
     let questionsProgress = 0
     if (activeStep === profileSetupSteps.length) {
         if (state.questions && state.questions.length > 0) {
-            questionsProgress = activeQuestion/(Math.log2(state.questions.length)) * 100
+            questionsProgress = getNumberOfQuestions(activeQuestion)/(Math.floor(Math.log2(state.questions.length)) + 1) * 100
         } else {
             questionsProgress = 100
         }
@@ -117,7 +129,7 @@ const Onboarding = () => {
                 questionsProgress={questionsProgress}
                 onStepBack={() => {
                     if (activeQuestion > 0) {
-                        setActiveQuestion(activeQuestion - 1);
+                        return;
                     } else if (activeStep > 0) setActiveStep(activeStep - 1);
                 }}
             />
@@ -127,3 +139,11 @@ const Onboarding = () => {
 }
 
 export default Onboarding;
+
+const getNumberOfQuestions = (activeQuestion:number):number => {
+    let n = activeQuestion;
+    for (let i=0; ; i++) {
+        if (n === 0) return i;
+        n = Math.floor((n-1)/2);
+    }
+}

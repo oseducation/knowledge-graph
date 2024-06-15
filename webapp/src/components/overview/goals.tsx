@@ -87,7 +87,7 @@ const GoalCard = (props: Props) => {
 const computeGoalPercentage = (globalGraph: Graph, goalNodeID: string) => {
     const path = computePathToGoal(globalGraph, goalNodeID)
     const map = new Map<string, Node>()
-    globalGraph.nodes.forEach(node => map.set(node.id, node))
+    globalGraph.nodes.forEach(node => map.set(node.nodeID, node))
     let numberOfFinishedNodes = 0;
     path.forEach((_, nodeID) => {
         if (map.get(nodeID)?.status === NodeStatusFinished) {
