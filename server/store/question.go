@@ -10,6 +10,7 @@ import (
 type QuestionStore interface {
 	Save(question *model.Question) (*model.Question, error)
 	Get(id string) (*model.Question, error)
+	GetIDByName(name string) (string, error)
 	GetQuestions(options *model.QuestionGetOptions) ([]*model.Question, error)
 	Delete(question *model.Question) error
 	GetOnboardingQuestions(courseID string) ([][]*model.Question, error)
@@ -110,6 +111,20 @@ func (qs *SQLQuestionStore) Get(id string) (*model.Question, error) {
 
 	question.Choices = questionChoices
 	return &question, nil
+}
+
+// GetIDByName gets question id by name
+func (qs *SQLQuestionStore) GetIDByName(name string) (string, error) {
+	var questionID string
+	query := qs.sqlStore.builder.
+		Select("q.id").
+		From("questions q").
+		Where(sq.Eq{"q.name": name})
+
+	if err := qs.sqlStore.getBuilder(qs.sqlStore.db, &questionID, query); err != nil {
+		return "", errors.Wrapf(err, "can't get question id by name: %s", name)
+	}
+	return questionID, nil
 }
 
 // GetQuestions gets questions with options

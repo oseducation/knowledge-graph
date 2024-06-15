@@ -33,12 +33,12 @@ func (q *Question) IsValid() error {
 		return invalidQuestionError("", "id", q.ID)
 	}
 
-	if !IsValidID(q.NodeID) || q.NodeID != "" {
-		return invalidTextError(q.ID, "node_id", q.NodeID)
+	if q.NodeID != "" && !IsValidID(q.NodeID) {
+		return invalidQuestionError(q.ID, "node_id", q.NodeID)
 	}
 
 	if q.CreatedAt == 0 {
-		return invalidTextError(q.ID, "create_at", q.CreatedAt)
+		return invalidQuestionError(q.ID, "create_at", q.CreatedAt)
 	}
 
 	// TODO maybe check if question field is a correct md?
