@@ -13,6 +13,10 @@ function LandingHeader() {
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
     const {t} = useTranslation();
 
+    if (location.pathname === '/onboarding') {
+        return null;
+    }
+
     function getTitle() {
         return <Typography
             variant="h6"

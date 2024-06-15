@@ -21,39 +21,37 @@ const LearningStyleChooser = (props: Props) => {
 
     return (
         <Box display={'flex'} flexDirection={'column'} alignItems={'center'} width={'400px'} mt={6}>
-            <Typography variant='h5' fontWeight={'bold'} m={1}>
-                {"What is the learning style that suites you the best?"}
+            <Typography variant='h5' m={1}>
+                <span style={{fontWeight: 'bold'}}>{"What's your preferred learning style? "}</span>(Select all that apply)
             </Typography>
-            <Box display={'flex'} flexDirection={'row'}>
-                <Box display={'flex'} flexDirection={'column'} m={1}>
-                    <StyledButton fullWidth value={learningStyles.visual_learning} selected={learningStyles.visual_learning} aria-label="visual learning" onClick={() => setLearningStyles({...learningStyles, visual_learning: !learningStyles.visual_learning})}>
-                        Visual learning
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.auditory_learning} selected={learningStyles.auditory_learning}  aria-label="auditory learning" onClick={() => setLearningStyles({...learningStyles, auditory_learning: !learningStyles.auditory_learning})}>
-                        Auditory learning
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.reading_writing} selected={learningStyles.reading_writing}  aria-label="Reading and writing" onClick={() => setLearningStyles({...learningStyles, reading_writing: !learningStyles.reading_writing})}>
-                        Reading and writing
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.kinesthetic} selected={learningStyles.kinesthetic}  aria-label="Kinesthetic" onClick={() => setLearningStyles({...learningStyles, kinesthetic: !learningStyles.kinesthetic})}>
-                        Kinesthetic
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.verbal} selected={learningStyles.verbal}  aria-label="Verbal or linguistic learning" onClick={() => setLearningStyles({...learningStyles, verbal: !learningStyles.verbal})}>
-                        Verbal or linguistic learning
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.social} selected={learningStyles.social}  aria-label="Social or interpersonal learning" onClick={() => setLearningStyles({...learningStyles, social: !learningStyles.social})}>
-                        Social or interpersonal learning
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.solitary} selected={learningStyles.solitary}  aria-label="Solitary or intrapersonal learning" onClick={() => setLearningStyles({...learningStyles, solitary: !learningStyles.solitary})}>
-                        Solitary or intrapersonal learning
-                    </StyledButton>
-                    <StyledButton fullWidth value={learningStyles.other} selected={learningStyles.other}  aria-label="Other" onClick={() => setLearningStyles({...learningStyles, other: !learningStyles.other})}>
-                        Other
-                    </StyledButton>
-                </Box>
+            <Box display={'flex'} flexDirection={'column'} m={1} width={'100%'}>
+                <StyledButton fullWidth value={learningStyles.visual_learning} selected={learningStyles.visual_learning} aria-label="visual learning" onClick={() => setLearningStyles({...learningStyles, visual_learning: !learningStyles.visual_learning})}>
+                    Visual (seeing)
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.auditory_learning} selected={learningStyles.auditory_learning}  aria-label="auditory learning" onClick={() => setLearningStyles({...learningStyles, auditory_learning: !learningStyles.auditory_learning})}>
+                    Auditory (hearing)
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.reading_writing} selected={learningStyles.reading_writing}  aria-label="Reading and writing" onClick={() => setLearningStyles({...learningStyles, reading_writing: !learningStyles.reading_writing})}>
+                    Reading/Writing
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.kinesthetic} selected={learningStyles.kinesthetic}  aria-label="Kinesthetic" onClick={() => setLearningStyles({...learningStyles, kinesthetic: !learningStyles.kinesthetic})}>
+                    Kinesthetic (doing)
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.verbal} selected={learningStyles.verbal}  aria-label="Verbal or linguistic learning" onClick={() => setLearningStyles({...learningStyles, verbal: !learningStyles.verbal})}>
+                    Verbal (speaking)
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.social} selected={learningStyles.social}  aria-label="Social or interpersonal learning" onClick={() => setLearningStyles({...learningStyles, social: !learningStyles.social})}>
+                    Social (group)
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.solitary} selected={learningStyles.solitary}  aria-label="Solitary or intrapersonal learning" onClick={() => setLearningStyles({...learningStyles, solitary: !learningStyles.solitary})}>
+                    Independent (solo)
+                </StyledButton>
+                <StyledButton fullWidth value={learningStyles.other} selected={learningStyles.other}  aria-label="Other" onClick={() => setLearningStyles({...learningStyles, other: !learningStyles.other})}>
+                    Other
+                </StyledButton>
             </Box>
 
-            <Button variant='contained' color='primary' fullWidth sx={{mt:10}} onClick={() => {props.onContinue(learningStyles)}}>
+            <Button variant='contained' color='primary' fullWidth sx={{mt:4}} onClick={() => {props.onContinue(learningStyles)}}>
                 Continue
             </Button>
         </Box>
