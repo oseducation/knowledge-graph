@@ -51,7 +51,7 @@ const Onboarding = () => {
         }}/>
     }, {
         image: './images/onboarding/plan.png',
-        title: 'We\'ll tailor a personal plan for your learning style',
+        title: "Thanks! We'll create a learning plan tailored to your preferred learning style.",
     }, {
         component: <TimeChooser onContinue={(time: string) => {
             setState({...state, time: time});

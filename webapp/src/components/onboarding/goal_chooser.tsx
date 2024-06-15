@@ -11,16 +11,16 @@ const GoalChooser = (props: Props) => {
         <Box display={'flex'} flexDirection={'column'} alignItems={'flex-start'} width={'400px'} mt={10}>
             <img src={"./images/onboarding/goal.png"} alt={'goals'} width={'100%'}/>
             <Typography variant='h5' fontWeight={'bold'} m={1}>
-                {"Yay, glad you are here! Let's start by setting your goals."}
+                {"Welcome! We're excited you're here. Let's set your learning goal."}
             </Typography>
             <Typography variant='body1' m={1}>
-                {"What are you looking to achieve with VitsiAI? The choice won’t limit your experience"}
+                {"What do you want to achieve first? The choice won’t limit your experience."}
             </Typography>
 
             <Box>
                 <StyledButton variant='contained' size='large' color='primary' fullWidth sx={{m:1}} onClick={() => {props.onContinue('startup')}}>
                     <Typography textAlign={'left'} variant='body1'>
-                        Learn how to build a Startup
+                        Learn to build a Startup
                     </Typography>
                 </StyledButton>
                 <StyledButton variant='contained' size='large' color='primary' fullWidth sx={{m:1}} onClick={() => {props.onContinue('gmat')}}>
