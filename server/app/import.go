@@ -64,9 +64,10 @@ func (a *App) ImportAllContent(url string) (string, error) {
 }
 
 func (a *App) ImportOnboardingQuestionsContent(url, courseID string) error {
-	questionsContent, err := getFileContent(fmt.Sprintf("%s/questions.json", url))
+	fmt.Println("Importing onboarding questions content...")
+	questionsContent, err := getFileContent(fmt.Sprintf("%s/onboarding.json", url))
 	if err != nil {
-		return errors.Wrapf(err, "can't get questions.json file\n%s", questionsContent)
+		return errors.Wrapf(err, "can't get onboarding.json file\n%s", questionsContent)
 	}
 
 	type Question struct {
@@ -82,32 +83,48 @@ func (a *App) ImportOnboardingQuestionsContent(url, courseID string) error {
 	if err2 := json.Unmarshal([]byte(questionsContent), &questions); err2 != nil {
 		return errors.Wrap(err, "can't unmarshal questions.json file")
 	}
+	fmt.Printf("Importing %d onboarding questions\n", len(questions))
 
 	for index, quests := range questions {
 		for _, q := range quests {
 			if q.NodeName == "" {
 				return errors.New("question node name is required")
 			}
+			fmt.Printf("Importing onboarding question `%s`\n", q.Name)
 			node, err3 := a.Store.Node().GetByName(q.NodeName)
 			if err3 != nil {
 				return errors.Wrapf(err3, "can't get node by name %s", q.NodeName)
 			}
-			q, err4 := a.Store.Question().Save(&model.Question{
-				Name:         q.Name,
-				Question:     q.Question,
-				QuestionType: q.QuestionType,
-				Choices:      q.Choices,
-				Explanation:  q.Explanation,
-				NodeID:       "",
-			})
+
+			questionID, err4 := a.Store.Question().GetIDByName(q.Name)
 			if err4 != nil {
-				return errors.Wrap(err3, "can't save question")
+				if errors.Is(err4, sql.ErrNoRows) {
+					q, err5 := a.Store.Question().Save(&model.Question{
+						Name:         q.Name,
+						Question:     q.Question,
+						QuestionType: q.QuestionType,
+						Choices:      q.Choices,
+						Explanation:  q.Explanation,
+						NodeID:       "",
+					})
+					if err5 != nil {
+						return errors.Wrap(err5, "can't save question")
+					}
+					questionID = q.ID
+				} else {
+					return errors.Wrap(err4, "can't get question by name")
+				}
+			} else {
+				fmt.Printf("Question already in the DB `%s`\n", questionID)
 			}
-			if err := a.Store.Question().SaveOnboardingQuestion(courseID, node.ID, q.ID, index); err != nil {
+
+			if err := a.Store.Question().SaveOnboardingQuestion(courseID, node.ID, questionID, index); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
 				return errors.Wrap(err, "can't save onboarding question")
 			}
+			fmt.Printf("Imported %d\n", index)
 		}
 	}
+	fmt.Println("Importing onboarding questions content ended...")
 	return nil
 }
 

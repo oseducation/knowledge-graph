@@ -594,7 +594,8 @@ var migrations = []Migration{
 					course_id VARCHAR(26),
 					node_id VARCHAR(26),
 					question_id VARCHAR(26),
-					pos bigint
+					pos bigint,
+					UNIQUE (course_id, node_id, question_id, pos)
 				);
 			`); err != nil {
 				return errors.Wrapf(err, "failed creating table onboarding_questions")

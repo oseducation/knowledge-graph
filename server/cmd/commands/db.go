@@ -43,7 +43,7 @@ var dbImportContent = &cobra.Command{
 }
 
 var dbOnboardingImportQuestions = &cobra.Command{
-	Use:     "onboarding-questions",
+	Use:     "import-onboarding-questions",
 	Short:   "Import onboarding questions content",
 	Long:    `Import VitsiAI Content from file onboarding.json.`,
 	Example: `  db import-content questions --url URL-to-folder`,
@@ -79,7 +79,7 @@ func init() {
 
 	dbOnboardingImportQuestions.Flags().String("url", "", "URL to folder with onboarding.json file")
 	dbOnboardingImportQuestions.Flags().String("course_id", "", "CourseID of the course")
-	dbImportContent.AddCommand(dbOnboardingImportQuestions)
+	dbCmd.AddCommand(dbOnboardingImportQuestions)
 
 	dbAddNode.Flags().String("node", "", "a string in json format with node data")
 	dbAddNode.Flags().String("pre", "", "a list in json format with prerequisite node names")
