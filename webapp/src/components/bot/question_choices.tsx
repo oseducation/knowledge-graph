@@ -17,6 +17,7 @@ interface Props {
     onRightChoice: (answer: string) => void;
     onWrongChoice: (answer: string) => void;
     isLast: boolean;
+    shuffle?: boolean;
 }
 
 const QuestionChoices = (props: Props) => {
@@ -61,7 +62,7 @@ const QuestionChoices = (props: Props) => {
                     onChange={handleRadioChange}
                 >
                     {props.choices.map(value => ({value, sort: hashCode(value.choice)}))
-                        .sort((a, b) => a.sort - b.sort)
+                        .sort((a, b) => props.shuffle ? a.sort - b.sort : -1)
                         .map(({value}) =>
                             <FormControlLabel
                                 key={value.id}

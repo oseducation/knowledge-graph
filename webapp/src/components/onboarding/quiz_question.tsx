@@ -21,6 +21,7 @@ const QuizQuestion = (props: Props) => {
                     onRightChoice={props.onRightChoice}
                     onWrongChoice={props.onWrongChoice}
                     isLast={true}
+                    shuffle={false}
                 />
             </Box>
         </Box>

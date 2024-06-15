@@ -213,7 +213,7 @@ function topologicalSort(neighbors: Map<string, string[]>, start: string): strin
     return stack.reverse();
 }
 
-const allPreviousNodes = (reverseNeighbors: Map<string, string[]>, goalNodeID: string) => {
+export const allPreviousNodes = (reverseNeighbors: Map<string, string[]>, goalNodeID: string) => {
     const visited: { [key: string]: boolean } = {};
     const queue: string[] = [goalNodeID];
     const nodes: Map<string, boolean> = new Map();
@@ -474,7 +474,7 @@ const nodeCmpFn = (a: Node, b: Node) => {
     return nodeTypeMap.get(a.node_type) - nodeTypeMap.get(b.node_type);
 }
 
-const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
+export const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
     const graph: Map<string, string[]> = new Map();
 
     // Initialize the graph with empty arrays for each node
@@ -494,7 +494,7 @@ const generateReverseGraph = (nodes: Node[], links: Link[]): Map<string, string[
 }
 
 
-const generateGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
+export const generateGraph = (nodes: Node[], links: Link[]): Map<string, string[]> => {
     const graph: Map<string, string[]> = new Map();
 
     // Initialize the graph with empty arrays for each node

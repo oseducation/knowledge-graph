@@ -1,4 +1,5 @@
-import {Link} from "../../types/graph";
+import {allPreviousNodes, generateGraph, generateReverseGraph} from "../../context/graph_provider";
+import {Graph, Link, NodeStatusFinished, NodeStatusStarted, cloneGraph} from "../../types/graph";
 
 type AdjacencyList = { [key: string]: string[] };
 
@@ -71,6 +72,61 @@ export const findRedundantLinks = (links: Link[]): Link[] => {
     return result
 }
 
+export const updateGraph = (graph: Graph, nodeID: string, isRightChoice: boolean): Graph => {
+    const g = cloneGraph(graph);
+    console.log('Original graph:', g, nodeID, isRightChoice);
+    if (isRightChoice) {
+        const reverseNeighbors = generateReverseGraph(g.nodes, g.links)
+        const path = allPreviousNodes(reverseNeighbors, nodeID);
+        console.log(path);
+        for (let [n] of path){
+            for (const node of g.nodes){
+                if (node.id === n){
+                    node.status = NodeStatusFinished;
+                }
+            }
+        }
+    } else {
+        const neighbors = generateGraph(g.nodes, g.links)
+        const path = allPreviousNodes(neighbors, nodeID);
+        console.log(path);
+        for (let [n] of path){
+            for (const node of g.nodes){
+                if (node.id === n){
+                    node.status = NodeStatusStarted;
+                }
+            }
+        }
+    }
+    // console.log('Updated graph:', g)
+    console.log('node', g.nodes[146]);
+    return cloneGraph(g);
+}
+
+
 const clone = (obj: any): any => {
     return JSON.parse(JSON.stringify(obj));
 }
+
+// const cloneGraph = (graph: Graph): Graph => {
+//     const nodes = graph.nodes.map(node => {
+//         return {
+//             id: node.id,
+//             name: node.name,
+//             status: node.status,
+//             description: node.description,
+//             node_type: node.node_type,
+//             parent_id: node.parent_id,
+//         }
+//     });
+//     const links = graph.links.map(link => {
+//         return {
+//             source: link.source,
+//             target: link.target,
+//         }
+//     });
+//     return {
+//         nodes,
+//         links,
+//     }
+// }
