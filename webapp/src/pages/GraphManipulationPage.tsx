@@ -3,7 +3,7 @@ import {Autocomplete, Box, Button, InputBase, TextField, useTheme} from '@mui/ma
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 
 import {Client} from '../client/client';
-import {Graph, NodeStatusFinished, NodeStatusUnseen} from '../types/graph';
+import {Graph, NodeStatusFinished, NodeStatusUnseen, NodeTypeAssignment, NodeTypeExample, NodeTypeGeneral, NodeTypeLecture, NodeTypeParent} from '../types/graph';
 import GraphComponent from '../components/graph/graph_component';
 import {filterGraph} from '../context/graph_provider';
 import {findRedundantLinks} from '../components/graph/graph_helpers';
@@ -12,6 +12,7 @@ import {DashboardColors} from '../ThemeOptions';
 const GraphManipulationPage = () => {
     const [graph, setGraph] = useState({} as Graph);
     const [url, setURL] = useState('');
+    const [nodeType, setNodeType] = useState('');
     const theme = useTheme();
     const [currentNodeID, setCurrentNodeID] = useState('');
 
@@ -28,8 +29,38 @@ const GraphManipulationPage = () => {
         }
     }, [url]);
 
+    useEffect(() => {
+        if (nodeType === '') {
+            return;
+        }
+        if (!(nodeType == NodeTypeLecture || nodeType === NodeTypeExample || nodeType === NodeTypeAssignment || nodeType === NodeTypeParent || nodeType === NodeTypeGeneral)) {
+            return;
+        }
+        const nodesMap = new Map();
+        for (const node of graph.nodes) {
+            if (node.node_type === nodeType) {
+                nodesMap.set(node.nodeID, node);
+            }
+        }
+        const newLinks = [];
+        const newNodes = [];
+        for (const link of graph.links) {
+            if (nodesMap.has(link.sourceID) && nodesMap.has(link.targetID)) {
+                newLinks.push(link);
+            }
+        }
+        for (const [, node] of nodesMap) {
+            newNodes.push(node);
+        }
+        setGraph({nodes: newNodes, links: newLinks})
+    }, [nodeType]);
+
     const handleURLChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setURL(event.target.value);
+    };
+
+    const handleNodeTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNodeType(event.target.value);
     };
 
     return (
@@ -53,9 +84,13 @@ const GraphManipulationPage = () => {
                         links: newLinks
                     })
                 }}>switch</Button>
-
+                <TextField
+                    value={nodeType}
+                    onChange={handleNodeTypeChange}
+                    sx={{borderRadius: '12px'}}
+                />
                 <Autocomplete
-                    options={graph.nodes}
+                    options={graph.nodes || []}
                     getOptionLabel={(option) => option.name}
                     disablePortal
                     color={'text.secondary'}
