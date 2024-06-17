@@ -16,6 +16,9 @@ export const NodeTypeAssignment = 'assignment'
 export const NodeTypeParent = 'parent'
 export const NodeTypeGeneral = 'general'
 
+export const StartupSchoolParentName = 'Intro to Startups';
+export const IntroductionToAlgebraParentName = 'Introduction to Algebra';
+
 export type Node = {
     nodeID: string;
     name: string;
@@ -132,4 +135,14 @@ export type Goal = {
     node_id: string;
     name: string;
     thumbnail_relative_url: string;
+}
+
+export const getParentName = (name: string): string => {
+    let parentName = '';
+    if (name === 'gmat') {
+        parentName = IntroductionToAlgebraParentName;
+    } else if (name === 'startup') {
+        parentName = StartupSchoolParentName;
+    }
+    return parentName;
 }

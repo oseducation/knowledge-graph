@@ -4,9 +4,9 @@ import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 import {useTranslation} from 'react-i18next';
 
 import {Client} from '../../../client/client';
-import {Graph} from '../../../types/graph';
+import {Graph, StartupSchoolParentName} from '../../../types/graph';
 import GraphComponent from '../../graph/graph_component';
-import {filterGraph} from '../../../context/graph_provider';
+import {filterGraphByParentName} from '../../graph/graph_helpers';
 
 interface Props {
     height: string;
@@ -23,7 +23,7 @@ const Content = (props: Props) => {
                 setGraph(null);
                 return;
             }
-            setGraph(filterGraph(data));
+            setGraph(filterGraphByParentName(data, StartupSchoolParentName));
         });
     }, [])
 

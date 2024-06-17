@@ -4,6 +4,7 @@ import React, {createContext, useEffect, useState} from 'react';
 import {Client} from "../client/client";
 import {Graph, Link, Node, NodeStatusFinished, NodeStatusNext, NodeStatusStarted, NodeStatusWatched, NodeTypeLecture, NodeTypeExample, NodeTypeAssignment, castToLink, Goal, cloneGraph, NodeStatusUnseen, NodeWithResources} from '../types/graph';
 import useAuth from '../hooks/useAuth';
+import {filterGraphByGoals} from '../components/graph/graph_helpers';
 
 interface GraphContextState {
     globalGraph: Graph | null;
@@ -107,11 +108,11 @@ export const GraphProvider = (props: Props) => {
                 setGraphState({} as GraphContextState);
                 return;
             }
-            const filteredGraph = filterGraph(data);
-            const updatedGraph = getGraphWithUpdatedNodeStatuses(filteredGraph)
 
             Client.Graph().getGoals().then((newGoals: Goal[]) => {
                 if (newGoals && newGoals.length > 0) {
+                    const filteredGraph = filterGraphByGoals(data, newGoals);
+                    const updatedGraph = getGraphWithUpdatedNodeStatuses(filteredGraph)
                     const computedPathToGoal = computePathToGoal(updatedGraph, newGoals[0].node_id);
                     const nextNodeID = nextNodeToGoal(updatedGraph, computedPathToGoal, newGoals.length > 0 ? newGoals[0].node_id : '');
                     if (nextNodeID) {
@@ -175,25 +176,25 @@ export const GraphProvider = (props: Props) => {
 
 export default GraphContext;
 
-export const getGraphForParent = (graph: Graph, parentID: string) => {
-    const nodes = graph.nodes.filter(node => node.parent_id === parentID);
-    const links = [];
-    for (const link of graph.links) {
-        if (nodes.find(node => node.nodeID === link.sourceID) && nodes.find(node => node.nodeID === link.targetID)) {
-            links.push(link);
-        }
-    }
-    return cloneGraph({nodes, links});
-}
+// export const getGraphForParent = (graph: Graph, parentID: string) => {
+//     const nodes = graph.nodes.filter(node => node.parent_id === parentID);
+//     const links = [];
+//     for (const link of graph.links) {
+//         if (nodes.find(node => node.nodeID === link.sourceID) && nodes.find(node => node.nodeID === link.targetID)) {
+//             links.push(link);
+//         }
+//     }
+//     return cloneGraph({nodes, links});
+// }
 
-export const filterGraph = (graph: Graph) => {
-    for (const node of graph.nodes) {
-        if (node.parent_id === "" && node.name === "Intro to Startups") {
-            return getGraphForParent(graph, node.nodeID);
-        }
-    }
-    return graph;
-}
+// export const filterGraph = (graph: Graph) => {
+//     for (const node of graph.nodes) {
+//         if (node.parent_id === "" && node.name === "Intro to Startups") {
+//             return filterGraphByParent(graph, node.nodeID);
+//         }
+//     }
+//     return graph;
+// }
 
 function topologicalSort(neighbors: Map<string, string[]>, start: string): string[] {
     const stack: string[] = [];
