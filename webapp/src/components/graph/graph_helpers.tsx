@@ -1,5 +1,5 @@
 import {allPreviousNodes, generateGraph, generateReverseGraph} from "../../context/graph_provider";
-import {Graph, Link, NodeStatusFinished, NodeStatusStarted, cloneGraph} from "../../types/graph";
+import {Goal, Graph, Link, NodeStatusFinished, NodeStatusStarted, cloneGraph} from "../../types/graph";
 
 type AdjacencyList = { [key: string]: string[] };
 
@@ -108,30 +108,77 @@ export const updateGraph = (graph: Graph, nodeID: string, isRightChoice: boolean
     return g;
 }
 
+export const filterGraphByGoals = (graph: Graph, goals: Goal[]): Graph => {
+    const parentIDs = new Map<string, boolean>();
+    for (const goal of goals) {
+        const parentID = getParentIDForNode(graph, goal.node_id);
+        if (parentID) {
+            parentIDs.set(parentID, true);
+        } else {
+            console.log(`Parent node not found for goal: ${goal.node_id} - ${goal.name}`);
+        }
+    }
+    return filterGraphByParentIDs(graph, parentIDs);
+}
+
+const filterGraphByParentIDs = (graph: Graph, parentIDs: Map<string, boolean>): Graph => {
+    const newNodes = [];
+    const newNodesMap = new Map<string, boolean>();
+    for (const node of graph.nodes) {
+        if (parentIDs.has(node.parent_id)) {
+            newNodes.push(node);
+            newNodesMap.set(node.nodeID, true);
+        }
+    }
+
+    return {
+        nodes: newNodes,
+        links: filterLinksByNodes(graph.links, newNodesMap),
+    };
+}
+
+export const filterGraphByParentName = (graph: Graph, parentName: string) => {
+    const parentID = getParentID(graph, parentName);
+    if (parentID) {
+        return filterGraphByParent(graph, parentID);
+    }
+    return graph;
+}
+
+export const filterGraphByParent = (graph: Graph, parentID: string) => {
+    return filterGraphByParentIDs(graph, new Map([[parentID, true]]));
+}
+
+export const getParentID = (graph: Graph, parentName: string) => {
+    for (const node of graph.nodes) {
+        if (node.parent_id === "" && node.name === parentName) {
+            return node.nodeID;
+        }
+    }
+}
+
+const getParentIDForNode = (graph: Graph, nodeID: string) => {
+    for (const node of graph.nodes) {
+        if (node.nodeID === nodeID) {
+            return node.parent_id;
+        }
+    }
+}
+
+const filterLinksByNodes = (links: Link[], nodesMap: Map<string, boolean>): Link[] => {
+    const newLinks = [];
+    for (const link of links) {
+        if (nodesMap.has(link.sourceID) && nodesMap.has(link.targetID)) {
+            newLinks.push(link);
+        }
+    }
+    return newLinks;
+}
+
+
 
 const clone = (obj: any): any => {
     return JSON.parse(JSON.stringify(obj));
 }
 
-// const cloneGraph = (graph: Graph): Graph => {
-//     const nodes = graph.nodes.map(node => {
-//         return {
-//             id: node.id,
-//             name: node.name,
-//             status: node.status,
-//             description: node.description,
-//             node_type: node.node_type,
-//             parent_id: node.parent_id,
-//         }
-//     });
-//     const links = graph.links.map(link => {
-//         return {
-//             source: link.source,
-//             target: link.target,
-//         }
-//     });
-//     return {
-//         nodes,
-//         links,
-//     }
-// }
+

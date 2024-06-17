@@ -5,7 +5,6 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import {Client} from '../client/client';
 import {Graph, NodeStatusFinished, NodeStatusUnseen, NodeTypeAssignment, NodeTypeExample, NodeTypeGeneral, NodeTypeLecture, NodeTypeParent} from '../types/graph';
 import GraphComponent from '../components/graph/graph_component';
-import {filterGraph} from '../context/graph_provider';
 import {findRedundantLinks} from '../components/graph/graph_helpers';
 import {DashboardColors} from '../ThemeOptions';
 
@@ -19,8 +18,7 @@ const GraphManipulationPage = () => {
     useEffect(() => {
         if (url === '') {
             Client.Graph().getStaticGraph().then((data) => {
-                const filteredGraph = filterGraph(data);
-                setGraph(filteredGraph)
+                setGraph(data)
             });
         } else {
             downloadGraph(url).then((data) => {

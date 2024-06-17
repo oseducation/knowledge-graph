@@ -3,10 +3,9 @@ import Box from '@mui/material/Unstable_Grid2/Grid2';
 
 import {LearningStyles, OnboardingState} from '../../types/onboarding';
 import {Client} from '../../client/client';
-import {Graph} from '../../types/graph';
-import {filterGraph} from '../../context/graph_provider';
+import {Graph, getParentName} from '../../types/graph';
 import Registration from '../registration';
-import {updateGraph} from '../graph/graph_helpers';
+import {filterGraphByParentName, updateGraph} from '../graph/graph_helpers';
 
 import TimeChooser from './time_chooser';
 import Stepper from './stepper';
@@ -36,7 +35,7 @@ const Onboarding = () => {
                 setGraph(null);
                 return;
             }
-            setGraph(filterGraph(data));
+            setGraph(filterGraphByParentName(data, getParentName(state.courseID)));
         });
         if (state.courseID === 'gmat') {
             setQuestionFeedback({title: 'These are all the topics you should know to ace the GMAT', description: 'You can see how the topics are connected with each other'});
