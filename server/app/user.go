@@ -30,8 +30,10 @@ func (a *App) CreateUserFromSignUp(userWithOnboardingState *model.UserWithOnboar
 	if err != nil {
 		return nil, errors.Wrapf(err, "useremail = %s", userWithOnboardingState.User.Email)
 	}
-	if err := a.populateUserKnowledge(userWithOnboardingState.OnboardingState.Answers, ruser.User.ID); err != nil {
-		a.Log.Error("Failed to populate user's knowledge", log.String("answers", fmt.Sprintf("%v", userWithOnboardingState.OnboardingState.Answers)), log.Err(err))
+	if userWithOnboardingState.OnboardingState != nil {
+		if err := a.populateUserKnowledge(userWithOnboardingState.OnboardingState.Answers, ruser.User.ID); err != nil {
+			a.Log.Error("Failed to populate user's knowledge", log.String("answers", fmt.Sprintf("%v", userWithOnboardingState.OnboardingState.Answers)), log.Err(err))
+		}
 	}
 
 	if err := a.sendWelcomeEmail(ruser.User.ID, ruser.User.Email, ruser.User.EmailVerified); err != nil {

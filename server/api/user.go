@@ -238,7 +238,7 @@ func registerUser(c *gin.Context) {
 	if err != nil {
 		a.Log.Error("Can't save preferences for user", log.String("username", ruser.User.Username), log.Err(err))
 	}
-	responseFormat(c, http.StatusCreated, ruser)
+	responseFormat(c, http.StatusCreated, ruser.User)
 }
 
 func getUsers(c *gin.Context) {

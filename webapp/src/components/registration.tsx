@@ -58,7 +58,7 @@ const Registration = (props: Props) => {
         } as User;
         user.lang = i18n.language;
         if (props.onboarding) {
-            Client.User().registerFromOnboarding(user, props.onboarding).then((user) => {
+            Client.User().registerFromOnboarding(user, props.onboarding).then(() => {
                 navigate('/verify', {
                     state: {
                         email: formData.email,
