@@ -58,7 +58,13 @@ const Registration = (props: Props) => {
         } as User;
         user.lang = i18n.language;
         if (props.onboarding) {
-            Client.User().registerFromOnboarding(user, props.onboarding).then(() => {});
+            Client.User().registerFromOnboarding(user, props.onboarding).then(() => {
+                navigate('/verify', {
+                    state: {
+                        email: formData.email,
+                    }
+                });
+            });
         } else {
             Client.User().register(user).then((user) => {
                 gtag('event', 'sign_up', {

@@ -48,6 +48,7 @@ export class UserClient {
     }
 
     registerFromOnboarding = async (user: User, onboarding: OnboardingState) => {
+        onboarding.questions = [];
         return this.rest.doFetch<User>(
             `${this.getUsersRoute()}/register`,
             {method: 'post', body: JSON.stringify({

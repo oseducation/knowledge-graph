@@ -23,5 +23,5 @@ export type OnboardingState = {
     learningStyles: LearningStyles;
     time: string;
     questions: Question[][];
-    answers: Map<string, boolean>;
+    answers: Record<string, boolean>;
 }

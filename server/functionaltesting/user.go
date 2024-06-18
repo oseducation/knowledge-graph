@@ -14,7 +14,11 @@ func (c *Client) usersRoute() string {
 }
 
 func (c *Client) RegisterUser(user *model.User) (*model.User, *Response, error) {
-	userJSON, err := json.Marshal(user)
+	onboardingUser := model.UserWithOnboardingState{
+		User:            user,
+		OnboardingState: nil,
+	}
+	userJSON, err := json.Marshal(onboardingUser)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "can't marshal user")
 	}

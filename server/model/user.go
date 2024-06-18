@@ -53,6 +53,28 @@ type UserWithNodeCount struct {
 	InProgressNodeCount int64 `json:"in_progress_node_count" db:"in_progress_node_count"`
 }
 
+type OnboardingState struct {
+	LearningStyles LearningStyles  `json:"learning_styles"`
+	Time           string          `json:"time"`
+	Answers        map[string]bool `json:"answers"`
+}
+
+type LearningStyles struct {
+	VisualLearning   bool `json:"visual_learning"`
+	AuditoryLearning bool `json:"auditory_learning"`
+	ReadingWriting   bool `json:"reading_writing"`
+	Kinesthetic      bool `json:"kinesthetic"`
+	Verbal           bool `json:"verbal"`
+	Social           bool `json:"social"`
+	Solitary         bool `json:"solitary"`
+	Other            bool `json:"other"`
+}
+
+type UserWithOnboardingState struct {
+	User            *User            `json:"user"`
+	OnboardingState *OnboardingState `json:"onboarding"`
+}
+
 // UserFromJSON will decode the input and return a User
 func UserFromJSON(data io.Reader) (*User, error) {
 	var user *User
@@ -69,6 +91,15 @@ func UserLoginFromJSON(data io.Reader) (*UserLogin, error) {
 		return nil, errors.Wrap(err, "can't decode user")
 	}
 	return userLogin, nil
+}
+
+// UserWithOnboardingStateFromJSON will decode the input and return a User
+func UserWithOnboardingStateFromJSON(data io.Reader) (*UserWithOnboardingState, error) {
+	var user *UserWithOnboardingState
+	if err := json.NewDecoder(data).Decode(&user); err != nil {
+		return nil, errors.Wrap(err, "can't decode user with onboarding state")
+	}
+	return user, nil
 }
 
 // BeforeSave should be called before storing the user
