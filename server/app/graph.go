@@ -99,6 +99,39 @@ func (a *App) GetGraphForUser(userID string) (*model.FrontendGraph, error) {
 	return gr, nil
 }
 
+func (a *App) populateUserKnowledge(answers map[string]bool, userID string) error {
+	finishedNodes := map[string]bool{}
+	for nodeID, seen := range answers {
+		if !seen {
+			continue
+		}
+		nodes := a.getAllPrerequisiteNodes(nodeID)
+		for _, node := range nodes {
+			finishedNodes[node] = true
+		}
+	}
+	for nodeID := range finishedNodes {
+		status := &model.NodeStatusForUser{
+			NodeID:    nodeID,
+			UserID:    userID,
+			Status:    model.NodeStatusFinished,
+			UpdatedAt: model.GetMillis(),
+		}
+		if err := a.UpdateStatus(status); err != nil {
+			return errors.Wrapf(err, "can't update status for user %s, node %s", userID, nodeID)
+		}
+	}
+	return nil
+}
+
+func (a *App) getAllPrerequisiteNodes(nodeID string) []string {
+	visited := make(map[string]bool)
+	var result []string
+	dfs(a.Graph, nodeID, &result, visited)
+	return result
+
+}
+
 func (a *App) hasNodeFinishedAllPrerequisites(nodeID string, statuses map[string]*model.NodeStatusForUser) bool {
 	prereqs, ok := a.Graph.Prerequisites[nodeID]
 	if !ok {
@@ -111,4 +144,16 @@ func (a *App) hasNodeFinishedAllPrerequisites(nodeID string, statuses map[string
 		}
 	}
 	return true
+}
+
+// dfs performs a depth-first search to collect all prerequisite nodes.
+func dfs(graph *model.Graph, nodeID string, result *[]string, visited map[string]bool) {
+	if visited[nodeID] {
+		return
+	}
+	visited[nodeID] = true
+	for _, prereq := range graph.Prerequisites[nodeID] {
+		dfs(graph, prereq, result, visited)
+	}
+	*result = append(*result, nodeID)
 }

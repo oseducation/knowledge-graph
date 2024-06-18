@@ -604,6 +604,25 @@ var migrations = []Migration{
 			return nil
 		},
 	},
+	{
+		fromVersion: semver.MustParse("0.18.0"),
+		toVersion:   semver.MustParse("0.19.0"),
+		migrationFunc: func(e sqlx.Ext, sqlDB *SQLStore) error {
+			if sqlDB.config.DriverName == "sqlite3" {
+				if _, err := e.Exec(`
+					ALTER TABLE users ADD COLUMN onboarding_state VARCHAR(4096) DEFAULT '';
+				`); err != nil {
+					return errors.Wrapf(err, "failed adding column onboarding_state to table users")
+				}
+			} else {
+				if err := addColumnToPGTable(e, "users", "onboarding_state", "json"); err != nil {
+					return errors.Wrapf(err, "failed adding column onboarding_state to table users")
+				}
+			}
+
+			return nil
+		},
+	},
 }
 
 var addColumnToPGTable = func(e sqlx.Ext, tableName, columnName, columnType string) error {

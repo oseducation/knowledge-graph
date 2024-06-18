@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/oseducation/knowledge-graph/log"
 	"github.com/oseducation/knowledge-graph/model"
@@ -22,17 +23,21 @@ func (a *App) AuthenticateUser(email, password string) (*model.User, error) {
 }
 
 // CreateUserFromSignUp creates user on sign up
-func (a *App) CreateUserFromSignUp(user *model.User) (*model.User, error) {
-	user.Role = model.UserRole
-	user.EmailVerified = false
-	ruser, err := a.Store.User().Save(user)
+func (a *App) CreateUserFromSignUp(userWithOnboardingState *model.UserWithOnboardingState) (*model.UserWithOnboardingState, error) {
+	userWithOnboardingState.User.Role = model.UserRole
+	userWithOnboardingState.User.EmailVerified = false
+	ruser, err := a.Store.User().SaveOnboardingUser(userWithOnboardingState)
 	if err != nil {
-		return nil, errors.Wrapf(err, "useremail = %s", user.Email)
+		return nil, errors.Wrapf(err, "useremail = %s", userWithOnboardingState.User.Email)
 	}
-	if err := a.sendWelcomeEmail(ruser.ID, ruser.Email, ruser.EmailVerified); err != nil {
+	if err := a.populateUserKnowledge(userWithOnboardingState.OnboardingState.Answers, ruser.User.ID); err != nil {
+		a.Log.Error("Failed to populate user's knowledge", log.String("answers", fmt.Sprintf("%v", userWithOnboardingState.OnboardingState.Answers)), log.Err(err))
+	}
+
+	if err := a.sendWelcomeEmail(ruser.User.ID, ruser.User.Email, ruser.User.EmailVerified); err != nil {
 		a.Log.Error("Failed to send welcome email on create user from signup", log.Err(err))
 	}
-	return user, nil
+	return userWithOnboardingState, nil
 }
 
 // GetUsers gets users, filters usernames with 'term'

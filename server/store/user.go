@@ -12,6 +12,7 @@ import (
 // UserStore is an interface to crud users
 type UserStore interface {
 	Save(user *model.User) (*model.User, error)
+	SaveOnboardingUser(user *model.UserWithOnboardingState) (*model.UserWithOnboardingState, error)
 	Update(new *model.User) error
 	UpdateLanguage(userID string, newLanguage string) error
 	Get(id string) (*model.User, error)
@@ -83,6 +84,48 @@ func (us *SQLUserStore) Save(user *model.User) (*model.User, error) {
 		}))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't save user with username:%s and email:%s", user.Username, user.Email)
+	}
+	return user, nil
+}
+
+// SaveOnboardingUser saves onboarding user in the DB
+func (us *SQLUserStore) SaveOnboardingUser(user *model.UserWithOnboardingState) (*model.UserWithOnboardingState, error) {
+	if user.User.ID != "" {
+		return nil, errors.New("invalid input")
+	}
+	user.User.BeforeSave()
+	if err := user.User.IsValid(); err != nil {
+		return nil, err
+	}
+
+	onboardingState := ""
+	var err error
+	if user.OnboardingState != nil {
+		onboardingState, err = model.ToJSON(user.OnboardingState)
+		if err != nil {
+			return nil, errors.Wrap(err, "can't marshal onboarding state")
+		}
+	}
+	_, err2 := us.sqlStore.execBuilder(us.sqlStore.db, us.sqlStore.builder.
+		Insert("users").
+		SetMap(map[string]interface{}{
+			"id":                   user.User.ID,
+			"created_at":           user.User.CreatedAt,
+			"updated_at":           user.User.UpdatedAt,
+			"deleted_at":           user.User.DeletedAt,
+			"username":             user.User.Username,
+			"password":             user.User.Password,
+			"first_name":           user.User.FirstName,
+			"last_name":            user.User.LastName,
+			"email":                user.User.Email,
+			"email_verified":       user.User.EmailVerified,
+			"last_password_update": user.User.LastPasswordUpdate,
+			"role":                 user.User.Role,
+			"lang":                 user.User.Lang,
+			"onboarding_state":     onboardingState,
+		}))
+	if err2 != nil {
+		return nil, errors.Wrapf(err, "can't save user with username:%s and email:%s", user.User.Username, user.User.Email)
 	}
 	return user, nil
 }

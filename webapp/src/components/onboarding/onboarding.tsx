@@ -19,7 +19,7 @@ import QuizQuestion from './quiz_question';
 const Onboarding = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [activeQuestion, setActiveQuestion] = useState(0);
-    const [state, setState] = useState<OnboardingState>({answers: new Map()} as OnboardingState);
+    const [state, setState] = useState<OnboardingState>({} as OnboardingState);
     const [graph, setGraph] = useState<Graph | null>(null);
     const [questionFeedback, setQuestionFeedback] = useState({title: 'These are all the topics you should know to ace the GMAT', description: 'You can see how the topics are connected with each other'});
     const [registrationStep, setRegistrationStep] = useState(false);
@@ -93,7 +93,8 @@ const Onboarding = () => {
             component = <QuizQuestion
                 question={state.questions[activeQuestion][0]}
                 onRightChoice={() => {
-                    setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].node_id, true))})
+                    const newAnswers = {...state.answers, [state.questions[activeQuestion][0].node_id]: true};
+                    setState({...state, answers: newAnswers})
                     setQuestionFeedback({title: 'Correct! We\'ve marked some topics which you most likely know already', description: state.questions[activeQuestion][0].explanation})
                     setActiveQuestion(activeQuestion*2 + 1);
                     if (graph) {
@@ -101,7 +102,8 @@ const Onboarding = () => {
                     }
                 }}
                 onWrongChoice={() => {
-                    setState({...state, answers: new Map(state.answers.set(state.questions[activeQuestion][0].node_id, false))})
+                    const newAnswers = {...state.answers, [state.questions[activeQuestion][0].node_id]: false};
+                    setState({...state, answers: newAnswers})
                     setQuestionFeedback({title: 'You\'ll have all the chance to learn this', description: state.questions[activeQuestion][0].explanation})
                     setActiveQuestion(activeQuestion*2 + 2);
                     if (graph) {

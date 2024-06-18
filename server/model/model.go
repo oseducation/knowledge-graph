@@ -1,9 +1,12 @@
 package model
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/pkg/errors"
 )
 
 // IsValidID checks if ID is valid
@@ -69,4 +72,12 @@ func filterBlocklist(r rune) rune {
 	}
 
 	return r
+}
+
+func ToJSON(s any) (string, error) {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return "", errors.Wrap(err, "can't marshal json")
+	}
+	return string(b), nil
 }
