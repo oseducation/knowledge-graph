@@ -71,49 +71,49 @@ const Landing = (props: Props) => {
 
     const graph: Graph = {
         nodes:[{
-            id:'knowledge-gap',
+            nodeID:'knowledge-gap',
             name:t('Knowledge Gaps'),
             description: t('Learners have knowledge gaps'),
             node_type: 'lecture',
             status: 'next',
             parent_id: ''
         }, {
-            id:'attention-span',
+            nodeID:'attention-span',
             name:t('Attention Span'),
             description: t('Learners have attention span problems'),
             node_type: 'lecture',
             status: 'next',
             parent_id: ''
         }, {
-            id:'drop-out',
+            nodeID:'drop-out',
             name:t('90% drops out'),
             description: t('90% of learners drop out of online courses'),
             node_type: 'lecture',
             status: '',
             parent_id: ''
         }, {
-            id:'vitsi',
+            nodeID:'vitsi',
             name:t('Solution: Vitsi AI'),
             description: t('Two minute topics prerequisite map'),
             node_type: 'lecture',
             status: '',
             parent_id: ''
         }, {
-            id: 'explore',
+            nodeID: 'explore',
             name: t('Explore The Knowledge'),
             description: t('Learners can explore all the knowledge in the world'),
             node_type: 'lecture',
             status: '',
             parent_id: ''
         }, {
-            id: 'learn',
+            nodeID: 'learn',
             name: t('Learn Anything'),
             description: t('Learn anything if you know the prerequisites'),
             node_type: 'lecture',
             status: '',
             parent_id: ''
         }, {
-            id: 'apply',
+            nodeID: 'apply',
             name: t('Achieve Your Goals'),
             description: t('Apply acquired knowledge to your startup journey'),
             node_type: 'lecture',
@@ -121,23 +121,23 @@ const Landing = (props: Props) => {
             parent_id: ''
         }],
         links:[{
-            source:'knowledge-gap',
-            target:'drop-out'
+            sourceID:'knowledge-gap',
+            targetID:'drop-out'
         },{
-            source:'attention-span',
-            target:'drop-out'
+            sourceID:'attention-span',
+            targetID:'drop-out'
         },{
-            source:'drop-out',
-            target:'vitsi'
+            sourceID:'drop-out',
+            targetID:'vitsi'
         },{
-            source:'vitsi',
-            target:'explore'
+            sourceID:'vitsi',
+            targetID:'explore'
         },{
-            source:'vitsi',
-            target:'learn'
+            sourceID:'vitsi',
+            targetID:'learn'
         },{
-            source:'vitsi',
-            target:'apply'
+            sourceID:'vitsi',
+            targetID:'apply'
         }]
     }
 
