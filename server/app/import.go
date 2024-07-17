@@ -393,8 +393,12 @@ func (a *App) importVideos(videoKeys []string, videoParts []VideoPart, nodeID, u
 		if err != nil {
 			return errors.Wrapf(err, "can't get youtube video info %s", videoPart.ID)
 		}
-		if videoPart.Start < 0 || videoPart.End > duration || videoPart.Start > videoPart.End || videoPart.End < 0 {
-			return errors.Errorf("invalid video part %v", videoPart)
+		if videoPart.Start < 0 || videoPart.End > duration || (videoPart.Start > videoPart.End && videoPart.End != 0) || videoPart.End < 0 {
+			return errors.Errorf("invalid video part %v. %v", videoPart, duration)
+		}
+		length := videoPart.End - videoPart.Start
+		if videoPart.End == 0 {
+			length = duration - videoPart.Start
 		}
 		video := model.Video{
 			Name:      title,
@@ -402,7 +406,7 @@ func (a *App) importVideos(videoKeys []string, videoParts []VideoPart, nodeID, u
 			Key:       videoPart.ID,
 			NodeID:    nodeID,
 			Start:     videoPart.Start,
-			Length:    videoPart.End - videoPart.Start,
+			Length:    length,
 			AuthorID:  userID,
 		}
 		if _, err := a.Store.Video().Save(&video); err != nil && !strings.Contains(strings.ToLower(err.Error()), "unique constraint") {
