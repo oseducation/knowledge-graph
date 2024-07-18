@@ -15,7 +15,7 @@ const Benefits = (props: Props) => {
             xs={12}
             id='hero-section'
             minHeight={props.height}
-            bgcolor={theme.palette.grey[200]}
+            bgcolor={theme.palette.background.default}
             padding={0}
             sx={{scrollSnapAlign: 'start'}}
             display={'flex'}
@@ -24,66 +24,151 @@ const Benefits = (props: Props) => {
             justifyContent={'center'}
             alignContent={'center'}
         >
-            <Grid2 display={'flex'} flexDirection={'row'} alignItems={'center'}>
-                <Box m={10} width={'600px'}>
+            <Box
+                component='section'
+                display={'flex'}
+                flexDirection={{xs:'column', sm:'column', md:'column', lg:'row'}}
+                gap={{xs: 4, sm: 4, md: 10}}
+                ml={{xs: 4, sm: 4, md: 10, lg: 20}}
+                mr={{xs: 4, sm: 4, md: 10, lg: 20}}
+                alignItems={'center'}
+                mt={8}
+            >
+                <Box
+                    display={'flex'}
+                    flexDirection={'column'}
+                    gap={4}
+                >
                     <Typography
-                        variant='h3'
-                        sx={{fontFamily: 'Roboto Slab, serif', fontWeight: 700}}
+                        variant='h2'
+                        sx={{fontFamily: 'Roboto Slab, serif', fontSize: '36px'}}
                         fontWeight={'bold'}
+                        color={theme.palette.primary.main}
                     >
-                        Goal-Oriented Learning
+                        Identify gaps
                     </Typography>
-                    <Typography variant='h5'>
-                        Master 5-minute topics, one at a time
+                    <Typography
+                        variant='body1'
+                        fontSize={'17px'}
+                        lineHeight={'24px'}
+                        color={theme.palette.getContrastText(theme.palette.background.default)}
+                    >
+                        Set your goals, test yourself, identify current knowledge gaps and learn only what you need
                     </Typography>
                 </Box>
-                <img src={'./benefits/1.webp'} alt={`Free University Logo`} width={'600px'}/>
-            </Grid2>
-            <Grid2 display={'flex'} flexDirection={'row'} alignItems={'center'}>
-                <img src={'./benefits/2.webp'} alt={`Free University Logo`} width={'600px'}/>
-                <Box m={10} width={'600px'}>
+                <Box width={{xs:'300px', sm:'400px', md:'600px', lg:'800px'}}>
+                    <img src={'./benefits/1.png'} width={'100%'}/>
+                </Box>
+            </Box>
+
+            <Box
+                component='section'
+                display={'flex'}
+                flexDirection={{xs:'column', sm:'column', md:'column', lg:'row-reverse'}}
+                gap={{xs: 4, sm: 4, md: 10}}
+                ml={{xs: 4, sm: 4, md: 10, lg: 20}}
+                mr={{xs: 4, sm: 4, md: 10, lg: 20}}
+                alignItems={'center'}
+            >
+                <Box
+                    display={'flex'}
+                    flexDirection={'column'}
+                    gap={4}
+                >
                     <Typography
-                        variant='h3'
-                        sx={{fontFamily: 'Roboto Slab, serif', fontWeight: 700}}
+                        variant='h2'
+                        sx={{fontFamily: 'Roboto Slab, serif', fontSize: '36px'}}
                         fontWeight={'bold'}
+                        color={theme.palette.primary.main}
                     >
-                        Targeted Knowledge
+                        Master topics
                     </Typography>
-                    <Typography variant='h5'>
-                        Fill gaps by learning only what you need
+                    <Typography
+                        variant='body1'
+                        fontSize={'17px'}
+                        lineHeight={'24px'}
+                        color={theme.palette.getContrastText(theme.palette.background.default)}
+                    >
+                        Learn topics with quick, 5-minute lessons one at a time and earn experience
                     </Typography>
                 </Box>
-            </Grid2>
-            <Grid2 display={'flex'} flexDirection={'row'} alignItems={'center'}>
-                <Box m={10} width={'600px'}>
+                <Box width={{xs:'300px', sm:'400px', md:'600px', lg:'800px'}}>
+                    <img src={'./benefits/2.png'} width={'100%'}/>
+                </Box>
+            </Box>
+
+            <Box
+                component='section'
+                display={'flex'}
+                flexDirection={{xs:'column', sm:'column', md:'column', lg:'row'}}
+                gap={{xs: 4, sm: 4, md: 10}}
+                ml={{xs: 4, sm: 4, md: 10, lg: 20}}
+                mr={{xs: 4, sm: 4, md: 10, lg: 20}}
+                alignItems={'center'}
+                mt={8}
+            >
+                <Box
+                    display={'flex'}
+                    flexDirection={'column'}
+                    gap={4}
+                >
                     <Typography
-                        variant='h3'
-                        sx={{fontFamily: 'Roboto Slab, serif', fontWeight: 700}}
+                        variant='h2'
+                        sx={{fontFamily: 'Roboto Slab, serif', fontSize: '36px'}}
                         fontWeight={'bold'}
+                        color={theme.palette.primary.main}
                     >
-                        Gamified Progress
+                        Unlock skill tree
                     </Typography>
-                    <Typography variant='h5'>
-                        Stay motivated with skill tree challenges
+                    <Typography
+                        variant='body1'
+                        fontSize={'17px'}
+                        lineHeight={'24px'}
+                        color={theme.palette.getContrastText(theme.palette.background.default)}
+                    >
+                        Stay motivated by turning learning into a game and progressing in your skill tree
                     </Typography>
                 </Box>
-                <img src={'./benefits/3.webp'} alt={`Free University Logo`} width={'600px'}/>
-            </Grid2>
-            <Grid2 display={'flex'} flexDirection={'row'} alignItems={'center'}>
-                <img src={'./benefits/4.webp'} alt={`Free University Logo`} width={'600px'}/>
-                <Box m={10} width={'600px'}>
+                <Box width={{xs:'300px', sm:'400px', md:'600px', lg:'800px'}}>
+                    <img src={'./benefits/3.png'} width={'100%'}/>
+                </Box>
+            </Box>
+
+            <Box
+                component='section'
+                display={'flex'}
+                flexDirection={{xs:'column', sm:'column', md:'column', lg:'row-reverse'}}
+                gap={{xs: 4, sm: 4, md: 10}}
+                ml={{xs: 4, sm: 4, md: 10, lg: 20}}
+                mr={{xs: 4, sm: 4, md: 10, lg: 20}}
+                alignItems={'center'}
+            >
+                <Box
+                    display={'flex'}
+                    flexDirection={'column'}
+                    gap={4}
+                >
                     <Typography
-                        variant='h3'
-                        sx={{fontFamily: 'Roboto Slab, serif', fontWeight: 700}}
+                        variant='h2'
+                        sx={{fontFamily: 'Roboto Slab, serif', fontSize: '36px'}}
                         fontWeight={'bold'}
+                        color={theme.palette.primary.main}
                     >
-                        Expert Advice
+                        Interact with experts
                     </Typography>
-                    <Typography variant='h5'>
-                        Get answers from icons like Steve Jobs or Yoda
+                    <Typography
+                        variant='body1'
+                        fontSize={'17px'}
+                        lineHeight={'24px'}
+                        color={theme.palette.getContrastText(theme.palette.background.default)}
+                    >
+                        Ask questions and get instant, detailed answers from field experts
                     </Typography>
                 </Box>
-            </Grid2>
+                <Box width={{xs:'300px', sm:'400px', md:'600px', lg:'800px'}}>
+                    <img src={'./benefits/4.png'} width={'100%'}/>
+                </Box>
+            </Box>
         </Grid2>
     )
 }
