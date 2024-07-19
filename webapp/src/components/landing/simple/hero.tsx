@@ -70,7 +70,7 @@ const Hero = (props: Props) => {
                                     navigate('/register');
                                 }}
                             >
-                                {t("Sign Up For Free")}
+                                {t("Get Started")}
                             </Button>
                         </Box>
                     </Box>
@@ -82,7 +82,7 @@ const Hero = (props: Props) => {
                     justifyContent={'center'}
                     mt={{xs:4, sm:4, md:0}}
                 >
-                    <img src='/simple.png' alt='hero' width='100%'/>
+                    <img src='/hero.png' alt='hero' width='100%'/>
                 </Grid2>
             </Grid2>
             <Grid2

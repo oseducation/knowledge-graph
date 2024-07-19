@@ -65,23 +65,11 @@ function LandingHeader() {
     }
 
     return (
-        <AppBar position="static" color='transparent'>
-            <Container maxWidth={false}>
+        <AppBar position="static" sx={{boxShadow: 'none', transition: 'none'}}>
+            <Container maxWidth={false} sx={{bgcolor: theme.palette.background.default}}>
                 <Toolbar disableGutters>
                     {logoAndTitle()}
                     <Spacer/>
-                    <Button
-                        variant='text'
-                        color='primary'
-                        onClick={() => navigate('/pricing')}
-                        sx={{
-                            m: {xs: 1, sm: 1, md: 2},
-                            minWidth: {xs: 'min-content', sm: 'max-content'},
-                            whiteSpace: 'nowrap'
-                        }}
-                    >
-                        {t("Pricing")}
-                    </Button>
                     {getLoginButton()}
                     <Button
                         variant='contained'
@@ -95,7 +83,7 @@ function LandingHeader() {
                             minWidth: {xs: 'min-content', sm: 'max-content'},
                             whiteSpace: 'nowrap'
                         }}>
-                        {isPhone?t("Sign Up") : t("Sign Up For Free")}
+                        {t("Get Started")}
                     </Button>
                 </Toolbar>
             </Container>

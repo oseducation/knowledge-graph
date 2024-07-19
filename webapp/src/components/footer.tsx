@@ -5,8 +5,8 @@ const Footer = () => {
     return (
         <Grid container spacing={4} mt={'20px'}>
             <Grid item xs={12} sm={6}>
-                <Typography variant='h5' gutterBottom>
-                    Vitsi AI
+                <Typography variant='h5' gutterBottom fontWeight={'bold'}>
+                    VitsiAI
                 </Typography>
                 <ul>
                     <li>
@@ -25,6 +25,11 @@ const Footer = () => {
                         </Link>
                     </li>
                     <li>
+                        <Link href='/pricing' underline='none'>
+                            Pricing
+                        </Link>
+                    </li>
+                    <li>
                         <Link href='/contact' underline='none'>
                             Contact Us
                         </Link>
@@ -32,7 +37,7 @@ const Footer = () => {
                 </ul>
             </Grid>
             <Grid item xs={12} sm={6}>
-                <Typography variant='h5' gutterBottom>
+                <Typography variant='h5' gutterBottom fontWeight={'bold'}>
                     Community
                 </Typography>
                 <ul>
