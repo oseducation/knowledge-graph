@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Stack, Typography, Box, useTheme} from '@mui/material';
+import {Button, Typography, Box, useTheme} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 import {useTranslation} from 'react-i18next';
 import {useNavigate} from 'react-router-dom';
@@ -10,6 +10,7 @@ import Footer from '../../footer';
 
 import Hero from './hero';
 import Benefits from './benefits';
+import Testimonials from './testimonials';
 
 const SimpleMain = () => {
     const {t} = useTranslation();
@@ -25,8 +26,7 @@ const SimpleMain = () => {
     return (
         <Box
             sx={{
-                // height: staticHeight,
-                overflowY: 'scroll',
+                // overflowY: 'scroll',
                 scrollSnapType: 'y mandatory',
             }}
         >
@@ -43,7 +43,7 @@ const SimpleMain = () => {
                     xs={12}
                     id='testimoenials-section'
                     bgcolor={'#00b4d8'}
-                    // minHeight={staticHeight}
+                    minHeight={staticHeight}
                     sx={{scrollSnapAlign: 'start'}}
                 >
                     <Grid2
@@ -61,17 +61,8 @@ const SimpleMain = () => {
                         </Typography>
                     </Grid2>
 
+                    <Testimonials/>
 
-                </Grid2>
-                <Grid2 container
-                    m={0}
-                    p={1}
-                    xs={12}
-                    id='action-section'
-                    height={staticHeight}
-                    bgcolor={'#48cae4'}
-                    sx={{scrollSnapAlign: 'start'}}
-                >
                     <Grid2
                         xs={12} sm={9} md={6}
                         m={0}
@@ -79,33 +70,32 @@ const SimpleMain = () => {
                         display={'flex'}
                         alignItems={'center'}
                     >
-                        <Stack>
-                            <Typography
-                                fontSize={32}
-                                fontWeight={'bold'}
-                                color={'black'}
-                            >
-                                {t("Ready to Join the Course?")}
-                            </Typography>
-                        </Stack>
+                        <Typography
+                            fontSize={32}
+                            fontWeight={'bold'}
+                            color={theme.palette.secondary.main}
+                        >
+                            {t("Ready to Join?")}
+                        </Typography>
                     </Grid2>
                     <Grid2
                         xs={12} sm={3} md={3}
+                        m={0}
+                        p={1}
                         display={'flex'}
-                        alignItems={'center'}>
-                        <Box mr={1}>
-                            <Button
-                                variant='contained'
-                                color='secondary'
-                                size='large'
-                                onClick={() => {
-                                    Analytics.signUpStarted("startup school hero");
-                                    navigate('/register');
-                                }}
-                            >
-                                {t("Join Now")}
-                            </Button>
-                        </Box>
+                        alignItems={'center'}
+                    >
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            size='large'
+                            onClick={() => {
+                                Analytics.signUpStarted("startup school hero");
+                                navigate('/register');
+                            }}
+                        >
+                            {t("Get Started")}
+                        </Button>
                     </Grid2>
                 </Grid2>
                 <Grid2 container
@@ -113,15 +103,9 @@ const SimpleMain = () => {
                     p={1}
                     xs={12}
                     id='action-section'
-                    height={staticHeight}
-                    bgcolor={'primary.dark'}
                     sx={{
                         scrollSnapAlign: 'start',
                         py: 3,
-                        backgroundColor: (theme) =>
-                            theme.palette.mode === 'light'
-                                ? theme.palette.grey[200]
-                                : theme.palette.grey[800],
                     }}
                 >
                     <Box component="footer">

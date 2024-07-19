@@ -15,7 +15,7 @@ const Benefits = (props: Props) => {
             xs={12}
             id='hero-section'
             minHeight={props.height}
-            bgcolor={theme.palette.background.default}
+            bgcolor={theme.palette.background.paper}
             padding={0}
             sx={{scrollSnapAlign: 'start'}}
             display={'flex'}
