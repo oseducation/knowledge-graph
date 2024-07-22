@@ -9,7 +9,7 @@ import LandingHeader from './components/landing/simple/header';
 import {LayoutProvider} from './context/layout_provider';
 import useAuth from './hooks/useAuth';
 
-export default function UserLayout() {
+export default function Layout() {
     const {user} = useAuth();
     return (
         <LayoutProvider>
