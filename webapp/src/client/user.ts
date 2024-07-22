@@ -43,7 +43,7 @@ export class UserClient {
     register = async (user: User) => {
         return this.rest.doFetch<User>(
             `${this.getUsersRoute()}/register`,
-            {method: 'post', body: JSON.stringify(user)},
+            {method: 'post', body: JSON.stringify({user})},
         );
     }
 
