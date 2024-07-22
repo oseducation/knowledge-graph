@@ -99,7 +99,7 @@ const Hero = (props: Props) => {
                     fontWeight={'bold'}
                     sx={{fontFamily: 'Roboto Slab, serif'}}
                 >
-                    Join thousands of people learning on Vitsi
+                    Join hundreds of people learning on Vitsi
                 </Typography>
                 <Box display={'flex'} flexDirection={{xs:'column', sm:'column', md:'row'}} alignItems={'center'} height={{xs:'320px', sm:'320px', md:'128px'}} mt={4} mb={4}>
                     <img src={'./logos/freeu.png'} alt={`Free University Logo`} style={{height: '128px'}}/>
@@ -114,7 +114,7 @@ const Hero = (props: Props) => {
                     >
                         <Rating name="read-only" value={5} readOnly sx={{m:'0 5'}}/>
                         <Typography variant='body1'>
-                            Hundreds of 5-star reviews
+                            Dozens of 5-star reviews
                         </Typography>
                     </Box>
                     <img src={'./logos/founderu.png'} alt={`Founder University Logo`} style={{width: '300px'}} />

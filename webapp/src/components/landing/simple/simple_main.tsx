@@ -45,6 +45,7 @@ const SimpleMain = () => {
                     bgcolor={'#00b4d8'}
                     minHeight={staticHeight}
                     sx={{scrollSnapAlign: 'start'}}
+                    justifyContent={'center'}
                 >
                     <Grid2
                         m={0} p={1} xs={12}
@@ -63,8 +64,8 @@ const SimpleMain = () => {
 
                     <Testimonials/>
 
-                    <Grid2
-                        xs={12} sm={9} md={6}
+                    <Box
+                        // xs={12} sm={9} md={6}
                         m={0}
                         p={1}
                         display={'flex'}
@@ -77,13 +78,14 @@ const SimpleMain = () => {
                         >
                             {t("Ready to Join?")}
                         </Typography>
-                    </Grid2>
-                    <Grid2
-                        xs={12} sm={3} md={3}
+                    </Box>
+                    <Box
+                        // xs={12} sm={3} md={3}
                         m={0}
                         p={1}
                         display={'flex'}
                         alignItems={'center'}
+                        ml={2}
                     >
                         <Button
                             variant='contained'
@@ -96,7 +98,7 @@ const SimpleMain = () => {
                         >
                             {t("Get Started")}
                         </Button>
-                    </Grid2>
+                    </Box>
                 </Grid2>
                 <Grid2 container
                     m={0}
@@ -107,6 +109,7 @@ const SimpleMain = () => {
                         scrollSnapAlign: 'start',
                         py: 3,
                     }}
+                    justifyContent={'center'}
                 >
                     <Box component="footer">
                         <Footer/>

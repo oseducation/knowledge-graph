@@ -1,15 +1,16 @@
-import React from 'react';
+import React, {lazy} from 'react';
 import './App.css';
 import {Navigate} from 'react-router-dom';
 
-import Landing from './components/landing/founders/landing';
 import useAuth from './hooks/useAuth';
+
+const SimpleMain = lazy(() => import('./components/landing/simple/simple_main'));
 
 function Home() {
     const {user} = useAuth();
     if (!user) {
         return (
-            <Landing/>
+            <SimpleMain/>
         );
     }
     return <Navigate to="/dashboard" replace />
