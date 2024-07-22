@@ -4,8 +4,7 @@ import {Routes, Route} from 'react-router-dom';
 
 import RequireAuth from './components/require_auth';
 import {ROLES} from './types/users';
-import GuestLayout from './GuestLayout';
-import UserLayout from './UserLayout';
+import Layout from './layout';
 import DashboardLayout from './components/dashboard/dashboard_layout';
 import NotFoundPage from './pages/NotFoundPage';
 import EducatorsLanding from './components/landing/educators/educators_landing';
@@ -14,9 +13,9 @@ import AITutorChatGeneral from './components/bot/ai_tutor_chat_general';
 import PricingTable from './components/pricing/pricing_table';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordCompletePage from './pages/ResetPasswordCompletePage';
-import SimpleMain from './components/landing/simple/simple_main';
 import OnboardingPage from './pages/OnboardingPage';
 import GraphManipulationPage from './pages/GraphManipulationPage';
+import Landing from './components/landing/founders/landing';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -44,11 +43,8 @@ function App() {
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <Routes>
-                <Route path="" element={<UserLayout/>}>
+                <Route path="" element={<Layout/>}>
                     <Route path="" element={<Home/>}/>
-                </Route>
-
-                <Route path="" element={<GuestLayout/>}>
                     <Route path="login" element={<LoginPage/>}/>
                     <Route path="register" element={<RegisterPage/>}/>
                     <Route path="reset-password" element={<ResetPasswordPage/>}/>
@@ -61,11 +57,11 @@ function App() {
                     <Route path="about" element={<AboutUs/>}/>
                     <Route path="startup-school" element={<CourseStartupSchoolMain/>}/>
                     <Route path="pricing" element={<PricingTable/>}/>
-                    <Route path="simple" element={<SimpleMain/>}/>
+                    <Route path="founders" element={<Landing/>}/>
                     <Route path="onboarding" element={<OnboardingPage/>}/>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin, ROLES.Customer]}/>}>
-                    <Route path="" element={<UserLayout/>}>
+                    <Route path="" element={<Layout/>}>
                         <Route path="/nodes/:nodeID" element={<NodePage/>}/>
                         <Route path="/welcome" element={<WelcomePage/>}/>
                         <Route path="/profile" element={<ProfilePage/>}/>
