@@ -2,21 +2,7 @@ import React, {lazy, Suspense} from 'react';
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
 
-import RequireAuth from './components/require_auth';
 import {ROLES} from './types/users';
-import Layout from './layout';
-import DashboardLayout from './components/dashboard/dashboard_layout';
-import NotFoundPage from './pages/NotFoundPage';
-import EducatorsLanding from './components/landing/educators/educators_landing';
-import CourseStartupSchoolMain from './components/landing/course/course_startup_school_main';
-import AITutorChatGeneral from './components/bot/ai_tutor_chat_general';
-import PricingTable from './components/pricing/pricing_table';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import ResetPasswordCompletePage from './pages/ResetPasswordCompletePage';
-import OnboardingPage from './pages/OnboardingPage';
-import GraphManipulationPage from './pages/GraphManipulationPage';
-import Landing from './components/landing/founders/landing';
-import TutoringMain from './components/landing/tutoring/tutoring_main';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -36,6 +22,20 @@ const KarelPage = lazy(() => import('./pages/KarelPage'));
 const AITutorChat = lazy(() => import('./components/bot/ai_tutor_chat'));
 const Overview = lazy(() => import('./components/overview/overview'));
 const Graph = lazy(() => import('./components/dashboard/graph'));
+const TutoringMain = lazy(() => import('./components/landing/tutoring/tutoring_main'));
+const DashboardLayout = lazy(() => import('./components/dashboard/dashboard_layout'));
+const Layout = lazy(() => import('./layout'));
+const RequireAuth = lazy(() => import('./components/require_auth'));
+const PricingTable = lazy(() => import('./components/pricing/pricing_table'));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
+const GraphManipulationPage = lazy(() => import('./pages/GraphManipulationPage'));
+const ResetPasswordCompletePage = lazy(() => import('./pages/ResetPasswordCompletePage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const AITutorChatGeneral = lazy(() => import('./components/bot/ai_tutor_chat_general'));
+const CourseStartupSchoolMain = lazy(() => import('./components/landing/educators/educators_landing'));
+const EducatorsLanding = lazy(() => import('./components/landing/course/course_startup_school_main'));
+const Landing = lazy(() => import('./components/landing/founders/landing'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const Home = lazy(() => import('./Home'));
 
