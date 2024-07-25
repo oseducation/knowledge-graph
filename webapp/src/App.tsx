@@ -16,6 +16,7 @@ import ResetPasswordCompletePage from './pages/ResetPasswordCompletePage';
 import OnboardingPage from './pages/OnboardingPage';
 import GraphManipulationPage from './pages/GraphManipulationPage';
 import Landing from './components/landing/founders/landing';
+import TutoringMain from './components/landing/tutoring/tutoring_main';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -59,6 +60,7 @@ function App() {
                     <Route path="pricing" element={<PricingTable/>}/>
                     <Route path="founders" element={<Landing/>}/>
                     <Route path="onboarding" element={<OnboardingPage/>}/>
+                    <Route path="tutoring" element={<TutoringMain/>}/>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin, ROLES.Customer]}/>}>
                     <Route path="" element={<Layout/>}>
