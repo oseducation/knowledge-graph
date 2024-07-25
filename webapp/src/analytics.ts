@@ -57,6 +57,12 @@ class Analytics {
         })
     }
 
+    getStartedClicked(entryPoint: string) {
+        Mixpanel.track('GetStarted clicked for tutoring', {
+            'Entry Point': entryPoint
+        })
+    }
+
     signUpCompleted() {
         Mixpanel.track('Sign Up Completed');
     }

@@ -17,6 +17,11 @@ function LandingHeader() {
         return null;
     }
 
+    let hasGetStartedButton = true;
+    if (location.pathname === '/tutoring') {
+        hasGetStartedButton = false;
+    }
+
     function getTitle() {
         return <Typography
             variant="h6"
@@ -71,20 +76,22 @@ function LandingHeader() {
                     {logoAndTitle()}
                     <Spacer/>
                     {getLoginButton()}
-                    <Button
-                        variant='contained'
-                        color='primary'
-                        onClick={() => {
-                            Analytics.signUpStarted("header");
-                            navigate('/register');
-                        }}
-                        sx={{
-                            m: {xs: 1, sm: 1, md: 2},
-                            minWidth: {xs: 'min-content', sm: 'max-content'},
-                            whiteSpace: 'nowrap'
-                        }}>
-                        {t("Get Started")}
-                    </Button>
+                    {hasGetStartedButton &&
+                        <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={() => {
+                                Analytics.signUpStarted("header");
+                                navigate('/register');
+                            }}
+                            sx={{
+                                m: {xs: 1, sm: 1, md: 2},
+                                minWidth: {xs: 'min-content', sm: 'max-content'},
+                                whiteSpace: 'nowrap'
+                            }}>
+                            {t("Get Started")}
+                        </Button>
+                    }
                 </Toolbar>
             </Container>
         </AppBar>
