@@ -36,7 +36,7 @@ func (a *App) CreateUserFromSignUp(userWithOnboardingState *model.UserWithOnboar
 		}
 	}
 
-	fmt.Printf("Sending email to new ruser: %v\n", ruser.User)
+	a.Log.Info("Sending email to new user", log.Any("user", ruser.User))
 
 	if err := a.sendWelcomeEmail(ruser.User.ID, ruser.User.Email, ruser.User.EmailVerified); err != nil {
 		a.Log.Error("Failed to send welcome email on create user from signup", log.Err(err))

@@ -98,7 +98,7 @@ func (us *SQLUserStore) SaveOnboardingUser(user *model.UserWithOnboardingState) 
 		return nil, err
 	}
 
-	onboardingState := ""
+	onboardingState := "{}"
 	var err error
 	if user.OnboardingState != nil {
 		onboardingState, err = model.ToJSON(user.OnboardingState)
