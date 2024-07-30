@@ -125,7 +125,7 @@ func (us *SQLUserStore) SaveOnboardingUser(user *model.UserWithOnboardingState) 
 			"onboarding_state":     onboardingState,
 		}))
 	if err2 != nil {
-		return nil, errors.Wrapf(err, "can't save user with username:%s and email:%s", user.User.Username, user.User.Email)
+		return nil, errors.Wrapf(err2, "can't save user with username:%s and email:%s", user.User.Username, user.User.Email)
 	}
 	return user, nil
 }
